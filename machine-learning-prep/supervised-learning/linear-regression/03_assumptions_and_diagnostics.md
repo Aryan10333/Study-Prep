@@ -11,6 +11,8 @@ Instead of relying on rigid academic hypothesis tests, applied ML engineers use 
 ### 1. Linearity
 - **What it means:** The relationship between features $x$ and target $y$ is linear.
 - **Diagnostic:** **Residuals vs. Fitted plot**. The residuals (errors) should be randomly scattered around the horizontal line $y=0$ with no clear curve (e.g., U-shape).
+- **Visual Representation:**
+  ![Linearity Violation](images/non_linearity.png)
 - **Production Fix:** Apply non-linear transformations to features (e.g., $x^2$, $\log(x)$, $\sqrt{x}$) or feature crossings.
 
 ### 2. Independence of Residuals (No Autocorrelation)
@@ -21,11 +23,15 @@ Instead of relying on rigid academic hypothesis tests, applied ML engineers use 
 ### 3. Homoscedasticity (Constant Variance of Residuals)
 - **What it means:** The variance of the residuals must remain constant across all levels of predictions.
 - **Diagnostic:** **Residuals vs. Fitted plot**. Look for a "funnel" or "megaphone" shape where the scatter of residuals spreads out wider as the predicted value increases.
+- **Visual Representation:**
+  ![Heteroscedasticity Violation](images/heteroscedasticity.png)
 - **Production Fix:** Apply a log-transform (e.g., `np.log1p()`) or power transform to the target variable $y$ to compress the scale of large values. Alternatively, use Weighted Least Squares (WLS).
 
 ### 4. Normality of Residuals
 - **What it means:** The residuals (errors) should be normally distributed. Note that the *features* do not need to be normal; only the *errors* do.
 - **Diagnostic:** **Quantile-Quantile (Q-Q) Plot**. The plotted points should lie along a straight diagonal $45$-degree line. Deviations at the tails indicate heavy-tailed distributions or outliers.
+- **Visual Representation:**
+  ![Normal Q-Q Plot Deviation](images/qq_plot.png)
 - **Production Fix:** Transform highly skewed target/features or remove extreme training outliers.
 
 ### 5. No Multicollinearity
@@ -44,18 +50,7 @@ Imagine you are forecasting daily sales revenue ($y$) for a retail store chain b
 ### Visualizing the Violation: Heteroscedasticity (Funnel Pattern)
 If you plot the residuals ($y - \hat{y}$) against the fitted (predicted) sales values, you see a "funnel" pattern:
 
-```text
-  Residuals (y - y_hat)
-   ^
-   |                 .     .   .
-   |               .   .  .  .
-   |             .   .  .  .
- --+-----------------------------> Fitted Values (Predictions)
-   |             .   .  .  .
-   |               .   .  .  .
-   |                 .     .   .
-   v
-```
+![Heteroscedasticity Funnel (Visual Log)](images/heteroscedasticity.png)
 
 *   **The Scenario Context:** On cool days, sales are stable and easy to predict (small residual spread). On hot days, customers might purchase huge volumes of cold beverages, or stay home entirely, causing the sales variance to explode (large residual spread).
 *   **The Danger:** The OLS optimizer will over-index on fitting the high-variance hot days, leading to poor prediction performance on typical days.
@@ -83,7 +78,8 @@ residuals_raw = model_raw.resid
 df['log_sales'] = np.log1p(df['sales'])  # log(sales + 1) to handle zeros safely
 model_logged = sm.OLS(df['log_sales'], X).fit()
 residuals_logged = model_logged.resid
-# The plot of residuals_logged against fitted values will now show a stable, homoscedastic ribbon.
+# The plot of residuals_logged against fitted values will now show a stable, homoscedastic ribbon:
+# ![Healthy Residuals (Stabilized Variance)](images/healthy_residuals.png)
 
 # --- DIAGNOSING MULTICOLLINEARITY (VIF) ---
 # Calculate VIF for each feature
