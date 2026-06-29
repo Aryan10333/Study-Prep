@@ -1,6 +1,6 @@
 # Interview Flashcards: Bias-Variance and Paradigms
 
-This document contains 10 core, production-focused interview questions and answers designed to test an applied Machine Learning Engineer's theoretical depth and troubleshooting capabilities.
+This document contains 10 core, production-focused interview questions and answers designed to prepare you for senior ML engineering interviews by referencing our real-world scenarios.
 
 ---
 
@@ -19,8 +19,8 @@ $$\text{Expected Test MSE} = E\left[ (y_0 - \hat{f}(x_0))^2 \right]$$
 3. **Simplify terms using assumptions:**
    - Since the test noise $\epsilon$ is independent of the training dataset (and thus independent of $\hat{f}(x_0)$), and $E(\epsilon) = 0$:
      $$E\left[ \epsilon(f(x_0) - \hat{f}(x_0)) \right] = E(\epsilon) \cdot E\left[ f(x_0) - \hat{f}(x_0) \right] = 0$$
-   - Since $E(\epsilon) = 0$, $E[\epsilon^2] = \text{Var}(\epsilon) = \sigma^2$.
-   - This isolates the irreducible error:
+   - Since $E(\epsilon) = 0$, $E[\epsilon^2] = \text{Var}(\epsilon) = \sigma^2$ (This is our **irreducible error**, like the wind turbine turbulence noise we isolated).
+   - This yields:
      $$E\left[ (y_0 - \hat{f}(x_0))^2 \right] = E\left[ (f(x_0) - \hat{f}(x_0))^2 \right] + \sigma^2$$
 
 4. **Deconstruct the remaining term:**
@@ -41,8 +41,8 @@ $$\text{Expected Test MSE} = E\left[ (y_0 - \hat{f}(x_0))^2 \right]$$
 ### Q2: What does it mean conceptually when we say a model has "high variance"? What is it doing across different realizations of training datasets?
 **Answer:**
 A high-variance model means that the parameter estimates and predictions are highly sensitive to the specific configuration of data points it sees during training.
-- **Across Realizations:** If you drew 100 independent training datasets of size $m$ from the same target population, a high-variance model (like a deep, unpruned decision tree) would learn 100 completely different decision boundaries. It memorizes the unique statistical noise, outliers, and random fluctuations present in each dataset rather than just extracting the underlying systematic relationship.
-- **The Consequence:** The model achieves extremely low bias (fits the training set almost perfectly), but its predictions will fluctuate wildly when applied to new, unseen test splits.
+- **Across Realizations:** In our housing valuation scenario, if you train a high-variance model on housing sales in Neighborhood A vs Neighborhood B, the predictions will fluctuate wildly. The model memorizes the unique statistical noise, outliers, and random fluctuations present in each neighborhood's dataset rather than extracting the underlying systematic relationship.
+- **The Consequence:** The model achieves extremely low bias (fits the training set almost perfectly), but its predictions will vary when applied to new, unseen test splits.
 
 ---
 
@@ -106,7 +106,7 @@ Modern deep learning violates the classical U-shaped curve through a phenomenon 
 ```
 
 - **The Interpolation Threshold:** Once model capacity is large enough to interpolate the training set perfectly (0 training error), classical theory predicts test error will explode to infinity (overfitting).
-- **The Modern Reality:** If we continue increasing capacity (overparameterization), the test error actually **decreases again**. When the number of parameters is much larger than the sample size, there are infinite functions that fit the training set. The optimization algorithm (SGD with weight decay) implicitly regularizes the model, selecting the smoothest interpolating function.
+- **The Modern Reality:** If we continue increasing capacity (overparameterization), the test error actually **decreases again**. When the number of parameters is much larger than the sample size, there are infinite functions that fit the training set. The optimization algorithm (SGD with weight decay) implicitly regularizes the model, selecting the simplest, smoothest interpolating function.
 
 ---
 

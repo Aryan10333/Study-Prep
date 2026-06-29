@@ -1,6 +1,6 @@
 # Interview Flashcards: Logistic Regression
 
-This document contains 10 core, production-focused interview questions and answers designed to test an applied Machine Learning Engineer's practical understanding of Logistic Regression.
+This document contains 10 core, production-focused interview questions and answers designed to prepare you for classification and ML design interviews by referencing our real-world scenarios.
 
 ---
 
