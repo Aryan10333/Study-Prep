@@ -79,16 +79,6 @@ Following the ISLR Chapter 2 framework, we compare our two latency estimators:
 
 As you increase the **flexibility** of your model, bias decreases while variance increases. This yields the classical U-shaped expected test MSE curve:
 
-```
-    Error / MSE
-     ^
-     |        \            /   <-- Expected Test MSE (U-Shape)
-     |         \  _..---''
-     |          \/        
-     |          /\         .---'' <-- Variance
-     |         /  `''''---'
-     |        /___________            <-- Bias^2
-     +-----------------------------------> Flexibility / Complexity
-            Underfitting     Overfitting
-```
+![The Classical Bias-Variance U-Curve Trade-off](images/bias_variance_tradeoff_curve.png)
+
 - **Optimal Complexity:** The minimum point of the expected test MSE curve, representing the sweet spot where bias and variance are perfectly balanced.

@@ -62,6 +62,8 @@ The learning rate $\alpha$ controls the step size taken towards the minimum. Set
   ```
 - **Fix:** Increase the learning rate (e.g., $0.0001 \rightarrow 0.005$) or implement an adaptive optimizer (like Adam).
 
+![Gradient Descent Learning Rate Loss Curves](images/gradient_descent_learning_rates.png)
+
 ---
 
 ## 3. The Normal Equation (Analytical Closed-Form Solution)

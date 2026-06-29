@@ -49,6 +49,8 @@ Let's look at the mathematical impact of **Click 4** (the bot click we predicted
 
 **The Engineering Impact:** The loss for the single confident mistake (4.605) is **90 times larger** than the loss for the correct click (0.051). If your model outputs near-zero probabilities for a true positive during training, this single term will generate massive gradient updates, forcing the weights vector to adjust aggressively.
 
+![Log-Loss Cost Penalty Curves](images/log_loss_curves.png)
+
 ---
 
 ## 3. Why Not Mean Squared Error (MSE) for Classification?

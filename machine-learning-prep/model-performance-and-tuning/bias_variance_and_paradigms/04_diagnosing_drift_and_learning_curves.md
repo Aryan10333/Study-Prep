@@ -43,16 +43,7 @@ You train a simple, linear Logistic Regression model: $f_{w,b}(x) = g(w \cdot x 
 
 ### Analyzing the High-Bias Regime
 
-```text
-   Log-Loss
-    ^
-    |      \
-    |       \__ . . . . . . . . . .  Validation Loss (0.25)
-    |          \___________________  Training Loss (0.24)
-    |                                
-    | - - - - - - - - - - - - - - -  Target SLA (0.15)
-    +------------------------------------> Training Samples (m)
-```
+![High Bias vs. High Variance Learning Curves - Underfitting Plateau (Left Plot)](images/high_bias_vs_high_variance_learning_curves.png)
 
 - **The Diagnosis:** The training and validation errors converge quickly to a high plateau ($0.25$) that is far above the target SLA ($0.15$). The gap between the two curves is tiny ($0.01$).
 - **The Data Collection Fallacy:** Looking at the transition from $5,000$ to $10,000$ samples, the validation loss did not budge. **Collecting more data in this scenario is an engineering waste**. The model has already reached its maximum capacity.
@@ -76,18 +67,7 @@ You train a highly complex, deep neural network on the same features without reg
 
 ### Analyzing the High-Variance Regime
 
-```text
-   Log-Loss
-    ^
-    |      \
-    |       \  .  .  .  .  .  .  .   Validation Loss (0.14)
-    |        \
-    |         \                      <-- Persistent Gap Narrowing
-    |          \___________________
-    | - - - - - - - - - - - - - - -  Target SLA (0.15)
-    |______________________________  Training Loss (0.06)
-    +------------------------------------> Training Samples (m)
-```
+![High Bias vs. High Variance Learning Curves - Persistent Gap (Right Plot)](images/high_bias_vs_high_variance_learning_curves.png)
 
 - **The Diagnosis:** The training error remains very low ($0.06$), while the validation error decreases steadily as we add more samples. There is a persistent gap between the curves, but the trajectory is moving downward.
 - **The Data Collection Value:** Increasing training samples from $5,000$ to $10,000$ successfully pulled the validation loss down from $0.22$ to $0.14$, breaching the target SLA. In a high-variance regime, **collecting more data is a highly effective way to stabilize performance**.

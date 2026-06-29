@@ -120,6 +120,8 @@ Imagine Campaign 4 suffered a logging bug: we spent \$50k YouTube, \$15k Faceboo
 
 **The Engineering Impact:** The outlier campaign's squared error of **1560.25** is nearly **10,000 times larger** than the normal campaign's error of 0.16. During training, the OLS optimizer will aggressively warp the weights vector $w$ just to minimize this single error, ruining the fit for the other 4 normal campaigns.
 
+![OLS Line Distortion under Outlier Squared Penalty](images/ad_spend_ols_fit.png)
+
 ### The Convex "Bowl" Shape
 Because $J(w,b)$ is a quadratic function, its second derivative (Hessian matrix) is positive semi-definite. Geometrically, this means $J(w,b)$ is a **convex function** (a bowl shape).
 

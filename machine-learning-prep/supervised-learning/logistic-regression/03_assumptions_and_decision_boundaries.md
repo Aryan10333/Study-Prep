@@ -41,6 +41,8 @@ This forms a straight line in feature space. Any user below this line is classif
 ### Non-Linear Decision Boundary (Feature Crossing Code)
 What if booking behavior is circular? Suppose users located within a 2-mile radius of a sports arena ($x_1^2 + x_2^2 \le 4$) book rides, but users outside do not. A straight line will fail.
 
+![Linear vs. Polynomial Decision Boundaries](images/linear_vs_circular_boundary.png)
+
 To draw a circular boundary, we engineer quadratic interaction features. Here is how we implement this in Python:
 
 ```python

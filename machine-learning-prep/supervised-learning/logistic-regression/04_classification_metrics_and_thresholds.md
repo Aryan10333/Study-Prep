@@ -96,3 +96,5 @@ ROC-AUC is robust against class imbalance because:
 - **FPR** is calculated strictly within actual negative examples ($\text{FP} + \text{TN}$).
 
 Because these ratios are computed within their respective actual classes, the ratio of positive to negative samples in the dataset does not warp the metric. This makes it a pure measure of ranking quality, unlike raw accuracy.
+
+![ROC and Precision-Recall Curves](images/roc_vs_pr_curves.png)

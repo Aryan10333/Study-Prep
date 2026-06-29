@@ -24,6 +24,8 @@ $$g(z) = \frac{1}{1 + e^{-z}}$$
 The final model prediction $f_{w,b}(x)$ is the output of the sigmoid function, representing the probability of class 1:
 $$f_{w,b}(x) = g(w \cdot x + b) = \frac{1}{1 + e^{-(w \cdot x + b)}} = P(y=1 | x; w,b)$$
 
+![Sigmoid Function Activation Plot](images/sigmoid_function.png)
+
 ---
 
 ## 2. Flaws of Linear Regression in Classification
