@@ -75,23 +75,92 @@ route_query(features[1])  # Outputs Claude
 
 ## 3. Handling Class Imbalance in Production Pipelines
 
-In real-world applications (like click-through rate prediction or fraud detection), the positive class is highly rare (e.g., $< 1\%$).
+In real-world applications (such as ad click-through rate prediction or fraud transaction screening), the positive class is highly rare (e.g., $< 1\%$). Training a logistic regression model on highly imbalanced datasets will cause the decision boundary to collapse, predicting the majority class for all instances.
+
+---
 
 ### Mitigation A: Class Weights (Cost-Sensitive Learning)
-We modify the Log-Loss cost function to assign a higher penalty to errors made on the minority class:
+
+We modify the Log-Loss cost function to assign a higher penalty to mistakes made on the minority class:
 
 $$J(w,b) = -\frac{1}{m} \sum_{i=1}^{m} \left[ w_{\text{pos}} y^{(i)} \log\left(f_{w,b}(x^{(i)})\right) + w_{\text{neg}} (1-y^{(i)}) \log\left(1-f_{w,b}(x^{(i)})\right) \right]$$
 
-- **Implementation:** Set weights inversely proportional to class frequencies. E.g., if you have 99% negatives and 1% positives, set $w_{\text{pos}} = 99.0$ and $w_{\text{neg}} = 1.0$, scaling up the minority gradients by $99\text{x}$.
+#### The Balanced Weight Calculation
+Scikit-Learn computes the default `class_weight='balanced'` parameters using:
+$$w_k = \frac{m}{K \times m_k}$$
 
-### Mitigation B: Downsampling the Majority Class (with Calibration)
-To reduce compute costs, you can train on a sub-sample of the majority class.
-- **The log-odds recalibration fix:** Downsampling changes the training distribution. You must adjust the model's bias term $b$ (or output logits) at inference time:
-  $$\text{logit}_{\text{calibrated}} = \text{logit}_{\text{model}} - \log\left(\frac{p_{\text{downsample}}}{1 - p_{\text{downsample}}}\right)$$
-  Where $p_{\text{downsample}}$ is the downsampling rate of the majority class.
+Where:
+- $m$ is the total number of samples.
+- $K$ is the number of classes (for binary classification, $K=2$).
+- $m_k$ is the number of samples belonging to class $k$.
+
+#### Implementation Example:
+```python
+from sklearn.linear_model import LogisticRegression
+
+# Option 1: Automatic balanced weights
+model_auto = LogisticRegression(class_weight='balanced')
+
+# Option 2: Custom manual weights (e.g., penalize positive class errors 99x more)
+model_custom = LogisticRegression(class_weight={0: 1.0, 1: 99.0})
+```
+
+---
+
+### Mitigation B: Downsampling (with Log-Odds Calibration)
+
+To reduce compute cost, we can downsample the majority class (e.g., retaining only $10\%$ of negative instances). However, downsampling artificially increases the proportion of positive cases in training, making the model's raw output probabilities too high.
+
+#### The Mathematical Proof of Recalibration
+Logistic regression predicts log-odds:
+$$\text{logit}_{\text{model}} = \log\left(\frac{P_{\text{train}}(y=1 | x)}{1 - P_{\text{train}}(y=1 | x)}\right) = w \cdot x + b_{\text{train}}$$
+
+Let the downsampling rate of the majority class ($y=0$) be $p_{\text{down}}$. The ratio of positive to negative classes in our training split is scaled:
+$$\frac{P_{\text{train}}(y=1)}{P_{\text{train}}(y=0)} = \frac{P_{\text{true}}(y=1)}{p_{\text{down}} \times P_{\text{true}}(y=0)}$$
+
+Taking the logarithm:
+$$\log\left(\frac{P_{\text{train}}(y=1)}{P_{\text{train}}(y=0)}\right) = \log\left(\frac{P_{\text{true}}(y=1)}{P_{\text{true}}(y=0)}\right) - \log(p_{\text{down}})$$
+$$\text{logit}_{\text{train}} = \text{logit}_{\text{true}} - \log(p_{\text{down}})$$
+
+To calibrate the model output logits at inference time back to the true population prior, we must adjust the log-odds:
+$$\text{logit}_{\text{calibrated}} = \text{logit}_{\text{model}} + \log(p_{\text{down}})$$
+
+Since $p_{\text{down}} < 1$, $\log(p_{\text{down}})$ is negative, which shifts the decision threshold down to represent the true population.
+
+#### Python Recalibration Code Example:
+```python
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
+# Suppose we downsampled class 0 by retaining only 10% of samples
+p_down = 0.10
+
+# Train model on the downsampled training dataset
+model = LogisticRegression().fit(X_train_downsampled, y_train_downsampled)
+
+# Inference on new raw inputs
+raw_logits = model.decision_function(X_new)  # outputs w.x + b
+
+# Apply calibration adjustment
+calibrated_logits = raw_logits + np.log(p_down)
+
+# Convert calibrated logits back to probabilities using sigmoid
+calibrated_probs = 1 / (1 + np.exp(-calibrated_logits))
+```
+
+---
 
 ### Mitigation C: SMOTE (Synthetic Minority Over-sampling Technique)
-SMOTE generates synthetic examples of the minority class by interpolating between nearest neighbors. Often slow on large production datasets.
+
+SMOTE generates synthetic examples of the minority class by interpolating between nearest neighbors:
+1. Select a minority class sample $x_i$.
+2. Find its $k$-nearest neighbors in the minority class.
+3. Choose one neighbor $x_j$, and generate a new sample:
+   $$x_{\text{new}} = x_i + \lambda (x_j - x_i) \quad \text{where } \lambda \sim \text{Uniform}(0, 1)$$
+
+#### Production Limitations:
+- **Computational footprint:** Calculating nearest neighbors on millions of samples scales quadratically $O(m^2)$, bottlenecking training pipelines.
+- **Overlapping regions:** If the minority class is highly noisy, SMOTE generates synthetic points inside the majority class distribution, degrading classification boundary precision.
 
 ---
 
