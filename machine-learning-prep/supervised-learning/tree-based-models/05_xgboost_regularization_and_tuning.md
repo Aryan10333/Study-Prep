@@ -22,6 +22,10 @@ $$\text{Gain} = \frac{1}{2} \left[ \text{Similarity}_{\text{Left}} + \text{Simil
 
 Where $\gamma$ is the **split complexity penalty** (`gamma`). A split is only executed if the Gain is positive ($\text{Gain} > 0$).
 
+### XGBoost System Optimizations
+- **Weighted Quantile Sketch:** Traditional GBDTs search all unique values of a feature to find the best split point, which is too slow on large datasets. XGBoost solves this by proposing candidate split points (histograms) based on percentiles of the feature values. Each sample's position is weighted by its Hessian $h_i$ (representing its second-order error scale), ensuring the bin boundaries focus more detail on high-uncertainty regions.
+- **Sparsity-Aware Split Finding:** When input features contain missing values or sparse matrices, XGBoost natively routes them. During node split search, the algorithm evaluates sending all missing values to the left child and then to the right child, choosing the direction that maximizes the split Gain. This becomes the **default direction** for that split.
+
 ---
 
 ## 2. Step-by-Step Hand Calculations: Churn Prediction Split

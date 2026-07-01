@@ -13,6 +13,10 @@ $$-\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} = y_i - F(x_i) = \text{residu
 
 By fitting each new tree to the residuals of the previous trees, the model takes a step in the direction of steepest descent, minimizing the overall loss.
 
+### Parameter Space vs. Functional Space Optimization
+- **Parameter Space (e.g., Linear/Logistic Regression):** We optimize a fixed set of model parameters (coefficients/weights $w$) by taking gradient steps to adjust their values: $w \leftarrow w - \alpha \nabla L(w)$.
+- **Functional Space (Gradient Boosting):** Since we cannot easily define a simple parameter vector for an ensemble of trees, we optimize the predictions $F(x)$ directly in **functional space**. Each new tree $h_t(x)$ represents a new function that acts as a step vector (negative gradient) to adjust the ensemble: $F_t(x) \leftarrow F_{t-1}(x) + \nu h_t(x)$.
+
 ### The Algorithm Step-by-Step
 1. **Base Prediction ($F_0(x)$):** Initialize the ensemble prediction with a constant value (for MSE loss, this is the mean of the target values).
 2. **Compute Residuals ($r_{it}$):** Compute the current residual for each sample: $r_{it} = y_i - F_{t-1}(x_i)$.
