@@ -29,8 +29,13 @@ Logistic Regression is fundamentally a linear model that predicts **Log-Odds** (
 
 ### Q3: If your model has a high ROC-AUC but poor accuracy at a 0.5 threshold, what does that tell you, and how do you fix it?
 **Answer:**
-- **What it tells you:** A high ROC-AUC means the model is highly effective at **ranking** samples (it correctly assigns higher probability scores to positive samples than negative samples). However, poor accuracy at $0.5$ indicates that the decision threshold is poorly calibrated relative to the class distribution. For example, if you have a class imbalance, the model might assign positive samples a probability of $0.12$ and negative samples $0.02$. While the ranking is perfect (yielding high ROC-AUC), thresholding at $0.5$ classifies everything as $0$, yielding poor accuracy.
-- **How to fix it:** You need to tune the decision threshold. Plot a Precision-Recall Curve or ROC Curve and identify the optimal threshold (e.g., $0.08$) that maximizes your target metric (such as F1-score or balanced accuracy) rather than blindly using $0.5$.
+- **What it tells you:** ROC-AUC is a **threshold-invariant** metric. It measures the quality of the model's ranking (the probability that a random positive instance is scored higher than a random negative instance). However, Accuracy is a **threshold-dependent** metric. If your dataset has a strong class imbalance (e.g., 1% positive), the model's calibrated probabilities might all lie between $0.00$ and $0.15$. The ranking could be perfect (yielding an ROC-AUC of 0.99), but thresholding at $0.5$ classifies every sample as class $0$. This yields a raw accuracy of $99\%$ (equivalent to a dummy model) but catches $0$ true positive cases.
+- **How to fix it (Threshold Tuning via Cost Matrix):**
+  Instead of using $0.5$, we select an optimal threshold $\tau^*$ by defining a business cost matrix:
+  $$\tau^* = \frac{\text{Cost}(\text{FP})}{\text{Cost}(\text{FP}) + \text{Cost}(\text{FN})}$$
+  - *Example:* If a False Negative (missing a fraud event) costs \$1,000, and a False Positive (auditing a genuine transaction) costs \$50:
+    $$\tau^* = \frac{50}{50 + 1000} \approx 0.0476$$
+    Flagging cases with a predicted probability $\ge 0.0476$ mathematically minimizes the total business loss. We can plot a Precision-Recall or cost curve and select this optimal threshold.
 
 ---
 
@@ -45,11 +50,17 @@ Logistic Regression is fundamentally a linear model that predicts **Log-Odds** (
 ### Q5: In a highly imbalanced dataset (e.g., 1% fraud, 99% non-fraud), why is optimizing for raw "Accuracy" dangerous, and what metric should you track instead?
 **Answer:**
 - **Why Accuracy is Dangerous:** On a $99\%$ negative dataset, a dummy model that predicts $0$ for every single input will achieve $99\%$ accuracy. It is a completely useless model for the business, but looks mathematically perfect under the accuracy metric.
-- **What to track instead:**
-  - **Precision:** To measure how many flagged cases are actually fraud (minimizes false alarms).
-  - **Recall:** To measure what percentage of actual fraud was detected (minimizes missed fraud).
-  - **F1-Score:** The harmonic mean of precision and recall, balancing the two.
-  - **Precision-Recall AUC (PR-AUC):** Evaluating the area under the Precision-Recall curve is highly recommended for imbalanced datasets, as it ignores True Negatives and focuses entirely on the minority class.
+- **What to track instead (The Imbalanced Metric Suite):**
+  1. **Precision:** Measures how many flagged cases are actually fraud ($TP / (TP + FP)$) to minimize support/false alarm overhead.
+  2. **Recall (Sensitivity):** Measures what percentage of actual fraud was detected ($TP / (TP + FN)$) to minimize chargeback fees.
+  3. **F1-Score:** The harmonic mean of precision and recall:
+     $$F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$$
+     - *Why Harmonic Mean?* If a model has 100% precision and 0% recall, the arithmetic mean is 50%, which masks the model's failure. The harmonic mean resolves this by evaluating to $0\%$, correctly penalizing the model.
+  4. **Precision-Recall AUC (PR-AUC):**
+     - *Why PR-AUC is superior to ROC-AUC here:* ROC-AUC uses the False Positive Rate ($FP / (FP + TN)$) on the x-axis. In a 10,000-sample dataset where 9,900 are negative, making 100 False Positives yields a tiny FPR:
+       $$\text{FPR} = \frac{100}{100 + 9800} \approx 1\%$$
+       This causes the ROC curve to look optimistic. However, if there are only 100 actual positives, those 100 False Positives crush the Precision to only 50%.
+     - **PR-AUC ignores True Negatives ($TN$) in its calculations.** It focus entirely on the minority class, making it much more sensitive and robust for evaluating imbalanced distributions.
 
 ---
 
@@ -102,9 +113,15 @@ I would implement a **One-vs-All (OvA)** architecture:
 
 ### Q10: If your production input features drift significantly (e.g., user income distribution changes), how does it affect the sigmoid output, and how do you re-calibrate your prediction probabilities?
 **Answer:**
-- **How it affects the output:** If user income increases over time, the feature $x_{\text{income}}$ will drift right. This increases the dot product $w \cdot x + b$, pushing $z$ into the positive tail of the sigmoid function. The model will start outputting high probability predictions ($\approx 1.0$), even if the underlying relationship between income and the target label hasn't changed. The probabilities are no longer calibrated.
+- **How it affects the output:** If user incomes double due to inflation, the input vector $x_{\text{income}}$ shifts to larger values. The linear combination $z = w \cdot x + b$ shifts right. Because the sigmoid function:
+  $$g(z) = \frac{1}{1 + e^{-z}}$$
+  asymptotes to $1.0$ as $z \rightarrow \infty$, the output probabilities will cluster near $1.0$. The model becomes extremely confident in predicting class 1, even if the underlying probability of class 1 has not changed. The probabilities are no longer calibrated.
 - **How to re-calibrate:**
-  1. **Platt Scaling:** Train a simple 1D logistic regression model on top of your model's outputs using a new validation set: $P(y=1) = g(A \cdot f_{w,b}(x) + B)$.
-  2. **Isotonic Regression:** Fit a non-parametric monotonic function to map raw model outputs to calibrated probabilities. This is highly effective if you have enough calibration data.
-  3. **Rolling Standardization:** Scale incoming features using a rolling Z-score window so the input distribution stays constant.
+  1. **Platt Scaling (Logistic Calibration):** Train a simple 1D logistic regression model on top of your model's raw output logits using a new, non-overlapping validation set:
+     $$P(y=1) = \frac{1}{1 + e^{-(A \cdot \text{logit} + B)}}$$
+     Where the parameters $A$ and $B$ are learned via maximum likelihood estimation. This scales and shifts the logits to match the new population prior.
+  2. **Isotonic Regression:** Fit a non-parametric, piecewise constant monotonic function to map raw model outputs to calibrated probabilities.
+     - *Design Trade-off:* Use Isotonic Regression when you have a large calibration dataset ($>1000$ samples) because it is flexible and makes no assumptions about the calibration shape. Use Platt Scaling when you have small calibration splits ($<1000$ samples) to prevent overfitting.
+  3. **Recalibration via Downsampling Offset:** If the calibration shift is due to downsampling the majority class in training, adjust the logits directly:
+     $$\text{logit}_{\text{calibrated}} = \text{logit}_{\text{model}} + \log(p_{\text{down}})$$
   4. **Retraining:** Trigger an automated retraining pipeline on the newly shifted dataset to adjust the weights and bias.
