@@ -25,3 +25,8 @@ This document outlines the background and constraints for the AI agent assisting
 3. **Notebooks and Code Style:**
    - Notebooks should reflect clean, production-grade Python code utilizing vectorization and Scikit-Learn pipelines.
    - Code should be executable, self-contained, and accompanied by expected logs and structural explanations.
+4. **Andrew Ng Coursera Style (Practical Mathematics):**
+   - Do NOT skip core mathematics or formulas, but explain them with **simple, practical mathematical intuition and step-by-step hand-calculations on tiny sample datasets** (e.g., 3-6 samples).
+   - This bridges the gap between pure code implementation and heavy academic Stanford CS229 derivations.
+   - Every study guide should follow this dual structure: **Intuitive Math Formula -> Step-by-Step Hand Calculation on Tiny Sample -> Production Python Code & Output Logs**.
+
