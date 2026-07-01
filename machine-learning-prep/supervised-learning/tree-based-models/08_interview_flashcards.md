@@ -31,41 +31,32 @@ Instead of using standard classification or regression, GBDTs are optimized usin
 
 ### Q4: Explain how averaging $B$ trees reduces variance in a Random Forest, and show how tree-to-tree correlation $\rho$ sets the variance floor.
 **Answer:**
-If we model each tree in a Random Forest as a random variable $T_i(x)$ with variance $\sigma^2$ and positive pairwise correlation $\rho$, the variance of the average prediction is:
-$$\text{Var}\left(\frac{1}{B}\sum_{i=1}^B T_i(x)\right) = \rho \sigma^2 + \frac{1-\rho}{B}\sigma^2$$
-- **The Decay:** As the number of trees $B$ increases, the second term $\frac{1-\rho}{B}\sigma^2 \to 0$.
-- **The Floor:** The remaining term $\rho \sigma^2$ is the variance floor. No matter how many trees you add ($B \to 10,000$), you cannot reduce the variance below this floor.
-- **Actionable Insight:** To build a more stable model, you must decrease the correlation $\rho$ between trees. This is achieved in Random Forests by **feature bagging** (restricting each split search to a random subset of $k = \sqrt{n}$ features).
+Averaging predictions across $B$ bootstrap trees reduces overall variance by smoothing out individual tree errors. Statistically, the variance of the averaged ensemble is bounded by:
+- **The Decaying Variance:** Adding more trees ($B \to \infty$) drives the independent variance component of the trees down to zero.
+- **The Variance Floor:** The remaining variance is bounded by the product of the average tree correlation and individual tree variance ($\rho \cdot \sigma^2$). Adding more trees cannot reduce variance below this floor.
+- **Actionable Interview Insight:** To build a more stable forest, you must lower the tree-to-tree correlation $\rho$. This is achieved via **feature bagging** (restricting each split search to a random subset of features like $\sqrt{n}$), ensuring trees are highly diverse and decorrelated.
 
 ---
 
 ### Q5: In AdaBoost, if a base estimator achieves exactly $50\%$ error on a binary task, what is its stage weight $\alpha_t$, and what happens to the sample weights in the next step?
 **Answer:**
-- **Stage Weight Calculation:** The stage weight $\alpha_t$ is computed as:
-  $$\alpha_t = \frac{1}{2} \ln\left(\frac{1 - \epsilon_t}{\epsilon_t}\right)$$
-  If error $\epsilon_t = 0.5$ (equivalent to random guessing):
-  $$\alpha_t = \frac{1}{2} \ln\left(\frac{0.5}{0.5}\right) = \frac{1}{2} \ln(1) = 0$$
-- **Sample Weight Update:** Because $\alpha_t = 0$, the sample weight update multiplier:
-  $$\exp\left(-\alpha_t y_i G_t(x_i)\right) = e^0 = 1$$
-- **Outcome:** The estimator has zero voting power in the final model ($\alpha_t = 0$), and all sample weights remain completely unchanged for the next iteration.
+- **Stage Weight:** If a weak learner achieves exactly $50\%$ error (equivalent to random guessing on a binary task), its stage weight $\alpha_t$ becomes exactly **$0.0$** (representing zero voting power in the final model).
+- **Sample Weight Update:** Because the stage weight is zero, the exponential weight multiplier for both correct and incorrect samples evaluates to $e^0 = 1$.
+- **Outcome:** The sample weights remain completely unchanged for the next iteration, and the weak learner's predictions are ignored by the ensemble.
 
 ---
 
 ### Q6: Why does XGBoost use a second-order Taylor expansion approximation of the loss function? How does having explicit gradients and Hessians speed up distributed training?
 **Answer:**
-- **Mathematical Decoupling:** The second-order Taylor expansion approximates the objective as:
-  $$\tilde{\text{Obj}}^{(t)} \approx \sum_{i=1}^m \left[ g_i f_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2 \right] + \Omega(f_t)$$
-  This decouples the training algorithm from the loss function. The split search algorithm only needs to know the array of first-order gradients ($g_i$) and second-order Hessians ($h_i$) for each sample, allowing the core solver to support custom loss functions (e.g., huber loss, quantile loss) without rewriting the tree search engine.
-- **Distributed Speedup:** For split finding, XGBoost does not need to transfer raw training data across worker nodes. It only needs to communicate aggregated sums of $g_i$ and $h_i$ for candidates in histograms, reducing network serialization bottlenecks.
+- **Decoupling Custom Losses:** The second-order Taylor expansion approximates the objective using first-order gradients ($g_i$) and second-order Hessians ($h_i$). This decouples the custom loss function from the tree search solver. You can train XGBoost on any custom loss (e.g., Huber loss for outlier handling) by simply passing its gradients and Hessians, without modifying the core tree-growing code.
+- **Distributed Speedup:** For distributed split finding, workers do not need to share raw datasets. They only need to communicate aggregated sums of gradients and Hessians for histogram candidate bins across nodes, minimizing network serialization overhead.
 
 ---
 
 ### Q7: Detail how the complexity penalty $\gamma$ and regularization parameter $\lambda$ act in the XGBoost node split gain equation.
 **Answer:**
-The Gain for a split is calculated as:
-$$\text{Gain} = \frac{1}{2} \left[ \frac{(\sum g_L)^2}{\sum h_L + \lambda} + \frac{(\sum g_R)^2}{\sum h_R + \lambda} - \frac{(\sum g_P)^2}{\sum h_P + \lambda} \right] - \gamma$$
-- **Role of $\lambda$ ($L_2$ Regularization):** $\lambda$ is added to the denominator of the child scores. If a leaf node has very few samples (small sum of Hessians $h_j$), $\lambda$ dominates the denominator, shrinking the leaf score toward $0.0$. This prevents splits that isolate small sample counts (outliers).
-- **Role of $\gamma$ (Split Penalty):** $\gamma$ acts as a hard threshold. If the raw score reduction of a split (the bracketed term) is less than $2\gamma$, the overall Gain becomes negative. During bottom-up pruning, XGBoost will remove any split with a negative Gain.
+- **$\lambda$ ($L_2$ Regularization):** Added to the denominator of the node score. If a split isolates a very small group of samples (low cover/Hessians), $\lambda$ dominates the denominator, shrinking the split score toward zero. This prevents the model from splitting on noise or outlier categories.
+- **$\gamma$ (Complexity Threshold):** Represents the minimum Gain required to keep a split. If the score reduction from splitting a parent node into left and right children is less than $\gamma$, the net Gain becomes negative. During bottom-up pruning, XGBoost will remove any split with a negative Gain.
 
 ---
 
@@ -91,11 +82,7 @@ $$\text{Gain} = \frac{1}{2} \left[ \frac{(\sum g_L)^2}{\sum h_L + \lambda} + \fr
 
 ### Q10: How does the sample size $m$ required for your A/B test scale with the Minimum Detectable Effect (MDE) and metric variance?
 **Answer:**
-The required sample size per variant scales as:
-$$m \propto \frac{\sigma^2}{\Delta^2}$$
-Where:
-- $\sigma^2$ is the variance of the metric (e.g., latency standard deviation).
-- $\Delta$ is the Minimum Detectable Effect (MDE) (the minimum difference you want to detect).
+- **Scaling Relationship:** The required sample size $m$ scales **linearly with the variance** of the metric ($\sigma^2$) and **quadratically inversely with the MDE** ($\Delta^2$).
 - **Implications:**
-  - **Quadratic scaling with MDE:** If you want to detect a difference that is half as small (e.g., detecting a $1\%$ change instead of a $2\%$ change), you need **four times ($4\text{x}$)** the sample size.
-  - **Linear scaling with variance:** If your metric has high variance (e.g., latency spikes caused by database cold starts), you need a larger sample size to separate the true effect from the noise.
+  - *Quadratic scaling with MDE:* If you halve the MDE (trying to detect a $1\%$ change instead of a $2\%$ change), you need **four times ($4\text{x}$)** the sample size.
+  - *Linear scaling with variance:* If your metric has high variance (e.g., latency spikes caused by database cold starts), you need a larger sample size to filter out the noise and confirm significance.
