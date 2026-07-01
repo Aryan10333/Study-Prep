@@ -1,8 +1,8 @@
-# Week 2 Engineering Assignment: Search Re-ranking & Conversion A/B Experimentation Engine
+# Week 2 Engineering Assignment: Conversion Modeling & Marketing A/B Experiments
 
-In this assignment, you will act as a Senior Machine Learning Engineer at an e-commerce platform. Your task is to build and evaluate the search optimization layer:
-1. **Product Re-ranking Engine (XGBoost & ONNX):** Optimize product search results by training a Gradient Boosting model to predict purchase conversion, handling feature cardinality bias, and compiling the model to ONNX for sub-millisecond production latency.
-2. **Conversion A/B Experimentation Engine (Hypothesis Testing):** Evaluate layout changes and prompt templates using statistical power analysis, conversion Z-tests, and family-wise error rate corrections.
+In this assignment, you will act as a Senior Machine Learning Engineer at a digital advertising agency. Your task is to build and evaluate the user conversion scoring pipeline:
+1. **Conversion Prediction Engine (XGBoost & ONNX):** Train a Gradient Boosting model to predict customer conversion, diagnose high-cardinality feature importance bias using the raw user IDs, and compile the model to ONNX for low-latency scoring.
+2. **Marketing Campaign A/B Tester (Hypothesis Testing):** Design and evaluate the statistical lift of the ad campaign comparing users who saw ads vs. those who saw a public service announcement (PSA), correcting for multiple-testing false positives.
 
 You will implement these models, compile them for real-time serving, design statistical test parameters, and protect against false positive code rollouts.
 
@@ -11,33 +11,37 @@ You will implement these models, compile them for real-time serving, design stat
 ## 1. Business Context and Dataset
 
 ### The Business Problem
-Search conversion is the primary revenue driver.
-- A poor ranking model displays irrelevant search results, leading to lost sales and session abandonment.
-- In real-time search scoring, latency is critical: every $10\text{ms}$ of API delay drops conversion.
-- Marketing wants to test $10$ different prompt templates and layout variations. Without proper statistical controls, running these tests in parallel yields false positive winners due to random chance, leading to expensive rollouts of useless layouts.
+Digital ad budgets are easily wasted on users who would have converted anyway. 
+- You need a machine learning classifier to predict purchase conversion probability so you can target high-probability users.
+- In ad exchanges, latency is critical: bidding decisions must occur within **10–15ms**.
+- Marketing runs multi-variant experiments comparing different ad prompts. Without statistical controls, rolling out layouts based on naive significance thresholds results in false positive wins.
 
 ### The Dataset
-You will generate a synthetic dataset of search sessions containing:
-- **Features:** `session_duration` (continuous), `page_views` (continuous), `random_user_id` (high-cardinality noise column), `historical_click_rate` (continuous), and `discount_ratio` (continuous).
-- **Targets:**
-  - `purchased` (Binary: `1` for purchase conversion, `0` for none) for the XGBoost model.
-  - Variant conversion rates for the A/B testing simulation.
+You will use the **Kaggle Marketing A/B Testing Dataset**.
+- **Kaggle Link:** [Marketing A/B Testing Dataset](https://www.kaggle.com/datasets/faviolasolano/marketing-ab-testing)
+- **Target Variable:** `converted` (Binary: `True` if user converted, `False` if not).
+- **Core Features:**
+  - `user id`: Unique identifier of the user (100% random high-cardinality noise).
+  - `test group`: Treatment indicator (`ad` for those who saw ads, `psa` for those who saw control PSAs).
+  - `total ads`: Total number of ads seen by the user.
+  - `most active hour`: Hour of the day when the user saw the most ads.
+  - `most active day`: Day of the week when the user saw the most ads.
 
 ---
 
-## 2. Saturday Sprint: High-Performance Search Re-ranker (≤3 Hours)
+## 2. Saturday Sprint: High-Performance Conversion Classifier (≤3 Hours)
 
-**Objective:** Build an XGBoost ranking pipeline, diagnose feature importance bias, use early stopping, and compile the model to ONNX runtime for sub-millisecond serving.
+**Objective:** Build an XGBoost conversion pipeline, diagnose feature importance bias, use early stopping, and compile the model to ONNX runtime for sub-millisecond serving.
 
 ### Task 1: Expose Gini MDI Bias & Calculate Permutation Importance (45 Mins)
-- **Action:** Train a Random Forest model on the generated dataset which includes the high-cardinality `random_user_id` column. Calculate Gini Mean Decrease in Impurity (MDI) feature importances. Then, run Permutation Feature Importance on a validation split.
-- **Deliverable:** Importance comparison table or bar chart code.
+- **Action:** Train a Random Forest model to predict `converted = True`. Include the raw `user id` column as a numeric feature. Extract Gini Mean Decrease in Impurity (MDI) feature importances. Then, run Permutation Feature Importance on the validation split.
+- **Deliverable:** Bar chart code comparing MDI vs. Permutation importance scores side-by-side.
 - **Success Criteria:** 
-  - Proved that Gini MDI incorrectly ranks the 100% noise `random_user_id` feature near the top.
-  - Proved that Permutation Importance correctly assigns `random_user_id` an importance score of $0.0$, identifying true predictors.
+  - Proved that Gini MDI incorrectly ranks the random `user id` column near the top.
+  - Proved that Permutation Importance correctly assigns `user id` an importance score of $0.0$, identifying `total ads` as the true predictor.
 
 ### Task 2: XGBoost Training & Early Stopping (45 Mins)
-- **Action:** Train an `XGBClassifier` to predict search purchase probability. Use an validation split (`eval_set`) and set `early_stopping_rounds` to stop training when log-loss stalls.
+- **Action:** Train an `XGBClassifier` to predict conversion. Use a validation split (`eval_set`) and set `early_stopping_rounds` to stop training when log-loss stalls.
 - **Deliverable:** Learning curves plot showing log-loss over training iterations.
 - **Success Criteria:**
   - Plotted train vs. validation log-loss.
@@ -59,32 +63,30 @@ You will generate a synthetic dataset of search sessions containing:
 
 ---
 
-## 3. Sunday Sprint: Conversion A/B Experimentation Engine (≤3 Hours)
+## 3. Sunday Sprint: Marketing Campaign A/B Tester (≤3 Hours)
 
 **Objective:** Design an A/B test sample plan, run conversion hypothesis Z-tests, and apply the Bonferroni correction for multi-variant layouts.
 
 ### Task 1: Sample Size Calculation (Power Analysis) (45 Mins)
 - **Action:** Solve for the required sample size per variant before launching the layout test.
-  - Baseline Conversion: $6\%$.
-  - Minimum Detectable Effect (MDE): $1.2\%$ absolute (detecting a lift from $6\%$ to $7.2\%$).
+  - Baseline Conversion: $2.5\%$.
+  - Minimum Detectable Effect (MDE): $0.5\%$ absolute (detecting a lift from $2.5\%$ to $3.0\%$).
   - Significance Level ($\alpha$): $0.05$.
   - Target Statistical Power ($1 - \beta$): $80\%$.
 - **Deliverable:** Calculation code using `statsmodels.stats.power.NormalIndPower`.
 - **Success Criteria:**
   - Correct required sample size per variant outputted.
-  - Plotted statistical power curves for MDEs of $1.0\%$, $1.5\%$, and $2.0\%$ over sample sizes up to 20,000.
+  - Plotted statistical power curves for MDEs of $0.3\%$, $0.5\%$, and $0.7\%$ over sample sizes up to 30,000.
 
 ### Task 2: Two-Sample Proportion Z-Test Execution (45 Mins)
-- **Action:** Suppose your A/B test ran for the required sample size:
-  - **Control (A):** $n_A = 12000$, conversions $x_A = 720$.
-  - **Treatment (B):** $n_B = 12000$, conversions $x_B = 912$.
+- **Action:** Extract the actual counts from the Kaggle dataset's `test group` and `converted` columns. Compute conversion rates for the treatment group (`ad`) and control group (`psa`).
 - **Deliverable:** Calculation code implementing standard error, Z-statistic, and two-tailed p-value.
 - **Success Criteria:**
-  - Outputted the correct pooled conversion rate ($p_c$), standard error, and Z-statistic by hand or python implementation.
-  - Stated whether the layout lift is statistically significant at $\alpha = 0.05$.
+  - Outputted the correct pooled conversion rate ($p_c$), standard error, and Z-statistic for the dataset's actual groups.
+  - Stated whether showing ads leads to a statistically significant lift compared to control PSAs at $\alpha = 0.05$.
 
-### Task 3: Bonferroni Correction for Multiple Prompt Variants (45 Mins)
-- **Action:** You run $k = 10$ different prompt variations in parallel against the control.
+### Task 3: Bonferroni Correction for Multiple Ad Creatives (45 Mins)
+- **Action:** Suppose marketing wants to test $k = 10$ different ad creatives in parallel against the control.
   - Calculate the FWER (Family-Wise Error Rate) if you Naively evaluate each test at $\alpha = 0.05$.
   - Apply the Bonferroni Correction to correct raw p-values and protect against false positives.
 - **Deliverable:** Correction code using `statsmodels` or manual scaling.
@@ -93,7 +95,7 @@ You will generate a synthetic dataset of search sessions containing:
   - Corrected raw p-values. Stated which of the 10 variants remain significant under the adjusted threshold.
 
 ### Task 4: Documentation & Walkthrough (45 Mins)
-- **Action:** Document your results, structure the repository, and push to your GitHub vault.
+- **Action:** Document your findings, structure the repository, and push to your GitHub vault.
 - **Deliverable:** Pushed Git commit with a clean repository structure.
 - **Success Criteria:**
   - A comprehensive `README.md` explaining the re-ranker latency speeds and A/B test recommendations.
@@ -119,7 +121,7 @@ study-prep/
 
 ---
 
-## 5. Interview Questions to Answer in your README
+## 5. Expected Questions to Answer in your README
 
 To prepare for your upcoming interviews, answer these 5 technical questions based on your assignment implementation:
 1. Explain mathematically why Gini Importance (MDI) is biased toward high-cardinality random keys (like unique user IDs). Why does Permutation Importance resolve this?
