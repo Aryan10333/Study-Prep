@@ -79,6 +79,7 @@ Standard gradient descent oscillates heavily in steep directions. Momentum smoot
 $$v_W = \beta \cdot v_W + (1 - \beta) \cdot dW$$
 $$W \leftarrow W - \alpha \cdot v_W$$
 - **Intuition:** $\beta$ (typically $0.9$) acts as friction. It accumulates speed down the consistent gradient directions and cancels out orthogonal oscillations.
+- **Production Utility / Where it is Helpful:** High utility in standard Convolutional Neural Networks (CNNs) and deep classifiers when trained on extremely clean, balanced tabular datasets. It achieves lower generalization error than Adam but requires more manual learning rate tuning.
 
 ### Adam (Adaptive Moment Estimation)
 Adam combines **Momentum** (first moment) and **RMSprop** (second raw moment) to compute individual adaptive learning rates for each parameter:
@@ -89,6 +90,7 @@ Adam combines **Momentum** (first moment) and **RMSprop** (second raw moment) to
 4. **Update:** 
    $$W \leftarrow W - \frac{\alpha}{\sqrt{s_W^{\text{corrected}}} + \epsilon} v_W^{\text{corrected}}$$
 - **Intuition:** Parameters with large, volatile gradients see their updates scaled down (via the denominator $\sqrt{s_W}$), while stable parameters keep moving quickly, preventing divergence. Default hyperparameter standards: $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$.
+- **Production Utility / Where it is Helpful:** The industry standard for **Transformers, LLMs, and highly multi-modal architectures** (e.g. text + audio embeddings). Since features in text are highly sparse (e.g., rare words have infrequent gradient updates), Adam's adaptive step-scaling ensures rare features receive large enough weight updates while frequent features remain stable, stabilizing multi-modal training curves.
 
 ### Diagnostic Visual (Optimization Trajectories)
 The trajectory plot illustrates how Adam adapts to the saddle surface and converges directly to the minimum, while vanilla SGD oscillates heavily:

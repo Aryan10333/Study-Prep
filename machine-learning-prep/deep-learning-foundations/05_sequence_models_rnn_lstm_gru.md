@@ -23,21 +23,32 @@ For each timestep $t$:
 
 ---
 
-### The Sequential Bottleneck & Gradient Decay
-- **Sequential Bottleneck:** To calculate the state $h_t$ at step $t$, you must first calculate $h_{t-1}$. This sequence dependency prevents parallel training on GPU hardware, making RNNs slow to train on long sequences.
-- **Backpropagation Through Time (BPTT):** The network is unrolled across all $T$ timesteps, creating a deep computational graph.
-- **Vanishing Gradient Failure:** The gradient of the loss $L$ with respect to the initial hidden state $h_0$ involves repeated matrix multiplications of the hidden weights transpose:
-  $$\frac{\partial L}{\partial h_0} = \frac{\partial L}{\partial h_T} \prod_{t=1}^T \frac{\partial h_t}{\partial h_{t-1}} \propto \left( W_{hh}^T \right)^T$$
-  If the eigenvalues of $W_{hh}$ are less than $1.0$, the gradient decays exponentially to exactly $0.0$ as sequence length $T$ grows, preventing the model from learning long-term dependencies (e.g., connections across sentences). If eigenvalues exceed $1.0$, gradients explode.
+### Backpropagation Through Time (BPTT) & The Vanishing Gradient Math
+When we train an RNN, we unroll the sequence over $T$ steps. The total loss $L$ is the sum of losses at each timestep:
+$$L = \sum_{t=1}^T L_t$$
+
+To calculate the gradient of the loss at step $t$ with respect to the hidden weight matrix $W_{hh}$, we unroll the dependency chain backward through time:
+$$\frac{\partial L_t}{\partial W_{hh}} = \sum_{k=1}^t \frac{\partial L_t}{\partial h_t} \cdot \frac{\partial h_t}{\partial h_k} \cdot \frac{\partial h_k}{\partial W_{hh}}$$
+
+The middle term $\frac{\partial h_t}{\partial h_k}$ is a product of Jacobians representing historical state transitions:
+$$\frac{\partial h_t}{\partial h_k} = \prod_{j=k+1}^t \frac{\partial h_j}{\partial h_{j-1}}$$
+
+Let's calculate the Jacobian matrix $\frac{\partial h_j}{\partial h_{j-1}}$:
+$$\frac{\partial h_j}{\partial h_{j-1}} = \text{diag}\left( 1 - \tanh^2\left( W_{hh} h_{j-2} + W_{xh} x_{j-1} + b_h \right) \right) \cdot W_{hh}^T$$
+
+- **Vanishing Gradient Failure:** Because $\tanh'(z) = 1 - \tanh^2(z)$ is bounded in $(0, 1]$, and is close to $0$ when inputs saturate, the product of these matrices is dominated by the power of the weights matrix:
+  $$\frac{\partial h_t}{\partial h_k} \propto \left( W_{hh}^T \right)^{t-k}$$
+  If the largest eigenvalue (spectral radius) of $W_{hh}$ is less than $1.0$, the gradient term decays exponentially to exactly $0.0$ as the gap $t-k$ grows, preventing the model from learning dependencies beyond a few steps.
+  - *Sequential Bottleneck:* Since $h_t$ cannot be computed until $h_{t-1}$ is completed, training cannot be parallelized along the sequence dimension, leading to slow GPU utilization.
 
 ---
 
 ## 2. LSTMs and GRUs: Gated Architectures
 
-To resolve vanishing gradients, gated architectures introduce highway connections controlled by sigmoid gates.
+To solve vanishing gradients, gated recurrent architectures introduce a linear highway bypass that prevents gradients from being repeatedly multiplied by weight matrices.
 
 ### A. Long Short-Term Memory (LSTM)
-LSTMs maintain a **Cell State** $C_t$ that acts as a linear conveyor belt. Information flows through addition, allowing gradients to propagate backward across hundreds of steps without decaying.
+LSTMs maintain a **Cell State** $C_t$ alongside the hidden state $h_t$. Information flows linearly through addition, bypassing weight decay.
 
 ```text
 Gate Name       Equation                                         Intuition
@@ -50,18 +61,36 @@ Output Gate     o_t = σ(W_o · [h_t-1, x_t] + b_o)                Decides what 
 Hidden State    h_t = o_t ⊙ tanh(C_t)                            Final output state passed to the next step.
 ```
 
+#### Production Gating Intuition (NLP Example)
+To understand why LSTMs regulate memory this way during text generation:
+- **Forget Gate ($f_t$):** Discards historical context when grammar or subjects shift. *Example:* If the sentence transitions from a singular subject ("The book is...") to a plural subject ("The books are..."), $f_t$ outputs values close to $0.0$ to clear out the singular grammatical context.
+- **Input Gate ($i_t$):** Determines if the current word contains new information that needs to be written to long-term memory. *Example:* Storing the gender or number characteristics of a newly introduced character.
+- **Output Gate ($o_t$):** Filters the cell state to output only what is relevant to the immediate prediction. *Example:* Storing grammatical attributes needed to predict the very next verb while leaving long-term semantic knowledge hidden in the Cell State conveyor belt.
+
+#### Why the Cell State Solves Vanishing Gradients
+Calculating the gradient derivative of the cell state $C_t$ with respect to the prior state $C_{t-1}$ yields:
+$$\frac{\partial C_t}{\partial C_{t-1}} = f_t + \text{terms involving derivatives of gates}$$
+
+If the forget gate $f_t$ is active (close to $1.0$), the gradient propagates directly backward through time:
+$$\frac{\partial L}{\partial C_{t-1}} \approx \frac{\partial L}{\partial C_t} \cdot 1.0$$
+This addition-based gradient path eliminates the exponential multiplication decay, allowing LSTMs to preserve gradients over long sequences.
+
 ---
 
 ### B. Gated Recurrent Unit (GRU)
-GRUs are a computationally lighter variant of LSTMs that merge the Cell State and Hidden State, using only two gates:
-- **Reset Gate ($r_t$):** Controls how much of the past hidden state to forget:
+GRUs simplify the LSTM by merging the Cell State and Hidden State into a single hidden state $h_t$. They use only two gates:
+- **Reset Gate ($r_t$):** Controls how much of the past hidden state to forget when proposing a candidate state:
   $$r_t = \sigma\left( W_r \cdot [h_{t-1}, x_t] + b_r \right)$$
-- **Update Gate ($z_t$):** Combines the functions of the forget and input gates, deciding what to retain and what to write:
+- **Update Gate ($z_t$):** Decides whether to copy the old hidden state directly or write the new candidate state:
   $$z_t = \sigma\left( W_z \cdot [h_{t-1}, x_t] + b_z \right)$$
 - **Candidate Hidden State ($\tilde{h}_t$):**
   $$\tilde{h}_t = \tanh\left( W \cdot [r_t \odot h_{t-1}, x_t] + b \right)$$
 - **Hidden State Update:**
   $$h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
+
+#### LSTM vs. GRU Trade-offs
+- **GRU Advantage:** Has approximately $33\%$ fewer parameters than an LSTM, reducing memory consumption and speeding up convergence on small-to-medium scale sequential datasets.
+- **LSTM Advantage:** The separate Cell State and Hidden State provide larger representational capacity, enabling LSTMs to outperform GRUs on long, complex sequences when training data is abundant.
 
 ---
 

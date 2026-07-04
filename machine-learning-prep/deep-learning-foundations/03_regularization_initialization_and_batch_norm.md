@@ -14,10 +14,12 @@ Improper weight initialization leads to vanishing or exploding gradients in deep
 ### Xavier (Glorot) Initialization
 Designed for **Sigmoid** and **Tanh** activation functions. It scales the weight variance to match input and output distributions:
 $$\text{Var}(W) = \frac{2}{n_{\text{in}} + n_{\text{out}}} \quad \text{or} \quad W_{ij} \sim \mathcal{N}\left(0, \frac{1}{n_{\text{in}}}\right)$$
+- **Production Utility / Selection Rule:** Standard initialization for recurrent sequence layers (like LSTMs/GRUs) and autoencoders using tanh. Using Xavier with ReLU activations causes the signal variance to drop by $50\%$ at each layer, resulting in vanishing gradients in deep networks.
 
 ### He (Kaiming) Initialization
-Designed for **ReLU** and **LeakyReLU** activations. Since ReLU discards half of its negative input space, He doubling the variance multiplier to maintain signal flow:
+Designed for **ReLU** and **LeakyReLU** activations. Since ReLU discards half of its negative input space, He doubles the variance multiplier to maintain signal flow:
 $$\text{Var}(W) = \frac{2}{n_{\text{in}}} \quad \text{or} \quad W_{ij} \sim \mathcal{N}\left(0, \frac{2}{n_{\text{in}}}\right)$$
+- **Production Utility / Selection Rule:** The default choice for all CNNs, MLPs, and deep vision encoders. Selecting He instead of Xavier is critical when using ReLU to prevent the model from failing to learn.
 
 ### Diagnostic Visual (Gradient Flow & Variance)
 The plot below illustrates how standard small initialization causes variance to vanish immediately, while He initialization maintains a stable variance of $1.0$ across 10 deep layers:
@@ -36,6 +38,7 @@ When taking a gradient step, this penalty alters the weight update formula:
 $$\frac{\partial L_{\text{reg}}}{\partial W^{[l]}} = \frac{\partial L}{\partial W^{[l]}} + \frac{\lambda}{m} W^{[l]}$$
 $$W^{[l]} \leftarrow W^{[l]} - \alpha \left( dW^{[l]} + \frac{\lambda}{m} W^{[l]} \right) = W^{[l]} \left( 1 - \frac{\alpha \lambda}{m} \right) - \alpha \cdot dW^{[l]}$$
 - **Intuition:** Before applying the gradient update, the weights are multiplied by a decay factor $\left(1 - \frac{\alpha\lambda}{m}\right)$ which is slightly less than $1.0$, giving rise to the term **Weight Decay**.
+- **Production Utility / AdamW Rule:** When using Adam, weight decay and gradient updates interact improperly, causing weight updates to be scaled incorrectly. In production, always use **`AdamW`** instead of standard `Adam` with `weight_decay`, as `AdamW` decouples the weight decay calculation from the moving averages of gradients.
 
 ---
 
@@ -48,6 +51,9 @@ In production environments, we use **Inverted Dropout** to keep the forward pass
 3. **Inverted Scaling:** Divide activations by $p$:
    $$A^{[l]} \leftarrow \frac{A^{[l]}}{p}$$
 - **Intuition:** Dividing by $p$ scales the remaining active neurons back up to preserve the expected activation value. This eliminates the need to scale weights or activations during inference/evaluation, making evaluation deterministic.
+- **Production Integration Rules:** 
+  1. Only apply Dropout in fully connected dense layers. 
+  2. **Never** place Dropout immediately before a Batch Normalization layer. Since Dropout randomly shifts the activation distribution, it warps BatchNorm's calculation of mean and variance, creating a massive training-serving skew that degrades validation performance.
 
 ---
 
@@ -74,6 +80,7 @@ Normalizes a single feature across all samples in a mini-batch. For a mini-batch
 - **Training vs. Evaluation shifts:**
   - *Training:* Mean and variance are computed on the current mini-batch. Running averages ($\mu_{\text{running}}$, $\sigma^2_{\text{running}}$) are updated using exponentially weighted moving averages.
   - *Evaluation (`model.eval()`):* Mini-batch statistics are frozen. The model normalizes using the fixed running statistics, making predictions deterministic.
+- **Production Selection Rules:** Use primarily in **tabular networks and CNNs** with large, stable batch sizes ($B \ge 16$). **Avoid** using in RNNs or Transformers because sequence lengths vary dynamically, causing batch statistics to be highly noisy. Also avoid in real-time streaming APIs where batch size is typically 1.
 
 ---
 
@@ -83,6 +90,15 @@ Normalizes all features of a single sample independently. For a sample $x$ with 
 2. **Compute Sample Variance:** $\sigma^2 = \frac{1}{D} \sum_{j=1}^D (x_j - \mu)^2$
 3. **Normalize:** $\hat{x}_j = \frac{x_j - \mu}{\sqrt{\sigma^2 + \epsilon}}$
 - **Serving Behavior:** Because LayerNorm does not rely on batch statistics, its behavior is identical during training and evaluation, making it robust for small batch sizes and dynamic sequence lengths.
+- **Production Selection Rules:** The standard for **Transformers (LLMs) and RNNs**. Since LayerNorm computes stats per sample, it is fully compatible with batch sizes of 1 and sequence padding masks without causing training-serving skew.
+
+---
+
+### C. Group Normalization (GroupNorm) & Instance Normalization (InstanceNorm)
+- **Group Normalization:** Divides features/channels into groups and normalizes within each group.
+  - *Where it is helpful:* Used in **3D image segmentation, object detection, or high-resolution vision systems** where large image sizes force a batch size of $1$ or $2$ per GPU. It achieves the performance of BatchNorm without relying on batch dimensions.
+- **Instance Normalization:** Normalizes each channel of each image sample independently.
+  - *Where it is helpful:* Used in **style transfer and GANs**. It discards style contrast variances (brightness/contrast styles) while keeping content structures intact.
 
 ---
 

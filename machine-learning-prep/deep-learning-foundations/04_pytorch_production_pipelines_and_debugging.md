@@ -12,8 +12,12 @@ For production pipelines, we separate data storage from training iteration logic
 - **`DataLoader`:** Wraps the dataset and provides batching, shuffling, multi-process loading, and memory pinning.
 
 ### High-Throughput DataLoader Hyperparameters
-- **`num_workers`:** Specifies the number of child processes to use for data loading. If `num_workers = 0`, data is loaded in the main execution thread, blocking training step calculations. In production, set `num_workers = 4 * num_gpus` to load batches in parallel.
-- **`pin_memory` (Set `True`):** Puts data tensors in page-locked host memory, enabling direct and much faster memory transfer from CPU host memory to GPU device memory (bypassing CPU index copying).
+- **`num_workers`:** Specifies the number of child processes to use for data loading.
+  - *Production Utility / Bottleneck:* If `num_workers = 0`, data is loaded in the main execution thread, blocking training step calculations while waiting on disk reads or data preprocessing. Spawning $4 \times \text{num\_gpus}$ processes pre-fetches batches into a queue, keeping the GPU constantly supplied with training data.
+- **`pin_memory` (Set `True`):** Puts data tensors in page-locked host memory.
+  - *Production Utility:* Enables fast, direct memory access (DMA) transfers from CPU host memory to GPU device memory, bypassing the need for the CPU to copy the data from virtual memory pages, maximizing PCIe bandwidth usage.
+- **`non_blocking=True` (Used during `.to(device)`):**
+  - *Production Utility:* Works alongside `pin_memory=True` to run the CPU-to-GPU copy asynchronously, allowing CPU execution (such as launching CUDA kernels) to continue without blocking, overlapping host-device transfers with active GPU tensor computations.
 
 ---
 
@@ -92,12 +96,14 @@ To help the optimizer settle into the global minimum during late-stage training,
   from torch.optim.lr_scheduler import StepLR
   scheduler = StepLR(optimizer, step_size=10, gamma=0.1) # Decays LR by 10x every 10 epochs
   ```
+  - *Production Utility:* Best for stable training scenarios (e.g., computer vision model pipelines) where the convergence rate is predictable, and you want a simple, deterministic decay schedule.
 - **`ReduceLROnPlateau`:** Dynamically drops the learning rate when validation loss stops improving:
   ```python
   from torch.optim.lr_scheduler import ReduceLROnPlateau
   scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
   # Run scheduler.step(val_loss) in evaluation loops
   ```
+  - *Production Utility:* Standard for LLMs, custom transformers, or multi-modal models where training trajectories are erratic and hard to predict. It dynamically adapts the learning rate to the model's actual progress, preventing training from stalling.
 
 ---
 
