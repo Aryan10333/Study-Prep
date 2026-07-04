@@ -33,13 +33,13 @@ Before inspecting or transforming any data, a strict splitting architecture was 
 * **Observation:** Statistical summaries and pairplots highlighted physically impossible thresholds: a maximum `person_age` of **144** and a maximum `person_emp_length` of **123.0 years**. Calculating differences also revealed an applicant who had been working for 102 years longer than they had been alive.
 * **Action taken:** Engineered a logical boolean mask to strictly filter out corrupt rows. The criteria restricted the training data to realistic human horizons:
 
-$$\text{person\_age} \le 100 \quad \text{and} \quad \text{person\_emp\_length} \le 40$$
+$$\text{person}\_\text{age} \le 100 \quad \text{and} \quad \text{person}\_\text{emp}\_\text{length} \le 40$$
 
 
 
 A secondary cross-check ensured employment history never exceeded age minus a minimum legal working buffer:
 
-$$(\text{person\_age} - \text{person\_emp\_length}) \ge 14$$
+$$(\text{person}\_\text{age} - \text{person}\_\text{emp}\_\text{length}) \ge 14$$
 
 
 
