@@ -14,27 +14,55 @@ Instead of prioritizing abstract mathematical symmetry, this project optimized a
 
 ---
 
-## 2. Phase 1: Data Preparation & Architecture
+## 2. Phase 1: Exploratory Data Analysis (EDA) & Data Intuition
 
-We initiated the project with a rigorous data splitting strategy to completely eliminate data leakage, organizing our data into three distinct splits:
+Before implementing any transformations, a rigorous Exploratory Data Analysis phase was conducted on the raw data to surface underlying distributions, missingness patterns, and anomalous values. These findings directly dictated our engineering decisions.
+
+### A. Missing Value Analysis & Business Intuition
+
+* **The Cell Outputs:** Missing data was identified primarily in two columns: `person_emp_length` (Employment Length) and `loan_int_rate` (Loan Interest Rate).
+* **The Findings:** Dropping these rows would result in losing massive blocks of viable training data. Crucially, a pattern emerged showing that missingness in interest rates was strongly correlated with specific loan grades.
+* **The Decision:** Instead of using simple column-wide means, I used an intuitive **grouped median imputation**. Missing interest rates were filled using the median interest rate of that specific applicant's `loan_grade`, ensuring the imputed values respected real economic stratification.
+
+### B. Outlier Detection & Symmetrical Normalization
+
+* **The Cell Outputs & Plots:** Boxplots and distribution histograms of continuous numerical features revealed heavy right-skewness and clear logical anomalies.
+* **The Findings:**
+* The feature `person_age` contained a physical anomaly with an impossible maximum value of **144 years**.
+* Features like `person_income` displayed massive financial skewness, where a few ultra-high earners distorted the overall metric scale.
+
+
+* **The Decisions:**
+* **Anomalous Filtering:** The impossible 144-year-old outlier row was permanently dropped from the training set. (Note: Valid high-age records, such as a 94-year-old applicant, were intentionally retained as real-world extreme points).
+* **Log Transformations:** I applied log transformations to flatten the heavily skewed continuous income metrics. This mathematical adjustment successfully pulled the long tails in, reducing Validation Income Skewness to **0.185** and Test Income Skewness to **0.030** for near-perfect symmetrical normalization.
+
+
+
+### C. Direct Correlation Signals
+
+* **The Plots:** Correlation heatmaps and boxplots tracking `loan_status` (the target) against numeric variables were analyzed.
+* **The Findings:** The ratio of a loan's size relative to an applicant's income (`loan_percent_income`) and the assigned `loan_int_rate` shared the strongest raw linear correlation with loan defaults.
+* **The Decision:** This explicit signal confirmed that debt exposure relative to earnings holds the heaviest risk weight, prompting me to prioritize these specific variables during the subsequent non-linear interaction modeling phase.
+
+---
+
+## 3. Phase 2: Data Preparation & Architecture
+
+Following the EDA insights, we initiated a strict data splitting strategy to completely isolate information and eliminate data leakage, organizing our data into three distinct splits:
 
 * **Cleaned Train Shape:** (25,349, 22)
 * **Transformed Validation Shape:** (3,258, 22)
 * **Transformed Test Shape:** (3,259, 22)
 
-### Outlier Handling & Transformation
-
-* **What I observed:** The raw dataset contained logical anomalies (e.g., impossible applicant ages) and highly skewed financial distributions.
-* **What I did:** Cleaned physical anomalies from the training set and applied log transformations to flatten highly skewed metrics like income. This successfully reduced Validation Income Skewness to **0.185** and Test Income Skewness to **0.030**, establishing a near-perfect symmetrical distribution.
-
 ### Feature Scaling (Standardization)
 
-* **What I observed:** Continuous features varied drastically in scale (e.g., `loan_amnt` ran in tens of thousands, while dummy flags were strictly 0 or 1).
+* **What I observed:** Even after log transformations, continuous features varied drastically in scale (e.g., `loan_amnt` ran in thousands, while dummy variables were strictly 0 or 1).
 * **What I did:** Implemented Scikit-Learn's `StandardScaler`. To prevent data leakage, the scaler was **fitted strictly on the training partition** and used to `.transform()` the validation and test continuous metrics. This brought all variables onto an identical scale (Mean = 0.0, Std = 1.0).
+* **Summary Statistics Check:** A final `.describe()` cell output verified a **Mean of 0.000** and a **Std of 1.000** across all scaled columns. It also highlighted that our valid 94-year-old applicant sat at a maximum value of **10.630** standard deviations away from the mean—proving the scaler retained the data's real-world distributional nuances cleanly.
 
 ### Class Imbalance Audit
 
-* **What I observed:** An evaluation of the training target vector (`y_train_cleaned`) revealed a severe 4:1 imbalance:
+* **What I observed:** An evaluation of the final training target vector (`y_train_cleaned`) via `.value_counts()` revealed a severe 4:1 imbalance:
 * **Non-Defaults (Class 0):** 19,906 applicants
 * **Defaults (Class 1):** 5,443 applicants (~21.47% default rate)
 
@@ -43,7 +71,7 @@ We initiated the project with a rigorous data splitting strategy to completely e
 
 ---
 
-## 3. Phase 2: Iterative Model Training & Diagnostics
+## 4. Phase 3: Iterative Model Training & Diagnostics
 
 ### Iteration 1: Baseline Linear Logistic Regression
 
@@ -57,13 +85,13 @@ We initiated the project with a rigorous data splitting strategy to completely e
 
 ### Iteration 2: Polynomial Expansion (Image Reference: image_e0d2a5.png)
 
-* **What I did:** To force complexity into the linear model, I wrapped the pipeline in a `PolynomialFeatures(degree=3)` expansion, creating over 2,000 automated feature combinations. I ran a comprehensive `GridSearchCV` crossing multiple inverse regularization strengths (`C`) and solvers (`liblinear`).
+* **What I did:** Guided by the underfitting diagnosis, I forced geometric complexity into the linear model by wrapping the pipeline in a `PolynomialFeatures(degree=3)` expansion, creating over 2,000 automated feature combinations. I ran a comprehensive `GridSearchCV` crossing multiple inverse regularization strengths (`C`) and solvers (`liblinear`).
 * **The Diagnostic Shift:** Re-running the learning curves on this new pipeline (**image_e0d2a5.png**) revealed a massive shift. The curves no longer flattened poorly; instead, a minor **Variance Gap (~0.045)** emerged at the 20,000-sample mark (Train F1 ~0.77, Validation F1 ~0.725), signaling that the model had successfully shifted from underfitting to mild, highly manageable overfitting.
 * **The Results:** The validation default F1-score aggressively jumped from **0.67 to 0.73**, while default Recall climbed to **0.80**.
 
 ---
 
-## 4. Phase 3: Extracting Hidden Financial Drivers
+## 5. Phase 4: Extracting Hidden Financial Drivers
 
 By extracting the mathematical coefficients ($\beta$ weights) from the polynomial pipeline and matching them back to their generated feature names, we revealed the core economic relationships driving the risk engine:
 
@@ -80,7 +108,7 @@ By extracting the mathematical coefficients ($\beta$ weights) from the polynomia
 
 ---
 
-## 5. Phase 4: Business Threshold Calibration & Final Testing
+## 6. Phase 5: Business Threshold Calibration & Final Testing
 
 ### Moving Beyond F1-Score to Bank Economics
 
@@ -101,7 +129,7 @@ $$\text{Total Cost} = (\text{False Positives} \times \$1,500) + (\text{False Neg
 
 ---
 
-## 6. Final Production Validation (Test Set Audit)
+## 7. Final Production Validation (Test Set Audit)
 
 To prove the stability of this system, the fully optimized pipeline and its `0.4175` calibrated threshold were deployed onto the completely untouched **Test Set**.
 
