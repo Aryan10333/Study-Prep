@@ -45,15 +45,58 @@ Where:
 
 ---
 
-## 3. FlashAttention: High-Level Overview
+## 3. FlashAttention: Hardware Tiling & Online Softmax
 
-Standard self-attention reads and writes the intermediate $N \times N$ attention weight matrix back and forth between GPU High-Bandwidth Memory (HBM) and fast local cache (SRAM) multiple times, creating a memory bottleneck.
+Standard self-attention is **memory-bandwidth bound**. This is because it materializes and transfers the intermediate $N \times N$ attention matrix back and forth between slow GPU High-Bandwidth Memory (HBM) and fast local GPU Cache/SRAM multiple times.
 
-- **The FlashAttention Solution:**
-  - Uses **Tiling** to break the Query, Key, and Value matrices into small blocks.
-  - Loads these blocks into SRAM, performs the attention calculations locally, and writes only the final context results back to HBM.
-  - Completely avoids writing the intermediate $N \times N$ attention matrix to HBM.
-  - **Impact:** Decreases memory access times, yielding a **$2\text{x} - 4\text{x}$ execution speedup** without losing mathematical accuracy.
+### A. GPU Memory Hierarchy & Hardware Realities
+GPU architectures are divided into different memory layers with drastically different capacities, latencies, and bandwidths:
+
+```text
+Memory Layer   Capacity (A100 GPU)   Bandwidth / Access Speed   Latency
+----------------------------------------------------------------------------------------------------------------------
+HBM (Global)   40GB / 80GB           ~1.5 - 2.0 TB/s            High (400 - 800 clock cycles)
+SRAM (Local)   ~20 MB (Shared)       ~19 TB/s                   Low (20 - 30 clock cycles)
+Registers      ~256 KB (Per SM)      Ultra-Fast                 1 clock cycle
+```
+
+In standard self-attention:
+1. Load $Q$ and $K$ from HBM $\to$ compute $S = Q K^T$ in SRAM $\to$ write $S$ of size $N \times N$ back to HBM (Memory Bound).
+2. Load $S$ from HBM $\to$ compute $P = \text{softmax}(S)$ in SRAM $\to$ write $P$ of size $N \times N$ back to HBM (Memory Bound).
+3. Load $P$ and $V$ from HBM $\to$ compute $O = P V$ in SRAM $\to$ write $O$ back to HBM (Memory Bound).
+
+### B. The FlashAttention Solution: Tiling & Online Softmax
+FlashAttention resolves this by loading $Q, K, V$ into SRAM in small tiles/blocks, computing attention locally, and writing only the final output $O$ back to HBM. It completely bypasses HBM accesses for the intermediate $N \times N$ matrix.
+
+#### The Challenge: Softmax Global Dependency
+Standard softmax requires knowing the global maximum of the entire row to prevent numerical overflow:
+$$\text{softmax}(x)_i = \frac{e^{x_i - m}}{\sum_{j=1}^N e^{x_j - m}}, \quad \text{where } m = \max_{j=1..N} x_j$$
+This requires loading the entire row of $QK^T$ to find the maximum before scaling, preventing block-by-block incremental calculation.
+
+#### The Solution: Online Softmax Block Updates
+FlashAttention implements **online softmax** to calculate softmax incrementally block-by-block. Let a row $x$ be partitioned into two blocks: $x = [x^{(1)}, x^{(2)}]$.
+
+1. **Process Block 1 ($x^{(1)}$):**
+   - Compute local maximum: $m^{(1)} = \max(x^{(1)})$
+   - Compute local sum of exponentials: $d^{(1)} = \sum_i e^{x_i^{(1)} - m^{(1)}}$
+   - Compute local attention output: $O^{(1)} = \frac{1}{d^{(1)}} \sum_i e^{x_i^{(1)} - m^{(1)}} V_i^{(1)}$
+
+2. **Process Block 2 ($x^{(2)}$) and Merge:**
+   - Compute local maximum of block 2: $m^{(2)} = \max(x^{(2)})$
+   - Compute the new global maximum:
+     $$m^{(new)} = \max\left(m^{(1)}, \ m^{(2)}\right)$$
+   - Compute the updated scaling factor sum $d^{(new)}$:
+     $$d^{(new)} = d^{(1)} e^{m^{(1)} - m^{(new)}} + d^{(2)} e^{m^{(2)} - m^{(new)}}, \quad \text{where } d^{(2)} = \sum_i e^{x_i^{(2)} - m^{(2)}}$$
+   - Rescale and merge the outputs to get the final attention output $O^{(new)}$:
+     $$O^{(new)} = \frac{d^{(1)} e^{m^{(1)} - m^{(new)}} O^{(1)} + e^{m^{(2)} - m^{(new)}} \left( \sum_i e^{x_i^{(2)} - m^{(2)}} V_i^{(2)} \right)}{d^{(new)}}$$
+
+By scaling the prior block's output $O^{(1)}$ by $e^{m^{(1)} - m^{(new)}}$, we dynamically adjust the exponent scaling to match the new global maximum $m^{(new)}$. This allows FlashAttention to loop through blocks of $K$ and $V$ and accumulate the exact mathematical attention output directly in registers/SRAM.
+
+### C. Backward Pass Recomputation
+During backpropagation, standard attention reads the stored $N \times N$ attention matrix $P$ from HBM to compute gradients. FlashAttention avoids this HBM transfer:
+- It only stores the block scaling statistics ($m, d$) in HBM during the forward pass.
+- In the backward pass, it recomputes the attention matrix tiles $P$ on-the-fly in fast SRAM from $Q, K, V$ tiles loaded from HBM.
+- Since computing FLOPs in SRAM is much faster than waiting for memory transactions from HBM, this recomputation yields a **$2\text{x} - 4\text{x}$ speedup** while reducing the VRAM footprint from $O(N^2)$ to $O(N)$.
 
 ---
 

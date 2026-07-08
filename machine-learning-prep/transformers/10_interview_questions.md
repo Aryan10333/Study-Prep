@@ -64,14 +64,27 @@ This guide contains high-impact, conceptual, mathematical, coding, and systems-l
   - Before head transpose: Query shape is **$(2, \ 512, \ 32, \ 128)$**.
   - After head transpose: Query, Key, and Value shapes are **$(2, \ 32, \ 512, \ 128)$**.
 
-### Q13: Compute the memory requirement (in GB) for the KV Cache of a Llama-3-8B model ($L=32, H_{\text{KV}}=8, d_{\text{head}}=128, T=8192, B=16$, FP16 precision).
+### Q13: Given a 70 Billion parameter model utilizing Grouped-Query Attention (8 KV heads, 64 Query heads, head dim 128, 80 layers) serving in FP16 format, calculate the exact VRAM required to hold the KV Cache for a single request with a 4,000 token context window.
 - **Answer:**
-  - Precision scale $P = 2$ bytes.
-  - Formula: $\text{Memory} = 2 \times P \times L \times H_{\text{KV}} \times d_{\text{head}} \times T \times B$ bytes.
-  - Calculation:
-    $$\text{Memory} = 2 \times 2 \times 32 \times 8 \times 128 \times 8192 \times 16 \text{ bytes}$$
-    $$\text{Memory} = 4 \times 32,768 \times 131,072 = 17,179,869,184 \text{ bytes}$$
-    $$\text{Memory}_{\text{GB}} = \frac{17,179,869,184}{1,073,741,824} = \mathbf{16.00 \text{ GB}}$$
+  - **Identify Model Configuration parameters:**
+    - Layers ($L$) = $80$
+    - KV Heads ($H_{\text{KV}}$) = $8$ (Note: the $64$ query heads are grouped to share these $8$ KV heads. For KV cache sizing, we only care about $H_{\text{KV}}$, not the query head count.)
+    - Head Dimension ($d_{\text{head}}$) = $128$
+    - Sequence Length ($T$) = $4000$
+    - Batch Size ($B$) = $1$ (single request)
+    - Precision scale ($P$) = $2$ bytes (FP16 precision)
+  - **KV Cache VRAM Sizing Formula:**
+    $$\text{Memory}_{\text{Bytes}} = 2 \text{ (Key \& Value)} \times P \text{ (Bytes/float)} \times L \times H_{\text{KV}} \times d_{\text{head}} \times T \times B$$
+  - **Step-by-Step Calculation:**
+    $$\text{Memory} = 2 \times 2 \times 80 \times 8 \times 128 \times 4000 \times 1 \text{ bytes}$$
+    $$\text{Memory} = 4 \times 80 \times 8 \times 128 \times 4000 \text{ bytes}$$
+    $$\text{Memory} = 320 \times 8 \times 128 \times 4000 = 2560 \times 128 \times 4000 = 327,680 \times 4000 \text{ bytes}$$
+    $$\text{Memory} = 1,310,720,000 \text{ bytes}$$
+  - **Unit Conversions:**
+    - **Decimal system (GB, base-10):**
+      $$\text{Memory}_{\text{GB}} = \frac{1,310,720,000}{1,000,000,000} = \mathbf{1.31072 \text{ GB}}$$
+    - **Binary system (GiB, base-2):**
+      $$\text{Memory}_{\text{GiB}} = \frac{1,310,720,000}{1,073,741,824} \approx \mathbf{1.2207 \text{ GiB}}$$
 
 ### Q14: Estimate the parameter count of a single Multi-Head Attention layer with $d_{\text{model}}=4096, h=32$.
 - **Answer:**
@@ -289,3 +302,62 @@ model.load_state_dict(weights, strict=False)
   - **DP:** High overhead. The master GPU acts as a central hub, creating a PCIe bottleneck.
   - **DDP:** Bypasses central bottlenecks by using Ring All-Reduce, which synchronizes gradients in $2(N-1)$ communication steps independently of the master node.
   - **PP:** Low communication volume but introduces GPU idle time (bubble overhead), which is mitigated by using micro-batching.
+
+### Q41: Whiteboard Component Review: Draw a standard decoder block utilizing Pre-LN and SwiGLU. Explain where residual connections pass through and what happens mathematically if we remove the residual connections completely.
+- **Answer:**
+  - **Schematic Drawing of a Pre-LN SwiGLU Decoder Layer:**
+    ```text
+             Input (x_l)
+                 │
+         ┌───────┴────────┐
+         │               ▼
+         │           RMSNorm
+         │               │
+         │         Self-Attention
+         │               │
+         ▼               ▼
+         └───► [ + ] ◄───┘ (Residual Connection 1)
+                 │
+             (x_mid)
+                 │
+         ┌───────┴────────┐
+         │               ▼
+         │           RMSNorm
+         │               │
+         │          SwiGLU FFN
+         │               │
+         ▼               ▼
+         └───► [ + ] ◄───┘ (Residual Connection 2)
+                 │
+            Output (x_{l+1})
+    ```
+  - **Residual Path Routing:**
+    - The input to the block $x_l$ is split. One path goes through the normalization (`RMSNorm`) and the sub-layer (`Self-Attention`), and the other path bypasses them (the residual highway). They are added back: $x_{\text{mid}} = x_l + \text{Attention}(\text{RMSNorm}(x_l))$.
+    - The output of the first addition $x_{\text{mid}}$ is similarly split: one path goes through normalization and the FFN sub-layer (`SwiGLU`), while the other path bypasses them. They are added: $x_{l+1} = x_{\text{mid}} + \text{SwiGLU}(\text{RMSNorm}(x_{\text{mid}}))$.
+  - **Mathematical Analysis of Removing Residual Connections Completely:**
+    If we remove residual connections, the layer equation becomes:
+    $$x_{l+1} = \text{SwiGLU}\left(\text{RMSNorm}\left(\text{Attention}\left(\text{RMSNorm}(x_l)\right)\right)\right)$$
+    Mathematically, this causes two critical issues that prevent training:
+    1. **Vanishing Gradients:** 
+       With residual connections, the gradient chain rule from final layer $L$ to layer $l$ is:
+       $$\frac{\partial x_L}{\partial x_l} = \frac{\partial}{\partial x_l} \left[ x_l + \sum_{k=l}^{L-1} F(x_k) \right] = I + \sum_{k=l}^{L-1} \frac{\partial F(x_k)}{\partial x_l}$$
+       The additive identity term $I$ ensures gradients flow back to early layers without exponential decay.
+       Without residual connections, the gradient is a product of Jacobians:
+       $$\frac{\partial x_L}{\partial x_l} = \prod_{k=l+1}^L J_k, \quad \text{where } J_k = \frac{\partial F(x_{k-1})}{\partial x_{k-1}}$$
+       If the spectral radius of the sub-layer Jacobians $J_k$ is less than 1 (which it is for typical initializations and activations), the gradient decays exponentially with depth $L-l$, vanishing completely before reaching the initial layers ($l \to 0$), making deep architectures untrainable.
+    2. **Representation Collapse / Loss of Identity:**
+       As representation vectors pass through multiple successive non-linear operations without residual shortcuts, the dimensionality of the representation space collapses, and the network loses the ability to preserve identity mappings. The representations of different tokens contract to a single point, rendering representation learning impossible.
+
+### Q42: Hardware-Level Deep Dive: Explain why the decoding step of an LLM is memory-bound rather than compute-bound, and explain how FlashAttention addresses GPU register utilization to optimize this.
+- **Answer:**
+  - **Prefill vs. Decode Bottlenecks (Arithmetic Intensity):**
+    - **Arithmetic Intensity** is defined as the ratio of floating-point operations (FLOPs) to memory bytes transferred from high-bandwidth global memory (HBM) to local caches/registers:
+      $$\text{Arithmetic Intensity} = \frac{\text{FLOPs}}{\text{Bytes Transferred}}$$
+    - **Prefill Phase (Compute-Bound):** Processes the prompt tokens in parallel. For a prompt of length $N$, computing the projections and self-attention scores involves dense matrix-matrix multiplications ($Q \cdot K^T$ of shapes $(N \times d) \times (d \times N)$). The FLOPs count scales as $O(N^2 d)$, while the parameters and inputs loaded scale as $O(N d + d^2)$. The arithmetic intensity is very high, saturating GPU Tensor Cores.
+    - **Decode Phase (Memory-Bound):** Generates one token at a time. The query is a single token vector ($q \in \mathbb{R}^{1 \times d}$). The key and value caches are loaded from HBM to compute attention. The FLOPs count scales as $O(d)$ per token, while we must load the massive model weights of size $W$ and the historical KV Cache of size $2 \times L \times H_{\text{KV}} \times d_{\text{head}} \times T$ bytes from HBM to compute a single token's representation. The arithmetic intensity is extremely low ($< 1$ FLOP per byte), so GPU execution units sit idle waiting for memory transfer to complete.
+  - **How FlashAttention Addresses GPU Register and SRAM Utilization:**
+    Standard attention computes the intermediate attention matrix $S = \frac{QK^T}{\sqrt{d_k}}$ (size $N \times N$), writes it to HBM, reads it from HBM to perform softmax, writes the softmax matrix $P$ to HBM, and reads $P$ again to compute $O = P V$.
+    FlashAttention optimizes this by utilizing local **SRAM** and **Registers** directly:
+    1. **Tiling:** FlashAttention loads small, fixed-size blocks (tiles) of $Q$, $K$, and $V$ from HBM into local SRAM cache ($128 \times 128$ blocks, fitting within the GPU's SRAM memory limit).
+    2. **Online Softmax in Registers:** To compute softmax on SRAM tiles incrementally, it maintains local scaling statistics (running maximum $m$ and running sum of exponents $d$) inside the fast **register file** of each streaming multiprocessor (SM). As new $K, V$ tiles are loaded, it updates these registers and scales the accumulated output tile in SRAM, avoiding writing the intermediate $N \times N$ matrix to HBM.
+    3. **Backward Pass Recomputation:** By saving only the final output $O$ and scaling statistics ($m, d$) to HBM, it saves $O(N^2)$ memory bandwidth. During the backward pass, it loads the $Q, K, V$ tiles from HBM into SRAM again and recomputes the intermediate gradients locally on-the-fly using the register scaling statistics, substituting slow HBM read transactions with fast, register-assisted compute FLOPs.

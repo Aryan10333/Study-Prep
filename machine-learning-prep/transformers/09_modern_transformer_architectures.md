@@ -20,21 +20,56 @@ Attention Mechanism       Multi-Head Attention (MHA)                         Gro
 
 ---
 
-## 2. SwiGLU Activation Function
+## 2. Activation Function Evolution: ReLU -> GELU -> SwiGLU
 
-SwiGLU replaces standard ReLU in the Feed-Forward Network (FFN) layers. It is a **Gated Linear Unit (GLU)** where the gating path is activated by a Swish function:
+Activation functions in FFN sub-layers have evolved to provide smoother gradient paths and prevent dead neurons during backpropagation:
+
+### A. ReLU (Rectified Linear Unit)
+$$\text{ReLU}(x) = \max(0, x)$$
+- **Limitations:** For any input $x < 0$, the gradient is exactly $0.0$. If a neuron's weights shift such that it is inactive for all inputs in the dataset, it will never receive gradient updates, a failure mode known as the **dying ReLU problem**.
+
+### B. GELU (Gaussian Error Linear Unit)
+GELU scales the input $x$ by the cumulative distribution function (CDF) of the standard normal distribution $\Phi(x)$:
+$$\text{GELU}(x) = x \cdot \Phi(x) = x \cdot P(X \le x), \quad X \sim \mathcal{N}(0, 1)$$
+Since the exact CDF is computationally expensive to evaluate, we use the standard fast approximation:
+$$\text{GELU}(x) \approx 0.5x \left(1 + \tanh\left(\sqrt{\frac{2}{\pi}} \left(x + 0.044715 x^3\right)\right)\right)$$
+- **Why it works:** Unlike ReLU, GELU is non-monotonic and smooth. For negative inputs, it retains a small, non-zero gradient that gradually decays to zero as $x \to -\infty$. This prevents the dying neuron problem and allows networks to learn complex representations more easily, making it the default in models like BERT, GPT-2, and ViT.
+
+### C. SwiGLU (Swish Gated Linear Unit)
+SwiGLU is a Gated Linear Unit where the gating path is activated by a Swish function ($\text{Swish}_\beta(z) = z \cdot \sigma(\beta z)$):
 $$\text{SwiGLU}(x) = \text{Swish}_\beta(x W) \odot x V$$
-$$\text{Swish}_\beta(z) = z \cdot \sigma(\beta z) = \frac{z}{1 + e^{-\beta z}}$$
-
-Where:
-- $W$ and $V$ are weight projection matrices.
-- $\odot$ represents element-wise multiplication.
-- $\beta$ is typically set to $1.0$.
-- **Production Utility:** SwiGLU has a smoother gradient profile and has been shown to improve convergence speeds and overall validation metrics across large-scale pre-training runs.
+Where $W$ and $V$ are projection weights, and $\odot$ is the element-wise product.
+- **Why it works:** It splits the feed-forward projection into two parallel paths, multiplying them element-wise. This bilinear gating allows the model to learn multiplicative relationships between features. Despite having $50\%$ more parameters for the same hidden dimension size, SwiGLU shows significantly better convergence rates than GELU/ReLU.
 
 ---
 
-## 3. Mixture of Experts (MoE)
+## 3. LayerNorm Placement & Gradient Stability: Post-LN vs. Pre-LN
+
+The placement of Layer Normalization in the residual block determines the gradient flow characteristics of deep networks.
+
+### A. Post-LN (Original Transformer)
+In Post-LN, normalization is applied *after* the residual addition:
+$$x_{l} = \text{LayerNorm}\left(x_{l-1} + F(x_{l-1})\right)$$
+- **Vanishing Gradients Proof:** 
+  When backpropagating from the output layer $L$ to layer $l$, the gradient chain rule is:
+  $$\frac{\partial x_L}{\partial x_l} = \prod_{k=l+1}^L \frac{\partial x_k}{\partial x_{k-1}}$$
+  Because normalization is on the outer loop, the magnitude of the activation $x_{l-1} + F(x_{l-1})$ grows with depth, causing the scale parameter of LayerNorm to scale down gradients inversely with the norm:
+  $$\frac{\partial \text{LayerNorm}(y)}{\partial y} \approx \frac{1}{\sigma_y} \left(I - \frac{1}{d} \mathbf{1}\mathbf{1}^T\right)$$
+  As depth increases, $\sigma_y$ grows, scaling down the gradients exponentially at early layers ($l \to 0$). This necessitates a highly sensitive **learning rate warmup phase** to prevent early training divergence.
+
+### B. Pre-LN (Modern LLM Standard)
+In Pre-LN, normalization is applied to the sub-layer input *before* processing:
+$$x_{l} = x_{l-1} + F\left(\text{LayerNorm}(x_{l-1})\right)$$
+- **Stable Gradients Proof:**
+  We can expand the recurrence relation for any final layer $L$ directly:
+  $$x_L = x_l + \sum_{k=l}^{L-1} F\left(\text{LayerNorm}(x_k)\right)$$
+  Taking the partial derivative with respect to $x_l$:
+  $$\frac{\partial x_L}{\partial x_l} = I + \sum_{k=l}^{L-1} \frac{\partial F\left(\text{LayerNorm}(x_k)\right)}{\partial x_l}$$
+  The identity matrix term $I$ is preserved directly in the derivative. This ensures that gradients flow back to early layers directly through the residual "highway" without exponential decay, even if the sub-layer gradients are very small. This eliminates the dependency on complex learning rate warm-up schedules.
+
+---
+
+## 4. Mixture of Experts (MoE)
 
 Instead of passing every token through the same static FFN block, MoE models contain a collection of $E$ independent "expert" FFN networks ($E_1, \dots, E_E$) and a **Gating/Router Network** $G(x)$.
 

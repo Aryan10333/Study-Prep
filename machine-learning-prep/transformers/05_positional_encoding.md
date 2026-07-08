@@ -76,9 +76,26 @@ Rotate a 2D query vector $q = \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}$ at posit
 ## 4. Production Selection & Context Length Extension Rules
 
 - **Why RoPE is standard for Context Length Extensions:**
-  If you need to extend an LLM's context length beyond its training limit (e.g. from 4k to 32k), RoPE allows simple scaling techniques without retraining:
-  - **Linear RoPE Scaling:** Scales down the position index $m \leftarrow m / s$ (where $s$ is the scaling factor, e.g., $8$). This maps longer sequences back into the model's trained frequency range.
-  - **NTK-Aware Scaling:** Instead of scaling the position index linearly, it scales the base angle $\theta$, preventing the loss of high-frequency relative details for nearby tokens.
+  If you need to extend an LLM's context length beyond its pre-trained limit (e.g., from a pre-trained limit $L$ to an extended limit $L' = s \cdot L$, where $s$ is the scaling factor), RoPE allows simple context-extension scaling techniques with minimal or no retraining:
+
+  ### A. Linear RoPE Scaling
+  Linear scaling modifies the position index $m$ by dividing it by the scaling factor $s$:
+  $$m \leftarrow \frac{m}{s}$$
+  The rotated Query/Key vectors at position $m$ are computed by rotating with angles:
+  $$\phi_i = \frac{m}{s} \theta_i = \frac{m}{s} \text{base}^{-2(i-1)/d}$$
+  - **The Trade-off:** By squishing the position indices down, the model remains within its trained frequency bounds, which prevents catastrophic validation loss. However, it scales down all frequencies equally. For very close tokens (e.g., adjacent words), the relative distance is squished from $1$ to $1/s$. This dilutes the high-frequency relative distance details, leading to severe performance degradation on short-context sequences unless the model is fine-tuned extensively.
+
+  ### B. NTK-Aware (Neural Tangent Kernel) Scaling
+  Instead of scaling the position index $m$ uniformly, NTK-aware scaling leaves the position index $m$ unchanged and dynamically scales the rotation frequency base.
+  
+  The base is scaled from $\text{base}$ to $\text{base}'$:
+  $$\text{base}' = \text{base} \cdot s^{\frac{d}{d-2}}$$
+  Thus, the scaled frequencies $\theta_i'$ are:
+  $$\theta_i' = \left( \text{base} \cdot s^{\frac{d}{d-2}} \right)^{-2(i-1)/d} = \text{base}^{-2(i-1)/d} \cdot s^{-\frac{2(i-1)}{d-2}}$$
+  - **Why it works:** 
+    - For high-frequency components (when $i \to 1$), the scaling multiplier $s^{-\frac{2(i-1)}{d-2}} \to 1$. Thus, the high-frequency components (representing close, local token interactions) remain almost identical to their pre-trained values, preserving high-resolution local attention structures.
+    - For low-frequency components (when $i \to d/2$), the scaling multiplier $s^{-\frac{2(d/2-1)}{d-2}} = s^{-1} = 1/s$. The low frequencies (representing global sequence structures) are scaled down by exactly $1/s$, allowing the model to extrapolate smoothly to the extended sequence length $s \cdot L$.
+    - **Production Utility:** NTK-aware scaling achieves outstanding context extensions (often up to $8\text{x}$ or $16\text{x}$ extension windows) without requiring fine-tuning, keeping local attention intact while extending global bounds.
 
 ---
 
