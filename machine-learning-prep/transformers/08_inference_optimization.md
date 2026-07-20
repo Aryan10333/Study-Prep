@@ -2,6 +2,8 @@
 
 This guide details the systems-level bottlenecks of autoregressive decoding, the prefill vs. decode phases, the KV Cache memory equation, FlashAttention hardware tiling, a step-by-step KV cache size hand-calculation, and throughput serving optimizations.
 
+> **Notebook Companion**: [08_inference_optimization.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/08_inference_optimization.ipynb)
+
 ---
 
 ## 1. Autoregressive Decoding Phases
@@ -45,6 +47,12 @@ Where:
 
 ![KV Cache VRAM Footprint Comparison](images/08_kv_cache_vram_mha_mqa_gqa.png)
 
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (KV Cache VRAM Footprint):**
+> - **What is shown:** VRAM consumption (GB) vs Context Length $T \in [1024, 128000]$ for a 70B FP16 model under MHA (64 heads), GQA (8 KV heads), and MQA (1 KV head) against an 80GB GPU memory threshold.
+> - **Key Systems Insight:** Standard MHA reaches the 80GB VRAM wall at $\sim 20k$ tokens. GQA reduces KV cache VRAM by $8\text{x}$ ($1.22\text{ GB}$ for 4k context), allowing serving up to $128k$ context windows on a single GPU.
+> - **Interview Application:** Cite these exact VRAM sizing curves when answering system design questions on serving concurrency bottlenecks and choosing GQA over MHA.
+
 ---
 
 ## 3. FlashAttention: Hardware Tiling & Online Softmax
@@ -68,6 +76,12 @@ In standard self-attention:
 3. Load $P$ and $V$ from HBM $\to$ compute $O = P V$ in SRAM $\to$ write $O$ back to HBM (Memory Bound).
 
 ![Roofline Performance Model: Prefill vs Decode & FlashAttention IO Shift](images/09_prefill_vs_decode_roofline.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (Roofline Model & FlashAttention IO Shift):**
+> - **What is shown:** Hardware Roofline Model (Operational Intensity in FLOP/byte vs. Attainable Performance in TFLOP/s) on an NVIDIA A100 GPU.
+> - **Key Systems Insight:** The Prefill phase sits on the flat compute-bound ceiling ($> 100$ FLOP/byte). The Decode phase operates on the steep memory-bandwidth slope ($< 1$ FLOP/byte) due to loading single-token KV caches from HBM. FlashAttention loads tiles into fast SRAM, shifting operational intensity to the right and bypassing HBM access bottlenecks.
+> - **Interview Application:** Explains why decoding latency is bottlenecked by HBM memory bandwidth rather than GPU FLOPs, justifying FlashAttention SRAM tiling.
 
 ### B. The FlashAttention Solution: Tiling & Online Softmax
 FlashAttention resolves this by loading $Q, K, V$ into SRAM in small tiles/blocks, computing attention locally, and writing only the final output $O$ back to HBM. It completely bypasses HBM accesses for the intermediate $N \times N$ matrix.

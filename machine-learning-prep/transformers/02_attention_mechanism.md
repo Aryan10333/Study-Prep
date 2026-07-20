@@ -2,6 +2,8 @@
 
 This guide details the mathematical foundations of the core Attention Mechanism, including the Query-Key-Value (QKV) database analogy, the variance proof for the scaling factor $\sqrt{d_k}$, a step-by-step numerical hand-calculation, and its production selection rules.
 
+> **Notebook Companion**: [02_attention_mechanism.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/02_attention_mechanism.ipynb)
+
 ---
 
 ## 1. What is Attention? The Database Analogy
@@ -64,6 +66,12 @@ $$q \cdot k = \sum_{i=1}^{d_k} q_i k_i$$
   This keeps the inputs to the softmax layer within its active, high-gradient region $[-2.0, 2.0]$.
 
 ![Scaled vs Unscaled Attention](images/01_scaled_vs_unscaled_attention.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways:**
+> - **What is shown:** The left heatmap displays PyTorch tensor unscaled dot-product attention logits ($\text{softmax}(QK^T)$ with $d_k=128$), where scores overflow into extreme probabilities ($1.0$ vs $0.0$, shown in bright yellow/dark black). The right heatmap displays Scaled Dot-Product Attention ($\text{softmax}(QK^T / \sqrt{d_k})$), preserving a smooth, balanced probability distribution.
+> - **Key Mathematical Insight:** For independent standard normal vectors $q_i, k_i \sim \mathcal{N}(0, 1)$, $\text{Var}(q \cdot k) = d_k$. As $d_k$ grows large, raw dot products reach large values, saturating softmax where its derivative $\sigma'(z) \approx 0.0$. Scaling by $\frac{1}{\sqrt{d_k}}$ forces $\text{Var}\left(\frac{q \cdot k}{\sqrt{d_k}}\right) = 1.0$, keeping softmax in its active, high-gradient regime.
+> - **Interview Application:** When asked *"Why do we divide by $\sqrt{d_k}$ in Scaled Dot-Product Attention?"*, state the variance proof, explain how unscaled dot products cause softmax saturation, and reference this gradient magnitude stabilization.
 
 ---
 

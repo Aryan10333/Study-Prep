@@ -2,6 +2,8 @@
 
 This guide details the complete Transformer architecture blocks (Encoder/Decoder), FFN projection dimensions, Residual Connections, Pre-LN vs. Post-LN, RMSNorm scaling, Causal/Padding masking matrices, and training vs. inference data flows.
 
+> **Notebook Companion**: [06_transformer_architecture.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/06_transformer_architecture.ipynb)
+
 ---
 
 ## 1. Complete Transformer Blocks
@@ -32,6 +34,12 @@ Residual connections ($x + \text{SubLayer}(x)$) provide a gradient highway durin
   - *Production Utility:* Extremely stable; training converges reliably without warm-up phases.
 
 ![Pre-LN vs Post-LN Backpropagation Gradient Flow](images/07_pre_ln_vs_post_ln_gradient_flow.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (Pre-LN vs. Post-LN Backpropagation Gradient Flow):**
+> - **What is shown:** Real PyTorch autograd backpropagation gradient norms ($\|\nabla_{x_l} \mathcal{L}\|$) tracked across a 30-layer deep Transformer network.
+> - **Key Mathematical Insight:** Post-LN applies LayerNorm *after* residual addition ($x_{l} = \text{Norm}(x_{l-1} + F(x_{l-1}))$), causing gradient norms to decay exponentially near early layers ($l \to 1$). Pre-LN applies LayerNorm *before* sub-layers ($x_l = x_{l-1} + F(\text{Norm}(x_{l-1}))$), creating an identity gradient highway $\frac{\partial x_L}{\partial x_l} = I + \sum \frac{\partial F}{\partial x_l}$ that maintains uniform gradient norms across all 30 layers.
+> - **Interview Application:** Explains why modern LLMs use Pre-LN to train 70B+ parameter models reliably without delicate learning rate warmups.
 
 ---
 

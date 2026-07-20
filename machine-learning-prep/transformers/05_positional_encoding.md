@@ -2,6 +2,8 @@
 
 This guide details the mathematical equations, relative properties, and implementations of Sinusoidal, Learned, and Rotary Positional Embeddings (RoPE), walking through hand-calculations and PyTorch implementation.
 
+> **Notebook Companion**: [05_positional_encoding.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/05_positional_encoding.ipynb)
+
 ---
 
 ## 1. Why is Positional Information Needed?
@@ -25,6 +27,12 @@ Where:
 
 ![Sinusoidal Positional Encoding Heatmap](images/03_sinusoidal_encoding_heatmap.png)
 
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (Sinusoidal Positional Encoding):**
+> - **What is shown:** A 2D heatmap of Sinusoidal PE across 100 sequence positions ($y$-axis) and 128 embedding dimensions ($x$-axis), with 1D wave profiles on the right.
+> - **Key Mathematical Insight:** Lower dimensions ($i \to 0$) oscillate rapidly with short wavelengths ($\lambda = 2\pi$), capturing fine-grained local offsets. Higher dimensions ($i \to d/2$) oscillate slowly with long wavelengths ($\lambda = 2\pi \cdot 10000$), capturing long-range positional trends.
+> - **Interview Application:** Explains why Sinusoidal PE allows linear relative projections: for any fixed offset $k$, $PE_{pos+k}$ can be computed as a linear transformation of $PE_{pos}$.
+
 ---
 
 ### B. Learned Positional Embeddings
@@ -44,6 +52,12 @@ $$\langle R_{\Theta, m} q, \ R_{\Theta, n} k \rangle = q^T R_{\Theta, n-m} k$$
 - **Production Utility:** The attention weights depend *only* on the relative distance $n-m$, allowing the model to naturally model relative positions. Standard in modern LLMs (Llama, Mistral, Gemma).
 
 ![RoPE 2D Vector Rotation & Relative Attention Score Decay](images/04_rope_rotation_decay.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (RoPE 2D Vector Rotations & Relative Decay):**
+> - **What is shown:** Left: PyTorch 2D Query vector rotations in complex space across token positions. Right: The PyTorch inner product score $\langle R_m q, R_n k \rangle$ decaying smoothly as the relative token distance $|m-n|$ increases.
+> - **Key Mathematical Insight:** RoPE rotates 2D slices of Query/Key vectors by angle $\phi = m\theta_i$. The dot product $\langle R_m q, R_n k \rangle = q^T R_{n-m} k$ depends exclusively on relative distance $n-m$, naturally introducing distance-decay without requiring absolute position embeddings.
+> - **Interview Application:** Explains why modern LLMs (Llama-3, Mistral) prefer RoPE over learned absolute embeddings for sequence extrapolation and relative context modeling.
 
 ---
 
@@ -102,6 +116,12 @@ Rotate a 2D query vector $q = \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}$ at posit
     - **Production Utility:** NTK-aware scaling achieves outstanding context extensions (often up to $8\text{x}$ or $16\text{x}$ extension windows) without requiring fine-tuning, keeping local attention intact while extending global bounds.
 
 ![RoPE Context Extension: Frequency Spectrum](images/05_rope_ntk_scaling.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (NTK-Aware Context Scaling):**
+> - **What is shown:** Rotation frequency spectrum ($\theta_i$) across vector dimensions $i$ for Original 4k context (blue), Linear RoPE scaling (red dashed), and NTK-Aware base scaling (green).
+> - **Key Mathematical Insight:** Linear scaling divides all frequencies by factor $s$, squishing local relative distances. NTK-aware scaling adjusts the base $\text{base}' = \text{base} \cdot s^{\frac{d}{d-2}}$. For small $i$ (high frequencies), scaling $\to 1$ (preserving local word interactions). For large $i$ (low frequencies), scaling $\to 1/s$ (extrapolating global context bounds).
+> - **Interview Application:** Use this visual to justify choosing NTK-aware scaling over linear scaling for zero-shot LLM context window extension (e.g. 4k to 16k tokens).
 
 ---
 

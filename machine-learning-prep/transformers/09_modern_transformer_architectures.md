@@ -2,6 +2,8 @@
 
 This guide details the evolution of modern Large Language Model (LLM) architectures (such as Llama-3, Mistral, and Mixtral), explaining the mathematical changes behind SwiGLU and Mixture of Experts (MoE), walking through a SwiGLU hand-calculation, and detailing their production systems tradeoffs.
 
+> **Notebook Companion**: [09_modern_transformer_architectures.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/09_modern_transformer_architectures.ipynb)
+
 ---
 
 ## 1. How Modern LLMs Differ from the Original Transformer
@@ -42,6 +44,12 @@ Where $W$ and $V$ are projection weights, and $\odot$ is the element-wise produc
 - **Why it works:** It splits the feed-forward projection into two parallel paths, multiplying them element-wise. This bilinear gating allows the model to learn multiplicative relationships between features. Despite having $50\%$ more parameters for the same hidden dimension size, SwiGLU shows significantly better convergence rates than GELU/ReLU.
 
 ![Activation Functions and Derivatives](images/06_activations_and_gradients.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways (ReLU vs. GELU vs. SwiGLU):**
+> - **What is shown:** Left: Activation outputs $f(x)$. Right: PyTorch autograd derivatives $f'(x)$ for $x \in [-4, 4]$ across ReLU, GELU, and SiLU/SwiGLU.
+> - **Key Mathematical Insight:** ReLU outputs exact zero for $x < 0$ with zero derivative ($f'(x) = 0$), causing "dying ReLU" neurons. GELU ($\text{GELU}(x) = x \Phi(x)$) and SiLU ($\text{SiLU}(x) = x \sigma(x)$) are smooth and non-monotonic, maintaining negative gradients that allow inactive neurons to recover during training.
+> - **Interview Application:** Explains why modern architectures (GPT-4, Llama-3) replaced ReLU with GELU/SwiGLU to accelerate training convergence and improve feature representations.
 
 ---
 

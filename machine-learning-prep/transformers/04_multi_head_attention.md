@@ -2,6 +2,8 @@
 
 This guide details the architectural variations of Multi-Head Attention (MHA), Multi-Query Attention (MQA), and Grouped-Query Attention (GQA), explaining the KV cache memory bandwidth bottlenecks they solve, with step-by-step tensor dimension splits and PyTorch implementation.
 
+> **Notebook Companion**: [04_multi_head_attention.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/04_multi_head_attention.ipynb)
+
 ---
 
 ## 1. Why Multi-Head Attention (MHA)?
@@ -13,6 +15,16 @@ A single attention head computes a single softmax weight distribution. This forc
   - *Head 3:* Focuses on coreference resolution (e.g. matching pronouns like *"he"* to names).
 
 ![Multi-Head Attention Diversity](images/02_mha_head_diversity.png)
+
+> [!NOTE]
+> **Plot Interpretation & Interview Takeaways:**
+> - **What is shown:** Live attention weight matrices extracted directly from Layer 11 of HuggingFace `bert-base-uncased` on the sentence *"The animal didn't cross the street because it was too tired"*.
+> - **Key Architectural Insight:** 
+>   - **Head 0** tracks structural delimiter positions and self-tokens.
+>   - **Head 3** performs coreference resolution, concentrating strong attention weight between the pronoun *"it"* (row 7) and the entity *"animal"* (column 2).
+>   - **Head 6** focuses on syntactic verb-object and modifier relationships (*"cross"* $\to$ *"street"*).
+>   - **Head 9** aggregates context broadly across the entire sequence.
+> - **Interview Application:** Use this plot to explain why Multi-Head Attention outperforms single-head attention: projecting $Q, K, V$ into $h$ independent lower-dimensional subspaces allows the model to simultaneously process syntactic structure, semantic coreference, and global context in parallel.
 
 ---
 

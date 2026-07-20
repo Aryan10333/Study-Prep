@@ -2,6 +2,8 @@
 
 This guide details the mathematical equations, projections, complexity profiles, and step-by-step matrix calculations for the Self-Attention layer, accompanied by a clean PyTorch implementation.
 
+> **Notebook Companion**: [03_self_attention.ipynb](file:///d:/Study/Prep/machine-learning-prep/transformers/03_self_attention.ipynb)
+
 ---
 
 ## 1. What is Self-Attention?
