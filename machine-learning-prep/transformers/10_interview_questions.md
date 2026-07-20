@@ -361,3 +361,37 @@ model.load_state_dict(weights, strict=False)
     1. **Tiling:** FlashAttention loads small, fixed-size blocks (tiles) of $Q$, $K$, and $V$ from HBM into local SRAM cache ($128 \times 128$ blocks, fitting within the GPU's SRAM memory limit).
     2. **Online Softmax in Registers:** To compute softmax on SRAM tiles incrementally, it maintains local scaling statistics (running maximum $m$ and running sum of exponents $d$) inside the fast **register file** of each streaming multiprocessor (SM). As new $K, V$ tiles are loaded, it updates these registers and scales the accumulated output tile in SRAM, avoiding writing the intermediate $N \times N$ matrix to HBM.
     3. **Backward Pass Recomputation:** By saving only the final output $O$ and scaling statistics ($m, d$) to HBM, it saves $O(N^2)$ memory bandwidth. During the backward pass, it loads the $Q, K, V$ tiles from HBM into SRAM again and recomputes the intermediate gradients locally on-the-fly using the register scaling statistics, substituting slow HBM read transactions with fast, register-assisted compute FLOPs.
+
+### Q43: How does Byte-Pair Encoding (BPE) work, and how does it balance vocabulary size with sequence length?
+- **Answer:** BPE starts with an initial vocabulary of individual characters ($|V|_{\text{init}} = 256$). It counts frequencies of adjacent character pairs across the training corpus and iteratively merges the most frequent pair $(c_i, c_j) \rightarrow c_{ij}$ into a new subword token until target vocabulary size $|V|$ is reached. It balances memory by preventing Out-Of-Vocabulary (OOV) tokens while keeping sequence lengths $N$ significantly shorter than character-level tokenization.
+
+### Q44: Compare WordPiece (BERT), BPE (GPT-4), and SentencePiece (Llama 3).
+- **Answer:**
+  - **BPE:** Merges most frequent symbol pairs based purely on frequency.
+  - **WordPiece:** Merges symbol pairs that maximize the likelihood of a language model under a unigram model ($\frac{\text{count}(uv)}{\text{count}(u) \times \text{count}(v)}$).
+  - **SentencePiece:** Operates directly on raw UTF-8 byte streams without pre-tokenization space splitting, using byte-fallback to guarantee zero OOV tokens.
+
+### Q45: What is the Byte-Fallback mechanism in modern tokenizers like SentencePiece and tiktoken?
+- **Answer:** Byte-fallback ensures that any unknown character or rare Unicode code point is represented directly by its raw 1-byte UTF-8 numerical values ($0 - 255$). This guarantees that the tokenizer can encode any arbitrary text or binary data with zero OOV tokens.
+
+### Q46: Compare Static Embeddings (Word2Vec / GloVe) vs Contextual Embeddings (Transformers).
+- **Answer:**
+  - **Static Embeddings:** Assign a fixed vector $v \in \mathbb{R}^d$ per word independent of context, causing polysemy errors (e.g. *"river bank"* vs *"financial bank"* share the same vector).
+  - **Contextual Embeddings:** Use Transformer self-attention layers to dynamically compute token representations based on surrounding sequence context ($h_i = \text{SelfAttention}(E_{\text{token}} + P_{\text{pos}})$).
+
+### Q47: Write a PyTorch function that demonstrates token embedding lookup matrix algebra ($E_{\text{input}} = W_{\text{token}}[X] + P_{\text{pos}}$).
+```python
+class InputEmbedding(nn.Module):
+    def __init__(self, vocab_size, d_model, max_len=512):
+        super().__init__()
+        self.token_emb = nn.Embedding(vocab_size, d_model)
+        self.pos_emb = nn.Embedding(max_len, d_model)
+        
+    def forward(self, x):
+        seq_len = x.size(1)
+        positions = torch.arange(seq_len, device=x.device).unsqueeze(0)
+        return self.token_emb(x) + self.pos_emb(positions)
+```
+
+### Q48: Why does subword tokenization introduce multilingual pricing bias in commercial LLM APIs?
+- **Answer:** BPE tokenizers trained predominantly on English text represent English words using $\sim 1.3$ tokens per word, whereas non-Latin scripts (such as Hindi, Arabic, or Chinese) get split into many byte-level subwords ($\sim 3.0 - 5.0$ tokens per word). Because LLM APIs charge per token, non-English prompts cost $3\text{x} - 4\text{x}$ more and exhaust context windows much faster.
