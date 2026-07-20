@@ -1,0 +1,10 @@
+# Hidden Vector Databases & Local Caches
+.vectordb/
+.db_cache/
+.tmp_db/
+.env
+
+# Python & Jupyter Caches
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
