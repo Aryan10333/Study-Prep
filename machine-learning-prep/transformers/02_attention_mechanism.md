@@ -63,6 +63,8 @@ $$q \cdot k = \sum_{i=1}^{d_k} q_i k_i$$
   $$\text{Var}\left( \frac{q \cdot k}{\sqrt{d_k}} \right) = \frac{1}{d_k} \text{Var}(q \cdot k) = \frac{d_k}{d_k} = \mathbf{1.0}$$
   This keeps the inputs to the softmax layer within its active, high-gradient region $[-2.0, 2.0]$.
 
+![Scaled vs Unscaled Attention](images/01_scaled_vs_unscaled_attention.png)
+
 ---
 
 ## 4. Step-by-Step Hand Calculations: Attention Pass (Andrew Ng Style)

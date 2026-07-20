@@ -41,6 +41,8 @@ $$\text{SwiGLU}(x) = \text{Swish}_\beta(x W) \odot x V$$
 Where $W$ and $V$ are projection weights, and $\odot$ is the element-wise product.
 - **Why it works:** It splits the feed-forward projection into two parallel paths, multiplying them element-wise. This bilinear gating allows the model to learn multiplicative relationships between features. Despite having $50\%$ more parameters for the same hidden dimension size, SwiGLU shows significantly better convergence rates than GELU/ReLU.
 
+![Activation Functions and Derivatives](images/06_activations_and_gradients.png)
+
 ---
 
 ## 3. LayerNorm Placement & Gradient Stability: Post-LN vs. Pre-LN

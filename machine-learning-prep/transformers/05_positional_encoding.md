@@ -23,6 +23,8 @@ Where:
 - $i$ is the dimension index.
 - **Relative Position Property:** For any fixed offset $k$, $PE_{pos+k}$ can be projected as a linear function of $PE_{pos}$. This allows the model to learn relative relationships.
 
+![Sinusoidal Positional Encoding Heatmap](images/03_sinusoidal_encoding_heatmap.png)
+
 ---
 
 ### B. Learned Positional Embeddings
@@ -40,6 +42,8 @@ Where $\theta_i = 10000^{-2(i-1)/d}$.
 The dot product of a Query at position $m$ and a Key at position $n$ rotated via RoPE becomes:
 $$\langle R_{\Theta, m} q, \ R_{\Theta, n} k \rangle = q^T R_{\Theta, n-m} k$$
 - **Production Utility:** The attention weights depend *only* on the relative distance $n-m$, allowing the model to naturally model relative positions. Standard in modern LLMs (Llama, Mistral, Gemma).
+
+![RoPE 2D Vector Rotation & Relative Attention Score Decay](images/04_rope_rotation_decay.png)
 
 ---
 
@@ -96,6 +100,8 @@ Rotate a 2D query vector $q = \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}$ at posit
     - For high-frequency components (when $i \to 1$), the scaling multiplier $s^{-\frac{2(i-1)}{d-2}} \to 1$. Thus, the high-frequency components (representing close, local token interactions) remain almost identical to their pre-trained values, preserving high-resolution local attention structures.
     - For low-frequency components (when $i \to d/2$), the scaling multiplier $s^{-\frac{2(d/2-1)}{d-2}} = s^{-1} = 1/s$. The low frequencies (representing global sequence structures) are scaled down by exactly $1/s$, allowing the model to extrapolate smoothly to the extended sequence length $s \cdot L$.
     - **Production Utility:** NTK-aware scaling achieves outstanding context extensions (often up to $8\text{x}$ or $16\text{x}$ extension windows) without requiring fine-tuning, keeping local attention intact while extending global bounds.
+
+![RoPE Context Extension: Frequency Spectrum](images/05_rope_ntk_scaling.png)
 
 ---
 

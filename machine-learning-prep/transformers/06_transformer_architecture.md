@@ -31,6 +31,8 @@ Residual connections ($x + \text{SubLayer}(x)$) provide a gradient highway durin
   $$x_{t+1} = x_t + \text{SubLayer}\left(\text{LayerNorm}(x_t)\right)$$
   - *Production Utility:* Extremely stable; training converges reliably without warm-up phases.
 
+![Pre-LN vs Post-LN Backpropagation Gradient Flow](images/07_pre_ln_vs_post_ln_gradient_flow.png)
+
 ---
 
 ## 2. Normalization Evolution: RMSNorm

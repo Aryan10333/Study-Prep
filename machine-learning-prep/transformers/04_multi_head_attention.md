@@ -12,6 +12,8 @@ A single attention head computes a single softmax weight distribution. This forc
   - *Head 2:* Focuses on semantic facts (e.g. matching entity names to dates).
   - *Head 3:* Focuses on coreference resolution (e.g. matching pronouns like *"he"* to names).
 
+![Multi-Head Attention Diversity](images/02_mha_head_diversity.png)
+
 ---
 
 ## 2. Mathematical Formulations

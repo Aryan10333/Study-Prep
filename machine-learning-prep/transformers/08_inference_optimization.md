@@ -43,6 +43,8 @@ Where:
 - **$T$** is the target sequence context length.
 - **$B$** is the serving batch size.
 
+![KV Cache VRAM Footprint Comparison](images/08_kv_cache_vram_mha_mqa_gqa.png)
+
 ---
 
 ## 3. FlashAttention: Hardware Tiling & Online Softmax
@@ -64,6 +66,8 @@ In standard self-attention:
 1. Load $Q$ and $K$ from HBM $\to$ compute $S = Q K^T$ in SRAM $\to$ write $S$ of size $N \times N$ back to HBM (Memory Bound).
 2. Load $S$ from HBM $\to$ compute $P = \text{softmax}(S)$ in SRAM $\to$ write $P$ of size $N \times N$ back to HBM (Memory Bound).
 3. Load $P$ and $V$ from HBM $\to$ compute $O = P V$ in SRAM $\to$ write $O$ back to HBM (Memory Bound).
+
+![Roofline Performance Model: Prefill vs Decode & FlashAttention IO Shift](images/09_prefill_vs_decode_roofline.png)
 
 ### B. The FlashAttention Solution: Tiling & Online Softmax
 FlashAttention resolves this by loading $Q, K, V$ into SRAM in small tiles/blocks, computing attention locally, and writing only the final output $O$ back to HBM. It completely bypasses HBM accesses for the intermediate $N \times N$ matrix.
