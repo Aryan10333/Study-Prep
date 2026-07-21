@@ -16,14 +16,12 @@ In standard Encoder-Decoder RNNs, the encoder compresses an arbitrary input sequ
 
 ## 2. Bahdanau (Additive) vs. Luong (Multiplicative) Attention
 
-```text
-Dimension          Bahdanau Attention (Additive)              Luong Attention (Multiplicative)
----------------------------------------------------------------------------------------------------------
-Score Function     $e_{ij} = v_a^\top \tanh(W_a s_{i-1} + W_b h_j)$  $e_{ij} = s_i^\top W_a h_j$
-Decoder State      Uses previous decoder state $s_{i-1}$      Uses current decoder state $s_i$
-Computation        Slower (requires matrix addition & tanh)   Faster (matrix multiplication optimized for GPUs)
-Alignment Vector   Concatenated before RNN step               Combined after RNN hidden state computation
-```
+| Dimension | Bahdanau Attention (Additive) | Luong Attention (Multiplicative) |
+|---|---|---|
+| **Score Function** | $e_{ij} = v_a^\top \tanh(W_a s_{i-1} + W_b h_j)$ | $e_{ij} = s_i^\top W_a h_j$ |
+| **Decoder State** | Uses previous decoder state $s_{i-1}$ | Uses current decoder state $s_i$ |
+| **Computation** | Slower (requires matrix addition & tanh) | Faster (matrix multiplication optimized for GPUs) |
+| **Alignment Vector** | Concatenated before RNN step | Combined after RNN hidden state computation |
 
 ---
 

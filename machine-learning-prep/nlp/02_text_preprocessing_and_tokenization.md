@@ -16,15 +16,13 @@ Text collected from web APIs or PDF logs often contains incompatible Unicode var
 
 ## 2. Stemming vs. Lemmatization
 
-```text
-Dimension          Stemming (Porter / Snowball)              Lemmatization (WordNet / spaCy)
----------------------------------------------------------------------------------------------------------
-Mechanism          Heuristic rule-based suffix chopping      Morphological vocabulary & POS lookup
-Context Sensitivity Context-agnostic (chops suffixes blindly) Uses Part-of-Speech (POS) context
-Output Form        Often invalid words ("comput", "organi")   Valid dictionary canonical lemma ("compute")
-Computational Cost Extremely fast ($O(N)$ regex chops)       Slower ($O(N)$ POS tagging & lexicon lookup)
-Production Role    Legacy IR / Keyword search engines       Advanced Sentiment & NLP feature extraction
-```
+| Dimension | Stemming (Porter / Snowball) | Lemmatization (WordNet / spaCy) |
+|---|---|---|
+| **Mechanism** | Heuristic rule-based suffix chopping | Morphological vocabulary & POS lookup |
+| **Context Sensitivity** | Context-agnostic (chops suffixes blindly) | Uses Part-of-Speech (POS) context |
+| **Output Form** | Often invalid words (`"comput"`, `"organi"`) | Valid dictionary canonical lemma (`"compute"`) |
+| **Computational Cost** | Extremely fast ($O(N)$ regex chops) | Slower ($O(N)$ POS tagging & lexicon lookup) |
+| **Production Role** | Legacy IR / Keyword search engines | Advanced Sentiment & NLP feature extraction |
 
 ---
 
@@ -32,13 +30,11 @@ Production Role    Legacy IR / Keyword search engines       Advanced Sentiment &
 
 Subword tokenization bridges the gap between **Word-Level** (suffers from high OOV and massive $|V|$) and **Character-Level** (suffers from long sequence length $T$ and weak semantic density).
 
-```text
-Algorithm          Used In                 Vocabulary Building Strategy
----------------------------------------------------------------------------------------------------------
-Byte Pair Encoding GPT-2, GPT-4, Llama 3   Bottom-up: Merges most frequent adjacent symbol pair iteratively.
-WordPiece          BERT, DistilBERT        Bottom-up: Merges symbol pair maximizing likelihood score gain.
-Unigram LM         T5, SentencePiece       Top-down: Starts with huge candidate set, prunes least loss-reducing subwords.
-```
+| Algorithm | Used In | Vocabulary Building Strategy |
+|---|---|---|
+| **Byte Pair Encoding** | GPT-2, GPT-4, Llama 3 | Bottom-up: Merges most frequent adjacent symbol pair iteratively. |
+| **WordPiece** | BERT, DistilBERT | Bottom-up: Merges symbol pair maximizing likelihood score gain. |
+| **Unigram LM** | T5, SentencePiece | Top-down: Starts with huge candidate set, prunes least loss-reducing subwords. |
 
 ---
 

@@ -180,6 +180,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .vm { color: #f8f8f2 } /* Name.Variable.Magic */
 .codehilite .il { color: #ae81ff } /* Literal.Number.Integer.Long */
 
+        /* Prevent white background artifacts on code tokens inside .codehilite */
+        .codehilite, .codehilite pre, .codehilite code, .codehilite span {
+            background-color: transparent !important;
+        }
+
         .codehilite {
             background-color: #0f172a !important;
             border-radius: 6px !important;
@@ -235,7 +240,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <div style="margin-top: 60px; font-size: 14px; color: #475569; line-height: 1.8;">
         <p><b>Target Persona:</b> Senior AI Engineer / Applied AI Engineer (~3 YOE)</p>
         <p><b>Core Modules:</b> Preprocessing, Tokenization, TF-IDF, Embeddings, Classical ML, RNN/LSTM/GRU, Attention, Metrics & Serving</p>
-        <p><b>Includes:</b> 8 Essential Formulas, Numerical Walkthroughs, Syntax Highlighting, Explicit Table Boundaries, PyTorch Code, Standardized Interview Q&A</p>
+        <p><b>Includes:</b> 8 Essential Formulas, Numerical Walkthroughs, GFM Tables with Boundaries, Monokai Code Highlighting, PyTorch Code, Standardized Interview Q&A</p>
     </div>
 </div>
 
@@ -293,16 +298,61 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <hr />
 <h2 id="3-evolution-of-nlp-paradigms">3. Evolution of NLP Paradigms</h2>
-<div class="codehilite"><pre><span></span><code>Dimension          Rule-Based NLP             Statistical ML NLP         Deep Learning NLP          Modern Transformer LLM
---------------------------------------------------------------------------------------------------------------------------------
-Era                1960s – 1990s              1990s – 2010s              2014 – 2019                2019 – Present
-Primary Tech       Regex, Grammar Rules       TF-IDF, Naive Bayes, SVM  RNN, LSTM, GRU, GloVe      BERT, GPT-4, Llama 3
-Feature Matrix     Hand-crafted rules         Bag-of-Words / N-Grams     Dense Static Vectors (Word2Vec) Learned Contextual Self-Attention
-Context Horizon    Rule clause bounded        Unigram / Bigram window    Sequential hidden state    Global Context (128k+ tokens)
-OOV Handling       Fails on missing rules     Mapped to &lt;UNK&gt; token      Character / Subword        Subword Tokenization (0% OOV)
-Inference Latency  Ultra-fast (&lt;1ms)          Ultra-fast (&lt;2ms)          Moderate (10ms - 50ms)     Heavy (100ms - 1000ms+)
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Rule-Based NLP</th>
+<th>Statistical ML NLP</th>
+<th>Deep Learning NLP</th>
+<th>Modern Transformer LLM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Era</strong></td>
+<td>1960s – 1990s</td>
+<td>1990s – 2010s</td>
+<td>2014 – 2019</td>
+<td>2019 – Present</td>
+</tr>
+<tr>
+<td><strong>Primary Tech</strong></td>
+<td>Regex, Grammar Rules</td>
+<td>TF-IDF, Naive Bayes, SVM</td>
+<td>RNN, LSTM, GRU, GloVe</td>
+<td>BERT, GPT-4, Llama 3</td>
+</tr>
+<tr>
+<td><strong>Feature Matrix</strong></td>
+<td>Hand-crafted rules</td>
+<td>Bag-of-Words / N-Grams</td>
+<td>Dense Static Vectors (Word2Vec)</td>
+<td>Learned Contextual Self-Attention</td>
+</tr>
+<tr>
+<td><strong>Context Horizon</strong></td>
+<td>Rule clause bounded</td>
+<td>Unigram / Bigram window</td>
+<td>Sequential hidden state</td>
+<td>Global Context (128k+ tokens)</td>
+</tr>
+<tr>
+<td><strong>OOV Handling</strong></td>
+<td>Fails on missing rules</td>
+<td>Mapped to <code>&lt;UNK&gt;</code> token</td>
+<td>Character / Subword</td>
+<td>Subword Tokenization (0% OOV)</td>
+</tr>
+<tr>
+<td><strong>Inference Latency</strong></td>
+<td>Ultra-fast ($<1\text{ms}$)</td>
+<td>Ultra-fast ($<2\text{ms}$)</td>
+<td>Moderate ($10\text{ms} - 50\text{ms}$)</td>
+<td>Heavy ($100\text{ms} - 1000\text{ms}+$)</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="4-core-nlp-task-taxonomy">4. Core NLP Task Taxonomy</h2>
 <p>Enterprise NLP tasks are broadly categorized into four families:<br />
@@ -409,25 +459,71 @@ Inference Latency  Ultra-fast (&lt;1ms)          Ultra-fast (&lt;2ms)          M
 - <strong>NFKC (Compatibility Composition)</strong>: Decomposes compatibility characters and re-composes into standard canonical forms.</p>
 <hr />
 <h2 id="2-stemming-vs-lemmatization">2. Stemming vs. Lemmatization</h2>
-<div class="codehilite"><pre><span></span><code>Dimension          Stemming (Porter / Snowball)              Lemmatization (WordNet / spaCy)
----------------------------------------------------------------------------------------------------------
-Mechanism          Heuristic rule-based suffix chopping      Morphological vocabulary &amp; POS lookup
-Context Sensitivity Context-agnostic (chops suffixes blindly) Uses Part-of-Speech (POS) context
-Output Form        Often invalid words (&quot;comput&quot;, &quot;organi&quot;)   Valid dictionary canonical lemma (&quot;compute&quot;)
-Computational Cost Extremely fast ($O(N)$ regex chops)       Slower ($O(N)$ POS tagging &amp; lexicon lookup)
-Production Role    Legacy IR / Keyword search engines       Advanced Sentiment &amp; NLP feature extraction
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Stemming (Porter / Snowball)</th>
+<th>Lemmatization (WordNet / spaCy)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mechanism</strong></td>
+<td>Heuristic rule-based suffix chopping</td>
+<td>Morphological vocabulary &amp; POS lookup</td>
+</tr>
+<tr>
+<td><strong>Context Sensitivity</strong></td>
+<td>Context-agnostic (chops suffixes blindly)</td>
+<td>Uses Part-of-Speech (POS) context</td>
+</tr>
+<tr>
+<td><strong>Output Form</strong></td>
+<td>Often invalid words (<code>"comput"</code>, <code>"organi"</code>)</td>
+<td>Valid dictionary canonical lemma (<code>"compute"</code>)</td>
+</tr>
+<tr>
+<td><strong>Computational Cost</strong></td>
+<td>Extremely fast ($O(N)$ regex chops)</td>
+<td>Slower ($O(N)$ POS tagging &amp; lexicon lookup)</td>
+</tr>
+<tr>
+<td><strong>Production Role</strong></td>
+<td>Legacy IR / Keyword search engines</td>
+<td>Advanced Sentiment &amp; NLP feature extraction</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="3-modern-subword-tokenization-paradigms">3. Modern Subword Tokenization Paradigms</h2>
 <p>Subword tokenization bridges the gap between <strong>Word-Level</strong> (suffers from high OOV and massive $|V|$) and <strong>Character-Level</strong> (suffers from long sequence length $T$ and weak semantic density).</p>
-<div class="codehilite"><pre><span></span><code>Algorithm          Used In                 Vocabulary Building Strategy
----------------------------------------------------------------------------------------------------------
-Byte Pair Encoding GPT-2, GPT-4, Llama 3   Bottom-up: Merges most frequent adjacent symbol pair iteratively.
-WordPiece          BERT, DistilBERT        Bottom-up: Merges symbol pair maximizing likelihood score gain.
-Unigram LM         T5, SentencePiece       Top-down: Starts with huge candidate set, prunes least loss-reducing subwords.
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Used In</th>
+<th>Vocabulary Building Strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Byte Pair Encoding</strong></td>
+<td>GPT-2, GPT-4, Llama 3</td>
+<td>Bottom-up: Merges most frequent adjacent symbol pair iteratively.</td>
+</tr>
+<tr>
+<td><strong>WordPiece</strong></td>
+<td>BERT, DistilBERT</td>
+<td>Bottom-up: Merges symbol pair maximizing likelihood score gain.</td>
+</tr>
+<tr>
+<td><strong>Unigram LM</strong></td>
+<td>T5, SentencePiece</td>
+<td>Top-down: Starts with huge candidate set, prunes least loss-reducing subwords.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="4-step-by-step-bpe-hand-calculation-example">4. Step-by-Step BPE Hand Calculation Example</h2>
 <p>Suppose we have a tiny corpus with target word frequencies:<br />
@@ -674,14 +770,37 @@ $$v_{\text{norm}}(d_3) = [0.6228, 0, 0, 0.6228, 0, 0.6228, 0, 0]$$</p>
 <p>Dense embeddings project words into a continuous lower-dimensional space $\mathbb{R}^d$ ($d \approx 100 - 300$), capturing distributional semantics (<em>"words that occur in similar contexts tend to have similar meanings"</em>).</p>
 <hr />
 <h2 id="2-word2vec-architectures-cbow-vs-skip-gram">2. Word2Vec Architectures: CBOW vs. Skip-Gram</h2>
-<div class="codehilite"><pre><span></span><code>Dimension          Continuous Bag-of-Words (CBOW)             Skip-Gram
----------------------------------------------------------------------------------------------------------
-Task Objective     Predict target word $w_t$ given context    Predict context words $w_{t+k}$ given target $w_t$
-Training Speed     Faster ($O(d)$ per window update)          Slower ($O(m \cdot d)$ per window update)
-Infrequent Words   Averages context; weaker on rare words     Produces high-quality vectors for rare words
-Best Use Case      Large corpora, fast baseline training      Smaller datasets, rich semantic queries
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Continuous Bag-of-Words (CBOW)</th>
+<th>Skip-Gram</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Task Objective</strong></td>
+<td>Predict target word $w_t$ given context</td>
+<td>Predict context words $w_{t+k}$ given target $w_t$</td>
+</tr>
+<tr>
+<td><strong>Training Speed</strong></td>
+<td>Faster ($O(d)$ per window update)</td>
+<td>Slower ($O(m \cdot d)$ per window update)</td>
+</tr>
+<tr>
+<td><strong>Infrequent Words</strong></td>
+<td>Averages context; weaker on rare words</td>
+<td>Produces high-quality vectors for rare words</td>
+</tr>
+<tr>
+<td><strong>Best Use Case</strong></td>
+<td>Large corpora, fast baseline training</td>
+<td>Smaller datasets, rich semantic queries</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="3-word2vec-skip-gram-intuition-training-step-walkthrough">3. Word2Vec Skip-Gram Intuition &amp; Training Step Walkthrough</h2>
 <h3 id="1-context-window-sliding">1. Context Window Sliding:</h3>
@@ -935,11 +1054,13 @@ For word <code>"where"</code> with $n=3$:<br />
 <hr />
 <h2 id="2-the-5-core-lstm-update-equations">2. The 5 Core LSTM Update Equations</h2>
 <p>The Long Short-Term Memory (LSTM) architecture resolves vanishing gradients by introducing a cell memory state $C_t$ governed by 3 gating mechanisms:</p>
-<div class="codehilite"><pre><span></span><code>1. Forget Gate:     f_t = σ(W_f · [h_{t-1}, x_t] + b_f)
-2. Input Gate:      i_t = σ(W_i · [h_{t-1}, x_t] + b_i)
-3. Candidate Cell:  C~_t = tanh(W_c · [h_{t-1}, x_t] + b_c)
-4. Cell State:      C_t = f_t ⊙ C_{t-1} + i_t ⊙ C~_t
-5. Output Gate:     o_t = σ(W_o · [h_{t-1}, x_t] + b_o)  ==&gt;  h_t = o_t ⊙ tanh(C_t)
+<div class="codehilite"><pre><span></span><code>| Gate / State | Equation |
+|---|---|
+| **Forget Gate** | $f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$ |
+| **Input Gate** | $i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$ |
+| **Candidate Cell** | $\tilde{C}_t = \tanh(W_c \cdot [h_{t-1}, x_t] + b_c)$ |
+| **Cell State Update** | $C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$ |
+| **Output Gate &amp; Hidden State** | $o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \implies h_t = o_t \odot \tanh(C_t)$ |
 </code></pre></div>
 
 <p>Where $\sigma(z) = \frac{1}{1 + \exp(-z)}$ is the sigmoid function and $\odot$ represents element-wise Hadamard product.</p>
@@ -960,10 +1081,10 @@ For word <code>"where"</code> with $n=3$:<br />
 <li><strong>Candidate Cell State</strong>:<br />
   $$\tilde{C}_t = \tanh(1.5) = \frac{e^{1.5} - e^{-1.5}}{e^{1.5} + e^{-1.5}} \approx \mathbf{0.9051}$$</li>
 </ul>
-<h3 id="step-2-cell-state-update-mathplaceholder28endmath">Step 2: Cell State Update ($C_t$)</h3>
+<h3 id="step-2-cell-state-update-mathplaceholder33endmath">Step 2: Cell State Update ($C_t$)</h3>
 <p>$$C_t = (f_t \times C_{t-1}) + (i_t \times \tilde{C}_t)$$<br />
 $$C_t = (0.8176 \times 0.8) + (0.8176 \times 0.9051) = 0.6541 + 0.7400 = \mathbf{1.3941}$$</p>
-<h3 id="step-3-output-gate-hidden-state-mathplaceholder29endmath">Step 3: Output Gate &amp; Hidden State ($h_t$)</h3>
+<h3 id="step-3-output-gate-hidden-state-mathplaceholder34endmath">Step 3: Output Gate &amp; Hidden State ($h_t$)</h3>
 <ul>
 <li><strong>Output Gate</strong>:<br />
   $$o_t = \sigma(1.5) \approx \mathbf{0.8176}$$</li>
@@ -1054,14 +1175,37 @@ $$C_t = (0.8176 \times 0.8) + (0.8176 \times 0.9051) = 0.6541 + 0.7400 = \mathbf
 <p><strong>Attention</strong> resolves this bottleneck by allowing the decoder to dynamically query and weight all encoder hidden states $h_1, \dots, h_T$ at every decoding step.</p>
 <hr />
 <h2 id="2-bahdanau-additive-vs-luong-multiplicative-attention">2. Bahdanau (Additive) vs. Luong (Multiplicative) Attention</h2>
-<div class="codehilite"><pre><span></span><code>Dimension          Bahdanau Attention (Additive)              Luong Attention (Multiplicative)
----------------------------------------------------------------------------------------------------------
-Score Function     $e_{ij} = v_a^\top \tanh(W_a s_{i-1} + W_b h_j)$  $e_{ij} = s_i^\top W_a h_j$
-Decoder State      Uses previous decoder state $s_{i-1}$      Uses current decoder state $s_i$
-Computation        Slower (requires matrix addition &amp; tanh)   Faster (matrix multiplication optimized for GPUs)
-Alignment Vector   Concatenated before RNN step               Combined after RNN hidden state computation
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Bahdanau Attention (Additive)</th>
+<th>Luong Attention (Multiplicative)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Score Function</strong></td>
+<td>$e_{ij} = v_a^\top \tanh(W_a s_{i-1} + W_b h_j)$</td>
+<td>$e_{ij} = s_i^\top W_a h_j$</td>
+</tr>
+<tr>
+<td><strong>Decoder State</strong></td>
+<td>Uses previous decoder state $s_{i-1}$</td>
+<td>Uses current decoder state $s_i$</td>
+</tr>
+<tr>
+<td><strong>Computation</strong></td>
+<td>Slower (requires matrix addition &amp; tanh)</td>
+<td>Faster (matrix multiplication optimized for GPUs)</td>
+</tr>
+<tr>
+<td><strong>Alignment Vector</strong></td>
+<td>Concatenated before RNN step</td>
+<td>Combined after RNN hidden state computation</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="3-scaled-dot-product-attention-formulation">3. Scaled Dot-Product Attention Formulation</h2>
 <p>Modern Transformer architectures utilize <strong>Scaled Dot-Product Attention</strong> over Query ($Q$), Key ($K$), and Value ($V$) matrices:</p>
@@ -1180,14 +1324,42 @@ Alignment Vector   Concatenated before RNN step               Combined after RNN
 <hr />
 <h2 id="1-overview-of-generation-evaluation-metrics">1. Overview of Generation Evaluation Metrics</h2>
 <p>Evaluating machine translation, summarization, and LLM text generation requires automated metrics that compare candidate generation $c$ against reference text $r$:</p>
-<div class="codehilite"><pre><span></span><code>Metric         Primary Orientation        Core Objective Equation                             Key Focus Area
------------------------------------------------------------------------------------------------------------------------------------------
-BLEU           Precision-Oriented         $\text{BP} \cdot \exp\left(\sum w_n \log p_n\right)$ Machine Translation fidelity &amp; adequacy
-ROUGE-1        Recall-Oriented            $\frac{\text{Matching Unigrams}}{\text{Ref Unigram Count}}$ Text Summarization reference coverage
-ROUGE-L        Sequence Order Recall      $\frac{\text{LCS}(c, r)}{\text{Ref Token Length } r}$ Longest Common Subsequence sentence structure
-Perplexity     Model Uncertainty          $\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$         Language Model next-token prediction
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Primary Orientation</th>
+<th>Core Objective Equation</th>
+<th>Key Focus Area</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BLEU</strong></td>
+<td>Precision-Oriented</td>
+<td>$\text{BP} \cdot \exp\left(\sum w_n \log p_n\right)$</td>
+<td>Machine Translation fidelity &amp; adequacy</td>
+</tr>
+<tr>
+<td><strong>ROUGE-1</strong></td>
+<td>Recall-Oriented</td>
+<td>$\frac{\text{Matching Unigrams}}{\text{Ref Unigram Count}}$</td>
+<td>Text Summarization reference coverage</td>
+</tr>
+<tr>
+<td><strong>ROUGE-L</strong></td>
+<td>Sequence Order Recall</td>
+<td>$\frac{\text{LCS}(c, r)}{\text{Ref Token Length } r}$</td>
+<td>Longest Common Subsequence sentence structure</td>
+</tr>
+<tr>
+<td><strong>Perplexity</strong></td>
+<td>Model Uncertainty</td>
+<td>$\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$</td>
+<td>Language Model next-token prediction</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="2-bleu-score-bilingual-evaluation-understudy">2. BLEU Score (Bilingual Evaluation Understudy)</h2>
 <h3 id="why-bleu-is-precision-oriented">Why BLEU is Precision-Oriented:</h3>
@@ -1328,14 +1500,37 @@ $$\text{PPL} = \exp(2.3026) = \mathbf{10.0}$$</p>
 </blockquote>
 <hr />
 <h2 id="1-real-time-streaming-vs-batch-serving-architectures">1. Real-Time Streaming vs. Batch Serving Architectures</h2>
-<div class="codehilite"><pre><span></span><code>Dimension          Real-Time API Serving (gRPC / REST)        Batch Inference (Spark / Ray / Kafka)
----------------------------------------------------------------------------------------------------------
-Latency Target     Strict SLA ($p95 < 20\text{ms}$)           High Throughput (Hours / Nightly runs)
-Batch Size         Small ($B = 1 - 8$) to minimize latency    Large ($B = 128 - 1024$) to maximize GPU utilization
-Hardware           CPU instances or quantized edge GPUs      High-memory GPU clusters (A100 / H100)
-Optimization Focus ONNX Runtime, TensorRT, INT8 Quantization  Distributed data-parallel workers
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Real-Time API Serving (gRPC / REST)</th>
+<th>Batch Inference (Spark / Ray / Kafka)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Latency Target</strong></td>
+<td>Strict SLA ($p95 < 20\text{ms}$)</td>
+<td>High Throughput (Hours / Nightly runs)</td>
+</tr>
+<tr>
+<td><strong>Batch Size</strong></td>
+<td>Small ($B = 1 - 8$) to minimize latency</td>
+<td>Large ($B = 128 - 1024$) to maximize GPU utilization</td>
+</tr>
+<tr>
+<td><strong>Hardware</strong></td>
+<td>CPU instances or quantized edge GPUs</td>
+<td>High-memory GPU clusters (A100 / H100)</td>
+</tr>
+<tr>
+<td><strong>Optimization Focus</strong></td>
+<td>ONNX Runtime, TensorRT, INT8 Quantization</td>
+<td>Distributed data-parallel workers</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="2-production-optimization-techniques">2. Production Optimization Techniques</h2>
 <h3 id="1-int8-quantization">1. INT8 Quantization:</h3>
@@ -1420,28 +1615,111 @@ Optimization Focus ONNX Runtime, TensorRT, INT8 Quantization  Distributed data-p
 <p>This master study guide provides a single-page architectural comparison matrix, a time &amp; memory complexity matrix, and 30 high-frequency interview flashcards for Data Science, AI, Applied AI, GenAI, and ML Engineer interviews.</p>
 <hr />
 <h2 id="1-master-architectural-comparison-matrix">1. Master Architectural Comparison Matrix</h2>
-<div class="codehilite"><pre><span></span><code>Dimension          TF-IDF + Logistic           Word2Vec / GloVe            LSTM / GRU                  Transformer / LLMs
----------------------------------------------------------------------------------------------------------------------------------------------
-Representation     Sparse $\mathbb{R}^{|V|}$   Dense Static $\mathbb{R}^d$ Contextual $\mathbb{R}^{T \times d}$ Deep Contextual $\mathbb{R}^{T \times d}$
-Polysemy Handling  None (1 vector per word)    None (1 vector per word)    Dynamic per sequence step   Dynamic Multi-Head Self-Attention
-Context Horizon    Bag-of-Words / Local        Local Window ($m=2-5$)     Sequential ($T \approx 100$) Global Context ($128k+$ tokens)
-Parallel Training  Fully Parallel (CPUs)       Fully Parallel (CPUs)       Sequential ($O(T)$ Bottleneck) Fully Parallelized GPU Matrix Multiply
-Inference Latency  Ultra-fast ($<1\text{ms}$)  Lookup ($<1\text{ms}$)      Fast ($5\text{ms} - 20\text{ms}$) Autoregressive ($50\text{ms} - 1000\text{ms}$)
-Primary Bottleneck Feature Sparsity            Static Polysemy             Sequential Training         Quadratic Memory $O(T^2)$
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>TF-IDF + Logistic</th>
+<th>Word2Vec / GloVe</th>
+<th>LSTM / GRU</th>
+<th>Transformer / LLMs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Representation</strong></td>
+<td>Sparse $\mathbb{R}^{\vert V \vert}$</td>
+<td>Dense Static $\mathbb{R}^d$</td>
+<td>Contextual $\mathbb{R}^{T \times d}$</td>
+<td>Deep Contextual $\mathbb{R}^{T \times d}$</td>
+</tr>
+<tr>
+<td><strong>Polysemy Handling</strong></td>
+<td>None (1 vector per word)</td>
+<td>None (1 vector per word)</td>
+<td>Dynamic per sequence step</td>
+<td>Dynamic Multi-Head Self-Attention</td>
+</tr>
+<tr>
+<td><strong>Context Horizon</strong></td>
+<td>Bag-of-Words / Local</td>
+<td>Local Window ($m=2-5$)</td>
+<td>Sequential ($T \approx 100$)</td>
+<td>Global Context ($128k+$ tokens)</td>
+</tr>
+<tr>
+<td><strong>Parallel Training</strong></td>
+<td>Fully Parallel (CPUs)</td>
+<td>Fully Parallel (CPUs)</td>
+<td>Sequential ($O(T)$ Bottleneck)</td>
+<td>Fully Parallelized GPU Matrix Multiply</td>
+</tr>
+<tr>
+<td><strong>Inference Latency</strong></td>
+<td>Ultra-fast ($<1\text{ms}$)</td>
+<td>Lookup ($<1\text{ms}$)</td>
+<td>Fast ($5\text{ms} - 20\text{ms}$)</td>
+<td>Autoregressive ($50\text{ms} - 1000\text{ms}$)</td>
+</tr>
+<tr>
+<td><strong>Primary Bottleneck</strong></td>
+<td>Feature Sparsity</td>
+<td>Static Polysemy</td>
+<td>Sequential Training</td>
+<td>Quadratic Memory $O(T^2)$</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="2-computational-complexity-memory-footprint-matrix">2. Computational Complexity &amp; Memory Footprint Matrix</h2>
-<div class="codehilite"><pre><span></span><code>Algorithm / Model            Training Time Complexity              Inference Time Complexity    Memory Footprint Complexity
----------------------------------------------------------------------------------------------------------------------------------
-TF-IDF Vectorizer            $O(|D| \times L)$                     $O(k \times |V|)$            $O(|D| \times |V|)$ Sparse
-Multinomial Naive Bayes      $O(|D| \times L)$                     $O(C \times L)$              $O(C \times |V|)$ Dense
-Word2Vec (Skip-Gram SGNS)    $O(C \cdot m \cdot K \cdot d)$        $O(1)$ Lookup                $O(|V| \times d)$ Embedding Table
-LSTM Layer                   $O(T \cdot d^2)$ per sequence         $O(T \cdot d^2)$ Sequential  $O(4 \cdot d^2)$ Model Weights
-Scaled Dot-Product Attention $O(T^2 \cdot d)$ per batch            $O(T^2 \cdot d)$             $O(T^2)$ RAM Attention Weights
-INT8 Quantized Serving       $O(N \cdot d)$ SIMD                   $O(N \cdot d)$ SIMD          $O(\frac{1}{4} M_{\text{FP32}})$ Bytes
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Algorithm / Architecture</th>
+<th>Training Time Complexity</th>
+<th>Inference Time Complexity</th>
+<th>Memory Footprint Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TF-IDF Indexing</strong></td>
+<td>$O(\vert D \vert \times L)$</td>
+<td>$O(k \times \vert V \vert)$</td>
+<td>$O(\vert D \vert \times \vert V \vert)$ Sparse</td>
+</tr>
+<tr>
+<td><strong>Multinomial Naive Bayes</strong></td>
+<td>$O(\vert D \vert \times L)$</td>
+<td>$O(C \times L)$</td>
+<td>$O(C \times \vert V \vert)$ Dense</td>
+</tr>
+<tr>
+<td><strong>Word2Vec Skip-Gram</strong></td>
+<td>$O(C \cdot m \cdot K \cdot d)$</td>
+<td>$O(1)$ Lookup</td>
+<td>$O(\vert V \vert \times d)$ Embedding Table</td>
+</tr>
+<tr>
+<td><strong>LSTM Model Layer</strong></td>
+<td>$O(T \cdot d^2)$ per sequence</td>
+<td>$O(T \cdot d^2)$ Sequential</td>
+<td>$O(4 \cdot d^2)$ Model Weights</td>
+</tr>
+<tr>
+<td><strong>Scaled Dot-Product Attention</strong></td>
+<td>$O(T^2 \cdot d)$ per batch</td>
+<td>$O(T^2 \cdot d)$</td>
+<td>$O(T^2)$ RAM Attention Weights</td>
+</tr>
+<tr>
+<td><strong>INT8 Quantized Serving</strong></td>
+<td>$O(N \cdot d)$ SIMD</td>
+<td>$O(N \cdot d)$ SIMD</td>
+<td>$O(\frac{1}{4} M_{\text{FP32}})$ Bytes</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="3-30-high-frequency-interview-flashcards">3. 30 High-Frequency Interview Flashcards</h2>
 <h3 id="1-preprocessing-tokenization">1. Preprocessing &amp; Tokenization</h3>

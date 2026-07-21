@@ -8,14 +8,12 @@ This study guide covers real-time vs. batch serving architectures, INT8 quantiza
 
 ## 1. Real-Time Streaming vs. Batch Serving Architectures
 
-```text
-Dimension          Real-Time API Serving (gRPC / REST)        Batch Inference (Spark / Ray / Kafka)
----------------------------------------------------------------------------------------------------------
-Latency Target     Strict SLA ($p95 < 20\text{ms}$)           High Throughput (Hours / Nightly runs)
-Batch Size         Small ($B = 1 - 8$) to minimize latency    Large ($B = 128 - 1024$) to maximize GPU utilization
-Hardware           CPU instances or quantized edge GPUs      High-memory GPU clusters (A100 / H100)
-Optimization Focus ONNX Runtime, TensorRT, INT8 Quantization  Distributed data-parallel workers
-```
+| Dimension | Real-Time API Serving (gRPC / REST) | Batch Inference (Spark / Ray / Kafka) |
+|---|---|---|
+| **Latency Target** | Strict SLA ($p95 < 20\text{ms}$) | High Throughput (Hours / Nightly runs) |
+| **Batch Size** | Small ($B = 1 - 8$) to minimize latency | Large ($B = 128 - 1024$) to maximize GPU utilization |
+| **Hardware** | CPU instances or quantized edge GPUs | High-memory GPU clusters (A100 / H100) |
+| **Optimization Focus** | ONNX Runtime, TensorRT, INT8 Quantization | Distributed data-parallel workers |
 
 ---
 

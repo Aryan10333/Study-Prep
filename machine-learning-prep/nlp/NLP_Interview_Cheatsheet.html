@@ -180,6 +180,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .vm { color: #f8f8f2 } /* Name.Variable.Magic */
 .codehilite .il { color: #ae81ff } /* Literal.Number.Integer.Long */
 
+        /* Prevent white background artifacts on code tokens inside .codehilite */
+        .codehilite, .codehilite pre, .codehilite code, .codehilite span {
+            background-color: transparent !important;
+        }
+
         .codehilite {
             background-color: #0f172a !important;
             border-radius: 6px !important;
@@ -259,16 +264,54 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <hr />
 <h2 id="2-time-memory-complexity-matrix">2. Time &amp; Memory Complexity Matrix</h2>
-<div class="codehilite"><pre><span></span><code>Algorithm / Architecture     Training Time Complexity           Inference Time Complexity  Memory Footprint Complexity
------------------------------------------------------------------------------------------------------------------------------
-TF-IDF Indexing              $O(|D| \times L)$                  $O(k \times |V|)$          $O(|D| \times |V|)$ Sparse
-Multinomial Naive Bayes      $O(|D| \times L)$                  $O(C \times L)$            $O(C \times |V|)$ Dense
-Word2Vec Skip-Gram           $O(C \cdot m \cdot K \cdot d)$     $O(1)$ Lookup              $O(|V| \times d)$ Embedding Table
-LSTM Model Layer             $O(T \cdot d^2)$ per sequence      $O(T \cdot d^2)$           $O(4 \cdot d^2)$ Weights
-Scaled Dot-Product Attention $O(T^2 \cdot d)$ per sequence      $O(T^2 \cdot d)$           $O(T^2)$ RAM Attention Weights
-INT8 Quantized Model         $O(N \cdot d)$ SIMD                $O(N \cdot d)$ SIMD        $O(\frac{1}{4} M_{\text{FP32}})$ Bytes
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Algorithm / Architecture</th>
+<th>Training Time Complexity</th>
+<th>Inference Time Complexity</th>
+<th>Memory Footprint Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TF-IDF Indexing</strong></td>
+<td>$O(\vert D \vert \times L)$</td>
+<td>$O(k \times \vert V \vert)$</td>
+<td>$O(\vert D \vert \times \vert V \vert)$ Sparse</td>
+</tr>
+<tr>
+<td><strong>Multinomial Naive Bayes</strong></td>
+<td>$O(\vert D \vert \times L)$</td>
+<td>$O(C \times L)$</td>
+<td>$O(C \times \vert V \vert)$ Dense</td>
+</tr>
+<tr>
+<td><strong>Word2Vec Skip-Gram</strong></td>
+<td>$O(C \cdot m \cdot K \cdot d)$</td>
+<td>$O(1)$ Lookup</td>
+<td>$O(\vert V \vert \times d)$ Embedding Table</td>
+</tr>
+<tr>
+<td><strong>LSTM Model Layer</strong></td>
+<td>$O(T \cdot d^2)$ per sequence</td>
+<td>$O(T \cdot d^2)$ Sequential</td>
+<td>$O(4 \cdot d^2)$ Model Weights</td>
+</tr>
+<tr>
+<td><strong>Scaled Dot-Product Attention</strong></td>
+<td>$O(T^2 \cdot d)$ per batch</td>
+<td>$O(T^2 \cdot d)$</td>
+<td>$O(T^2)$ RAM Attention Weights</td>
+</tr>
+<tr>
+<td><strong>INT8 Quantized Serving</strong></td>
+<td>$O(N \cdot d)$ SIMD</td>
+<td>$O(N \cdot d)$ SIMD</td>
+<td>$O(\frac{1}{4} M_{\text{FP32}})$ Bytes</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="3-high-frequency-interview-qa-summary">3. High-Frequency Interview Q&amp;A Summary</h2>
 <ol>

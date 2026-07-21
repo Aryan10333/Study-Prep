@@ -48,16 +48,14 @@ In production software systems, raw text passes through a deterministic multi-st
 
 ## 3. Evolution of NLP Paradigms
 
-```text
-Dimension          Rule-Based NLP             Statistical ML NLP         Deep Learning NLP          Modern Transformer LLM
---------------------------------------------------------------------------------------------------------------------------------
-Era                1960s – 1990s              1990s – 2010s              2014 – 2019                2019 – Present
-Primary Tech       Regex, Grammar Rules       TF-IDF, Naive Bayes, SVM  RNN, LSTM, GRU, GloVe      BERT, GPT-4, Llama 3
-Feature Matrix     Hand-crafted rules         Bag-of-Words / N-Grams     Dense Static Vectors (Word2Vec) Learned Contextual Self-Attention
-Context Horizon    Rule clause bounded        Unigram / Bigram window    Sequential hidden state    Global Context (128k+ tokens)
-OOV Handling       Fails on missing rules     Mapped to <UNK> token      Character / Subword        Subword Tokenization (0% OOV)
-Inference Latency  Ultra-fast (<1ms)          Ultra-fast (<2ms)          Moderate (10ms - 50ms)     Heavy (100ms - 1000ms+)
-```
+| Dimension | Rule-Based NLP | Statistical ML NLP | Deep Learning NLP | Modern Transformer LLM |
+|---|---|---|---|---|
+| **Era** | 1960s – 1990s | 1990s – 2010s | 2014 – 2019 | 2019 – Present |
+| **Primary Tech** | Regex, Grammar Rules | TF-IDF, Naive Bayes, SVM | RNN, LSTM, GRU, GloVe | BERT, GPT-4, Llama 3 |
+| **Feature Matrix** | Hand-crafted rules | Bag-of-Words / N-Grams | Dense Static Vectors (Word2Vec) | Learned Contextual Self-Attention |
+| **Context Horizon** | Rule clause bounded | Unigram / Bigram window | Sequential hidden state | Global Context (128k+ tokens) |
+| **OOV Handling** | Fails on missing rules | Mapped to `<UNK>` token | Character / Subword | Subword Tokenization (0% OOV) |
+| **Inference Latency** | Ultra-fast ($<1\text{ms}$) | Ultra-fast ($<2\text{ms}$) | Moderate ($10\text{ms} - 50\text{ms}$) | Heavy ($100\text{ms} - 1000\text{ms}+$) |
 
 ---
 

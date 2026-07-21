@@ -18,14 +18,12 @@ Dense embeddings project words into a continuous lower-dimensional space $\mathb
 
 ## 2. Word2Vec Architectures: CBOW vs. Skip-Gram
 
-```text
-Dimension          Continuous Bag-of-Words (CBOW)             Skip-Gram
----------------------------------------------------------------------------------------------------------
-Task Objective     Predict target word $w_t$ given context    Predict context words $w_{t+k}$ given target $w_t$
-Training Speed     Faster ($O(d)$ per window update)          Slower ($O(m \cdot d)$ per window update)
-Infrequent Words   Averages context; weaker on rare words     Produces high-quality vectors for rare words
-Best Use Case      Large corpora, fast baseline training      Smaller datasets, rich semantic queries
-```
+| Dimension | Continuous Bag-of-Words (CBOW) | Skip-Gram |
+|---|---|---|
+| **Task Objective** | Predict target word $w_t$ given context | Predict context words $w_{t+k}$ given target $w_t$ |
+| **Training Speed** | Faster ($O(d)$ per window update) | Slower ($O(m \cdot d)$ per window update) |
+| **Infrequent Words** | Averages context; weaker on rare words | Produces high-quality vectors for rare words |
+| **Best Use Case** | Large corpora, fast baseline training | Smaller datasets, rich semantic queries |
 
 ---
 

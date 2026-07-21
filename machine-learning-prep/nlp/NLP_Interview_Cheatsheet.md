@@ -45,16 +45,14 @@ A high-density revision reference for AI, Applied AI, GenAI, and ML Engineer int
 
 ## 2. Time & Memory Complexity Matrix
 
-```text
-Algorithm / Architecture     Training Time Complexity           Inference Time Complexity  Memory Footprint Complexity
------------------------------------------------------------------------------------------------------------------------------
-TF-IDF Indexing              $O(|D| \times L)$                  $O(k \times |V|)$          $O(|D| \times |V|)$ Sparse
-Multinomial Naive Bayes      $O(|D| \times L)$                  $O(C \times L)$            $O(C \times |V|)$ Dense
-Word2Vec Skip-Gram           $O(C \cdot m \cdot K \cdot d)$     $O(1)$ Lookup              $O(|V| \times d)$ Embedding Table
-LSTM Model Layer             $O(T \cdot d^2)$ per sequence      $O(T \cdot d^2)$           $O(4 \cdot d^2)$ Weights
-Scaled Dot-Product Attention $O(T^2 \cdot d)$ per sequence      $O(T^2 \cdot d)$           $O(T^2)$ RAM Attention Weights
-INT8 Quantized Model         $O(N \cdot d)$ SIMD                $O(N \cdot d)$ SIMD        $O(\frac{1}{4} M_{\text{FP32}})$ Bytes
-```
+| Algorithm / Architecture | Training Time Complexity | Inference Time Complexity | Memory Footprint Complexity |
+|---|---|---|---|
+| **TF-IDF Indexing** | $O(\vert D \vert \times L)$ | $O(k \times \vert V \vert)$ | $O(\vert D \vert \times \vert V \vert)$ Sparse |
+| **Multinomial Naive Bayes** | $O(\vert D \vert \times L)$ | $O(C \times L)$ | $O(C \times \vert V \vert)$ Dense |
+| **Word2Vec Skip-Gram** | $O(C \cdot m \cdot K \cdot d)$ | $O(1)$ Lookup | $O(\vert V \vert \times d)$ Embedding Table |
+| **LSTM Model Layer** | $O(T \cdot d^2)$ per sequence | $O(T \cdot d^2)$ Sequential | $O(4 \cdot d^2)$ Model Weights |
+| **Scaled Dot-Product Attention** | $O(T^2 \cdot d)$ per batch | $O(T^2 \cdot d)$ | $O(T^2)$ RAM Attention Weights |
+| **INT8 Quantized Serving** | $O(N \cdot d)$ SIMD | $O(N \cdot d)$ SIMD | $O(\frac{1}{4} M_{\text{FP32}})$ Bytes |
 
 ---
 

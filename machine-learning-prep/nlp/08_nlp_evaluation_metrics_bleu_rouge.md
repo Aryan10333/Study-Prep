@@ -10,14 +10,12 @@ This study guide covers BLEU (modified precision & brevity penalty), ROUGE-1 and
 
 Evaluating machine translation, summarization, and LLM text generation requires automated metrics that compare candidate generation $c$ against reference text $r$:
 
-```text
-Metric         Primary Orientation        Core Objective Equation                             Key Focus Area
------------------------------------------------------------------------------------------------------------------------------------------
-BLEU           Precision-Oriented         $\text{BP} \cdot \exp\left(\sum w_n \log p_n\right)$ Machine Translation fidelity & adequacy
-ROUGE-1        Recall-Oriented            $\frac{\text{Matching Unigrams}}{\text{Ref Unigram Count}}$ Text Summarization reference coverage
-ROUGE-L        Sequence Order Recall      $\frac{\text{LCS}(c, r)}{\text{Ref Token Length } r}$ Longest Common Subsequence sentence structure
-Perplexity     Model Uncertainty          $\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$         Language Model next-token prediction
-```
+| Metric | Primary Orientation | Core Objective Equation | Key Focus Area |
+|---|---|---|---|
+| **BLEU** | Precision-Oriented | $\text{BP} \cdot \exp\left(\sum w_n \log p_n\right)$ | Machine Translation fidelity & adequacy |
+| **ROUGE-1** | Recall-Oriented | $\frac{\text{Matching Unigrams}}{\text{Ref Unigram Count}}$ | Text Summarization reference coverage |
+| **ROUGE-L** | Sequence Order Recall | $\frac{\text{LCS}(c, r)}{\text{Ref Token Length } r}$ | Longest Common Subsequence sentence structure |
+| **Perplexity** | Model Uncertainty | $\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$ | Language Model next-token prediction |
 
 ---
 

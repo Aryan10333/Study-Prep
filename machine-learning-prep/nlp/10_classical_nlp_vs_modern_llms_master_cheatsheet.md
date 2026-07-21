@@ -6,31 +6,27 @@ This master study guide provides a single-page architectural comparison matrix, 
 
 ## 1. Master Architectural Comparison Matrix
 
-```text
-Dimension          TF-IDF + Logistic           Word2Vec / GloVe            LSTM / GRU                  Transformer / LLMs
----------------------------------------------------------------------------------------------------------------------------------------------
-Representation     Sparse $\mathbb{R}^{|V|}$   Dense Static $\mathbb{R}^d$ Contextual $\mathbb{R}^{T \times d}$ Deep Contextual $\mathbb{R}^{T \times d}$
-Polysemy Handling  None (1 vector per word)    None (1 vector per word)    Dynamic per sequence step   Dynamic Multi-Head Self-Attention
-Context Horizon    Bag-of-Words / Local        Local Window ($m=2-5$)     Sequential ($T \approx 100$) Global Context ($128k+$ tokens)
-Parallel Training  Fully Parallel (CPUs)       Fully Parallel (CPUs)       Sequential ($O(T)$ Bottleneck) Fully Parallelized GPU Matrix Multiply
-Inference Latency  Ultra-fast ($<1\text{ms}$)  Lookup ($<1\text{ms}$)      Fast ($5\text{ms} - 20\text{ms}$) Autoregressive ($50\text{ms} - 1000\text{ms}$)
-Primary Bottleneck Feature Sparsity            Static Polysemy             Sequential Training         Quadratic Memory $O(T^2)$
-```
+| Dimension | TF-IDF + Logistic | Word2Vec / GloVe | LSTM / GRU | Transformer / LLMs |
+|---|---|---|---|---|
+| **Representation** | Sparse $\mathbb{R}^{\vert V \vert}$ | Dense Static $\mathbb{R}^d$ | Contextual $\mathbb{R}^{T \times d}$ | Deep Contextual $\mathbb{R}^{T \times d}$ |
+| **Polysemy Handling** | None (1 vector per word) | None (1 vector per word) | Dynamic per sequence step | Dynamic Multi-Head Self-Attention |
+| **Context Horizon** | Bag-of-Words / Local | Local Window ($m=2-5$) | Sequential ($T \approx 100$) | Global Context ($128k+$ tokens) |
+| **Parallel Training** | Fully Parallel (CPUs) | Fully Parallel (CPUs) | Sequential ($O(T)$ Bottleneck) | Fully Parallelized GPU Matrix Multiply |
+| **Inference Latency** | Ultra-fast ($<1\text{ms}$) | Lookup ($<1\text{ms}$) | Fast ($5\text{ms} - 20\text{ms}$) | Autoregressive ($50\text{ms} - 1000\text{ms}$) |
+| **Primary Bottleneck** | Feature Sparsity | Static Polysemy | Sequential Training | Quadratic Memory $O(T^2)$ |
 
 ---
 
 ## 2. Computational Complexity & Memory Footprint Matrix
 
-```text
-Algorithm / Model            Training Time Complexity              Inference Time Complexity    Memory Footprint Complexity
----------------------------------------------------------------------------------------------------------------------------------
-TF-IDF Vectorizer            $O(|D| \times L)$                     $O(k \times |V|)$            $O(|D| \times |V|)$ Sparse
-Multinomial Naive Bayes      $O(|D| \times L)$                     $O(C \times L)$              $O(C \times |V|)$ Dense
-Word2Vec (Skip-Gram SGNS)    $O(C \cdot m \cdot K \cdot d)$        $O(1)$ Lookup                $O(|V| \times d)$ Embedding Table
-LSTM Layer                   $O(T \cdot d^2)$ per sequence         $O(T \cdot d^2)$ Sequential  $O(4 \cdot d^2)$ Model Weights
-Scaled Dot-Product Attention $O(T^2 \cdot d)$ per batch            $O(T^2 \cdot d)$             $O(T^2)$ RAM Attention Weights
-INT8 Quantized Serving       $O(N \cdot d)$ SIMD                   $O(N \cdot d)$ SIMD          $O(\frac{1}{4} M_{\text{FP32}})$ Bytes
-```
+| Algorithm / Architecture | Training Time Complexity | Inference Time Complexity | Memory Footprint Complexity |
+|---|---|---|---|
+| **TF-IDF Indexing** | $O(\vert D \vert \times L)$ | $O(k \times \vert V \vert)$ | $O(\vert D \vert \times \vert V \vert)$ Sparse |
+| **Multinomial Naive Bayes** | $O(\vert D \vert \times L)$ | $O(C \times L)$ | $O(C \times \vert V \vert)$ Dense |
+| **Word2Vec Skip-Gram** | $O(C \cdot m \cdot K \cdot d)$ | $O(1)$ Lookup | $O(\vert V \vert \times d)$ Embedding Table |
+| **LSTM Model Layer** | $O(T \cdot d^2)$ per sequence | $O(T \cdot d^2)$ Sequential | $O(4 \cdot d^2)$ Model Weights |
+| **Scaled Dot-Product Attention** | $O(T^2 \cdot d)$ per batch | $O(T^2 \cdot d)$ | $O(T^2)$ RAM Attention Weights |
+| **INT8 Quantized Serving** | $O(N \cdot d)$ SIMD | $O(N \cdot d)$ SIMD | $O(\frac{1}{4} M_{\text{FP32}})$ Bytes |
 
 ---
 
