@@ -1079,15 +1079,36 @@ For word <code>"where"</code> with $n=3$:<br />
 <hr />
 <h2 id="2-the-5-core-lstm-update-equations">2. The 5 Core LSTM Update Equations</h2>
 <p>The Long Short-Term Memory (LSTM) architecture resolves vanishing gradients by introducing a cell memory state $C_t$ governed by 3 gating mechanisms:</p>
-<div class="codehilite"><pre><span></span><code>| Gate / State | Equation |
-|---|---|
-| **Forget Gate** | $f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$ |
-| **Input Gate** | $i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$ |
-| **Candidate Cell** | $\tilde{C}_t = \tanh(W_c \cdot [h_{t-1}, x_t] + b_c)$ |
-| **Cell State Update** | $C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$ |
-| **Output Gate &amp; Hidden State** | $o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \implies h_t = o_t \odot \tanh(C_t)$ |
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Gate / State</th>
+<th>Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Forget Gate</strong></td>
+<td>$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$</td>
+</tr>
+<tr>
+<td><strong>Input Gate</strong></td>
+<td>$i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$</td>
+</tr>
+<tr>
+<td><strong>Candidate Cell</strong></td>
+<td>$\tilde{C}_t = \tanh(W_c \cdot [h_{t-1}, x_t] + b_c)$</td>
+</tr>
+<tr>
+<td><strong>Cell State Update</strong></td>
+<td>$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$</td>
+</tr>
+<tr>
+<td><strong>Output Gate &amp; Hidden State</strong></td>
+<td>$o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \implies h_t = o_t \odot \tanh(C_t)$</td>
+</tr>
+</tbody>
+</table>
 <p>Where $\sigma(z) = \frac{1}{1 + \exp(-z)}$ is the sigmoid function and $\odot$ represents element-wise Hadamard product.</p>
 <hr />
 <h2 id="3-step-by-step-scalar-lstm-forward-pass-walkthrough">3. Step-by-Step Scalar LSTM Forward Pass Walkthrough</h2>

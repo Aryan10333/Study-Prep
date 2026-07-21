@@ -27,7 +27,6 @@ If the largest eigenvalue $\lambda_{\max}(W_{hh}) < 1.0$, the gradient norm deca
 
 The Long Short-Term Memory (LSTM) architecture resolves vanishing gradients by introducing a cell memory state $C_t$ governed by 3 gating mechanisms:
 
-```text
 | Gate / State | Equation |
 |---|---|
 | **Forget Gate** | $f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$ |
@@ -35,7 +34,6 @@ The Long Short-Term Memory (LSTM) architecture resolves vanishing gradients by i
 | **Candidate Cell** | $\tilde{C}_t = \tanh(W_c \cdot [h_{t-1}, x_t] + b_c)$ |
 | **Cell State Update** | $C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$ |
 | **Output Gate & Hidden State** | $o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \implies h_t = o_t \odot \tanh(C_t)$ |
-```
 
 Where $\sigma(z) = \frac{1}{1 + \exp(-z)}$ is the sigmoid function and $\odot$ represents element-wise Hadamard product.
 
