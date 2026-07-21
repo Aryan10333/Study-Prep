@@ -180,9 +180,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .vm { color: #f8f8f2 } /* Name.Variable.Magic */
 .codehilite .il { color: #ae81ff } /* Literal.Number.Integer.Long */
 
-        /* Prevent white background artifacts on code tokens inside .codehilite */
-        .codehilite, .codehilite pre, .codehilite code, .codehilite span {
+        /* Prevent white background artifacts and dark text inside code blocks */
+        .codehilite, 
+        .codehilite pre, 
+        .codehilite code, 
+        .codehilite span,
+        .codehilite div,
+        .codehilite pre span,
+        .codehilite pre code {
             background-color: transparent !important;
+            color: #f8fafc !important;
         }
 
         .codehilite {
@@ -272,30 +279,48 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 1. <strong>Unstructured &amp; Discrete</strong>: Text consists of variable-length discrete symbols (words/subwords) requiring vector space projection $\mathbb{R}^d$.<br />
 2. <strong>High-Cardinality &amp; Sparse</strong>: Vocabularies contain hundreds of thousands of words ($|V| \ge 100,000$).<br />
 3. <strong>Context-Dependent &amp; Ambiguous</strong>: Token meaning depends on surrounding sequence context (e.g., <em>"bank"</em> in <em>"river bank"</em> vs. <em>"investment bank"</em>).</p>
-<div class="codehilite"><pre><span></span><code>Raw Unstructured Text ──► Preprocessing &amp; Normalization ──► Vector Space Projection (R^d) ──► Model Inference
-</code></pre></div>
-
+<blockquote>
+<p><strong>Pipeline Flow</strong>: <code>Raw Unstructured Text</code> $\longrightarrow$ <code>Preprocessing &amp; Normalization</code> $\longrightarrow$ <code>Vector Space Projection (R^d)</code> $\longrightarrow$ <code>Model Inference</code></p>
+</blockquote>
 <hr />
 <h2 id="2-the-end-to-end-enterprise-nlp-pipeline">2. The End-to-End Enterprise NLP Pipeline</h2>
 <p>In production software systems, raw text passes through a deterministic multi-stage pipeline:</p>
-<div class="codehilite"><pre><span></span><code>┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. DATA INGESTION &amp; PARSING                                                            │
-│    Extract raw text from PDFs, HTML pages, SQL DBs, OCR streams, Kafka logs.          │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 2. TEXT CLEANING &amp; NORMALIZATION                                                       │
-│    Unicode normalization (NFKD), lowercasing, HTML tag stripping, regex noise removal.│
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 3. TOKENIZATION &amp; VOCABULARY MAPPING                                                   │
-│    Convert raw character stream into token IDs (Word, Subword: BPE/WordPiece).         │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 4. FEATURE REPRESENTATION &amp; EMBEDDING                                                  │
-│    Map token IDs to numerical vectors (Sparse: TF-IDF; Dense: Word2Vec / BERT).        │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 5. MODEL INFERENCE &amp; SERVING                                                           │
-│    Pass embeddings to Linear Classifier, Sequence Model (LSTM), or Transformer LLM.    │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Pipeline Operation</th>
+<th>Technical Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Data Ingestion &amp; Parsing</strong></td>
+<td>Extraction</td>
+<td>Parse raw text from PDFs, HTML pages, SQL DBs, OCR streams, Kafka logs.</td>
+</tr>
+<tr>
+<td><strong>2. Text Cleaning &amp; Normalization</strong></td>
+<td>Standardization</td>
+<td>Unicode NFKD normalization, lowercasing, HTML tag stripping, regex noise removal.</td>
+</tr>
+<tr>
+<td><strong>3. Tokenization &amp; Vocab Mapping</strong></td>
+<td>Segmentation</td>
+<td>Convert raw character stream into token IDs (Word, Subword: BPE/WordPiece).</td>
+</tr>
+<tr>
+<td><strong>4. Feature Representation</strong></td>
+<td>Vector Projection</td>
+<td>Map token IDs to numerical vectors $\mathbb{R}^d$ (Sparse: TF-IDF; Dense: Word2Vec / BERT).</td>
+</tr>
+<tr>
+<td><strong>5. Model Inference &amp; Serving</strong></td>
+<td>Execution</td>
+<td>Pass embeddings to Linear Classifier, Sequence Model (LSTM), or Transformer LLM.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="3-evolution-of-nlp-paradigms">3. Evolution of NLP Paradigms</h2>
 <table>

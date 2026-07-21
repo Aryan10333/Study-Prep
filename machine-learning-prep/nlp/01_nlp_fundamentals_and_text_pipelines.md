@@ -15,9 +15,7 @@ Unlike tabular or structured data (which consists of continuous numerical featur
 2. **High-Cardinality & Sparse**: Vocabularies contain hundreds of thousands of words ($|V| \ge 100,000$).
 3. **Context-Dependent & Ambiguous**: Token meaning depends on surrounding sequence context (e.g., *"bank"* in *"river bank"* vs. *"investment bank"*).
 
-```text
-Raw Unstructured Text ──► Preprocessing & Normalization ──► Vector Space Projection (R^d) ──► Model Inference
-```
+> **Pipeline Flow**: `Raw Unstructured Text` $\longrightarrow$ `Preprocessing & Normalization` $\longrightarrow$ `Vector Space Projection (R^d)` $\longrightarrow$ `Model Inference`
 
 ---
 
@@ -25,24 +23,13 @@ Raw Unstructured Text ──► Preprocessing & Normalization ──► Vector S
 
 In production software systems, raw text passes through a deterministic multi-stage pipeline:
 
-```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. DATA INGESTION & PARSING                                                            │
-│    Extract raw text from PDFs, HTML pages, SQL DBs, OCR streams, Kafka logs.          │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 2. TEXT CLEANING & NORMALIZATION                                                       │
-│    Unicode normalization (NFKD), lowercasing, HTML tag stripping, regex noise removal.│
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 3. TOKENIZATION & VOCABULARY MAPPING                                                   │
-│    Convert raw character stream into token IDs (Word, Subword: BPE/WordPiece).         │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 4. FEATURE REPRESENTATION & EMBEDDING                                                  │
-│    Map token IDs to numerical vectors (Sparse: TF-IDF; Dense: Word2Vec / BERT).        │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 5. MODEL INFERENCE & SERVING                                                           │
-│    Pass embeddings to Linear Classifier, Sequence Model (LSTM), or Transformer LLM.    │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Stage | Pipeline Operation | Technical Details |
+|---|---|---|
+| **1. Data Ingestion & Parsing** | Extraction | Parse raw text from PDFs, HTML pages, SQL DBs, OCR streams, Kafka logs. |
+| **2. Text Cleaning & Normalization** | Standardization | Unicode NFKD normalization, lowercasing, HTML tag stripping, regex noise removal. |
+| **3. Tokenization & Vocab Mapping** | Segmentation | Convert raw character stream into token IDs (Word, Subword: BPE/WordPiece). |
+| **4. Feature Representation** | Vector Projection | Map token IDs to numerical vectors $\mathbb{R}^d$ (Sparse: TF-IDF; Dense: Word2Vec / BERT). |
+| **5. Model Inference & Serving** | Execution | Pass embeddings to Linear Classifier, Sequence Model (LSTM), or Transformer LLM. |
 
 ---
 

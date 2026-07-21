@@ -6,40 +6,16 @@ A high-density revision reference for AI, Applied AI, GenAI, and ML Engineer int
 
 ## 1. The 8 Must-Know Essential Formulas
 
-```text
-1. TF-IDF Formula:
-   TF(t, d) = count(t, d) / |d|
-   IDF(t) = log((1 + |D|) / (1 + DF(t))) + 1
-   TF-IDF(t, d) = TF(t, d) * IDF(t)
-
-2. Cosine Similarity:
-   CosineSim(u, v) = (u · v) / (||u||2 * ||v||2)
-
-3. Naive Bayes (+ Laplace Add-1 Smoothing):
-   P(c | d) ∝ P(c) * ∏ P(w_i | c)
-   P(w_i | c) = (N_{c,i} + 1) / (N_c + |V|)
-
-4. Word2Vec Skip-Gram Sigmoid Output:
-   P(w_O | w_I) = σ(v'_{w_O}ᵀ v_{w_I}) = 1 / (1 + exp(- v'_{w_O}ᵀ v_{w_I}))
-
-5. LSTM Cell Update Equations (Forward Pass Only):
-   f_t = σ(W_f · [h_{t-1}, x_t] + b_f)       (Forget Gate)
-   i_t = σ(W_i · [h_{t-1}, x_t] + b_i)       (Input Gate)
-   C~_t = tanh(W_c · [h_{t-1}, x_t] + b_c)   (Candidate Cell)
-   C_t = f_t ⊙ C_{t-1} + i_t ⊙ C~_t          (Cell State Update)
-   o_t = σ(W_o · [h_{t-1}, x_t] + b_o)       (Output Gate)
-   h_t = o_t ⊙ tanh(C_t)                      (Hidden State)
-
-6. Scaled Dot-Product Attention:
-   Attention(Q, K, V) = softmax( (Q Kᵀ) / sqrt(d_k) ) V
-
-7. BLEU Score (BLEU-2 Precision-Oriented):
-   BLEU-2 = BP * exp(0.5 log p_1 + 0.5 log p_2)
-   BP = exp(1 - r/c) if c <= r else 1.0
-
-8. Perplexity (Model Uncertainty Branch Factor):
-   PPL = exp(L_{CrossEntropy})
-```
+| # | Topic | Must-Know Mathematical Formula |
+|---|---|---|
+| **1** | **TF-IDF Vectorization** | $\text{TF}(t, d) = \frac{\text{count}(t, d)}{\vert d \vert}, \quad \text{IDF}(t) = \log\left(\frac{1+\vert D \vert}{1+\text{DF}(t)}\right)+1, \quad \text{TF-IDF} = \text{TF} \times \text{IDF}$ |
+| **2** | **Cosine Similarity** | $\text{CosineSim}(u, v) = \frac{u \cdot v}{\|u\|_2 \|v\|_2}$ |
+| **3** | **Naive Bayes (+ Laplace)** | $P(c \mid d) \propto P(c) \prod P(w_i \mid c), \quad P(w_i \mid c) = \frac{N_{c,i} + 1}{N_c + \vert V \vert}$ |
+| **4** | **Word2Vec (Skip-Gram)** | $P(w_O \mid w_I) = \sigma({v'_{w_O}}^\top v_{w_I}) = \frac{1}{1 + \exp(- {v'_{w_O}}^\top v_{w_I})}$ |
+| **5** | **LSTM Cell Updates** | $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f), \quad i_t = \sigma(W_i [h_{t-1}, x_t] + b_i), \quad C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t, \quad h_t = o_t \odot \tanh(C_t)$ |
+| **6** | **Scaled Dot Attention** | $\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$ |
+| **7** | **BLEU-2 Score** | $\text{BLEU-2} = \text{BP} \cdot \exp(0.5 \log p_1 + 0.5 \log p_2), \quad \text{BP} = \exp(1 - r/c) \text{ if } c \le r \text{ else } 1.0$ |
+| **8** | **Perplexity (PPL)** | $\text{PPL} = \exp(\mathcal{L}_{\text{CE}}) = \left( \prod P(w_i \mid w_{<i}) \right)^{-1/N}$ |
 
 ---
 
