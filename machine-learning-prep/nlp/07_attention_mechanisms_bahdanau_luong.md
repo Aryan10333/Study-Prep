@@ -67,7 +67,14 @@ Luong et al. (2015) simplified attention scores using fast multiplicative matrix
 
 Once raw alignment scores $e_{ij}$ are calculated between decoder state $s_i$ and all encoder hidden states $h_1, \dots, h_T$:
 
+![Luong Attention Alignment Heatmap](images/07_attention_heatmap.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Dynamic Alignment Matrix**: The heatmap visualizes the 2D attention weight distribution $lpha_{ij} \in [0, 1]$ allocated by the decoder when generating target tokens (y-axis) from source tokens (x-axis).
+> - **Interpretability & Translation Reordering**: High attention weights along the diagonal (e.g. `donnees` $ightarrow$ `database`, `erreur` $ightarrow$ `timeout`) demonstrate how attention dynamically resolves word order shifts between languages without relying on a single static context vector.
+
 ### Step 1: Compute Softmax Alignment Probabilities ($\alpha_{ij}$):
+
 The scores are normalized into a probability distribution over input tokens using Softmax:
 
 $$\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k=1}^T \exp(e_{ik})}$$

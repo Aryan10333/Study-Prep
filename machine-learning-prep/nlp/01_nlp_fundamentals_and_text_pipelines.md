@@ -88,6 +88,13 @@ Enterprise NLP tasks are broadly categorized into **Classification**, **Sequence
 - **Homonymy**: Words share spelling but have unrelated meanings (e.g., *"bark"* of a tree vs. *"bark"* of a dog).
 
 ### 2. High-Cardinality & Out-Of-Vocabulary (OOV) Explosion
+
+![Zipf's Law Log-Log Rank vs Frequency](images/01_zipfs_law_plot.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Log-Log Linear Slope**: On a log-log scale, Zipf's law appears as a straight line with slope $pprox -1.0$. The top $1\%$ of vocabulary tokens (ranks $1 - 100$) account for $>80\%$ of total corpus word frequency.
+> - **The "Long Tail" Problem**: The massive tail of rare words ($k > 1,000$) creates vocabulary explosion if words are treated as atomic units. In production systems, failing to handle the long tail causes high Out-Of-Vocabulary (OOV) rates. Subword tokenization (BPE/WordPiece) truncates this long tail into reusable sub-units.
+
 Language vocabularies follow **Zipf's Law**: the frequency of any word is inversely proportional to its rank in the frequency table:
 
 $$f(k; s, N) = \frac{1/k^s}{\sum_{n=1}^N (1/n^s)}$$

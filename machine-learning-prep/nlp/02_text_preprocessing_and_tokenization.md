@@ -66,6 +66,13 @@ Subword (BPE/Piece) Optimal (30,000-100,000) Balanced             Zero (Splits i
 Subword tokenization solves the vocabulary bottleneck by decomposing rare or out-of-vocabulary words into smaller, frequently occurring sub-units (e.g., `"unexplainable"` $\rightarrow$ `["un", "explain", "able"]`).
 
 ### 1. Byte Pair Encoding (BPE) (GPT-2, GPT-4, Llama 3)
+
+![BPE Subword Vocabulary Growth vs Sequence Length](images/02_bpe_vocab_growth.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **The Compression Trade-Off**: As the number of iterative subword pair merges increases, the subword vocabulary size $|V|$ grows linearly (blue solid curve), while average token sequence length $T$ shrinks exponentially (green dashed curve).
+> - **Optimal Production Balance**: Modern LLMs settle at $|V| pprox 32,000 - 100,000$ tokens (`cl100k_base`). This choice achieves $4	ext{x}$ token compression over character-level tokenization while keeping embedding matrix memory footprint manageable ($O(|V| 	imes d)$).
+
 BPE starts with a base vocabulary of individual characters and iteratively merges the most frequent adjacent pair of symbols in the corpus.
 
 - **Objective Function**: Maximize bigram co-occurrence frequency:

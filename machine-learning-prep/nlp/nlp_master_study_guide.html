@@ -151,7 +151,7 @@
     <div style="margin-top: 60px; font-size: 14px; color: #475569; line-height: 1.8;">
         <p><b>Target Persona:</b> Senior AI Engineer / Applied AI Engineer (~3 YOE)</p>
         <p><b>Core Modules:</b> Preprocessing, Tokenization, TF-IDF, Embeddings, Classical ML, RNN/LSTM/GRU, Attention, Metrics & Serving</p>
-        <p><b>Includes:</b> Intuitive Math, Hand Calculations, Scikit-Learn & PyTorch Code, Comparison Matrices, 30 Flashcards & Formula Cheatsheet</p>
+        <p><b>Includes:</b> 9 Illustrative Plots, Intuitive Math, Hand Calculations, Scikit-Learn & PyTorch Code, Comparison Matrices, 30 Flashcards & Formula Cheatsheet</p>
     </div>
 </div>
 
@@ -242,6 +242,13 @@ Best Production Use Input validation &amp; regex  High-speed spam filter     Seq
 <li><strong>Homonymy</strong>: Words share spelling but have unrelated meanings (e.g., <em>"bark"</em> of a tree vs. <em>"bark"</em> of a dog).</li>
 </ul>
 <h3 id="2-high-cardinality-out-of-vocabulary-oov-explosion">2. High-Cardinality &amp; Out-Of-Vocabulary (OOV) Explosion</h3>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/01_zipfs_law_plot.png" alt="Zipf's Law Log-Log Rank vs Frequency" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: Zipf's Law Log-Log Rank vs Frequency</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Log-Log Linear Slope</strong>: On a log-log scale, Zipf's law appears as a straight line with slope $pprox -1.0$. The top $1\%$ of vocabulary tokens (ranks $1 - 100$) account for $>80\%$ of total corpus word frequency.<br />
+- <strong>The "Long Tail" Problem</strong>: The massive tail of rare words ($k > 1,000$) creates vocabulary explosion if words are treated as atomic units. In production systems, failing to handle the long tail causes high Out-Of-Vocabulary (OOV) rates. Subword tokenization (BPE/WordPiece) truncates this long tail into reusable sub-units.</p>
+</blockquote>
 <p>Language vocabularies follow <strong>Zipf's Law</strong>: the frequency of any word is inversely proportional to its rank in the frequency table:</p>
 <p>$$f(k; s, N) = \frac{1/k^s}{\sum_{n=1}^N (1/n^s)}$$</p>
 <p>A small fraction of common words account for $>80\%$ of text occurrences, while a massive "long tail" of rare words causes vocabulary explosion. Unseen words at test time cause OOV errors if not handled by subword tokenization.</p>
@@ -258,10 +265,10 @@ Best Production Use Input validation &amp; regex  High-speed spam filter     Seq
 - <strong>Doc 2</strong>: <code>"system authentication error"</code><br />
 - <strong>Doc 3</strong>: <code>"database log error"</code></p>
 <p>Let us calculate vocabulary statistics step-by-step:</p>
-<h3 id="1-extract-unique-tokens-vocabulary-mathplaceholder15endmath">1. Extract Unique Tokens (Vocabulary $V$):</h3>
+<h3 id="1-extract-unique-tokens-vocabulary-mathplaceholder20endmath">1. Extract Unique Tokens (Vocabulary $V$):</h3>
 <p>$$\text{Tokens} = \{\text{"system"}, \text{"error"}, \text{"log"}, \text{"authentication"}, \text{"database"}\}$$<br />
 $$\text{Vocabulary Size } |V| = \mathbf{5}$$</p>
-<h3 id="2-total-token-count-mathplaceholder16endmath">2. Total Token Count ($N_{\text{total}}$):</h3>
+<h3 id="2-total-token-count-mathplaceholder21endmath">2. Total Token Count ($N_{\text{total}}$):</h3>
 <ul>
 <li>Doc 1: 3 tokens</li>
 <li>Doc 2: 3 tokens</li>
@@ -410,6 +417,13 @@ Subword (BPE/Piece) Optimal (30,000-100,000) Balanced             Zero (Splits i
 <h2 id="4-subword-tokenization-algorithms-mathematics">4. Subword Tokenization Algorithms &amp; Mathematics</h2>
 <p>Subword tokenization solves the vocabulary bottleneck by decomposing rare or out-of-vocabulary words into smaller, frequently occurring sub-units (e.g., <code>"unexplainable"</code> $\rightarrow$ <code>["un", "explain", "able"]</code>).</p>
 <h3 id="1-byte-pair-encoding-bpe-gpt-2-gpt-4-llama-3">1. Byte Pair Encoding (BPE) (GPT-2, GPT-4, Llama 3)</h3>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/02_bpe_vocab_growth.png" alt="BPE Subword Vocabulary Growth vs Sequence Length" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: BPE Subword Vocabulary Growth vs Sequence Length</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>The Compression Trade-Off</strong>: As the number of iterative subword pair merges increases, the subword vocabulary size $|V|$ grows linearly (blue solid curve), while average token sequence length $T$ shrinks exponentially (green dashed curve).<br />
+- <strong>Optimal Production Balance</strong>: Modern LLMs settle at $|V| pprox 32,000 - 100,000$ tokens (<code>cl100k_base</code>). This choice achieves $4	ext{x}$ token compression over character-level tokenization while keeping embedding matrix memory footprint manageable ($O(|V| 	imes d)$).</p>
+</blockquote>
 <p>BPE starts with a base vocabulary of individual characters and iteratively merges the most frequent adjacent pair of symbols in the corpus.</p>
 <ul>
 <li><strong>Objective Function</strong>: Maximize bigram co-occurrence frequency:</li>
@@ -594,11 +608,18 @@ TF-IDF            |V| (Per doc)      Normalized TF-IDF Score     No             
 <p>$$v_{\text{norm}} = \frac{v}{\|v\|_2} = \frac{v}{\sqrt{\sum_{i=1}^{|V|} v_i^2}}$$</p>
 <hr />
 <h2 id="4-step-by-step-hand-calculation-example-andrew-ng-style">4. Step-by-Step Hand Calculation Example (Andrew Ng Style)</h2>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/03_tfidf_cosine_heatmap.png" alt="TF-IDF Document Cosine Similarity Matrix Heatmap" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: TF-IDF Document Cosine Similarity Matrix Heatmap</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Vector Space Proximity</strong>: The heatmap visualizes pair-wise Cosine similarity scores between document TF-IDF vectors.<br />
+- <strong>Domain Clustering</strong>: Doc 1 (<code>"Postgres Fail"</code>) and Doc 3 (<code>"DB Backup"</code>) exhibit high Cosine similarity ($0.68$) because both share high-IDF database terms (<code>"postgresql"</code>, <code>"database"</code>). Doc 4 (<code>"K8s OOM"</code>) shows near-zero similarity ($0.05 - 0.12$) to database logs, allowing sparse vector search engines to discard irrelevant clusters rapidly.</p>
+</blockquote>
 <p>Suppose we have a corpus $D$ of $|D| = 3$ documents:<br />
 - <strong>Doc 1</strong>: <code>"cat sat mat"</code><br />
 - <strong>Doc 2</strong>: <code>"cat sat"</code><br />
 - <strong>Doc 3</strong>: <code>"dog sat"</code></p>
-<h3 id="1-extract-unique-vocabulary-mathplaceholder35endmath">1. Extract Unique Vocabulary ($|V| = 4$):</h3>
+<h3 id="1-extract-unique-vocabulary-mathplaceholder37endmath">1. Extract Unique Vocabulary ($|V| = 4$):</h3>
 <p>$$V = [\text{"cat"}, \text{"dog"}, \text{"mat"}, \text{"sat"}]$$</p>
 <h3 id="2-calculate-document-frequency-df-and-smooth-idf-for-each-term">2. Calculate Document Frequency (DF) and Smooth IDF for each term:</h3>
 <ul>
@@ -611,7 +632,7 @@ TF-IDF            |V| (Per doc)      Normalized TF-IDF Score     No             
 <li><strong><code>"mat"</code></strong>: $\text{DF} = 1 \implies \text{IDF} = \log(4 / 2) + 1 = \log(2.0) + 1 \approx 0.6931 + 1 = \mathbf{1.6931}$</li>
 <li><strong><code>"sat"</code></strong>: $\text{DF} = 3 \implies \text{IDF} = \log(4 / 4) + 1 = \log(1.0) + 1 = 0 + 1 = \mathbf{1.0000}$</li>
 </ul>
-<h3 id="3-calculate-raw-tf-idf-matrix-tf-mathplaceholder41endmath-idf">3. Calculate Raw TF-IDF Matrix (TF $\times$ IDF):</h3>
+<h3 id="3-calculate-raw-tf-idf-matrix-tf-mathplaceholder43endmath-idf">3. Calculate Raw TF-IDF Matrix (TF $\times$ IDF):</h3>
 <pre><code class="language-text">Document    TF(&quot;cat&quot;)    TF(&quot;dog&quot;)    TF(&quot;mat&quot;)    TF(&quot;sat&quot;)  │  Raw TF-IDF(&quot;cat&quot;)  Raw TF-IDF(&quot;dog&quot;)  Raw TF-IDF(&quot;mat&quot;)  Raw TF-IDF(&quot;sat&quot;)
 --------------------------------------------------------------┼───────────────────────────────────────────────────────────────────────────
 Doc 1       1            0            1            1          │  1.2877             0.0000             1.6931             1.0000
@@ -770,6 +791,13 @@ Skip-Gram         Target Center Word w_t             Context Words {w_{t-c}, ...
 </ul>
 <hr />
 <h2 id="6-vector-space-arithmetic-semantic-geometry">6. Vector Space Arithmetic &amp; Semantic Geometry</h2>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/04_word2vec_tsne.png" alt="Word2Vec 2D t-SNE Vector Space Projection" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: Word2Vec 2D t-SNE Vector Space Projection</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Dense Semantic Clustering</strong>: Words that share context window environments naturally cluster together in continuous vector space $\mathbb{R}^d$ (e.g. <code>microservice</code>, <code>grpc</code>, <code>rpc</code> form an infrastructure cluster; <code>database</code>, <code>postgres</code>, <code>redis</code> form a storage cluster).<br />
+- <strong>Linear Vector Analogies</strong>: Relational analogies form parallel offset vectors in space: $v_{	ext{king}} - v_{	ext{man}} + v_{	ext{woman}} pprox v_{	ext{queen}}$. The red dashed arrows highlight identical offset direction vectors.</p>
+</blockquote>
 <p>Dense embeddings preserve linear regularities and relational analogies in vector space:</p>
 <p>$$v_{\text{king}} - v_{\text{man}} + v_{\text{woman}} \approx v_{\text{queen}}$$</p>
 <p>$$v_{\text{Paris}} - v_{\text{France}} + v_{\text{Germany}} \approx v_{\text{Berlin}}$$</p>
@@ -913,6 +941,13 @@ CRF                  Global Sequence Log-Likelihood              Linear-Chain Gr
 <li><strong>L2 Regularization (Ridge)</strong>: Prevents overfitting on rare sparse terms by shrinking weights toward zero.</li>
 </ul>
 <h3 id="2-linear-support-vector-machine-linearsvc">2. Linear Support Vector Machine (LinearSVC)</h3>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/05_classifier_roc_pr_curves.png" alt="Classifier ROC & PR Curve Comparison" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: Classifier ROC & PR Curve Comparison</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>ROC vs PR Curves</strong>: On imbalanced text datasets (e.g. 95% normal tickets, 5% high-severity security incidents), ROC curves (left) can give overly optimistic evaluations because False Positive Rate stays small. Precision-Recall curves (right) provide a truer measure of production performance.<br />
+- <strong>Model Benchmarking</strong>: Logistic Regression (AUC = 0.94, PR-AUC = 0.91) and Linear SVM (AUC = 0.91) significantly outperform Naive Bayes (AUC = 0.83) on high-dimensional sparse TF-IDF text features.</p>
+</blockquote>
 <p>Finds the optimal separating hyperplane $w^\top x + b = 0$ that maximizes the margin distance between text classes:</p>
 <p>$$\min_{w} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^N \max\left(0, 1 - y_i (w^\top x_i + b)\right)$$</p>
 <p>Linear SVMs perform exceptionally well on high-dimensional sparse TF-IDF feature spaces ($|V| \ge 50,000$).</p>
@@ -1101,6 +1136,14 @@ for text, pred, proba in zip(X_test, predictions, probabilities):
 │                                                            tanh(C_t)                   │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 </code></pre>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/06_lstm_gradient_flow.png" alt="RNN Vanishing Gradient vs LSTM Error Highway" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: RNN Vanishing Gradient vs LSTM Error Highway</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Exponential Gradient Decay in RNNs</strong>: In standard RNNs, backpropagating gradients over $T=50$ time steps causes gradient magnitude to decay exponentially to zero (red curve $0.85^T <br />
+ightarrow 0$), preventing early sequence tokens from receiving weight updates.<br />
+- <strong>LSTM Constant Error Carousel</strong>: The LSTM Cell State $C_t$ update ($C_t = f_t \odot C_{t-1} + i_t \odot 	ilde{C}_t$) acts as an additive linear highway (green curve), maintaining gradient norm $pprox 1.0$ across 50+ time steps.</p>
+</blockquote>
 <h3 id="lstm-mathematical-equations">LSTM Mathematical Equations:</h3>
 <ol>
 <li><strong>Forget Gate $f_t$</strong>: Decides what percentage of old cell memory $C_{t-1}$ to discard ($0 = \text{forget all}$, $1 = \text{keep all}$):</li>
@@ -1175,10 +1218,10 @@ GRU                 2 Gates     Hidden State h_t only 3 * (h^2 + h*d)  Faster, ~
 <li>$\tilde{C}_t = \tanh(0.90) \approx \mathbf{0.7163}$</li>
 <li>$o_t = \sigma(0.60) = \frac{1}{1 + \exp(-0.60)} \approx \mathbf{0.6457}$</li>
 </ul>
-<h3 id="2-compute-cell-state-update-mathplaceholder72endmath">2. Compute Cell State Update $C_t$:</h3>
+<h3 id="2-compute-cell-state-update-mathplaceholder76endmath">2. Compute Cell State Update $C_t$:</h3>
 <p>$$C_t = (f_t \times C_{t-1}) + (i_t \times \tilde{C}_t)$$</p>
 <p>$$C_t = (0.6792 \times 2.0) + (0.7685 \times 0.7163) = 1.3584 + 0.5505 = \mathbf{1.9089}$$</p>
-<h3 id="3-compute-hidden-state-output-mathplaceholder73endmath">3. Compute Hidden State Output $h_t$:</h3>
+<h3 id="3-compute-hidden-state-output-mathplaceholder77endmath">3. Compute Hidden State Output $h_t$:</h3>
 <p>$$h_t = o_t \times \tanh(C_t) = 0.6457 \times \tanh(1.9089) = 0.6457 \times 0.9571 \approx \mathbf{0.6180}$$</p>
 <p>$$\mathbf{C_t = 1.9089, \quad h_t = 0.6180}$$</p>
 <hr />
@@ -1311,14 +1354,23 @@ Legacy Impact         First Attention paper in Deep Learning       Direct predec
 <hr />
 <h2 id="3-attention-alignment-weights-context-vector-construction">3. Attention Alignment Weights &amp; Context Vector Construction</h2>
 <p>Once raw alignment scores $e_{ij}$ are calculated between decoder state $s_i$ and all encoder hidden states $h_1, \dots, h_T$:</p>
-<h3 id="step-1-compute-softmax-alignment-probabilities-mathplaceholder28endmath">Step 1: Compute Softmax Alignment Probabilities ($\alpha_{ij}$):</h3>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/07_attention_heatmap.png" alt="Luong Attention Alignment Heatmap" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: Luong Attention Alignment Heatmap</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Dynamic Alignment Matrix</strong>: The heatmap visualizes the 2D attention weight distribution $lpha_{ij} \in [0, 1]$ allocated by the decoder when generating target tokens (y-axis) from source tokens (x-axis).<br />
+- <strong>Interpretability &amp; Translation Reordering</strong>: High attention weights along the diagonal (e.g. <code>donnees</code> $<br />
+ightarrow$ `database`, `erreur` $<br />
+ightarrow$ <code>timeout</code>) demonstrate how attention dynamically resolves word order shifts between languages without relying on a single static context vector.</p>
+</blockquote>
+<h3 id="step-1-compute-softmax-alignment-probabilities-mathplaceholder30endmath">Step 1: Compute Softmax Alignment Probabilities ($\alpha_{ij}$):</h3>
 <p>The scores are normalized into a probability distribution over input tokens using Softmax:</p>
 <p>$$\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k=1}^T \exp(e_{ik})}$$</p>
 <p>Where $\alpha_{ij} \in [0, 1]$ represents the relative attention weight allocated to input token $j$ when decoding output token $i$.</p>
-<h3 id="step-2-compute-dynamic-context-vector-mathplaceholder32endmath">Step 2: Compute Dynamic Context Vector ($c_i$):</h3>
+<h3 id="step-2-compute-dynamic-context-vector-mathplaceholder34endmath">Step 2: Compute Dynamic Context Vector ($c_i$):</h3>
 <p>The context vector $c_i$ is computed as the weighted linear combination of all encoder hidden states:</p>
 <p>$$c_i = \sum_{j=1}^T \alpha_{ij} h_j$$</p>
-<h3 id="step-3-compute-combined-attentional-vector-mathplaceholder34endmath">Step 3: Compute Combined Attentional Vector ($\tilde{s}_i$):</h3>
+<h3 id="step-3-compute-combined-attentional-vector-mathplaceholder36endmath">Step 3: Compute Combined Attentional Vector ($\tilde{s}_i$):</h3>
 <p>The context vector $c_i$ and decoder state $s_i$ are concatenated to predict the next token probability:</p>
 <p>$$\tilde{s}_i = \tanh(W_c [c_i; s_i])$$</p>
 <p>$$P(y_i | y_{<i}, X) = \text{softmax}(W_s \tilde{s}_i)$$</p>
@@ -1331,13 +1383,13 @@ Legacy Impact         First Attention paper in Deep Learning       Direct predec
 <p>And a Decoder state at step $i$:<br />
 - $s_i = [2.0, 1.0]^\top$</p>
 <p>We use <strong>Luong Dot Attention</strong>: $e_j = s_i^\top h_j$.</p>
-<h3 id="1-compute-raw-attention-scores-mathplaceholder44endmath">1. Compute Raw Attention Scores ($e_j$):</h3>
+<h3 id="1-compute-raw-attention-scores-mathplaceholder46endmath">1. Compute Raw Attention Scores ($e_j$):</h3>
 <ul>
 <li>$e_1 = s_i^\top h_1 = (2.0 \times 1.0) + (1.0 \times 0.0) = 2.0 + 0 = \mathbf{2.0}$</li>
 <li>$e_2 = s_i^\top h_2 = (2.0 \times 0.0) + (1.0 \times 2.0) = 0 + 2.0 = \mathbf{2.0}$</li>
 <li>$e_3 = s_i^\top h_3 = (2.0 \times 1.0) + (1.0 \times 1.0) = 2.0 + 1.0 = \mathbf{3.0}$</li>
 </ul>
-<h3 id="2-compute-softmax-alignment-weights-mathplaceholder48endmath">2. Compute Softmax Alignment Weights ($\alpha_j$):</h3>
+<h3 id="2-compute-softmax-alignment-weights-mathplaceholder50endmath">2. Compute Softmax Alignment Weights ($\alpha_j$):</h3>
 <p>Exponentials:<br />
 - $\exp(e_1) = \exp(2.0) \approx 7.3891$<br />
 - $\exp(e_2) = \exp(2.0) \approx 7.3891$<br />
@@ -1347,7 +1399,7 @@ Legacy Impact         First Attention paper in Deep Learning       Direct predec
 - $\alpha_1 = 7.3891 / 34.8637 \approx \mathbf{0.2119}$ ($21.2\%$ attention on Token 1)<br />
 - $\alpha_2 = 7.3891 / 34.8637 \approx \mathbf{0.2119}$ ($21.2\%$ attention on Token 2)<br />
 - $\alpha_3 = 20.0855 / 34.8637 \approx \mathbf{0.5762}$ ($57.6\%$ attention on Token 3)</p>
-<h3 id="3-compute-dynamic-context-vector-mathplaceholder60endmath">3. Compute Dynamic Context Vector ($c_i$):</h3>
+<h3 id="3-compute-dynamic-context-vector-mathplaceholder62endmath">3. Compute Dynamic Context Vector ($c_i$):</h3>
 <p>$$c_i = \alpha_1 h_1 + \alpha_2 h_2 + \alpha_3 h_3$$</p>
 <p>$$c_i = 0.2119 \times \begin{bmatrix} 1.0 \\ 0.0 \end{bmatrix} + 0.2119 \times \begin{bmatrix} 0.0 \\ 2.0 \end{bmatrix} + 0.5762 \times \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}$$</p>
 <p>$$c_i = \begin{bmatrix} 0.2119 \\ 0.0 \end{bmatrix} + \begin{bmatrix} 0.0 \\ 0.4238 \end{bmatrix} + \begin{bmatrix} 0.5762 \\ 0.5762 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.7881 \\ 1.0000 \end{bmatrix}}$$</p>
@@ -1477,6 +1529,13 @@ ROUGE          Recall-Oriented N-gram / LCS Match                   Text Summari
 <hr />
 <h2 id="4-perplexity-ppl-language-model-evaluation">4. Perplexity (PPL): Language Model Evaluation</h2>
 <p><strong>Perplexity</strong> measures how well a probability model predicts a text sequence. Intuitively, it represents the average branch factor (number of equal choices) the model faces when predicting the next token.</p>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/08_perplexity_vs_loss.png" alt="Perplexity vs Cross-Entropy Loss Curve" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: Perplexity vs Cross-Entropy Loss Curve</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Exponential Scale</strong>: Perplexity increases exponentially with cross-entropy evaluation loss ($	ext{PPL} = \exp(\mathcal{L}_{	ext{CE}})$).<br />
+- <strong>Uncertainty Interpretation</strong>: An evaluation loss of $\mathcal{L}_{	ext{CE}} = 2.3026$ corresponds to a Perplexity of $	ext{PPL} = 10.0$ (red dashed line). This means the model is as uncertain at each token prediction as if it were making a uniform random choice among 10 candidate words.</p>
+</blockquote>
 <h3 id="mathematical-derivation">Mathematical Derivation:</h3>
 <p>For sequence $W = (w_1, w_2, \dots, w_N)$, Perplexity is the reciprocal geometric mean of sequence probability:</p>
 <p>$$\text{PPL}(W) = P(w_1, w_2, \dots, w_N)^{-1/N} = \left( \prod_{i=1}^N P(w_i | w_{<i}) \right)^{-1/N}$$</p>
@@ -1492,7 +1551,7 @@ ROUGE          Recall-Oriented N-gram / LCS Match                   Text Summari
 <p>Suppose we evaluate a Candidate Translation against a Reference Translation:<br />
 - <strong>Candidate ($C$)</strong>: <code>"the cat sat on mat"</code> (Length $c = 5$ tokens)<br />
 - <strong>Reference ($R$)</strong>: <code>"the cat sat on the mat"</code> (Length $r = 6$ tokens)</p>
-<h3 id="1-calculate-modified-precision-mathplaceholder29endmath-and-mathplaceholder30endmath">1. Calculate Modified Precision $p_1$ and $p_2$:</h3>
+<h3 id="1-calculate-modified-precision-mathplaceholder32endmath-and-mathplaceholder33endmath">1. Calculate Modified Precision $p_1$ and $p_2$:</h3>
 <ul>
 <li><strong>Unigrams in $C$</strong>: <code>["the", "cat", "sat", "on", "mat"]</code> (5 tokens)</li>
 <li>All 5 unigrams appear in $R$. $p_1 = 5 / 5 = \mathbf{1.0000}$</li>
@@ -1627,6 +1686,13 @@ Summarization            Long Document String        Concise Summary String     
 <h3 id="1-onnx-runtime-export">1. ONNX Runtime Export</h3>
 <p>Exporting PyTorch or TensorFlow models to the Open Neural Network Exchange (<strong>ONNX</strong>) graph representation graph decouples model inference from PyTorch execution overhead, delivering $2\text{x}-3\text{x}$ throughput improvements on CPU servers.</p>
 <h3 id="2-int8-quantization">2. INT8 Quantization</h3>
+<div style="text-align: center; margin: 16px 0;"><img src="file:///d:/Study/Prep/machine-learning-prep/nlp/images/09_serving_latency_benchmark.png" alt="FP32 PyTorch vs INT8 ONNX Latency & Memory Benchmark" style="max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" /><p style="font-size: 11px; color: #64748b; margin-top: 4px;"><em>Figure: FP32 PyTorch vs INT8 ONNX Latency & Memory Benchmark</em></p></div>
+
+<blockquote>
+<p><strong>Plot Interpretation &amp; Production Insight</strong>:<br />
+- <strong>Latency Reduction</strong>: Converting FP32 PyTorch models to INT8 ONNX Runtime reduces $p95$ inference latency from $22.4	ext{ms}$ down to $5.2	ext{ms}$ ($4.3	ext{x}$ throughput acceleration on CPU web servers).<br />
+- <strong>Memory Footprint Savings</strong>: INT8 quantization compresses weight matrices from $420	ext{MB}$ to $105	ext{MB}$ ($75\%$ RAM reduction), allowing 4x more worker instances per server node.</p>
+</blockquote>
 <p>Quantization converts 32-bit floating-point weights ($W_{\text{FP32}}$) to 8-bit integers ($W_{\text{INT8}}$):</p>
 <p>$$W_{\text{INT8}} = \text{round}\left( \frac{W_{\text{FP32}}}{S} \right) + Z$$</p>
 <p>Where $S$ is the scale factor and $Z$ is the zero-point offset.<br />
@@ -1637,9 +1703,9 @@ Summarization            Long Document String        Concise Summary String     
 - <strong>Server Hardware</strong>: 4 vCPU web server instance.<br />
 - <strong>Model Inference Execution Latency</strong>: $t_{\text{inf}} = 20\text{ms}$ per request on a single CPU thread.<br />
 - <strong>Target Latency SLA</strong>: $p95 \le 50\text{ms}$.</p>
-<h3 id="1-compute-single-thread-throughput-mathplaceholder12endmath">1. Compute Single-Thread Throughput ($QPS_{\text{single}}$):</h3>
+<h3 id="1-compute-single-thread-throughput-mathplaceholder19endmath">1. Compute Single-Thread Throughput ($QPS_{\text{single}}$):</h3>
 <p>$$QPS_{\text{single}} = \frac{1000\text{ms}}{t_{\text{inf}}} = \frac{1000}{20} = \mathbf{50\text{ Queries Per Second (QPS)}}$$</p>
-<h3 id="2-compute-total-4-vcpu-server-capacity-mathplaceholder13endmath">2. Compute Total 4 vCPU Server Capacity ($QPS_{\text{total}}$):</h3>
+<h3 id="2-compute-total-4-vcpu-server-capacity-mathplaceholder20endmath">2. Compute Total 4 vCPU Server Capacity ($QPS_{\text{total}}$):</h3>
 <p>Assuming 4 parallel worker threads with $85\%$ multi-core scaling efficiency:</p>
 <p>$$QPS_{\text{total}} = 4 \times 50 \times 0.85 = \mathbf{170\text{ QPS}}$$</p>
 <h3 id="3-estimate-daily-processing-capacity">3. Estimate Daily Processing Capacity:</h3>

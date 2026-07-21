@@ -52,6 +52,13 @@ In enterprise microservice architectures, an NLP production service consists of 
 Exporting PyTorch or TensorFlow models to the Open Neural Network Exchange (**ONNX**) graph representation graph decouples model inference from PyTorch execution overhead, delivering $2\text{x}-3\text{x}$ throughput improvements on CPU servers.
 
 ### 2. INT8 Quantization
+
+![FP32 PyTorch vs INT8 ONNX Latency & Memory Benchmark](images/09_serving_latency_benchmark.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Latency Reduction**: Converting FP32 PyTorch models to INT8 ONNX Runtime reduces $p95$ inference latency from $22.4	ext{ms}$ down to $5.2	ext{ms}$ ($4.3	ext{x}$ throughput acceleration on CPU web servers).
+> - **Memory Footprint Savings**: INT8 quantization compresses weight matrices from $420	ext{MB}$ to $105	ext{MB}$ ($75\%$ RAM reduction), allowing 4x more worker instances per server node.
+
 Quantization converts 32-bit floating-point weights ($W_{\text{FP32}}$) to 8-bit integers ($W_{\text{INT8}}$):
 
 $$W_{\text{INT8}} = \text{round}\left( \frac{W_{\text{FP32}}}{S} \right) + Z$$

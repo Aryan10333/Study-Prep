@@ -74,7 +74,14 @@ Proposed by Hochreiter & Schmidhuber (1997), the **LSTM** solves vanishing gradi
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+![RNN Vanishing Gradient vs LSTM Error Highway](images/06_lstm_gradient_flow.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Exponential Gradient Decay in RNNs**: In standard RNNs, backpropagating gradients over $T=50$ time steps causes gradient magnitude to decay exponentially to zero (red curve $0.85^T ightarrow 0$), preventing early sequence tokens from receiving weight updates.
+> - **LSTM Constant Error Carousel**: The LSTM Cell State $C_t$ update ($C_t = f_t \odot C_{t-1} + i_t \odot 	ilde{C}_t$) acts as an additive linear highway (green curve), maintaining gradient norm $pprox 1.0$ across 50+ time steps.
+
 ### LSTM Mathematical Equations:
+
 1. **Forget Gate $f_t$**: Decides what percentage of old cell memory $C_{t-1}$ to discard ($0 = \text{forget all}$, $1 = \text{keep all}$):
 
    $$f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$$

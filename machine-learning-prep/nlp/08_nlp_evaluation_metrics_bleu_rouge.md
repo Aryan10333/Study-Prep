@@ -68,7 +68,14 @@ $$\text{ROUGE-L} = \frac{(1 + \beta^2) R_{\text{LCS}} P_{\text{LCS}}}{R_{\text{L
 
 **Perplexity** measures how well a probability model predicts a text sequence. Intuitively, it represents the average branch factor (number of equal choices) the model faces when predicting the next token.
 
+![Perplexity vs Cross-Entropy Loss Curve](images/08_perplexity_vs_loss.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Exponential Scale**: Perplexity increases exponentially with cross-entropy evaluation loss ($	ext{PPL} = \exp(\mathcal{L}_{	ext{CE}})$).
+> - **Uncertainty Interpretation**: An evaluation loss of $\mathcal{L}_{	ext{CE}} = 2.3026$ corresponds to a Perplexity of $	ext{PPL} = 10.0$ (red dashed line). This means the model is as uncertain at each token prediction as if it were making a uniform random choice among 10 candidate words.
+
 ### Mathematical Derivation:
+
 For sequence $W = (w_1, w_2, \dots, w_N)$, Perplexity is the reciprocal geometric mean of sequence probability:
 
 $$\text{PPL}(W) = P(w_1, w_2, \dots, w_N)^{-1/N} = \left( \prod_{i=1}^N P(w_i | w_{<i}) \right)^{-1/N}$$

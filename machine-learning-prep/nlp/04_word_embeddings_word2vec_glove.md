@@ -94,6 +94,13 @@ $$v_w = \sum_{g \in G_w} z_g$$
 
 ## 6. Vector Space Arithmetic & Semantic Geometry
 
+![Word2Vec 2D t-SNE Vector Space Projection](images/04_word2vec_tsne.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Dense Semantic Clustering**: Words that share context window environments naturally cluster together in continuous vector space $\mathbb{R}^d$ (e.g. `microservice`, `grpc`, `rpc` form an infrastructure cluster; `database`, `postgres`, `redis` form a storage cluster).
+> - **Linear Vector Analogies**: Relational analogies form parallel offset vectors in space: $v_{	ext{king}} - v_{	ext{man}} + v_{	ext{woman}} pprox v_{	ext{queen}}$. The red dashed arrows highlight identical offset direction vectors.
+
+
 Dense embeddings preserve linear regularities and relational analogies in vector space:
 
 $$v_{\text{king}} - v_{\text{man}} + v_{\text{woman}} \approx v_{\text{queen}}$$

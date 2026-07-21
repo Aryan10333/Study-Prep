@@ -90,6 +90,13 @@ $$v_{\text{norm}} = \frac{v}{\|v\|_2} = \frac{v}{\sqrt{\sum_{i=1}^{|V|} v_i^2}}$
 
 ## 4. Step-by-Step Hand Calculation Example (Andrew Ng Style)
 
+![TF-IDF Document Cosine Similarity Matrix Heatmap](images/03_tfidf_cosine_heatmap.png)
+
+> **Plot Interpretation & Production Insight**:
+> - **Vector Space Proximity**: The heatmap visualizes pair-wise Cosine similarity scores between document TF-IDF vectors.
+> - **Domain Clustering**: Doc 1 (`"Postgres Fail"`) and Doc 3 (`"DB Backup"`) exhibit high Cosine similarity ($0.68$) because both share high-IDF database terms (`"postgresql"`, `"database"`). Doc 4 (`"K8s OOM"`) shows near-zero similarity ($0.05 - 0.12$) to database logs, allowing sparse vector search engines to discard irrelevant clusters rapidly.
+
+
 Suppose we have a corpus $D$ of $|D| = 3$ documents:
 - **Doc 1**: `"cat sat mat"`
 - **Doc 2**: `"cat sat"`
