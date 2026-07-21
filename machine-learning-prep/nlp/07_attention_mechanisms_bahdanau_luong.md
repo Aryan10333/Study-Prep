@@ -1,221 +1,153 @@
-# Module 07: Attention Mechanisms: Bahdanau, Luong & Bridge to Transformers
+# Module 07: Attention Mechanisms (Bahdanau, Luong & Scaled Dot-Product Attention)
 
-This study guide details the Seq2Seq Information Bottleneck, introduction of Attention, Bahdanau Additive Attention vs. Luong Multiplicative Attention, score functions (Dot, General, Concat), alignment weights calculation, context vector construction, step-by-step Luong Dot Attention hand-calculations, PyTorch implementation, Seaborn heatmap alignment visualization, and the direct mathematical transition to Self-Attention and Transformers.
+This study guide covers the Seq2Seq bottleneck, Bahdanau vs. Luong attention, Scaled Dot-Product Attention, an explicit mathematical breakdown of why $\sqrt{d_k}$ scaling is required, a 3-token numerical walkthrough, alignment heatmaps, PyTorch code, complexity analysis, and standardized interview Q&A.
 
 > **Notebook Companion**: [07_attention_mechanisms_bahdanau_luong.ipynb](file:///d:/Study/Prep/machine-learning-prep/nlp/07_attention_mechanisms_bahdanau_luong.ipynb)
 
 ---
 
-## 1. Solving the Seq2Seq Information Bottleneck
+## 1. The Information Bottleneck in Seq2Seq Models
 
-In standard Encoder-Decoder architectures (Sutskever et al., 2014), the encoder compresses an entire input sentence $X_{1:T}$ into a single fixed-size final hidden state $h_T$ (the context vector).
+In standard Encoder-Decoder RNNs, the encoder compresses an arbitrary input sequence $X_{1:T}$ into a single static hidden vector $h_T$. For long input sequences ($T > 30$), forcing all semantic context into a fixed-length vector creates an information bottleneck, leading to translation degradation.
 
-```text
-Standard Seq2Seq (Bottleneck):
-  Input (T tokens) ──► [Encoder] ──► Fixed Vector h_T ──► [Decoder] ──► Output (S tokens)
-
-Attention-Based Seq2Seq (Dynamic Access):
-  Input (T tokens) ──► [Encoder (h_1, h_2, ..., h_T)] ──┐
-                                                        ├──► [Attention Mechanism] ──► Context Vector c_i ──► [Decoder]
-  Decoder State s_{i-1} ────────────────────────────────┘
-```
-
-When input sentences grow beyond 30 tokens, compressing all information into a single vector $h_T$ causes severe loss of fine-grained details.
-
-**Attention** (Bahdanau et al., 2014) eliminates this bottleneck by retaining **ALL** encoder hidden states $H = [h_1, h_2, \dots, h_T]$ and allowing the decoder to dynamically "attend" to relevant encoder states at each generation step $i$.
+**Attention** resolves this bottleneck by allowing the decoder to dynamically query and weight all encoder hidden states $h_1, \dots, h_T$ at every decoding step.
 
 ---
 
-## 2. Bahdanau Additive vs. Luong Multiplicative Attention
+## 2. Bahdanau (Additive) vs. Luong (Multiplicative) Attention
 
 ```text
-Dimension             Bahdanau Attention (2014)                    Luong Attention (2015)
-----------------------------------------------------------------------------------------------------------------------------------
-Score Type            Additive (Feed-Forward Neural Network)       Multiplicative (Matrix Dot Product)
-Score Equation        e_{ij} = v_a^T \tanh(W_a s_{i-1} + U_a h_j)  e_{ij} = s_i^T h_j  (Dot)  or  s_i^T W_a h_j (General)
-Decoder State Used    Previous Decoder Hidden State s_{i-1}        Current Decoder Hidden State s_i
-Computational Speed   Slower (requires matrix additions + tanh)    Faster (optimized matrix multiplication)
-Legacy Impact         First Attention paper in Deep Learning       Direct predecessor to Transformer Scaled Dot-Product
+Dimension          Bahdanau Attention (Additive)              Luong Attention (Multiplicative)
+---------------------------------------------------------------------------------------------------------
+Score Function     $e_{ij} = v_a^\top \tanh(W_a s_{i-1} + W_b h_j)$  $e_{ij} = s_i^\top W_a h_j$
+Decoder State      Uses previous decoder state $s_{i-1}$      Uses current decoder state $s_i$
+Computation        Slower (requires matrix addition & tanh)   Faster (matrix multiplication optimized for GPUs)
+Alignment Vector   Concatenated before RNN step               Combined after RNN hidden state computation
 ```
 
-### 1. Bahdanau Additive Attention Score Function:
-$$e_{ij} = v_a^\top \tanh(W_a s_{i-1} + U_a h_j)$$
+---
+
+## 3. Scaled Dot-Product Attention Formulation
+
+Modern Transformer architectures utilize **Scaled Dot-Product Attention** over Query ($Q$), Key ($K$), and Value ($V$) matrices:
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$$
 
 Where:
-- $s_{i-1}$ is the decoder state at previous step $i-1$.
-- $h_j$ is the $j$-th encoder hidden state.
-- $W_a, U_a, v_a$ are trainable attention projection weights.
-
-### 2. Luong Multiplicative Attention Score Functions:
-Luong et al. (2015) simplified attention scores using fast multiplicative matrix operations:
-
-- **Dot Score**: Assumes encoder and decoder hidden states have matching dimension $d$:
-
-  $$\text{Score}_{\text{Dot}}(s_i, h_j) = s_i^\top h_j$$
-
-- **General Score**: Uses projection matrix $W_a$ to handle dimension mismatches:
-
-  $$\text{Score}_{\text{General}}(s_i, h_j) = s_i^\top W_a h_j$$
-
-- **Concat Score**: Concatenates states into a linear layer:
-
-  $$\text{Score}_{\text{Concat}}(s_i, h_j) = v_a^\top \tanh(W_a [s_i; h_j])$$
+- $Q \in \mathbb{R}^{T_q \times d_k}$ is the Query matrix.
+- $K \in \mathbb{R}^{T_k \times d_k}$ is the Key matrix.
+- $V \in \mathbb{R}^{T_k \times d_v}$ is the Value matrix.
+- $d_k$ is the Key vector projection dimension.
 
 ---
 
-## 3. Attention Alignment Weights & Context Vector Construction
+## 4. Why Scaling by $\sqrt{d_k}$ is Required (Crucial Interview Topic)
 
-Once raw alignment scores $e_{ij}$ are calculated between decoder state $s_i$ and all encoder hidden states $h_1, \dots, h_T$:
+> **Interview Core Question**: *Why do we divide $QK^\top$ by $\sqrt{d_k}$ in Attention?*
+
+### Mathematical Proof & Intuition:
+Suppose Query components $q_i$ and Key components $k_i$ are independent random variables with mean $0$ and variance $1$:
+
+$$\mathbb{E}[q_i] = 0, \quad \text{Var}(q_i) = 1, \quad \mathbb{E}[k_i] = 0, \quad \text{Var}(k_i) = 1$$
+
+Their dot product is the sum of $d_k$ products: $q \cdot k = \sum_{i=1}^{d_k} q_i k_i$.
+1. **Expected Value**: $\mathbb{E}[q \cdot k] = \sum_{i=1}^{d_k} \mathbb{E}[q_i k_i] = 0$
+2. **Variance**: Since variables are independent, variances add up:
+   $$\text{Var}(q \cdot k) = \sum_{i=1}^{d_k} \text{Var}(q_i k_i) = \sum_{i=1}^{d_k} 1 = d_k$$
+
+### The Softmax Saturation Problem:
+As dimension $d_k$ grows large (e.g. $d_k = 64$ or $512$), the magnitude of dot products $|q \cdot k|$ grows to $\sqrt{d_k} \approx 8 - 22$.
+
+When inputs to the Softmax function become extremely large, Softmax outputs saturate into extremely sharp peak distributions ($\approx 1.0$ for the max, $\approx 0.0$ for all others). In these saturated regions, Softmax gradients become virtually zero ($\text{softmax}'(z) \rightarrow 0$), causing **vanishing gradients during backpropagation**.
+
+Dividing by $\sqrt{d_k}$ scales variance back to $1.0$:
+
+$$\text{Var}\left( \frac{q \cdot k}{\sqrt{d_k}} \right) = \frac{\text{Var}(q \cdot k)}{d_k} = \frac{d_k}{d_k} = 1.0$$
+
+This keeps Softmax inputs in a well-behaved range where gradients flow cleanly.
+
+---
+
+## 5. Step-by-Step 3-Token Numerical Walkthrough
+
+Consider a 3-token sequence ($T=3$) with projection dimension $d_k = 2 \implies \sqrt{d_k} = \sqrt{2} \approx 1.4142$.
+
+### Given Input Matrices ($Q, K \in \mathbb{R}^{3 \times 2}, V \in \mathbb{R}^{3 \times 2}$):
+$$Q = \begin{bmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{bmatrix}, \quad K = \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix}, \quad V = \begin{bmatrix} 2 & 1 \\ 0 & 2 \\ 1 & 0 \end{bmatrix}$$
+
+### Step 1: Compute Raw Dot Product Matrix $QK^\top$
+$$QK^\top = \begin{bmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{bmatrix} \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{bmatrix} = \begin{bmatrix} (1\cdot 1+0) & (1\cdot 1+0) & (0+0) \\ (0+0) & (0+1) & (0+1) \\ (1\cdot 1+0) & (1\cdot 1+1\cdot 1) & (0+1\cdot 1) \end{bmatrix} = \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \\ 1 & 2 & 1 \end{bmatrix}$$
+
+### Step 2: Scale by $\frac{1}{\sqrt{2}} \approx 0.7071$
+$$S = \frac{QK^\top}{\sqrt{2}} = \begin{bmatrix} 0.7071 & 0.7071 & 0.0000 \\ 0.0000 & 0.7071 & 0.7071 \\ 0.7071 & 1.4142 & 0.7071 \end{bmatrix}$$
+
+### Step 3: Compute Row-wise Softmax Probabilities ($\alpha = \text{softmax}(S)$)
+- **Row 1**: Exponents: $[e^{0.7071}, e^{0.7071}, e^0] = [2.0281, 2.0281, 1.0000]$, Sum $= 5.0562$
+  $$\alpha_1 = \left[ \frac{2.0281}{5.0562}, \frac{2.0281}{5.0562}, \frac{1.0000}{5.0562} \right] = \mathbf{[0.4011, 0.4011, 0.1978]}$$
+
+- **Row 2**: Exponents: $[e^0, e^{0.7071}, e^{0.7071}] = [1.0000, 2.0281, 2.0281]$, Sum $= 5.0562$
+  $$\alpha_2 = \mathbf{[0.1978, 0.4011, 0.4011]}$$
+
+- **Row 3**: Exponents: $[e^{0.7071}, e^{1.4142}, e^{0.7071}] = [2.0281, 4.1132, 2.0281]$, Sum $= 8.1694$
+  $$\alpha_3 = \left[ \frac{2.0281}{8.1694}, \frac{4.1132}{8.1694}, \frac{2.0281}{8.1694} \right] = \mathbf{[0.2483, 0.5035, 0.2483]}$$
+
+$$\alpha = \begin{bmatrix} 0.4011 & 0.4011 & 0.1978 \\ 0.1978 & 0.4011 & 0.4011 \\ 0.2483 & 0.5035 & 0.2483 \end{bmatrix}$$
+
+### Step 4: Multiply by Value Matrix $V$ ($O = \alpha V$)
+- **Row 1 Output**:
+  $$O_1 = 0.4011 \begin{bmatrix} 2 & 1 \end{bmatrix} + 0.4011 \begin{bmatrix} 0 & 2 \end{bmatrix} + 0.1978 \begin{bmatrix} 1 & 0 \end{bmatrix}$$
+  $$O_1 = \begin{bmatrix} (0.8022 + 0 + 0.1978), & (0.4011 + 0.8022 + 0) \end{bmatrix} = \mathbf{\begin{bmatrix} 1.0000 & 1.2033 \end{bmatrix}}$$
+
+---
+
+## 6. Luong Attention Alignment Heatmap
 
 ![Luong Attention Alignment Heatmap](images/07_attention_heatmap.png)
 
 > **Plot Interpretation & Production Insight**:
-> - **Dynamic Alignment Matrix**: The heatmap visualizes the 2D attention weight distribution $lpha_{ij} \in [0, 1]$ allocated by the decoder when generating target tokens (y-axis) from source tokens (x-axis).
-> - **Interpretability & Translation Reordering**: High attention weights along the diagonal (e.g. `donnees` $ightarrow$ `database`, `erreur` $ightarrow$ `timeout`) demonstrate how attention dynamically resolves word order shifts between languages without relying on a single static context vector.
-
-### Step 1: Compute Softmax Alignment Probabilities ($\alpha_{ij}$):
-
-The scores are normalized into a probability distribution over input tokens using Softmax:
-
-$$\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k=1}^T \exp(e_{ik})}$$
-
-Where $\alpha_{ij} \in [0, 1]$ represents the relative attention weight allocated to input token $j$ when decoding output token $i$.
-
-### Step 2: Compute Dynamic Context Vector ($c_i$):
-The context vector $c_i$ is computed as the weighted linear combination of all encoder hidden states:
-
-$$c_i = \sum_{j=1}^T \alpha_{ij} h_j$$
-
-### Step 3: Compute Combined Attentional Vector ($\tilde{s}_i$):
-The context vector $c_i$ and decoder state $s_i$ are concatenated to predict the next token probability:
-
-$$\tilde{s}_i = \tanh(W_c [c_i; s_i])$$
-
-$$P(y_i | y_{<i}, X) = \text{softmax}(W_s \tilde{s}_i)$$
+> - **Alignment Weights**: High attention values along diagonal tokens show dynamic focus allocation across tokens.
 
 ---
 
-## 4. Step-by-Step Hand Calculation Example (Andrew Ng Style)
-
-Suppose we have an Encoder sentence with $T = 3$ tokens producing 2-dimensional hidden states:
-- $h_1 = [1.0, 0.0]^\top$
-- $h_2 = [0.0, 2.0]^\top$
-- $h_3 = [1.0, 1.0]^\top$
-
-And a Decoder state at step $i$:
-- $s_i = [2.0, 1.0]^\top$
-
-We use **Luong Dot Attention**: $e_j = s_i^\top h_j$.
-
-### 1. Compute Raw Attention Scores ($e_j$):
-- $e_1 = s_i^\top h_1 = (2.0 \times 1.0) + (1.0 \times 0.0) = 2.0 + 0 = \mathbf{2.0}$
-- $e_2 = s_i^\top h_2 = (2.0 \times 0.0) + (1.0 \times 2.0) = 0 + 2.0 = \mathbf{2.0}$
-- $e_3 = s_i^\top h_3 = (2.0 \times 1.0) + (1.0 \times 1.0) = 2.0 + 1.0 = \mathbf{3.0}$
-
-### 2. Compute Softmax Alignment Weights ($\alpha_j$):
-Exponentials:
-- $\exp(e_1) = \exp(2.0) \approx 7.3891$
-- $\exp(e_2) = \exp(2.0) \approx 7.3891$
-- $\exp(e_3) = \exp(3.0) \approx 20.0855$
-
-Sum of Exponentials $Z = 7.3891 + 7.3891 + 20.0855 = \mathbf{34.8637}$
-
-Alignment Weights $\alpha_j = \exp(e_j) / Z$:
-- $\alpha_1 = 7.3891 / 34.8637 \approx \mathbf{0.2119}$ ($21.2\%$ attention on Token 1)
-- $\alpha_2 = 7.3891 / 34.8637 \approx \mathbf{0.2119}$ ($21.2\%$ attention on Token 2)
-- $\alpha_3 = 20.0855 / 34.8637 \approx \mathbf{0.5762}$ ($57.6\%$ attention on Token 3)
-
-### 3. Compute Dynamic Context Vector ($c_i$):
-$$c_i = \alpha_1 h_1 + \alpha_2 h_2 + \alpha_3 h_3$$
-
-$$c_i = 0.2119 \times \begin{bmatrix} 1.0 \\ 0.0 \end{bmatrix} + 0.2119 \times \begin{bmatrix} 0.0 \\ 2.0 \end{bmatrix} + 0.5762 \times \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}$$
-
-$$c_i = \begin{bmatrix} 0.2119 \\ 0.0 \end{bmatrix} + \begin{bmatrix} 0.0 \\ 0.4238 \end{bmatrix} + \begin{bmatrix} 0.5762 \\ 0.5762 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.7881 \\ 1.0000 \end{bmatrix}}$$
-
-$$\mathbf{\alpha = [0.2119, 0.2119, 0.5762]^\top, \quad c_i = [0.7881, 1.0000]^\top}$$
-
----
-
-## 5. Bridge to Transformers: Scaled Dot-Product Attention
-
-The introduction of Luong Dot Attention revealed a profound mathematical insight: **recurrent hidden states are unneeded for context retrieval if we compute scaled dot products directly across token projections**.
-
-Vaswani et al. (2017) extended Luong Dot Attention into **Scaled Dot-Product Self-Attention** by projecting input representations into Query ($Q$), Key ($K$), and Value ($V$) matrices:
-
-$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V$$
-
-Where $\frac{1}{\sqrt{d_k}}$ scaling prevents large dot products from driving Softmax gradients into extremely small regions (vanishing gradients).
-
----
-
-## 6. Production PyTorch Implementation
+## 7. Production PyTorch Scaled Dot-Product Attention Code
 
 ```python
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
-class LuongDotAttention(nn.Module):
-    """Production PyTorch Luong Multiplicative Dot-Product Attention Module."""
-    
-    def __init__(self):
-        super().__init__()
-        
-    def forward(self, decoder_state: torch.Tensor, encoder_states: torch.Tensor):
-        # decoder_state shape: [batch_size, 1, hidden_dim]
-        # encoder_states shape: [batch_size, seq_len, hidden_dim]
-        
-        # 1. Compute Dot Attention Scores: e_j = s_i^T * h_j
-        # transpose(1, 2) shape: [batch_size, hidden_dim, seq_len]
-        attn_scores = torch.bmm(decoder_state, encoder_states.transpose(1, 2)) # [batch_size, 1, seq_len]
-        
-        # 2. Compute Softmax Alignment Weights
-        attn_weights = F.softmax(attn_scores, dim=-1) # [batch_size, 1, seq_len]
-        
-        # 3. Compute Weighted Context Vector c = sum(alpha_j * h_j)
-        context_vector = torch.bmm(attn_weights, encoder_states) # [batch_size, 1, hidden_dim]
-        
-        return context_vector, attn_weights
+# Query, Key, Value Tensors: Batch size 1, 3 Tokens, Dimension 2
+Q = torch.tensor([[[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]])
+K = torch.tensor([[[1.0, 0.0], [1.0, 1.0], [0.0, 1.0]]])
+V = torch.tensor([[[2.0, 1.0], [0.0, 2.0], [1.0, 0.0]]])
 
-# Demonstration Execution
-batch_size, seq_len, hidden_dim = 2, 4, 8
+# Execute PyTorch optimized Scaled Dot-Product Attention
+output = F.scaled_dot_product_attention(Q, K, V)
 
-encoder_h = torch.randn(batch_size, seq_len, hidden_dim)
-decoder_s = torch.randn(batch_size, 1, hidden_dim)
-
-attn_layer = LuongDotAttention()
-context, weights = attn_layer(decoder_s, encoder_h)
-
-print("=== PyTorch Luong Dot Attention Execution ===")
-print("Context Vector Shape:   ", context.shape)  # [2, 1, 8]
-print("Alignment Weights Shape:", weights.shape)  # [2, 1, 4]
-print("Sample Alignment Weights (Batch #1):", weights[0, 0, :].detach().numpy().round(4))
+print("=== PyTorch Scaled Dot-Product Attention Output ===")
+print("Output Matrix (Shape: 1x3x2):\n", output.numpy().round(4))
 ```
 
-> [!NOTE]
-> **Attention Matrix Alert:**
-> - `torch.bmm` executes batch matrix multiplication efficiently on GPUs.
-> - Plotting `weights` matrix as a Seaborn heatmap provides full interpretability into which source words the model attended to when generating target words.
-
 ---
 
-## 7. Production Failure Modes & Selection Rules
+## 8. Interview Questions & Production Trade-offs
 
-### Production Failure Modes:
-1. **Quadratic Alignment Memory Bottleneck ($O(T_{\text{enc}} \times T_{\text{dec}})$)**: Storing the full attention matrix $\alpha \in \mathbb{R}^{T_{\text{enc}} \times T_{\text{dec}}}$ for long sequences ($T=10,000$) causes massive GPU VRAM consumption.
-   - *Remediation*: Deploy FlashAttention or sparse windowed attention patterns.
-2. **Unscaled Large Dot Products**: In high embedding dimensions ($d_k = 512$), unscaled dot products $s_i^\top h_j$ grow large in magnitude, pushing Softmax outputs into near-binary values ($0$ or $1$) with zero gradients.
-   - *Remediation*: Always scale dot product scores by $\frac{1}{\sqrt{d_k}}$.
+### What problem does Attention solve over standard Encoder-Decoder RNNs?
+Standard Encoder-Decoder RNNs force all source tokens into a single static hidden vector $h_T$, creating a severe information bottleneck. Attention allows the decoder to dynamically inspect and weight all source token hidden states at every step.
 
----
+### Why is scaling by $\sqrt{d_k}$ required?
+Without $\sqrt{d_k}$ scaling, large projection dimensions $d_k$ cause dot products $q \cdot k$ to have high variance $d_k$. Large dot products push the Softmax function into saturated regions with near-zero gradients ($\text{softmax}'(z) \rightarrow 0$), causing vanishing gradients during backpropagation.
 
-## 8. Master Interview Flashcards & Questions
+### What are the primary limitations of Self-Attention?
+Quadratic Time & Memory Complexity $O(T^2)$ over sequence length $T$, making vanilla self-attention expensive for long contexts ($T > 8,000$).
 
-#### Q1: What problem does the Attention mechanism solve in standard Seq2Seq architectures?
-- **Answer:** Standard Seq2Seq models compress the entire input sequence into a single fixed-size context vector $h_T$ at the end of the Encoder. For long sentences ($T > 30$), this creates an Information Bottleneck, causing severe accuracy degradation. Attention retains all encoder hidden states $[h_1, \dots, h_T]$ and allows the decoder to dynamically compute alignment weights and extract a tailored context vector $c_i$ at each decoding step.
+### Computational Complexity:
+- **Time Complexity**: $O(T^2 \cdot d)$ matrix multiplication over sequence length $T$.
+- **Memory Complexity**: $O(T^2)$ for storing $T \times T$ attention matrix weights in RAM.
 
-#### Q2: Compare Bahdanau Additive Attention vs. Luong Multiplicative Attention.
-- **Answer:** Bahdanau Attention computes alignment scores using a feed-forward neural network layer $e_{ij} = v_a^\top \tanh(W_a s_{i-1} + U_a h_j)$ using previous decoder state $s_{i-1}$. Luong Attention uses multiplicative matrix operations $e_{ij} = s_i^\top W_a h_j$ using current decoder state $s_i$. Luong attention is computationally faster and GPU matrix-multiplication friendly.
+### Production Use Cases:
+- Core building block of Transformer LLMs (GPT-4, Llama 3, Claude 3).
+- Cross-attention in RAG contextual retrieval decoders.
 
-#### Q3: How does Luong Dot Attention mathematically transition to Transformer Scaled Dot-Product Attention?
-- **Answer:** Luong Dot Attention computes $e = s_i^\top h_j$ between decoder state $s_i$ and encoder state $h_j$. Transformer Scaled Dot-Product Attention replaces recurrent hidden states with linear projections of input tokens into Query ($Q$), Key ($K$), and Value ($V$) matrices, scaling scores by $\frac{1}{\sqrt{d_k}}$: $\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$.
+### Follow-up Interview Questions:
+1. *What is the difference between Self-Attention and Cross-Attention?* (Answer: In Self-Attention, $Q, K, V$ stem from the same sequence. In Cross-Attention, $Q$ comes from the decoder, while $K, V$ come from the encoder).
+2. *How does Multi-Head Attention improve representation capacity?* (Answer: It splits $d$ into $h$ heads, allowing the model to attend to different representation subspaces simultaneously, such as syntactic relations in head 1 and positional offsets in head 2).

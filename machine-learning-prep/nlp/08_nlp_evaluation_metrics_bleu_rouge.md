@@ -1,198 +1,167 @@
-# Module 08: NLP Evaluation Metrics: Classification, BLEU, ROUGE & Perplexity
+# Module 08: NLP Evaluation Metrics (BLEU, ROUGE & Perplexity)
 
-This study guide details Precision, Recall, F1 (Macro/Micro/Weighted), BLEU-1 through BLEU-4 (with Brevity Penalty derivations), ROUGE-1, ROUGE-2, ROUGE-L (Longest Common Subsequence), Language Model Perplexity (PPL) mathematical proofs, step-by-step hand calculations, Python code, metric limitations, and interview flashcards.
+This study guide covers BLEU (modified precision & brevity penalty), ROUGE-1 and ROUGE-L, Perplexity ($\text{PPL} = \exp(\mathcal{L})$), step-by-step numerical walkthroughs, metric plots, NLTK/Rouge-Score Python code, complexity analysis, and standardized interview Q&A.
 
 > **Notebook Companion**: [08_nlp_evaluation_metrics_bleu_rouge.ipynb](file:///d:/Study/Prep/machine-learning-prep/nlp/08_nlp_evaluation_metrics_bleu_rouge.ipynb)
 
 ---
 
-## 1. Classification Metrics Taxonomy for Text
+## 1. Overview of Generation Evaluation Metrics
+
+Evaluating machine translation, summarization, and LLM text generation requires automated metrics that compare candidate generation $c$ against reference text $r$:
 
 ```text
-Metric         Mathematical Definition                               Best Production Use Case
-----------------------------------------------------------------------------------------------------------------------------------
-Precision      TP / (TP + FP)                                        Minimizing False Positives (e.g. Spam detection)
-Recall         TP / (TP + FN)                                        Minimizing False Negatives (e.g. Medical diagnosis)
-Macro F1       Unweighted average of F1 across all classes           Evaluating rare classes in imbalanced text datasets
-Micro F1       Global F1 aggregated across all instances             Overall system throughput accuracy
-Perplexity     PPL = exp(CrossEntropyLoss)                           Language model generation fluency evaluation
-BLEU           Brevity Penalty * exp(sum(w_n * log(p_n)))            Machine Translation evaluation
-ROUGE          Recall-Oriented N-gram / LCS Match                   Text Summarization evaluation
+Metric         Primary Orientation        Core Objective Equation                             Key Focus Area
+-----------------------------------------------------------------------------------------------------------------------------------------
+BLEU           Precision-Oriented         $\text{BP} \cdot \exp\left(\sum w_n \log p_n\right)$ Machine Translation fidelity & adequacy
+ROUGE-1        Recall-Oriented            $\frac{\text{Matching Unigrams}}{\text{Ref Unigram Count}}$ Text Summarization reference coverage
+ROUGE-L        Sequence Order Recall      $\frac{\text{LCS}(c, r)}{\text{Ref Token Length } r}$ Longest Common Subsequence sentence structure
+Perplexity     Model Uncertainty          $\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$         Language Model next-token prediction
 ```
 
 ---
 
-## 2. BLEU: Bilingual Evaluation Understudy
+## 2. BLEU Score (Bilingual Evaluation Understudy)
 
-Developed by IBM (Papineni et al., 2002), **BLEU** evaluates Machine Translation quality by comparing candidate generation $C$ against one or more reference translations $R$.
+### Why BLEU is Precision-Oriented:
+Standard raw precision counts how many candidate words appear in the reference. If a flawed model outputs repeating high-confidence words (`"the the the the"`), raw precision yields $100\%$ ($4/4$).
 
-### 1. Modified N-Gram Precision ($p_n$):
-To prevent candidate translations from cheating by repeating a single frequent word (e.g., `"the the the the"`), BLEU clips the count of each n-gram to the maximum frequency it appears in any single reference sentence:
+BLEU introduces **Modified N-Gram Precision ($p_n$)**, which clips each candidate n-gram count to the maximum frequency it appears in any reference sentence.
 
-$$p_n = \frac{\sum_{\text{gram}_n \in C} \text{Count}_{\text{clip}}(\text{gram}_n)}{\sum_{\text{gram}_n \in C} \text{Count}(\text{gram}_n)}$$
-
-### 2. Brevity Penalty (BP):
-Precision-only metrics favor overly short candidate translations (e.g., candidate `"The"` has $100\%$ precision). The Brevity Penalty penalizes candidates shorter than reference length $r$:
+### Brevity Penalty (BP):
+To prevent candidate sentences from cheating by outputting extremely short high-precision phrases (e.g. `"the cat"`), BLEU multiplies precision by a **Brevity Penalty**:
 
 $$\text{BP} = \begin{cases} 1 & \text{if } c > r \\ \exp\left(1 - \frac{r}{c}\right) & \text{if } c \le r \end{cases}$$
 
-Where $c$ is the candidate token length and $r$ is the reference target length.
+Where $c$ is candidate word length and $r$ is reference word length.
 
-### 3. Overall BLEU Score Formula:
-$$\text{BLEU} = \text{BP} \times \exp\left( \sum_{n=1}^N w_n \log p_n \right)$$
+### BLEU-2 Formula:
+$$\text{BLEU-2} = \text{BP} \cdot \exp\left(0.5 \log p_1 + 0.5 \log p_2\right)$$
 
-Typically $N=4$ (BLEU-4) with uniform weights $w_n = 1/4 = 0.25$.
-
----
-
-## 3. ROUGE: Recall-Oriented Understudy for Gisting Evaluation
-
-Developed by Lin (2004), **ROUGE** is primarily used for Text Summarization, measuring how much of the reference summary is captured in the candidate output (Recall-oriented).
-
-### 1. ROUGE-N (N-Gram Recall):
-$$\text{ROUGE-N} = \frac{\sum_{S \in \text{Reference}} \sum_{\text{gram}_n \in S} \text{Count}_{\text{match}}(\text{gram}_n)}{\sum_{S \in \text{Reference}} \sum_{\text{gram}_n \in S} \text{Count}(\text{gram}_n)}$$
-
-- **ROUGE-1**: Unigram recall (evaluates information coverage).
-- **ROUGE-2**: Bigram recall (evaluates local phrase fluency).
-
-### 2. ROUGE-L (Longest Common Subsequence):
-ROUGE-L uses the Longest Common Subsequence (LCS) of in-order tokens (allowing non-contiguous gaps):
-
-$$R_{\text{LCS}} = \frac{\text{LCS}(C, R)}{|R|}, \quad P_{\text{LCS}} = \frac{\text{LCS}(C, R)}{|C|}$$
-
-$$\text{ROUGE-L} = \frac{(1 + \beta^2) R_{\text{LCS}} P_{\text{LCS}}}{R_{\text{LCS}} + \beta^2 P_{\text{LCS}}}$$
+### Common Limitations of BLEU:
+- **Surface-Form Exact Match Rigidity**: Penalizes valid synonyms, morphological variations, and paraphrases (e.g. `"quick"` vs `"fast"` gets zero match).
+- **Insensitive to Word Order Shifts**: Does not measure long-range semantic coherence.
 
 ---
 
-## 4. Perplexity (PPL): Language Model Evaluation
+## 3. Step-by-Step BLEU-2 Numerical Walkthrough
 
-**Perplexity** measures how well a probability model predicts a text sequence. Intuitively, it represents the average branch factor (number of equal choices) the model faces when predicting the next token.
+- **Candidate ($c=5$ words)**: `"the cat sat on mat"`
+- **Reference ($r=6$ words)**: `"the cat sat on the mat"`
 
-![Perplexity vs Cross-Entropy Loss Curve](images/08_perplexity_vs_loss.png)
+### Step 1: Compute Modified Unigram Precision ($p_1$)
+- Candidate Unigrams ($c=5$): `["the", "cat", "sat", "on", "mat"]`
+- Reference Unigram Counts: `the`: 2, `cat`: 1, `sat`: 1, `on`: 1, `mat`: 1
+- All 5 candidate unigrams match reference counts $\implies \text{Clipped Count} = 5$.
+$$p_1 = \frac{5}{5} = \mathbf{1.0000}$$
 
-> **Plot Interpretation & Production Insight**:
-> - **Exponential Scale**: Perplexity increases exponentially with cross-entropy evaluation loss ($	ext{PPL} = \exp(\mathcal{L}_{	ext{CE}})$).
-> - **Uncertainty Interpretation**: An evaluation loss of $\mathcal{L}_{	ext{CE}} = 2.3026$ corresponds to a Perplexity of $	ext{PPL} = 10.0$ (red dashed line). This means the model is as uncertain at each token prediction as if it were making a uniform random choice among 10 candidate words.
+### Step 2: Compute Modified Bigram Precision ($p_2$)
+- Candidate Bigrams ($c-1 = 4$): `["the cat", "cat sat", "sat on", "on mat"]`
+- Reference Bigrams: `["the cat", "cat sat", "sat on", "on the", "the mat"]`
+- Matching Bigrams: `"the cat"`, `"cat sat"`, `"sat on"` (3 matches).
+$$p_2 = \frac{3}{4} = \mathbf{0.7500}$$
 
-### Mathematical Derivation:
-
-For sequence $W = (w_1, w_2, \dots, w_N)$, Perplexity is the reciprocal geometric mean of sequence probability:
-
-$$\text{PPL}(W) = P(w_1, w_2, \dots, w_N)^{-1/N} = \left( \prod_{i=1}^N P(w_i | w_{<i}) \right)^{-1/N}$$
-
-Taking the natural logarithm:
-
-$$\log \text{PPL}(W) = -\frac{1}{N} \sum_{i=1}^N \log P(w_i | w_{<i}) = \mathcal{L}_{\text{CrossEntropy}}$$
-
-Exponetiating both sides yields the fundamental production equivalence:
-
-$$\mathbf{\text{PPL}(W) = \exp(\mathcal{L}_{\text{CrossEntropy}})}$$
-
-- **Interpretation**: A Perplexity of **10** means the model is as uncertain at each token as if it were choosing uniformly at random among **10 options**. Lower perplexity indicates superior predictive confidence.
-
----
-
-## 5. Step-by-Step Hand Calculation Example (Andrew Ng Style)
-
-Suppose we evaluate a Candidate Translation against a Reference Translation:
-- **Candidate ($C$)**: `"the cat sat on mat"` (Length $c = 5$ tokens)
-- **Reference ($R$)**: `"the cat sat on the mat"` (Length $r = 6$ tokens)
-
-### 1. Calculate Modified Precision $p_1$ and $p_2$:
-- **Unigrams in $C$**: `["the", "cat", "sat", "on", "mat"]` (5 tokens)
-  - All 5 unigrams appear in $R$. $p_1 = 5 / 5 = \mathbf{1.0000}$
-- **Bigrams in $C$**: `["the cat", "cat sat", "sat on", "on mat"]` (4 bigrams)
-  - Bigrams in $R$: `["the cat", "cat sat", "sat on", "on the", "the mat"]`
-  - Matches: `"the cat"`, `"cat sat"`, `"sat on"`. (3 matches out of 4)
-  - $p_2 = 3 / 4 = \mathbf{0.7500}$
-
-### 2. Calculate Brevity Penalty (BP):
-- Candidate length $c = 5$, Reference length $r = 6$. Since $c \le r$:
-
+### Step 3: Compute Brevity Penalty (BP)
+Since candidate length $c = 5 < r = 6$:
 $$\text{BP} = \exp\left(1 - \frac{6}{5}\right) = \exp(-0.20) \approx \mathbf{0.8187}$$
 
-### 3. Compute BLEU-2 Score:
-$$\text{BLEU-2} = \text{BP} \times \exp\left(0.5 \log p_1 + 0.5 \log p_2\right)$$
-
-$$\text{BLEU-2} = 0.8187 \times \exp\left(0.5 \log(1.0) + 0.5 \log(0.75)\right) = 0.8187 \times \exp(0 + 0.5(-0.2877))$$
-
-$$\text{BLEU-2} = 0.8187 \times \exp(-0.1438) = 0.8187 \times 0.8660 \approx \mathbf{0.7090}$$
-
-### 4. Calculate ROUGE-1 Recall:
-- Reference Unigrams = 6 tokens.
-- Candidate contains 5 matching unigrams (`"the"`, `"cat"`, `"sat"`, `"on"`, `"mat"`).
-
-$$\text{ROUGE-1 Recall} = \frac{5}{6} \approx \mathbf{0.8333}$$
-
-### 5. Calculate Perplexity from Loss:
-If cross-entropy evaluation loss $\mathcal{L}_{\text{CE}} = 2.3026$:
-
-$$\text{PPL} = \exp(2.3026) = \mathbf{10.0000}$$
+### Step 4: Compute Final BLEU-2 Score
+$$\text{BLEU-2} = 0.8187 \times \exp(0.5 \log 1.0 + 0.5 \log 0.7500)$$
+$$\log 1.0 = 0, \quad \log 0.7500 \approx -0.2877$$
+$$\text{BLEU-2} = 0.8187 \times \exp(-0.1438) = 0.8187 \times 0.8660 = \mathbf{0.7090}$$
 
 ---
 
-## 6. Production Python Implementation
+## 4. ROUGE Metrics (ROUGE-1 & ROUGE-L)
+
+### ROUGE-1 (Unigram Recall):
+$$\text{ROUGE-1 Recall} = \frac{\text{Matching Unigrams}}{\text{Total Reference Unigrams}}$$
+
+### ROUGE-L (Longest Common Subsequence):
+$$\text{ROUGE-L Recall} = \frac{\text{LCS}(c, r)}{r}$$
+
+Where $\text{LCS}(c, r)$ is the length of the longest common subsequence of tokens between candidate and reference.
+
+### Step-by-Step ROUGE Numerical Walkthrough:
+- Candidate: `"the cat sat on mat"` (5 words)
+- Reference: `"the cat sat on the mat"` (6 words)
+
+1. **ROUGE-1 Recall**:
+   Matching unigrams = 5, Total reference unigrams = 6.
+   $$\text{ROUGE-1 Recall} = \frac{5}{6} \approx \mathbf{0.8333}$$
+
+2. **ROUGE-L Recall**:
+   Longest Common Subsequence: `"the" -> "cat" -> "sat" -> "on" -> "mat"` (length = 5).
+   $$\text{ROUGE-L Recall} = \frac{5}{6} \approx \mathbf{0.8333}$$
+
+---
+
+## 5. Perplexity (PPL)
+
+Perplexity measures a language model's uncertainty when predicting the next token in a sequence $W = (w_1, w_2, \dots, w_N)$:
+
+$$\text{PPL}(W) = \exp(\mathcal{L}_{\text{CrossEntropy}}) = \exp\left( -\frac{1}{N} \sum_{i=1}^N \log P(w_i \mid w_{<i}) \right)$$
+
+> **Core Interpretation**: **Lower Perplexity $\implies$ Better Language Model**. A perplexity of $\text{PPL} = 10.0$ means the model is as uncertain at each token choice as if it were selecting uniformly at random from 10 candidate words.
+
+### Step-by-Step PPL Calculation:
+If an evaluation run yields Cross-Entropy Loss $\mathcal{L}_{\text{CE}} = 2.3026$:
+$$\text{PPL} = \exp(2.3026) = \mathbf{10.0}$$
+
+---
+
+## 6. Perplexity vs. Cross-Entropy Loss Curve
+
+![Perplexity vs Loss Curve](images/08_perplexity_vs_loss.png)
+
+> **Plot Interpretation & Production Insight**:
+> - Exponential mapping: As evaluation loss decreases linearly, perplexity drops exponentially, providing a clear benchmark metric during LLM pre-training and fine-tuning.
+
+---
+
+## 7. Production Python NLTK & ROUGE Evaluation Code
 
 ```python
-import numpy as np
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from rouge_score import rouge_scorer
 
-# 1. Candidate vs Reference Text Outputs
-reference_text = "the cat sat on the mat"
-candidate_text = "the cat sat on mat"
+candidate = "the cat sat on mat"
+reference = "the cat sat on the mat"
 
-ref_tokens = reference_text.split()
-cand_tokens = candidate_text.split()
+# BLEU Evaluation
+weights = (0.5, 0.5)  # BLEU-2
+bleu_2 = sentence_bleu([reference.split()], candidate.split(), weights=weights)
 
-# 2. Compute NLTK BLEU Score
-smooth_fn = SmoothingFunction().method1
-bleu_1 = sentence_bleu([ref_tokens], cand_tokens, weights=(1, 0, 0, 0), smoothing_function=smooth_fn)
-bleu_2 = sentence_bleu([ref_tokens], cand_tokens, weights=(0.5, 0.5, 0, 0), smoothing_function=smooth_fn)
+# ROUGE Evaluation
+scorer = rouge_scorer.RougeScorer(['rouge1', 'rougeL'], use_stemmer=True)
+rouge_scores = scorer.score(reference, candidate)
 
-print("=== 1. BLEU Score Benchmark ===")
-print(f"BLEU-1 Score: {bleu_1:.4f}")
 print(f"BLEU-2 Score: {bleu_2:.4f}")
-
-# 3. Compute ROUGE Scores
-scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
-rouge_results = scorer.score(reference_text, candidate_text)
-
-print("\n=== 2. ROUGE Score Benchmark ===")
-print(f"ROUGE-1 Recall: {rouge_results['rouge1'].recall:.4f} | F1: {rouge_results['rouge1'].fmeasure:.4f}")
-print(f"ROUGE-2 Recall: {rouge_results['rouge2'].recall:.4f} | F1: {rouge_results['rouge2'].fmeasure:.4f}")
-print(f"ROUGE-L Recall: {rouge_results['rougeL'].recall:.4f} | F1: {rouge_results['rougeL'].fmeasure:.4f}")
-
-# 4. Compute Perplexity from Cross-Entropy Loss
-eval_loss = 1.8543
-perplexity = np.exp(eval_loss)
-print("\n=== 3. Language Model Perplexity Benchmark ===")
-print(f"Cross-Entropy Loss: {eval_loss:.4f} --> Perplexity (PPL): {perplexity:.4f}")
+print(f"ROUGE-1 Recall: {rouge_scores['rouge1'].recall:.4f}")
+print(f"ROUGE-L Recall: {rouge_scores['rougeL'].recall:.4f}")
 ```
 
-> [!NOTE]
-> **Production Evaluation Alert:**
-> - BLEU and ROUGE rely purely on exact surface string n-gram matching. Paraphrased candidates with identical semantic meaning (e.g. candidate `"The feline rested on the rug"`) score $0$ on BLEU/ROUGE. Modern systems supplement these with **BERTScore** or **LLM-as-a-Judge**.
-
 ---
 
-## 7. Production Failure Modes & Selection Rules
+## 8. Interview Questions & Production Trade-offs
 
-### Production Failure Modes:
-1. **BLEU Paraphrase Blindness**: BLEU heavily penalizes valid semantically correct outputs if they do not match reference n-gram surface forms.
-   - *Remediation*: Use contextual embedding evaluation (BERTScore) or LLM-as-a-Judge.
-2. **Length Cheating**: Generative models evaluated without Brevity Penalty can produce single-word outputs with $100\%$ precision scores.
-   - *Remediation*: Always include Brevity Penalty (BP) in custom BLEU pipelines.
+### What problem do BLEU, ROUGE, and Perplexity solve?
+Provide automated, reproducible quantitative benchmarks for text generation without relying on expensive human annotations.
 
----
+### Why is BLEU precision-oriented while ROUGE is recall-oriented?
+BLEU checks what fraction of generated candidate n-grams are valid (preventing hallucinated ungrounded text in translation), whereas ROUGE checks what fraction of reference target information was captured in the summary (preventing key detail omission).
 
-## 8. Master Interview Flashcards & Questions
+### What are their primary limitations?
+Surface-form exact match rigidity. They penalize valid paraphrases and modern conversational outputs. In GenAI production pipelines, **LLM-as-a-Judge** (using GPT-4 / G-Eval to evaluate response quality) is heavily preferred over BLEU/ROUGE.
 
-#### Q1: Prove the mathematical relationship between Cross-Entropy Loss and Perplexity.
-- **Answer:** Perplexity is defined as reciprocal geometric mean probability: $\text{PPL}(W) = P(w_1, \dots, w_N)^{-1/N} = \left( \prod P(w_i | w_{<i}) \right)^{-1/N}$. Taking natural log gives $\log \text{PPL}(W) = -\frac{1}{N} \sum \log P(w_i | w_{<i})$, which is exactly the definition of Cross-Entropy Loss $\mathcal{L}_{\text{CE}}$. Exponentiating both sides yields $\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$.
+### Computational Complexity:
+- **BLEU / ROUGE Time Complexity**: $O(|c| \cdot |r|)$ sequence token matching.
+- **Perplexity Time Complexity**: $O(N)$ forward pass evaluation loss computation.
 
-#### Q2: What is Brevity Penalty in BLEU, and why is it necessary?
-- **Answer:** Modified n-gram precision alone rewards short candidate outputs. For example, a candidate consisting of a single token `"the"` that appears in the reference gets $100\%$ precision ($p_1 = 1.0$). Brevity Penalty (BP) penalizes candidate sentences shorter than the reference length $r$: $\text{BP} = \exp(1 - r/c)$ for $c \le r$, ensuring short sentences receive low overall BLEU scores.
+### Production Use Cases:
+- Automated regression testing during LLM fine-tuning runs (e.g. LoRA / QLoRA checkpoints).
+- Translation engine quality assurance benchmarking.
 
-#### Q3: Compare BLEU vs. ROUGE evaluation orientation.
-- **Answer:** BLEU is **Precision-Oriented** (primarily used in Machine Translation to verify that generated candidate n-grams appear in the reference target). ROUGE is **Recall-Oriented** (primarily used in Text Summarization to verify that key reference information is fully captured in the generated candidate).
+### Follow-up Interview Questions:
+1. *Why does lower perplexity guarantee better model probability estimation but NOT guaranteed fluent text generation?* (Answer: Perplexity measures next-token probability fit on validation data, but greedy or temperature decoding strategies can still suffer from repetitive loops during generation).
+2. *What is G-Eval / LLM-as-a-Judge?* (Answer: A evaluation framework where an advanced LLM evaluates generated responses against rubrics like factual accuracy, relevance, and toxicity).

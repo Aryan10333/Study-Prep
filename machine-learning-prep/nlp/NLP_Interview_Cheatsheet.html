@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Part 4: NLP Master Study Guide</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ]
+            });"></script>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm 15mm 18mm 15mm;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 22px;
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 6px;
+            margin-top: 24px;
+            margin-bottom: 14px;
+        }
+        h2 {
+            font-size: 17px;
+            color: #1e40af;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+        h3 {
+            font-size: 15px;
+            color: #0369a1;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        p, li {
+            color: #334155;
+            margin-bottom: 8px;
+        }
+        code {
+            font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 12px 14px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.45;
+            margin: 12px 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        blockquote {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            margin: 12px 0;
+            padding: 8px 14px;
+            color: #1e40af;
+            border-radius: 0 4px 4px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 11.5px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 7px 9px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .katex-display {
+            margin: 14px 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .module-container {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+<h1 id="part-4-nlp-interview-cheatsheet-8-essential-must-know-foundations">Part 4: NLP Interview Cheatsheet (8 Essential Must-Know Foundations)</h1>
+<p>A high-density revision reference for AI, Applied AI, GenAI, and ML Engineer interviews covering the 8 essential formulas, core diagrams, time &amp; memory complexity, interview Q&amp;A, and a 1-page comparison table.</p>
+<hr />
+<h2 id="1-the-8-must-know-essential-formulas">1. The 8 Must-Know Essential Formulas</h2>
+<pre><code class="language-text">1. TF-IDF Formula:
+   TF(t, d) = count(t, d) / |d|
+   IDF(t) = log((1 + |D|) / (1 + DF(t))) + 1
+   TF-IDF(t, d) = TF(t, d) * IDF(t)
+
+2. Cosine Similarity:
+   CosineSim(u, v) = (u · v) / (||u||2 * ||v||2)
+
+3. Naive Bayes (+ Laplace Add-1 Smoothing):
+   P(c | d) ∝ P(c) * ∏ P(w_i | c)
+   P(w_i | c) = (N_{c,i} + 1) / (N_c + |V|)
+
+4. Word2Vec Skip-Gram Sigmoid Output:
+   P(w_O | w_I) = σ(v'_{w_O}ᵀ v_{w_I}) = 1 / (1 + exp(- v'_{w_O}ᵀ v_{w_I}))
+
+5. LSTM Cell Update Equations (Forward Pass Only):
+   f_t = σ(W_f · [h_{t-1}, x_t] + b_f)       (Forget Gate)
+   i_t = σ(W_i · [h_{t-1}, x_t] + b_i)       (Input Gate)
+   C~_t = tanh(W_c · [h_{t-1}, x_t] + b_c)   (Candidate Cell)
+   C_t = f_t ⊙ C_{t-1} + i_t ⊙ C~_t          (Cell State Update)
+   o_t = σ(W_o · [h_{t-1}, x_t] + b_o)       (Output Gate)
+   h_t = o_t ⊙ tanh(C_t)                      (Hidden State)
+
+6. Scaled Dot-Product Attention:
+   Attention(Q, K, V) = softmax( (Q Kᵀ) / sqrt(d_k) ) V
+
+7. BLEU Score (BLEU-2 Precision-Oriented):
+   BLEU-2 = BP * exp(0.5 log p_1 + 0.5 log p_2)
+   BP = exp(1 - r/c) if c &lt;= r else 1.0
+
+8. Perplexity (Model Uncertainty Branch Factor):
+   PPL = exp(L_{CrossEntropy})
+</code></pre>
+<hr />
+<h2 id="2-time-memory-complexity-matrix">2. Time &amp; Memory Complexity Matrix</h2>
+<pre><code class="language-text">Algorithm / Architecture     Training Time Complexity           Inference Time Complexity  Memory Footprint Complexity
+-----------------------------------------------------------------------------------------------------------------------------
+TF-IDF Indexing              $O(|D| \times L)$                  $O(k \times |V|)$          $O(|D| \times |V|)$ Sparse
+Multinomial Naive Bayes      $O(|D| \times L)$                  $O(C \times L)$            $O(C \times |V|)$ Dense
+Word2Vec Skip-Gram           $O(C \cdot m \cdot K \cdot d)$     $O(1)$ Lookup              $O(|V| \times d)$ Embedding Table
+LSTM Model Layer             $O(T \cdot d^2)$ per sequence      $O(T \cdot d^2)$           $O(4 \cdot d^2)$ Weights
+Scaled Dot-Product Attention $O(T^2 \cdot d)$ per sequence      $O(T^2 \cdot d)$           $O(T^2)$ RAM Attention Weights
+INT8 Quantized Model         $O(N \cdot d)$ SIMD                $O(N \cdot d)$ SIMD        $O(\frac{1}{4} M_{\text{FP32}})$ Bytes
+</code></pre>
+<hr />
+<h2 id="3-high-frequency-interview-qa-summary">3. High-Frequency Interview Q&amp;A Summary</h2>
+<ol>
+<li><strong>Why do we scale $QK^\top$ by $\sqrt{d_k}$ in Attention?</strong><br />
+   - <em>Answer</em>: Large $d_k$ causes dot products $q \cdot k$ to have variance $d_k$. Large dot products push Softmax into saturated regions with near-zero gradients ($\text{softmax}'(z) \rightarrow 0$), causing vanishing gradients during backpropagation. Dividing by $\sqrt{d_k}$ rescales variance back to $1.0$.</li>
+<li><strong>Why does Laplace Smoothing prevent zero probability in Naive Bayes?</strong><br />
+   - <em>Answer</em>: Unseen vocabulary words in a training class yield raw likelihood $P(w_{\text{new}} \mid c) = 0$, causing the entire posterior product to collapse to zero. Adding $+1$ ensures every word retains a positive non-zero likelihood $P(w_i \mid c) = \frac{N_{c,i}+1}{N_c + |V|}$.</li>
+<li><strong>How does the LSTM cell state $C_t$ resolve vanishing gradients?</strong><br />
+   - <em>Answer</em>: Cell update $C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$ is additive. When forget gate $f_t = 1$, the gradient derivative $\frac{\partial C_t}{\partial C_{t-1}} = 1$, preserving gradient norm $\approx 1.0$ across long sequences.</li>
+<li><strong>Why is lower Perplexity better?</strong><br />
+   - <em>Answer</em>: $\text{PPL} = \exp(\mathcal{L}_{\text{CE}})$. Perplexity represents the average branching factor of uncertainty when predicting the next token. A lower PPL means fewer candidate choices the model is uncertain between.</li>
+<li><strong>Why is BLEU precision-oriented while ROUGE is recall-oriented?</strong><br />
+   - <em>Answer</em>: BLEU checks what fraction of generated candidate n-grams are valid (preventing hallucinated ungrounded text in translation). ROUGE checks what fraction of reference target tokens were captured in the summary (preventing key detail omission).</li>
+</ol>
+</body>
+</html>

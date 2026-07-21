@@ -1,206 +1,150 @@
-# Module 04: Word Embeddings: Word2Vec, GloVe, FastText & Vector Arithmetic
+# Module 04: Word Embeddings (Word2Vec, GloVe, FastText & Vector Space Geometry)
 
-This study guide details the Distributional Hypothesis, Word2Vec architectures (CBOW vs. Skip-Gram), Hierarchical Softmax, Negative Sampling loss derivations, GloVe matrix factorization, FastText subword n-gram embeddings, vector space arithmetic, step-by-step Negative Sampling hand-calculations, Gensim code, failure modes, and interview flashcards.
+This study guide covers static dense embeddings, Word2Vec architectures (CBOW vs. Skip-Gram), a step-by-step Skip-Gram intuition walkthrough, FastText subword n-grams, GloVe co-occurrence intuition, t-SNE vector geometry plots, Gensim code, complexity analysis, and standardized interview Q&A.
 
 > **Notebook Companion**: [04_word_embeddings_word2vec_glove.ipynb](file:///d:/Study/Prep/machine-learning-prep/nlp/04_word_embeddings_word2vec_glove.ipynb)
 
 ---
 
-## 1. The Distributional Hypothesis & Continuous Embeddings
+## 1. Limitations of Sparse Representations
 
-The foundation of modern statistical semantics is the **Distributional Hypothesis**:
-> *"You shall know a word by the company it keeps."* — J.R. Firth (1957)
+Sparse models (One-Hot, TF-IDF) suffer from two core limitations:
+1. **Orthogonality & Zero Similarity**: $\text{CosineSim}(\text{"database"}, \text{"postgres"}) = 0.0$ despite high semantic equivalence.
+2. **Curse of Dimensionality**: Vector length equals vocabulary size ($|V| \ge 100,000$).
 
-Words that occur in similar context window environments tend to share similar semantic meaning.
-
-```text
-High-Dimensional Sparse Space R^|V| (One-Hot / TF-IDF) ──► Word2Vec / GloVe Projection ──► Low-Dimensional Dense Continuous Space R^d (d ~ 100 - 300)
-```
-
-Dense word embeddings map high-dimensional sparse representations ($|V| \ge 100,000$) into a low-dimensional continuous vector space $\mathbb{R}^d$ ($d \in [100, 300]$), where geometric proximity (Cosine similarity) correlates directly with semantic similarity.
+Dense embeddings project words into a continuous lower-dimensional space $\mathbb{R}^d$ ($d \approx 100 - 300$), capturing distributional semantics (*"words that occur in similar contexts tend to have similar meanings"*).
 
 ---
 
-## 2. Word2Vec Architecture: CBOW vs. Skip-Gram
-
-Word2Vec (Mikolov et al., 2013) uses a 2-layer shallow neural network to learn dense word representations.
+## 2. Word2Vec Architectures: CBOW vs. Skip-Gram
 
 ```text
-Model Paradigm    Input Layer                        Output Layer                       Training Speed  Performance on Rare Words
-----------------------------------------------------------------------------------------------------------------------------------
-CBOW              Context Words {w_{t-c}, ..., w_{t+c}} Target Center Word w_t          Fast            Moderate
-Skip-Gram         Target Center Word w_t             Context Words {w_{t-c}, ..., w_{t+c}} Slower          Superior for rare words & small corpora
-```
-
-```text
-        CBOW Architecture                              Skip-Gram Architecture
-
- Context (w_{t-2}) ──┐                                      ┌──► Context (w_{t-2})
- Context (w_{t-1}) ──┼──► [Projection] ──► Target (w_t)  Target (w_t) ──► [Projection] ──┼──► Context (w_{t-1})
- Context (w_{t+1}) ──┤                                      ├──► Context (w_{t+1})
- Context (w_{t+2}) ──┘                                      └──► Context (w_{t+2})
+Dimension          Continuous Bag-of-Words (CBOW)             Skip-Gram
+---------------------------------------------------------------------------------------------------------
+Task Objective     Predict target word $w_t$ given context    Predict context words $w_{t+k}$ given target $w_t$
+Training Speed     Faster ($O(d)$ per window update)          Slower ($O(m \cdot d)$ per window update)
+Infrequent Words   Averages context; weaker on rare words     Produces high-quality vectors for rare words
+Best Use Case      Large corpora, fast baseline training      Smaller datasets, rich semantic queries
 ```
 
 ---
 
-## 3. Mathematical Optimization: Negative Sampling
+## 3. Word2Vec Skip-Gram Intuition & Training Step Walkthrough
 
-### 1. The Full Softmax Computational Bottleneck
-In a standard Skip-Gram model, the conditional probability of predicting context word $w_O$ given target center word $w_I$ is:
+### 1. Context Window Sliding:
+For sentence `"microservice communicates via grpc protocol"` with center word $w_I = \text{"communicates"}$ and context window radius $m=1$:
+- Target Center Word ($w_I$): `"communicates"`
+- Context Words ($w_O$): `"microservice"`, `"via"`
 
-$$P(w_O | w_I) = \frac{\exp({v'_{w_O}}^\top v_{w_I})}{\sum_{w=1}^{|V|} \exp({v'_{w}}^\top v_{w_I})}$$
+### 2. Input Embedding Lookup:
+Each word in $V$ has an **Input Vector Matrix** $W \in \mathbb{R}^{|V| \times d}$ and an **Output Vector Matrix** $W' \in \mathbb{R}^{|V| \times d}$.
+Lookup extracts input vector $v_{w_I} = W[w_I, :] \in \mathbb{R}^d$.
 
-Where $v_{w}$ is the input embedding and $v'_{w}$ is the output embedding of word $w$.
+### 3. Dot Product & Logit Computation:
+The raw dot product measures vector alignment between center word $v_{w_I}$ and context candidate $v'_{w_O}$:
 
-- **Problem**: Computing the denominator partition function requires summing over all $|V|$ words in the vocabulary ($|V| \ge 100,000$), making gradient updates prohibitively expensive ($O(|V|)$ per token).
+$$z = {v'_{w_O}}^\top v_{w_I}$$
 
-### 2. Negative Sampling Loss Objective
-Negative Sampling (SGNS) reformulates the multiclass Softmax task into $K + 1$ independent binary logistic regression tasks:
+### 4. Sigmoid Probability Output:
+Applying sigmoid yields prediction probability $\hat{y} \in (0, 1)$:
+
+$$\hat{y} = \sigma(z) = \frac{1}{1 + \exp(-z)}$$
+
+### 5. Why Negative Sampling Helps (Intuition):
+Full Softmax requires summing $\sum_{w=1}^{|V|} \exp({v'_w}^\top v_{w_I})$ over all $|V| \ge 100,000$ words ($O(|V| \cdot d)$ complexity).
+**Negative Sampling** converts full Softmax into $K + 1$ binary logistic classifications:
 - Predict `1` for the true positive context pair $(w_I, w_O)$.
-- Predict `0` for $K$ randomly drawn "negative" noise words $(w_I, w_k) \sim P_n(w)$.
+- Predict `0` for $K$ ($K \approx 5 - 20$) randomly drawn noise words $(w_I, w_k) \sim P_n(w)$.
+Complexity drops from $O(|V| \cdot d) \rightarrow O(K \cdot d)$, accelerating training by $1,000\text{x}$.
 
-$$\mathcal{L}_{\text{SGNS}} = -\log \sigma({v'_{w_O}}^\top v_{w_I}) - \sum_{k=1}^K \log \sigma(-{v'_{w_k}}^\top v_{w_I})$$
-
-Where $\sigma(z) = \frac{1}{1 + \exp(-z)}$ is the sigmoid activation function, and $P_n(w) \propto U(w)^{3/4}$ is the unigram noise distribution raised to the $3/4$ power to boost the sampling probability of rare words.
-
----
-
-## 4. GloVe: Global Vectors for Word Representation
-
-While Word2Vec scans local context windows, **GloVe** (Pennington et al., 2014) combines local context windows with global matrix factorization of the global word co-occurrence matrix $X$.
-
-- $X_{ij}$ = Number of times word $j$ appears in the context of word $i$.
-
-### GloVe Loss Function:
-$$J = \sum_{i,j=1}^{|V|} f(X_{ij}) \left( w_i^\top \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij} \right)^2$$
-
-Where $f(X_{ij}) = \min\left(1, \left(\frac{X_{ij}}{x_{\max}}\right)^\alpha\right)$ (with $\alpha = 0.75, x_{\max} = 100$) is a weighting function that caps the influence of extremely frequent co-occurrences (e.g., `"the"`, `"and"`).
+### 6. One Weight Update Intuition:
+If prediction $\hat{y} = 0.70$ for positive pair, prediction error is $e = (1.0 - 0.70) = 0.30$.
+- **Gradient Update**: Input vector $v_{w_I}$ shifts in direction of output vector $v'_{w_O}$:
+  $$\Delta v_{w_I} = \eta \cdot (1 - \hat{y}) \cdot v'_{w_O}$$
+Positive context words pull center vectors closer, while negative noise words push them apart.
 
 ---
 
-## 5. FastText: Subword Character N-Gram Embeddings
+## 4. Optional Topic: FastText (Subword Character N-Grams)
 
-Developed by Facebook (Bojanowski et al., 2017), **FastText** extends Word2Vec by representing each word as a bag of character n-grams.
+FastText represents each word as a bag of character n-grams bounded by `<` and `>`.
+For word `"where"` with $n=3$:
+- Character n-grams: `<wh`, `whe`, `her`, `ere`, `re>`
+- Word vector: Sum of character n-gram vectors:
+  $$v_{\text{"where"}} = v_{\text{<wh}} + v_{\text{whe}} + v_{\text{her}} + v_{\text{ere}} + v_{\text{re>}} + v_{\text{<where>}}$$
 
-- For word `"where"` and $n=3$, character n-grams are: `"<wh"`, `"whe"`, `"her"`, `"ere"`, `"re>"` plus special word `"where"`.
-
-The overall embedding vector $v_w$ for word $w$ is the sum of its character n-gram vectors $z_g$:
-
-$$v_w = \sum_{g \in G_w} z_g$$
-
-- **Major Advantage**: FastText can construct embeddings for **Out-Of-Vocabulary (OOV)** rare or misspelled words (e.g., `"unmicroservice"`) at inference time by summing the learned vectors of its subword n-grams.
+> **Key Advantage**: Handles Out-Of-Vocabulary (OOV) words by summing vectors of constituent character n-grams.
 
 ---
 
-## 6. Vector Space Arithmetic & Semantic Geometry
+## 5. Optional Topic: GloVe (Global Vectors Co-Occurrence Objective)
 
-![Word2Vec 2D t-SNE Vector Space Projection](images/04_word2vec_tsne.png)
+GloVe combines global matrix factorization with local context windowing. It operates directly on global co-occurrence matrix $X_{ij}$:
+
+$$\mathcal{L}_{\text{GloVe}} = \sum_{i,j=1}^{|V|} f(X_{ij}) \left( w_i^\top \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij} \right)^2$$
+
+Where $f(X_{ij}) = \left(\frac{X_{ij}}{x_{\max}}\right)^\alpha$ caps the weighting of highly frequent stop word co-occurrences.
+
+---
+
+## 6. Word2Vec 2D t-SNE Projection & Vector Analogies
+
+![Word2Vec 2D t-SNE Vector Space](images/04_word2vec_tsne.png)
 
 > **Plot Interpretation & Production Insight**:
-> - **Dense Semantic Clustering**: Words that share context window environments naturally cluster together in continuous vector space $\mathbb{R}^d$ (e.g. `microservice`, `grpc`, `rpc` form an infrastructure cluster; `database`, `postgres`, `redis` form a storage cluster).
-> - **Linear Vector Analogies**: Relational analogies form parallel offset vectors in space: $v_{	ext{king}} - v_{	ext{man}} + v_{	ext{woman}} pprox v_{	ext{queen}}$. The red dashed arrows highlight identical offset direction vectors.
-
-
-Dense embeddings preserve linear regularities and relational analogies in vector space:
-
-$$v_{\text{king}} - v_{\text{man}} + v_{\text{woman}} \approx v_{\text{queen}}$$
-
-$$v_{\text{Paris}} - v_{\text{France}} + v_{\text{Germany}} \approx v_{\text{Berlin}}$$
-
-```text
-   Vector Space Geometry
-   
-    [King] ──────────(-man + woman)──────────► [Queen]
-      │                                          │
-      │ (+France - Germany)                      │ (+France - Germany)
-      ▼                                          ▼
-   [Paris] ──────────(-man + woman)──────────► [Rome]
-```
+> - **Dense Semantic Clustering**: Contextually similar words form tight clusters in vector space.
+> - **Linear Vector Analogies**: Geometric offsets represent semantic relationships: $v_{\text{king}} - v_{\text{man}} + v_{\text{woman}} \approx v_{\text{queen}}$.
 
 ---
 
-## 7. Step-by-Step Hand Calculation Example (Andrew Ng Style)
-
-Suppose we have a 2-dimensional embedding space ($d=2$) and a target center word $w_I = \text{"server"}$ with vector $v_{w_I} = [1.0, 0.5]^\top$.
-
-We evaluate 1 positive context word $w_O = \text{"database"}$ ($v'_{w_O} = [0.8, 0.6]^\top$) and $K=1$ negative noise word $w_1 = \text{"apple"}$ ($v'_{w_1} = [-0.5, 0.2]^\top$).
-
-### 1. Compute Dot Products:
-- Positive pair dot product: $z_+ = {v'_{w_O}}^\top v_{w_I} = (0.8 \times 1.0) + (0.6 \times 0.5) = 0.8 + 0.3 = \mathbf{1.10}$
-- Negative pair dot product: $z_- = {v'_{w_1}}^\top v_{w_I} = (-0.5 \times 1.0) + (0.2 \times 0.5) = -0.5 + 0.1 = \mathbf{-0.40}$
-
-### 2. Compute Sigmoid Probabilities:
-- $\sigma(z_+) = \frac{1}{1 + \exp(-1.10)} = \frac{1}{1 + 0.3329} \approx \mathbf{0.7503}$
-- $\sigma(-z_-) = \frac{1}{1 + \exp(0.40)} = \frac{1}{1 + 1.4918} \approx \mathbf{0.4013}$
-
-### 3. Compute Negative Sampling Loss:
-$$\mathcal{L} = -\log \sigma(z_+) - \log \sigma(-z_-)$$
-
-$$\mathcal{L} = -\log(0.7503) - \log(0.4013) \approx 0.2873 + 0.9130 = \mathbf{1.2003}$$
-
----
-
-## 8. Production Python Code Implementation
+## 7. Production Gensim Word2Vec Python Code
 
 ```python
-import gensim.downloader as api
 from gensim.models import Word2Vec
 
-# 1. Real-World Enterprise IT Corpus
 corpus = [
-    ["microservice", "communicates", "with", "database", "via", "grpc"],
-    ["database", "failover", "script", "executed", "successfully"],
-    ["grpc", "protocol", "ensures", "low", "latency", "microservice", "communication"],
-    ["kubernetes", "cluster", "manages", "microservice", "deployment"]
+    ["microservice", "communicates", "via", "grpc", "protocol"],
+    ["database", "failover", "replica", "executed", "automatically"],
+    ["grpc", "protocol", "ensures", "low", "latency", "rpc"],
+    ["kubernetes", "deploys", "microservice", "container", "pods"]
 ]
 
-# 2. Train Custom Gensim Skip-Gram Word2Vec Model
 model = Word2Vec(
     sentences=corpus,
-    vector_size=50,    # Embedding dimension d = 50
-    window=3,          # Context window size c = 3
-    min_count=1,       # Minimum word frequency threshold
-    sg=1,              # sg=1 for Skip-Gram (sg=0 for CBOW)
-    negative=5,        # K = 5 negative samples
+    vector_size=50,
+    window=2,
+    min_count=1,
+    sg=1,         # Skip-Gram
+    negative=5,
     epochs=100
 )
 
-# 3. Vector Similarity & Arithmetic Execution
-print("=== 1. Word Similarity Scores ===")
-sim_score = model.wv.similarity("microservice", "database")
-print(f"Similarity ('microservice', 'database'): {sim_score:.4f}")
-
-print("\n=== 2. Most Similar Words to 'microservice' ===")
-similar_words = model.wv.most_similar("microservice", topn=3)
-for word, score in similar_words:
-    print(f"Word: {word:<15} | Cosine Similarity: {score:.4f}")
+sim = model.wv.similarity("microservice", "grpc")
+print("Similarity ('microservice', 'grpc'):", round(sim, 4))
 ```
 
-> [!NOTE]
-> **Production Embeddings Alert:**
-> - `sg=1` (Skip-Gram) is preferred for small domain corpora and rare technical jargon terms.
-> - Static word embeddings (Word2Vec/GloVe) assign **one static vector per word**, meaning `"apple"` (fruit) and `"apple"` (tech company) receive identical vector representation. Modern applications use contextual embeddings (BERT/OpenAI) to resolve polysemy.
-
 ---
 
-## 9. Production Failure Modes & Selection Rules
+## 8. Interview Questions & Production Trade-offs
 
-### Production Failure Modes:
-1. **Static Polysemy Breakdown**: Word2Vec maps a word to a single static vector regardless of sentence context.
-   - *Example*: `"river bank"` and `"investment bank"` share the exact same Word2Vec vector for `"bank"`.
-   - *Remediation*: Use contextual embeddings (BERT, RoBERTa, OpenAI `text-embedding-3`).
-2. **Out-Of-Vocabulary (OOV) Rejection**: Standard Word2Vec and GloVe throw KeyError exceptions when encountering un-indexed test words (e.g. `"fastapi"`).
-   - *Remediation*: Deploy FastText (subword character n-grams) or BPE subword tokenizers.
+### What problem do dense word embeddings solve over sparse TF-IDF?
+Dense embeddings project discrete tokens into continuous $\mathbb{R}^d$ space, resolving orthogonality and capturing semantic similarity ($\text{Sim} > 0.70$ for synonyms).
 
----
+### Why was Negative Sampling introduced?
+Standard Skip-Gram Softmax requires computing partition function $\sum_{w=1}^{|V|} \exp(v'_w^\top v_{w_I})$ over all $|V|$ words. Negative Sampling approximates this with $K+1$ binary logistic classifications, reducing time complexity from $O(|V|)$ to $O(K)$.
 
-## 10. Master Interview Flashcards & Questions
+### What are the primary limitations of Word2Vec?
+- **Static Embeddings**: Assigns a single static vector per word, failing to handle polysemy (e.g. `"bank"` in river bank vs. investment bank gets identical vector).
+- **Context Window Limit**: Only captures local co-occurrences within radius $m$, ignoring global document context.
 
-#### Q1: Compare CBOW vs. Skip-Gram in Word2Vec.
-- **Answer:** CBOW predicts the center target word given surrounding context words. Skip-Gram predicts context words given a center target word. CBOW trains faster and works well for frequent words. Skip-Gram is slower but performs significantly better on small datasets and rare words.
+### Computational Complexity:
+- **Training Time Complexity**: $O(C \cdot m \cdot K \cdot d)$ where $C$ is corpus size, $m$ is window radius, $K$ is negative samples, and $d$ is embedding dimension.
+- **Inference Lookup Complexity**: $O(1)$ constant time vector array indexing.
 
-#### Q2: How does Negative Sampling solve the Softmax computational bottleneck in Word2Vec?
-- **Answer:** Full Softmax requires computing a sum over all $|V|$ words in the vocabulary for every gradient update ($O(|V|)$ complexity). Negative Sampling converts the task into $K+1$ binary logistic regression tasks (1 positive pair, $K$ negative noise words), reducing update computational complexity from $O(|V|)$ to $O(K)$, where $K \ll |V|$ (typically $K=5-20$).
+### Production Use Cases:
+- Pre-trained embedding lookup table for classification architectures.
+- Semantic query expansion in vector search engines.
 
-#### Q3: Why does FastText handle Out-Of-Vocabulary (OOV) words better than Word2Vec or GloVe?
-- **Answer:** Word2Vec and GloVe treat words as atomic entities and assign a single vector per vocabulary word, failing completely on unseen test words. FastText represents words as a bag of character n-grams (e.g. `"<wh"`, `"whe"`, `"her"`, `"ere"`, `"re>"`). For an unseen word, FastText sums the vectors of its constituent character n-grams to construct a meaningful embedding.
+### Follow-up Interview Questions:
+1. *How does FastText handle Out-Of-Vocabulary (OOV) terms during inference?* (Answer: It breaks the unseen OOV word into character n-grams, looks up their subword vectors, and averages them).
+2. *What is the difference between Word2Vec and GloVe?* (Answer: Word2Vec trains online via local window SGD updates, whereas GloVe trains offline on global co-occurrence matrix log-counts).

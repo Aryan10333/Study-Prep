@@ -1,212 +1,156 @@
-# Module 03: Traditional Text Representations: One-Hot, BoW, N-Grams & TF-IDF
+# Module 03: Traditional Text Representations & TF-IDF Vectorization
 
-This study guide covers traditional frequency-based text representations, vector space models, One-Hot Encoding, Bag-of-Words (BoW), N-Gram language modeling, Term Frequency-Inverse Document Frequency (TF-IDF) mathematical equations, step-by-step TF-IDF matrix hand-calculations, Scikit-Learn code, limitations, failure modes, and interview flashcards.
+This study guide covers One-Hot Encoding, Bag-of-Words (BoW), N-Grams, TF-IDF mathematical foundations, a detailed 3-document numerical hand calculation, Cosine similarity, Scikit-Learn pipeline implementation, complexity analysis, and standardized interview Q&A.
 
 > **Notebook Companion**: [03_traditional_text_representations_tfidf.ipynb](file:///d:/Study/Prep/machine-learning-prep/nlp/03_traditional_text_representations_tfidf.ipynb)
 
 ---
 
-## 1. Vector Space Model & Unstructured Text Projection
+## 1. One-Hot Encoding & Bag-of-Words (BoW)
 
-To process human text with machine learning algorithms, discrete text tokens must be projected into a numerical **Vector Space** $\mathbb{R}^{|V|}$, where $|V|$ represents the size of the vocabulary.
+In classical NLP, text is converted into fixed-size vector space $\mathbb{R}^{|V|}$:
+- **One-Hot Encoding**: Maps each word to a binary vector of dimension $|V|$ with a single `1` at the word's index.
+- **Bag-of-Words (BoW)**: Represents a document by summing one-hot vectors, counting term occurrences regardless of word order:
 
-```text
-Document String ──► Tokenization ──► Vocabulary Index Mapping ──► Numerical Feature Vector v_d in R^|V|
-```
-
-In traditional frequency-based text representations, each unique word in the vocabulary corresponds to a distinct coordinate axis in vector space.
+$$v_{\text{BoW}}(d) = \left[ \text{count}(t_1, d), \text{count}(t_2, d), \dots, \text{count}(t_{|V|}, d) \right]$$
 
 ---
 
-## 2. Discrete Vector Encoding Taxonomy
+## 2. N-Gram Language Modeling & Vocabulary Explosion
 
-```text
-Representation    Vector Dimensions  Element Value               Preserves Word Order?  Primary Limitation
-----------------------------------------------------------------------------------------------------------------------------------
-One-Hot           |V| (Per word)     Binary (0 or 1)             No                     Massive memory footprint, orthogonal vectors
-Bag-of-Words      |V| (Per doc)      Term Frequency Count        No                     Ignores syntax & penalizes common words
-N-Grams           |V|^N (Per doc)    N-gram Frequency Count      Local Phrase Context   Combinatorial vocabulary explosion
-TF-IDF            |V| (Per doc)      Normalized TF-IDF Score     No                     Sparse matrix, zero semantic similarity
-```
+An **N-Gram** is a contiguous sequence of $N$ tokens. While Bigrams ($N=2$) and Trigrams ($N=3$) capture local context (e.g. `"not good"` vs. `"good"`), vocabulary size grows exponentially:
 
-### 1. One-Hot Encoding
-Each word $w_i$ is represented as a high-dimensional binary vector of length $|V|$ with a single `1` at the word's vocabulary index and `0` everywhere else.
-
-$$e_{\text{"cat"}} = [1, 0, 0, \dots, 0]^\top, \quad e_{\text{"dog"}} = [0, 1, 0, \dots, 0]^\top$$
-
-- **Fundamental Defect (Orthogonality)**: The dot product between any two distinct one-hot word vectors is zero:
-
-  $$e_i^\top e_j = 0 \quad (\forall i \neq j) \implies \text{CosineSimilarity}(e_{\text{"cat"}}, e_{\text{"kitten"}}) = 0$$
-
-  One-hot vectors fail to capture semantic similarity.
-
-### 2. Bag-of-Words (BoW)
-A document vector $v_d$ aggregates individual word occurrences into a frequency count vector over vocabulary $V$:
-
-$$v_d = [\text{Count}(w_1, d), \text{Count}(w_2, d), \dots, \text{Count}(w_{|V|}, d)]^\top$$
-
-- **Limitation**: Ignores word order (`"dog bites man"` and `"man bites dog"` yield identical BoW vectors).
-
-### 3. N-Gram Language Modeling
-N-Grams preserve local phrase context by combining contiguous sequences of $N$ tokens:
-- **Unigrams ($N=1$)**: `["cloud", "computing"]`
-- **Bigrams ($N=2$)**: `["cloud computing", "computing architecture"]`
-- **Trigrams ($N=3$)**: `["cloud computing architecture"]`
-
-- **Limitation**: Vocabulary size grows exponentially as $|V|^N$, causing extreme matrix sparsity.
+$$|V_{N\text{-gram}}| \le |V_{\text{unigram}}|^N$$
 
 ---
 
-## 3. Mathematical Precision: TF-IDF & Normalization
+## 3. Mathematical Foundations of TF-IDF
 
-TF-IDF measures how informative a word $t$ is to a specific document $d$ within a corpus $D$.
+**TF-IDF** (Term Frequency - Inverse Document Frequency) downweights ubiquitous stop words (`"the"`, `"is"`) while magnifying domain-specific terms (`"postgresql"`, `"billing"`).
 
-$$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \text{IDF}(t, D)$$
+### 1. Term Frequency (TF):
+$$\text{TF}(t, d) = \frac{\text{count}(t, d)}{\sum_{t' \in d} \text{count}(t', d)}$$
 
-### 1. Term Frequency (TF)
-Measures the frequency of term $t$ in document $d$:
+### 2. Smooth Inverse Document Frequency (IDF):
+$$\text{IDF}(t) = \log\left(\frac{1 + |D|}{1 + \text{DF}(t)}\right) + 1$$
 
-- **Raw Term Frequency**: $\text{TF}(t, d) = f_{t,d}$
-- **Sublinear Log-Scaled TF** (prevents high-frequency words from dominating):
+Where $|D|$ is the total document count in the corpus, and $\text{DF}(t) = |\{d \in D : t \in d\}|$ is the document frequency.
 
-  $$\text{TF}_{\text{log}}(t, d) = \begin{cases} 1 + \log(f_{t,d}) & \text{if } f_{t,d} > 0 \\ 0 & \text{otherwise} \end{cases}$$
+### 3. TF-IDF Representation:
+$$\text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)$$
 
-### 2. Inverse Document Frequency (IDF)
-Penalizes common words that appear across many documents (e.g., `"the"`, `"system"`) while boosting rare informative terms:
-
-$$\text{IDF}(t, D) = \log \left( \frac{1 + |D|}{1 + \text{DF}(t)} \right) + 1$$
-
-Where:
-- $|D|$ is the total number of documents in the corpus.
-- $\text{DF}(t) = |\{d \in D : t \in d\}|$ is the Document Frequency (number of documents containing term $t$).
-- Addition of $+1$ prevents division-by-zero (smoothing).
-
-### 3. L2 Vector Normalization
-To prevent long documents from producing artificially higher TF-IDF vector norms, final document vectors are L2-normalized to unit length ($\|v\|_2 = 1$):
+### 4. L2 Vector Normalization & Cosine Similarity:
+To prevent document length bias, vectors are L2-normalized:
 
 $$v_{\text{norm}} = \frac{v}{\|v\|_2} = \frac{v}{\sqrt{\sum_{i=1}^{|V|} v_i^2}}$$
 
+$$\text{CosineSim}(u, v) = \frac{u \cdot v}{\|u\|_2 \|v\|_2}$$
+
 ---
 
-## 4. Step-by-Step Hand Calculation Example (Andrew Ng Style)
+## 4. Step-by-Step 3-Document Numerical Walkthrough
 
-![TF-IDF Document Cosine Similarity Matrix Heatmap](images/03_tfidf_cosine_heatmap.png)
+Consider a 3-document corpus ($|D| = 3$):
+- **$d_1$**: `"database connection failed"` (3 words)
+- **$d_2$**: `"database query timeout"` (3 words)
+- **$d_3$**: `"billing payment declined"` (3 words)
+
+### Step 1: Vocabulary Construction ($|V| = 8$ Tokens)
+Ordered Vocabulary: $V = [\text{"billing"}, \text{"connection"}, \text{"database"}, \text{"declined"}, \text{"failed"}, \text{"payment"}, \text{"query"}, \text{"timeout"}]$
+
+### Step 2: Compute Raw Term Frequencies (TF)
+$$\text{TF}(d_1) = [0, 1/3, 1/3, 0, 1/3, 0, 0, 0]$$
+$$\text{TF}(d_2) = [0, 0, 1/3, 0, 0, 0, 1/3, 1/3]$$
+$$\text{TF}(d_3) = [1/3, 0, 0, 1/3, 0, 1/3, 0, 0]$$
+
+### Step 3: Compute Document Frequencies (DF) & Smooth IDF
+- `"database"` appears in $d_1, d_2$ $\rightarrow \text{DF} = 2$.
+  $$\text{IDF}(\text{"database"}) = \log\left(\frac{1 + 3}{1 + 2}\right) + 1 = \log(4/3) + 1 \approx 0.2877 + 1 = 1.2877$$
+- All other terms appear in 1 document $\rightarrow \text{DF} = 1$.
+  $$\text{IDF}(\text{other}) = \log\left(\frac{1 + 3}{1 + 1}\right) + 1 = \log(2) + 1 \approx 0.6931 + 1 = 1.6931$$
+
+### Step 4: Compute Unnormalized TF-IDF Vectors
+- **$d_1$ TF-IDF**:
+  - $\text{connection} = \frac{1}{3} \times 1.6931 = 0.5644$
+  - $\text{database} = \frac{1}{3} \times 1.2877 = 0.4292$
+  - $\text{failed} = \frac{1}{3} \times 1.6931 = 0.5644$
+  - $v(d_1) = [0, 0.5644, 0.4292, 0, 0.5644, 0, 0, 0]$
+
+- **$d_2$ TF-IDF**:
+  - $v(d_2) = [0, 0, 0.4292, 0, 0, 0, 0.5644, 0.5644]$
+
+- **$d_3$ TF-IDF**:
+  - $v(d_3) = [0.5644, 0, 0, 0.5644, 0, 0.5644, 0, 0]$
+
+### Step 5: L2 Normalization
+$$\|v(d_1)\|_2 = \sqrt{0.5644^2 + 0.4292^2 + 0.5644^2} = \sqrt{0.3185 + 0.1842 + 0.3185} = \sqrt{0.8212} = 0.9062$$
+$$v_{\text{norm}}(d_1) = [0, 0.6228, 0.4736, 0, 0.6228, 0, 0, 0]$$
+$$v_{\text{norm}}(d_2) = [0, 0, 0.4736, 0, 0, 0, 0.6228, 0.6228]$$
+$$v_{\text{norm}}(d_3) = [0.6228, 0, 0, 0.6228, 0, 0.6228, 0, 0]$$
+
+### Step 6: Cosine Similarity Calculation
+- **$\text{CosineSim}(d_1, d_2)$**:
+  $$\text{Sim}(d_1, d_2) = v_{\text{norm}}(d_1) \cdot v_{\text{norm}}(d_2) = 0.4736 \times 0.4736 = \mathbf{0.2243}$$
+- **$\text{CosineSim}(d_1, d_3)$**:
+  $$\text{Sim}(d_1, d_3) = v_{\text{norm}}(d_1) \cdot v_{\text{norm}}(d_3) = 0 \times 0.6228 = \mathbf{0.0000}$$
+
+> **Conclusion**: $d_1$ and $d_2$ share semantic similarity ($\text{Sim} = 0.2243$) via `"database"`, whereas $d_1$ and $d_3$ are completely orthogonal ($\text{Sim} = 0.0000$).
+
+---
+
+## 5. TF-IDF Document Cosine Similarity Heatmap
+
+![TF-IDF Cosine Similarity Heatmap](images/03_tfidf_cosine_heatmap.png)
 
 > **Plot Interpretation & Production Insight**:
-> - **Vector Space Proximity**: The heatmap visualizes pair-wise Cosine similarity scores between document TF-IDF vectors.
-> - **Domain Clustering**: Doc 1 (`"Postgres Fail"`) and Doc 3 (`"DB Backup"`) exhibit high Cosine similarity ($0.68$) because both share high-IDF database terms (`"postgresql"`, `"database"`). Doc 4 (`"K8s OOM"`) shows near-zero similarity ($0.05 - 0.12$) to database logs, allowing sparse vector search engines to discard irrelevant clusters rapidly.
-
-
-Suppose we have a corpus $D$ of $|D| = 3$ documents:
-- **Doc 1**: `"cat sat mat"`
-- **Doc 2**: `"cat sat"`
-- **Doc 3**: `"dog sat"`
-
-### 1. Extract Unique Vocabulary ($|V| = 4$):
-$$V = [\text{"cat"}, \text{"dog"}, \text{"mat"}, \text{"sat"}]$$
-
-### 2. Calculate Document Frequency (DF) and Smooth IDF for each term:
-- $|D| = 3$
-
-$$\text{IDF}(t) = \log \left( \frac{1 + 3}{1 + \text{DF}(t)} \right) + 1 = \log \left( \frac{4}{1 + \text{DF}(t)} \right) + 1$$
-
-- **`"cat"`**: $\text{DF} = 2 \implies \text{IDF} = \log(4 / 3) + 1 = \log(1.3333) + 1 \approx 0.2877 + 1 = \mathbf{1.2877}$
-- **`"dog"`**: $\text{DF} = 1 \implies \text{IDF} = \log(4 / 2) + 1 = \log(2.0) + 1 \approx 0.6931 + 1 = \mathbf{1.6931}$
-- **`"mat"`**: $\text{DF} = 1 \implies \text{IDF} = \log(4 / 2) + 1 = \log(2.0) + 1 \approx 0.6931 + 1 = \mathbf{1.6931}$
-- **`"sat"`**: $\text{DF} = 3 \implies \text{IDF} = \log(4 / 4) + 1 = \log(1.0) + 1 = 0 + 1 = \mathbf{1.0000}$
-
-### 3. Calculate Raw TF-IDF Matrix (TF $\times$ IDF):
-
-```text
-Document    TF("cat")    TF("dog")    TF("mat")    TF("sat")  │  Raw TF-IDF("cat")  Raw TF-IDF("dog")  Raw TF-IDF("mat")  Raw TF-IDF("sat")
---------------------------------------------------------------┼───────────────────────────────────────────────────────────────────────────
-Doc 1       1            0            1            1          │  1.2877             0.0000             1.6931             1.0000
-Doc 2       1            0            0            1          │  1.2877             0.0000             0.0000             1.0000
-Doc 3       0            1            0            1          │  0.0000             1.6931             0.0000             1.0000
-```
-
-### 4. Apply L2 Normalization to Doc 1 Vector:
-- Raw vector for Doc 1: $v_1 = [1.2877, 0.0000, 1.6931, 1.0000]$
-- Compute L2 Norm:
-
-  $$\|v_1\|_2 = \sqrt{(1.2877)^2 + (0.0000)^2 + (1.6931)^2 + (1.0000)^2} = \sqrt{1.6582 + 0 + 2.8666 + 1.0000} = \sqrt{5.5248} \approx \mathbf{2.3505}$$
-
-- Normalized Vector $v_{1, \text{norm}}$:
-  - `"cat"`: $1.2877 / 2.3505 = \mathbf{0.5478}$
-  - `"dog"`: $0.0000 / 2.3505 = \mathbf{0.0000}$
-  - `"mat"`: $1.6931 / 2.3505 = \mathbf{0.7203}$
-  - `"sat"`: $1.0000 / 2.3505 = \mathbf{0.4254}$
-
-$$\mathbf{v_{1, \text{norm}} = [0.5478, 0.0000, 0.7203, 0.4254]^\top}$$
+> - **Sparse Space Proximity**: Documents with shared high-IDF keywords exhibit strong Cosine similarity, while unrelated documents produce exact zero dot products.
 
 ---
 
-## 5. Production Python Code Implementation
+## 6. Production Python Scikit-Learn Code
 
 ```python
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import pandas as pd
 
-# Enterprise Technical Documents
-documents = [
-    "PostgreSQL primary database failover script failed due to connection timeout.",
-    "Microservice API gateway authentication failed with HTTP status 401 unauthorized.",
-    "PostgreSQL database backup completed successfully in 45 seconds."
+corpus = [
+    "database connection failed",
+    "database query timeout",
+    "billing payment declined"
 ]
 
-# 1. Initialize Production TfidfVectorizer
-vectorizer = TfidfVectorizer(
-    lowercase=True,
-    sublinear_tf=True,     # Replaces TF with 1 + log(TF)
-    ngram_range=(1, 2),    # Extracts Unigrams + Bigrams
-    max_features=10        # Restricts vocabulary size to top 10 features
-)
+vectorizer = TfidfVectorizer(smooth_idf=True, norm='l2')
+tfidf_matrix = vectorizer.fit_transform(corpus)
+sim_matrix = cosine_similarity(tfidf_matrix)
 
-# 2. Fit and Transform Documents to Sparse Matrix
-tfidf_matrix = vectorizer.fit_transform(documents)
-
-# 3. Represent as Pandas DataFrame
-feature_names = vectorizer.get_feature_names_out()
-df_tfidf = pd.DataFrame(tfidf_matrix.toarray(), columns=feature_names, index=["Doc 1", "Doc 2", "Doc 3"])
-
-print("=== 1. Scikit-Learn TF-IDF Feature Matrix ===")
-print(df_tfidf.round(4))
-
-# 4. Search Query Cosine Similarity Retrieval
-query = "database connection failure"
-query_vec = vectorizer.transform([query])
-sim_scores = cosine_similarity(query_vec, tfidf_matrix).flatten()
-
-print("\n=== 2. Cosine Similarity Search Results ===")
-for doc_idx, score in enumerate(sim_scores, 1):
-    print(f"Doc #{doc_idx} Similarity Score: {score:.4f} | {documents[doc_idx-1]}")
+print("Vocabulary:", vectorizer.get_feature_names_out())
+print("TF-IDF Matrix Shape:", tfidf_matrix.shape)
+print("Cosine Similarity Matrix:\n", sim_matrix.round(4))
 ```
 
-> [!NOTE]
-> **Production TF-IDF Alert:**
-> - `sublinear_tf=True` prevents long documents with repeated terms from overwhelming feature importance.
-> - Always call `.toarray()` **only** on small sample subsets! In production datasets ($1\text{M}$ docs), keep TF-IDF in `scipy.sparse.csr_matrix` format to prevent memory exhaustion (RAM OOM).
-
 ---
 
-## 6. Production Failure Modes & Selection Rules
+## 7. Interview Questions & Production Trade-offs
 
-### Production Failure Modes:
-1. **Vocabulary Out-of-Memory (OOM) Crash**: Converting large sparse TF-IDF matrices to dense NumPy arrays (`matrix.toarray()`) on a 500,000 document corpus will crash server memory.
-   - *Remediation*: Keep TF-IDF matrices in SciPy sparse format (`scipy.sparse.csr_matrix`) or restrict `max_features=25000`.
-2. **Vocabulary Shift at Test Time**: Test documents containing unseen domain terms (e.g. `"kubernetes"`) are silently ignored by a fixed-vocabulary `TfidfVectorizer`.
-   - *Remediation*: Deploy hybrid sparse-dense retrieval (BM25 + Dense Embeddings).
+### What problem does TF-IDF solve over Bag-of-Words?
+Bag-of-Words counts raw term frequencies, causing generic stop words (`"the"`, `"and"`) to dominate feature weights. TF-IDF multiplies TF by IDF to penalize words appearing across many documents.
 
----
+### Why was IDF introduced?
+IDF measures word informativeness: rare domain keywords receive higher weights than ubiquitous structural words.
 
-## 7. Master Interview Flashcards & Questions
+### What are its limitations?
+- **Destroys Word Order**: `"not good"` and `"good not"` yield identical vectors.
+- **Polysemy & Synonymy**: Treats `"database"` and `"DB"` as unrelated dimensions ($0.0$ similarity).
+- **High Dimensionality & Sparsity**: Vocabularies with $100,000$ terms create massive sparse matrices where $>99\%$ of values are zeros.
 
-#### Q1: Why does raw term frequency (TF) perform worse than TF-IDF in text retrieval?
-- **Answer:** Raw term frequency weights all words equally based on count. Common stop words and generic domain terms (e.g., `"the"`, `"system"`, `"data"`) appear frequently across almost all documents, dominating raw TF vectors. TF-IDF applies Inverse Document Frequency (IDF) scaling to penalize words that appear across many documents, highlighting rare, highly informative terms.
+### Computational Complexity:
+- **Training Indexing Complexity**: $O(|D| \times L)$ where $L$ is average document token length.
+- **Inference Query Complexity**: $O(k \times |V|)$ for sparse dot product.
 
-#### Q2: What is the computational limitation of Bag-of-Words and N-Gram representations?
-- **Answer:** Bag-of-Words completely ignores word order and syntactic structure. N-Grams preserve local phrase context, but the vocabulary size expands combinatorially as $|V|^N$. For $N=3$ and $|V|=100k$, the potential vocabulary space is $10^{15}$, leading to massive matrix sparsity ($>99.99\%$ zeros) and extreme memory overhead.
+### Production Use Cases:
+- BM25 Hybrid Keyword Search in RAG pipelines (combining sparse TF-IDF and dense vector embeddings).
+- Fast baseline text classification for support ticket routing.
 
-#### Q3: Why are One-Hot encoded word vectors mathematically incapable of capturing semantic similarity?
-- **Answer:** One-hot vectors treat each word as an independent, orthogonal unit vector in $|V|$-dimensional space ($e_i^\top e_j = 0$ for $i \neq j$). Consequently, the dot product and Cosine similarity between any two distinct one-hot vectors is identically zero, making $\text{CosineSimilarity}(\text{"cat"}, \text{"kitten"}) = 0$.
+### Follow-up Interview Questions:
+1. *What is the difference between Sublinear TF and Linear TF?* (Answer: Sublinear TF uses $1 + \log(\text{TF})$ to prevent a word appearing 10 times from having $10\text{x}$ the weight of a word appearing once).
+2. *Why is Cosine Similarity preferred over Euclidean Distance for TF-IDF vectors?* (Answer: Euclidean distance grows with document length, whereas Cosine similarity measures angle regardless of vector magnitude).
