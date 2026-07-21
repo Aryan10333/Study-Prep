@@ -16,10 +16,15 @@ This module covers the core logical reasoning paradigms that enable foundation m
 - **Concept**: Generates $K$ independent reasoning paths (CoT) at temperature $T > 0$, then performs a majority vote over the final answers.
 - **Why it works**: Eliminates single-path reasoning errors by selecting the consensus result over multiple sample outputs.
 
-```text
-Prompt ──► [Path 1 (T=0.7)] ──► Ans: 42  ┐
-       ──► [Path 2 (T=0.7)] ──► Ans: 18  ├─► [Majority Vote] ──► Final Ans: 42
-       ──► [Path 3 (T=0.7)] ──► Ans: 42  ┘
+```mermaid
+graph LR
+    P[Prompt] --> Path1[Path 1 Ans: 42]
+    P --> Path2[Path 2 Ans: 18]
+    P --> Path3[Path 3 Ans: 42]
+    Path1 --> V[Majority Vote]
+    Path2 --> V
+    Path3 --> V
+    V --> F[Final Ans: 42]
 ```
 
 ---
@@ -35,8 +40,9 @@ Prompt ──► [Path 1 (T=0.7)] ──► Ans: 42  ┐
 
 Introduced to combine **Reasoning** (CoT) and **Action** (tool execution). ReAct interleaves these steps in a loop:
 
-```text
-User Input ──► Thought ──► Action (Tool Call) ──► Observation (Tool Output) ──► Thought ──► Final Answer
+```mermaid
+graph LR
+    Input[User Input] --> T1[Thought] --> A1[Action/Tool Call] --> O1[Observation/Tool Output] --> T2[Thought] --> Ans[Final Answer]
 ```
 
 ### Trace Walkthrough of a ReAct Loop:

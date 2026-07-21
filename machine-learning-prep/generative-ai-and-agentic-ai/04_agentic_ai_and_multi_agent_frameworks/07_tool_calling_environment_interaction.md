@@ -17,7 +17,10 @@ Agents choose external functions by matching user requests against tool document
 Modern API gateways enforce schema constraints at the token level by restricting model vocabulary outputs to validate against a target JSON schema. This ensures the output can be parsed cleanly by runtime engines.
 
 ```text
-Prompt + Schemas ──► [LLM Vocabulary Masking] ──► Output guaranteed to match JSON schema
+```mermaid
+graph LR
+    P[Prompt + Schemas] --> M[LLM Vocabulary Masking] --> O[Output guaranteed to match JSON schema]
+```
 ```
 
 ---
@@ -38,7 +41,10 @@ If the model determines that multiple actions are independent (e.g. querying wea
 When a tool call returns an error, the agent should not immediately halt. It can attempt self-correction:
 
 ```text
-Action (Invalid Arguments) ──► Tool Error Output ──► Feedback Loop to LLM ──► Action Corrected
+```mermaid
+graph LR
+    A[Action: Invalid Args] --> E[Tool Error Output] --> F[Feedback Loop to LLM] --> C[Action Corrected]
+```
 ```
 
 ### Self-Correction Strategy:

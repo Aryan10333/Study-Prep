@@ -16,24 +16,12 @@ Decomposition is the cognitive process of breaking a complex goal into smaller, 
 1. **Sequential Planning**: The model generates a linear list of steps (e.g. `Step 1 -> Step 2 -> Step 3`). If Step 2 fails, the entire sequence halts.
 2. **Hierarchical Planning**: The model organizes tasks as a tree or Directed Acyclic Graph (DAG). Sub-tasks run in parallel or conditional branches, permitting sophisticated execution flow.
 
-```text
-               ┌───────────────────────┐
-               │    HIGH-LEVEL GOAL    │
-               └───────────┬───────────┘
-                           │
-             ┌─────────────┴─────────────┐
-             ▼                           ▼
-     ┌───────────────┐           ┌───────────────┐
-     │  Sub-Task A   │           │  Sub-Task B   │
-     │ (Independent) │           │ (Independent) │
-     └───────┬───────┘           └───────┬───────┘
-             │                           │
-             └─────────────┬─────────────┘
-                           ▼
-                   ┌───────────────┐
-                   │  Sub-Task C   │
-                   │ (Conditional) │
-                   └───────────────┘
+```mermaid
+graph TD
+    Goal[HIGH-LEVEL GOAL] --> SubA[Sub-Task A<br>Independent]
+    Goal --> SubB[Sub-Task B<br>Independent]
+    SubA --> SubC[Sub-Task C<br>Conditional]
+    SubB --> SubC
 ```
 
 ---

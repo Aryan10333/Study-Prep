@@ -10,25 +10,17 @@ This module details the cognitive architecture of autonomous agents and explains
 
 An autonomous agent architecture integrates four distinct architectural pillars:
 
-```text
-       ┌─────────────────────────────────────────────────────────┐
-       │                       PERCEPTION                        │
-       │  (Ingest text query, environment variables, user input) │
-       └────────────────────────────┬────────────────────────────┘
-                                    ▼
-       ┌─────────────────────────────────────────────────────────┐
-       │                         BRAIN                           │
-       │       (Reasoning, planning, & state evaluation)         │
-       │  ┌───────────────────────┐   ┌───────────────────────┐  │
-       │  │        MEMORY         │   │       PLANNING        │  │
-       │  │ (Short/Long term state)│  │(Task decomposition)   │  │
-       │  └───────────────────────┘   └───────────────────────┘  │
-       └────────────────────────────┬────────────────────────────┘
-                                    ▼
-       ┌─────────────────────────────────────────────────────────┐
-       │                        ACTION                           │
-       │   (Actuators: tool invocations, API requests, code)     │
-       └─────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    P[PERCEPTION<br>Ingest text, environment, user inputs] --> B[BRAIN<br>Reasoning & State evaluation]
+    subgraph Brain[Central Brain]
+        B
+        M[MEMORY<br>Short/Long term state]
+        PL[PLANNING<br>Task decomposition]
+        B --- M
+        B --- PL
+    end
+    B --> A[ACTION<br>Tool invocations, API requests, code]
 ```
 
 1. **Perception (Sensors)**: Ingests external stimuli—raw user prompts, execution results, error logs, or environment signals—and formats them into LLM context tokens.
@@ -43,8 +35,9 @@ An autonomous agent architecture integrates four distinct architectural pillars:
 
 Instead of modeling agents via complex mathematical state-transition matrices, real-world systems are built around a continuous, dynamic execution loop:
 
-```text
-  Observe ──► Reason ──► Plan ──► Tool Action ──► Observe ──► Reflect ──► Repeat
+```mermaid
+graph LR
+    Obs[Observe] --> Reason[Reason] --> Plan[Plan] --> Tool[Tool Action] --> Obs2[Observe] --> Reflect[Reflect] --> Repeat[Repeat/Loop] --> Obs
 ```
 
 ### Execution Loop Phases:

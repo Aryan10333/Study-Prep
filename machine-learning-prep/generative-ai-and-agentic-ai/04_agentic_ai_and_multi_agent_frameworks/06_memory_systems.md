@@ -10,28 +10,15 @@ This module details the design of agent memory systems: working, short-term (buf
 
 Agents emulate human cognitive memory through three distinct structural layers:
 
-```text
-       ┌─────────────────────────────────────────────────────────┐
-       │                     WORKING MEMORY                      │
-       │   (Local variable state, current task variables, local) │
-       └────────────────────────────┬────────────────────────────┘
-                                    ▼
-       ┌─────────────────────────────────────────────────────────┐
-       │                    SHORT-TERM MEMORY                    │
-       │ (Dialogue history buffer, sliding window, latest turns) │
-       └────────────────────────────┬────────────────────────────┘
-                                    ▼
-       ┌─────────────────────────────────────────────────────────┐
-       │                    LONG-TERM MEMORY                     │
-       │    ┌───────────────────┬───────────────────────────┐    │
-       │    │  EPISODIC MEMORY  │      SEMANTIC MEMORY      │    │
-       │    │ (Execution traces │  (Factual knowledge base, │    │
-       │    │  of past turns)   │   vector indexes, wikis)  │    │
-       │    ├───────────────────┴───────────────────────────┤    │
-       │    │                   PROCEDURAL                  │    │
-       │    │             (Tool execution scripts)          │    │
-       │    └───────────────────────────────────────────────┘    │
-       └─────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    WM[WORKING MEMORY<br>Active task variables] --> STM[SHORT-TERM MEMORY<br>Dialogue context buffer]
+    STM --> LTM[LONG-TERM MEMORY]
+    subgraph LTM_S[Long-Term Storage]
+        Episodic[Episodic Memory<br>Past run traces]
+        Semantic[Semantic Memory<br>Factual vector index]
+        Procedural[Procedural Memory<br>Tool execution scripts]
+    end
 ```
 
 1. **Working Memory**: Fast local variables. Holds active sub-task values during single-turn loops.

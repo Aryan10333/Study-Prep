@@ -20,17 +20,14 @@ Single-agent loops decay in performance as task range, prompt instruction densit
 ### A. Supervisor Pattern
 A central **Supervisor Agent** acts as a dispatcher. It receives user prompts, decomposes tasks, dynamically routes sub-tasks to specialized worker nodes, collects their outputs, and manages state progression.
 
-```text
-                        ┌──────────────────┐
-                        │    SUPERVISOR    │
-                        └──────┬────▲──────┘
-                               │    │
-             ┌─────────────────┼────┴────────────────┐
-             ▼                 ▼                     ▼
-     ┌───────────────┐ ┌───────────────┐     ┌───────────────┐
-     │   Worker A    │ │   Worker B    │     │   Worker C    │
-     │  (SQL Query)  │ │ (Text Writer) │     │ (Image Gen)   │
-     └───────────────┘ └───────────────┘     └───────────────┘
+```mermaid
+graph TD
+    Supervisor[SUPERVISOR] --> WorkerA[Worker A<br>SQL Query]
+    Supervisor --> WorkerB[Worker B<br>Text Writer]
+    Supervisor --> WorkerC[Worker C<br>Image Gen]
+    WorkerA --> Supervisor
+    WorkerB --> Supervisor
+    WorkerC --> Supervisor
 ```
 
 ### B. Hierarchical Pattern

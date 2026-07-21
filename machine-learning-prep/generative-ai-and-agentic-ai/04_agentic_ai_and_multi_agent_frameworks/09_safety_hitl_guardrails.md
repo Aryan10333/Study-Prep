@@ -11,8 +11,12 @@ This module covers agent safety, data security, and human-in-the-loop (HITL) int
 Autonomous agents operating directly on production servers can cause severe operational damage if left un-gated (e.g., executing catastrophic shell scripts or sending unauthorized emails). **HITL** introduces safety gates:
 
 ```text
-Tool Request ──► [Risk Evaluation] ──► Low Risk  ──► Execute Autonomously
-                                   ──► High Risk ──► Gated Approval Gating ──► Human Approved ──► Execute
+```mermaid
+graph TD
+    Req[Tool Request] --> Risk[Risk Evaluation]
+    Risk -->|Low Risk| Auto[Execute Autonomously]
+    Risk -->|High Risk| Gate[Gated Approval Gating] -->|Human Approved| Exec[Execute]
+```
 ```
 
 ### Risk-Based Tool Categorization:

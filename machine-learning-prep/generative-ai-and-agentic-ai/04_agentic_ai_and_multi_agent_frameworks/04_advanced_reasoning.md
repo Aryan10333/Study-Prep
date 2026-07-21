@@ -10,21 +10,12 @@ This module explores advanced cognitive search paradigms that exceed simple sequ
 
 **Reflexion** introduces an explicit self-correction loop where the agent evaluates its performance using a Critic/Evaluator node, stores error diagnostics in a memory buffer, and updates its strategy for subsequent attempts.
 
-```text
-               ┌──────────────────────────────────────────┐
-               │                  ACTOR                   │
-               │  (Generates reasoning traces & actions)  │
-               └────────────────────┬─────────────────────┘
-                                    │ Action Trace
-                                    ▼
-┌──────────────┐         ┌────────────────────┐
-│ SELF-MONITOR │◄────────┤    ENVIRONMENT     │
-│ (Reflexion)  │  Eval   │  (API, database,   │
-└──────┬───────┘  Result │  code compile run) │
-       │                 └────────────────────┘
-       │ Critic Feedback
-       ▼
-[Episodic Memory] (Stored critiques used as context for next attempt)
+```mermaid
+graph TD
+    Actor[ACTOR<br>Generates traces & actions] -->|Action Trace| Env[ENVIRONMENT<br>Compiler, API, database]
+    Env -->|Eval Result| Critic[SELF-MONITOR / Reflexion]
+    Critic -->|Critic Feedback| Mem[Episodic Memory]
+    Mem -->|Prior Critique context| Actor
 ```
 
 ---

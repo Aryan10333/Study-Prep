@@ -47,9 +47,13 @@ Designing agent architectures for high-traffic enterprise environments requires 
 ## 3. Structural Synthesis of Blueprints
 
 ```text
-User Request ──► [ Triage Router Agent ] ──► Code Assistant (Runs in sandbox)
-                                          ──► Support Agent (Gated behind HITL)
-                                          ──► Research Agent (Parallel Scraping)
+```mermaid
+graph TD
+    Req[User Request] --> Router[Triage Router Agent]
+    Router --> Code[Code Assistant<br>Runs in sandbox]
+    Router --> Support[Support Agent<br>Gated behind HITL]
+    Router --> Research[Research Agent<br>Parallel Scraping]
+```
 ```
 
 ---

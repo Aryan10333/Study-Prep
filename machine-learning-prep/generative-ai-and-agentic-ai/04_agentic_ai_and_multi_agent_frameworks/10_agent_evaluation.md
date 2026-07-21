@@ -24,7 +24,10 @@ Traditional NLP metrics (ROUGE, BLEU) are insufficient for evaluating agents bec
 Instead of evaluating only the final text output, developers inspect the **execution trajectory** (the ordered history log of `Thought -> Action -> Observation` steps).
 
 ```text
-Goal: Query database ──► Trajectory log: [Action 1, Action 2] ──► [Critic Model / Judge] ──► Trajectory Score
+```mermaid
+graph LR
+    Goal[Goal] --> Log[Trajectory Log] --> Judge[Critic Model / Judge] --> Score[Trajectory Score]
+```
 ```
 
 ### LLM-as-a-Judge
