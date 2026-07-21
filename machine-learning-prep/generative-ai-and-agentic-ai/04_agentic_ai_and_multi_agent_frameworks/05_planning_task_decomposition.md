@@ -72,7 +72,7 @@ Single-prompt generation models struggle with long-horizon tasks due to reasonin
 - **Over-planning Loops**: The model may spend significant time rewriting plans rather than executing them (called the "planning loop trap").
 
 ### Production Use Cases:
-- Software engineering agents breaking down code refactoring into: Checkout $\rightarrow$ Parse $\rightarrow$ Edit $\rightarrow$ Compile $\rightarrow$ Test $\rightarrow$ Commit.
+- Software engineering agents breaking down code refactoring into: Checkout → Parse → Edit → Compile → Test → Commit.
 - Automated report generators searching multiple sub-topics in parallel before consolidating results.
 
 ### Follow-up Questions Interviewers Ask:

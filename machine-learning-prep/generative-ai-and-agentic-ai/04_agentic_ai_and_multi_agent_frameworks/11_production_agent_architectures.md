@@ -21,18 +21,18 @@ Designing agent architectures for high-traffic enterprise environments requires 
 ### A. AI Coding Assistant
 - **Objective**: Solve bug issues autonomously inside a repository workspace.
 - **Components**: File System Parser, Sandboxed Test Runner, git client.
-- **Data Flow**: Read issue $\rightarrow$ Trace local code files $\rightarrow$ Propose edit path $\rightarrow$ Write modifications to file $\rightarrow$ Run test compiler sandbox $\rightarrow$ **Backtrack / Replan if compiler fails** $\rightarrow$ Git commit.
+- **Data Flow**: Read issue → Trace local code files → Propose edit path → Write modifications to file → Run test compiler sandbox → **Backtrack / Replan if compiler fails** → Git commit.
 - **State Management**: State tracks modified file buffers, test status, and remaining compiler errors.
 
 ### B. Customer Support Agent
 - **Objective**: Resolve customer queries (e.g. ticket updates, refund approvals).
 - **Components**: CRM database, Payment API, Human Approval Queue, Safety Guardrails.
-- **Data Flow**: Ingest user query $\rightarrow$ Verify identity details $\rightarrow$ Query purchase logs $\rightarrow$ Check refund validity policies $\rightarrow$ **Gated Escalation if amount > $100** $\rightarrow$ Request human manager approval $\rightarrow$ Trigger Payment API $\rightarrow$ Notify customer.
+- **Data Flow**: Ingest user query → Verify identity details → Query purchase logs → Check refund validity policies → **Gated Escalation if amount > USD 100** → Request human manager approval → Trigger Payment API → Notify customer.
 
 ### C. Research Assistant
 - **Objective**: Collect and summarize information from multiple web sources.
 - **Components**: Web Scraper, Search API router, Vector Summarizer.
-- **Data Flow**: Parse query $\rightarrow$ Generate 3 sub-queries $\rightarrow$ Execute parallel searches $\rightarrow$ Clean scraped HTML $\rightarrow$ Vector search matches $\rightarrow$ Summarize findings $\rightarrow$ Format final report.
+- **Data Flow**: Parse query → Generate 3 sub-queries → Execute parallel searches → Clean scraped HTML → Vector search matches → Summarize findings → Format final report.
 
 ### D. Enterprise Knowledge Assistant
 - **Objective**: Answer questions using private company data directories.

@@ -18,7 +18,7 @@ This cheatsheet serves as a high-density revision reference for Autonomous AI Ag
 4. **Agent Confidence Gating Decision Rule**:
    $$\text{Route} = \begin{cases} \text{Execute Tool Autonomously} & \text{if } C \ge C_{\text{threshold}} \\ \text{Escalate to Human (HITL)} & \text{if } C < C_{\text{threshold}} \end{cases}$$
 5. **ReAct Delimiter Formats Rule**:
-   - Every ReAct sequence must strictly emit: `Thought:` $\rightarrow$ `Action:` $\rightarrow$ `Observation:` $\rightarrow$ `Reflect:` $\rightarrow$ `Final Answer:`.
+   - Every ReAct sequence must strictly emit: `Thought:` → `Action:` → `Observation:` → `Reflect:` → `Final Answer:`.
 6. **Topological Sort Rule for DAG Schedulers**:
    - Tasks are queued for execution only when in-degree dependency count $in\_degree(v) = 0$.
 7. **Idempotency Gating Rule**:
@@ -134,7 +134,7 @@ Pattern                   Key Characteristic                       Primary Use C
 22. *How do you establish a HITL confidence gate?*
     - If task routing classification confidence score is below 0.85, suspend the loop and flag for manual override.
 23. *What is escalation routing?*
-    - Gating high-risk actions (e.g. paying > $500) behind manual human confirmation screens.
+    - Gating high-risk actions (e.g. paying > USD 500) behind manual human confirmation screens.
 24. *How do you represent multi-agent states in stateful engines?*
     - Save states in a central database (PostgreSQL) linked by `session_id`, loading specific sub-states for each worker.
 

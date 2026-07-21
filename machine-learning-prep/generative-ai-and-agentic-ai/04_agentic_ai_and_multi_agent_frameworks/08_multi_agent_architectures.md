@@ -34,7 +34,7 @@ graph TD
 Extends the Supervisor pattern recursively. Nested supervisors delegate tasks down a organizational chart tree. Useful for enterprise software engineering or document generation pipelines.
 
 ### C. Sequential / Chain Pattern
-State is passed sequentially from one agent to another (`Agent A -> Agent B -> Agent C`). For example: Researcher Agent $\rightarrow$ Writer Agent $\rightarrow$ Reviewer Agent.
+State is passed sequentially from one agent to another (`Agent A -> Agent B -> Agent C`). For example: Researcher Agent → Writer Agent → Reviewer Agent.
 
 ### D. Debate Architectures
 Opposing agents are given conflicting prompts (e.g., Optimistic Developer vs. Skeptical Security Auditor) and argue their perspectives. A Judge agent reads the debate transcripts to output the final balanced decision.
@@ -83,8 +83,8 @@ To enable large scale, multi-domain automation (e.g., full software project gene
 - **Coordination Deadlocks**: Agent A waits for Agent B's output while Agent B waits for Agent A (circular dependency).
 
 ### Production Use Cases:
-- Automated codebase updates: Planner agent edits $\rightarrow$ Linter agent checks syntax $\rightarrow$ Critic reviews design $\rightarrow$ Git commit agent logs modifications.
-- Dynamic customer triage: Router routes user $\rightarrow$ Specialist resolves query $\rightarrow$ Supervisor evaluates ticket status.
+- Automated codebase updates: Planner agent edits → Linter agent checks syntax → Critic reviews design → Git commit agent logs modifications.
+- Dynamic customer triage: Router routes user → Specialist resolves query → Supervisor evaluates ticket status.
 
 ### Follow-up Questions Interviewers Ask:
 1. *How do you prevent context window explosion in multi-agent communication loops?*
