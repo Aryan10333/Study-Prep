@@ -30,6 +30,8 @@ This document outlines the core background, architectural guidelines, code stand
 4. **Notebooks and Code Style:**
    - Notebooks must reflect clean, production-grade, framework-agnostic Python code (PyTorch, Scikit-Learn, NLTK, Gensim, NumPy).
    - All code must be self-contained, fully executed with saved cell outputs, accompanied by clear log outputs and complexity analyses ($O(N)$ time & memory).
+5. **Exact Notebook Cell Output Alignment:**
+   - Markdown explanation cells in Jupyter Notebooks MUST directly reference and align 100% with the exact numerical values, percentages, matrix values, and confidence scores printed in the executed Python code cell outputs (e.g., matching exact posterior percentages, max logit output differences, and similarity scores).
 
 ---
 
@@ -57,6 +59,7 @@ Every module study guide (`.md`) across any topic must conclude with a standardi
 - Why was it introduced?
 - What are its limitations?
 - Computational Complexity (Time & Memory)
+- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
 - Production Use Cases
 - Follow-up questions interviewers ask
 ```
