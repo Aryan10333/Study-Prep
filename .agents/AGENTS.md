@@ -68,7 +68,12 @@ Every module study guide (`.md`) across any topic must conclude with a standardi
 
 ## 5. Execution & Deliverable Workflow
 
-1. **Sequential Module Refinement:**
+1. **On-the-Spot Review & Verification After Every Artifact Generation:**
+   - Immediately after generating or modifying ANY asset (whether it is an image/plot, Markdown study guide (`.md`), Jupyter Notebook (`.ipynb`), HTML document, or PDF deliverable), the agent MUST inspect, execute, and review it on the spot before proceeding to the next file or step.
+   - For notebooks: execute all code cells and verify printed outputs match markdown explanation cells 100%.
+   - For plots/images: verify plot generation, visual clarity, axes labels, and markdown embedding links.
+   - For study guides/cheatsheets: verify KaTeX math formatting, native GFM table borders, syntax highlighting, and variable denotation legends.
+2. **Sequential Module Refinement:**
    - Work module-by-module sequentially (update `.md` study guide + companion `.ipynb` notebook), executing and verifying cell outputs on the spot before proceeding.
-2. **Comprehensive & Concise Deliverables:**
+3. **Comprehensive & Concise Deliverables:**
    - Maintain both a full comprehensive master PDF/HTML guide and a concise 1-page revision cheatsheet (`*_Interview_Cheatsheet.pdf`) for each major study topic.
