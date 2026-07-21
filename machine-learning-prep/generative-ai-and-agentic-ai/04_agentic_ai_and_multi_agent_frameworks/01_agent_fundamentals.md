@@ -74,15 +74,27 @@ Level 1: Assisted ──► Level 2: Directed ──► Level 3: Collaborative �
 
 ## 6. When to Use (and Not to Use) AI Agents
 
-### When to Use:
+### Comparison: Pros & Cons of Autonomous Agents
+
+| Feature / Attribute | Pros (Autonomous Agents) | Cons (Autonomous Agents) |
+|---|---|---|
+| **Path Flexibility** | Can navigate arbitrary, unexpected execution roadblocks dynamically. | Prone to infinite execution loops and logic drift. |
+| **Development Speed** | Simple prompt updates replace complex hardcoded state-machine code. | Extremely difficult to write consistent unit tests. |
+| **System Resiliency** | Incorporates self-correction and feedback loops on tool failures. | Latency is highly variable and depends on LLM response delays. |
+| **API Integration** | Naturally routes across heterogeneous parameter signatures. | High token expenditures due to prompt context recursion. |
+
+### When to Consider:
 - **Dynamic Task Routing**: Tasks where the exact sequence of steps cannot be determined beforehand (e.g., research search-query loops).
 - **Vast API Integration**: Systems requiring semantic routing across dozens of heterogeneous API endpoints.
 - **Self-Correction Requirements**: High-value tasks where failures are common but recoverable (e.g., executing code, scraping dynamic web pages).
 
-### When Not to Use:
+### When Not to Consider (Anti-Patterns):
 - **Low-Latency SLAs**: Tasks requiring sub-second response times (reasoning loops introduce high token overhead and latency).
 - **Zero-Error tolerance**: Deterministic calculations, financial accounting, or critical safety systems where non-deterministic outputs are unacceptable.
 - **Structured Predictable Workflows**: If a task can be mapped cleanly to a static flowchart, code it as a deterministic workflow to save costs and latency.
+
+### Production Tip: Hybrid Architectures (Fenced Agents)
+In enterprise applications, avoid deploying Level 5 autonomous agents directly. Instead, build a **Hybrid Architecture** where a deterministic workflow engine (like Temporal or Step Functions) controls the macro-state of the application, and an autonomous agent is "fenced" inside a single workflow node to perform local task resolution (such as fixing schema errors or compiling a patch). This balances agent flexibility with enterprise predictability.
 
 ---
 

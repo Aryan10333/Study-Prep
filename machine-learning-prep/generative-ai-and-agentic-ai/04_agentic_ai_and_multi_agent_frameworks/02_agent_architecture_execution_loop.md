@@ -75,7 +75,24 @@ graph LR
 
 ---
 
-## 5. Interview Questions & Production Trade-offs
+## 5. Production Observation and Memory Architectures
+
+### Comparison: Pros & Cons of JSON vs. HTML Observation Formatting
+
+| Observation Format | Pros | Cons |
+|---|---|---|
+| **JSON (Structured)** | - Highly token-efficient.<br>- Schema is strictly parsed and type-checked.<br>- Prevents prompt injection embedded in layout text. | - Requires custom wrapper parsers for every API endpoint.<br>- Fails if the remote system returns raw text stack traces. |
+| **HTML / Markdown (Unstructured)** | - Preserves visual layout and semantic headers.<br>- Captures arbitrary, unstructured error pages and text. | - Causes high token usage due to markup overhead.<br>- Highly vulnerable to indirect prompt injection from web contents. |
+
+### Production Tip: Context Window Truncation Strategies
+As the execution loop iterates ($T \ge 5$), appending raw tool responses will eventually crash the model's context window. Implement these buffer management strategies:
+1. **Sliding Memory Window**: Retain only the last $k$ tool execution observations in their raw form.
+2. **Intermediate Summary Compaction**: When total loop token count exceeds 75% of the context limit, trigger an asynchronous summarization call to compact all past `Thought -> Action -> Observation` traces into a concise state description, and clear the active history buffer.
+3. **Selective Key Filtering**: Strip out bulky metadata (headers, tracebacks, database column schemas) from tool observations before feeding them back into the `Observe` phase of the loop.
+
+---
+
+## 6. Interview Questions & Production Trade-offs
 
 ### What problem does this solve?
 Traditional APIs run static path code. The agent execution loop allows models to dynamically decide execution paths step-by-step, adapting to unexpected failures.

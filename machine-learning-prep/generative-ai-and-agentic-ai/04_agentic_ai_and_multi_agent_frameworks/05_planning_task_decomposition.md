@@ -24,6 +24,20 @@ graph TD
     SubB --> SubC
 ```
 
+### Directed Acyclic Graph (DAG) Planners: Topological Task Scheduling
+Let $G = (V, E)$ be a task DAG. A task scheduler schedules execution order using Kahn's algorithm, maintaining task in-degree counts $d_{\text{in}}(v)$ (the count of incomplete prerequisite dependency edges entering task $v$). Tasks are queued for active execution when:
+
+$$d_{\text{in}}(v) = 0$$
+
+#### Step-by-Step Hand Calculation
+- **Scenario**: Graph with vertices $V = \{A, B, C\}$ and dependency edges $E = \{(A, C), (B, C)\}$ (Task $C$ depends on both $A$ and $B$ finishing).
+- **Calculation**:
+  - Initial in-degrees: $d_{\text{in}}(A) = 0$, $d_{\text{in}}(B) = 0$, $d_{\text{in}}(C) = 2$.
+  - Queue ready vertices (in-degree = 0): `[A, B]`.
+  - Step 1: Execute task $A$ in parallel. Success. Remove edge $(A, C)$, decrementing $d_{\text{in}}(C)$ to $1$.
+  - Step 2: Execute task $B$ in parallel. Success. Remove edge $(B, C)$, decrementing $d_{\text{in}}(C)$ to $0$.
+  - Step 3: Vertex $C$ now has in-degree $0$. Add $C$ to execution queue: `[C]`. Execute task $C$ successfully.
+
 ---
 
 ## 2. Dynamic Planning & Replanning
@@ -43,6 +57,26 @@ In real-world environments, plans rarely execute without error. **Dynamic Replan
 | **Sequential Planning** | Flat list / queue | Low (linear path) | Low | Simple file modifications, sequential lookups |
 | **Hierarchical Planning** | DAG / Tree | High (parallel tracks) | Moderate | Large scale codebase refactoring, parallel scraping |
 | **Dynamic Replanning** | Self-correcting queue | Maximum (rewrites plan) | High (adds planning calls) | Live API environments with intermittent error rates |
+
+### Comparison: Pros & Cons of Planning Strategies
+
+| Approach | Pros | Cons |
+|---|---|---|
+| **Sequential Planning** | - Low token overhead.<br>- Highly predictable latency.<br>- Simple to construct and log. | - Brittle: a single step failure blocks the remaining queue.<br>- Cannot run independent sub-tasks in parallel. |
+| **Hierarchical Planning (DAG)** | - Executes independent tasks in parallel.<br>- Manages complex dependencies natively. | - Highly complex to construct topologically.<br>- Bottlenecks occur if parent tasks fail. |
+| **Dynamic Replanning** | - High resilience against dynamic environmental failures.<br>- Self-corrects and adapts strategy in real-time. | - Increases token expenditure drastically.<br>- Danger of infinite loop replanning. |
+
+### Dynamic Replanning Case Study
+- **Scenario**: A support agent is tasked with deleting a customer account. The initial plan is: 1) Query user billing profile, 2) Call Delete User API, 3) Send confirmation email.
+- **Execution Event**: During Step 2, the Delete User API returns an error: `FAIL (User has outstanding balance of $15.50)`.
+- **Replanning Action**: Instead of crashing, the agent catches the error observation, updates the plan state, and inserts two new tasks:
+  1. *Sub-task 2a*: Email user a payment link.
+  2. *Sub-task 2b*: Wait/Poll database until payment confirmation status is updated.
+- **Result**: The agent successfully suspends the delete operation, guides the payment, and completes the account deletion autonomously.
+
+### Production Tip: Mitigating Replanning Overhead
+To prevent the agent from repeatedly rewriting its plan on persistent failures (the "over-planning loop"), implement a strict state constraint:
+- Set `max_plan_rewrites = 3`. If the agent exceeds this limit without resolving the roadblock, immediately halt the loop, write a diagnostic trace log, and escalate to a human operator.
 
 ---
 

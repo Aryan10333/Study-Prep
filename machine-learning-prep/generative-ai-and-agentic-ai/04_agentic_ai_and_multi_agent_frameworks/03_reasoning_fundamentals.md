@@ -16,6 +16,23 @@ This module covers the core logical reasoning paradigms that enable foundation m
 - **Concept**: Generates $K$ independent reasoning paths (CoT) at temperature $T > 0$, then performs a majority vote over the final answers.
 - **Why it works**: Eliminates single-path reasoning errors by selecting the consensus result over multiple sample outputs.
 
+#### Mathematical Intuition: Majority Voting
+If a model has a single-path probability $p$ of generating the correct answer (assuming a binary correct/incorrect answer space), the probability of the correct answer winning the majority vote over $K$ independent samples (where $K$ is odd) is defined by the cumulative binomial distribution:
+
+$$P(\text{Majority Correct}) = \sum_{m=\lfloor K/2 \rfloor + 1}^{K} \binom{K}{m} p^m (1-p)^{K-m}$$
+
+#### Step-by-Step Hand Calculation
+- **Scenario**: Let $K = 3$ paths and $p = 0.60$ (60% model accuracy per reasoning path).
+- **Calculation**:
+  - We calculate the probability of obtaining exactly $m = 2$ and $m = 3$ correct paths.
+  - For $m = 2$:
+    $$\binom{3}{2} (0.6)^2 (0.4)^1 = 3 \times 0.36 \times 0.4 = 0.432$$
+  - For $m = 3$:
+    $$\binom{3}{3} (0.6)^3 (0.4)^0 = 1 \times 0.216 \times 1 = 0.216$$
+  - Summing the terms:
+    $$P(\text{Majority Correct}) = 0.432 + 0.216 = 0.648 \text{ (64.8\%)} $$
+  - **Intuition**: Self-Consistency voting boosts accuracy from 60.0% to 64.8\% by marginalizing out random reasoning errors across sample paths.
+
 ```mermaid
 graph LR
     P[Prompt] --> Path1[Path 1 Ans: 42]
@@ -66,6 +83,19 @@ graph LR
 | **Self-Consistency** | None (static text) | High (runs $K$ parallel paths) | Low (if run in parallel) | Does not solve facts retrieval |
 | **Least-to-Most** | None (static text) | Moderate (chained steps) | Moderate | Requires rigid prompt design |
 | **ReAct** | Full (interacts with tools) | Very High (loop token buildup) | High | Subject to infinite execution loops |
+
+### Comparison: Pros & Cons of Reasoning Paradigms
+
+| Paradigm | Pros | Cons |
+|---|---|---|
+| **Chain of Thought (CoT)** | - Easy to implement via system prompt.<br>- Low computational latency overhead. | - Model can still hallucinate intermediate steps.<br>- No real-world tool verification. |
+| **Self-Consistency** | - Significantly boosts deterministic accuracy.<br>- Marginally filters out logic errors. | - Generates $K$ paths, doubling/tripling API token cost.<br>- Slow if paths execute sequentially. |
+| **ReAct** | - Grounded in external facts and tool execution.<br>- Real-time adaptation to observation changes. | - Prone to infinite repetition on tool error.<br>- quadratic context bloat over long loops. |
+
+### When to Consider Self-Consistency:
+- **Best Use Case**: Strict deterministic tasks with fixed answers (e.g. math puzzles, code snippet syntax validation, SQL schema query compilation).
+- **Avoid When**: Generating subjective, open-ended copy (majority voting fails to aggregate creative text styles).
+- **Production Tip**: Use $T = 0.7$ for Self-Consistency paths to encourage path diversity, but drop to $T = 0.0$ for ReAct loop reasoning to guarantee strict tool parameter selections.
 
 ---
 

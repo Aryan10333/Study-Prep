@@ -56,6 +56,24 @@ Specialized agents read from and write to a shared global space (the "Blackboard
 | **Debate** | Iterative | High (round-robin) | Shared dialogue logs | High ($15 - 45\text{s}$) |
 | **Blackboard** | Asynchronous | Very High (publish-subscribe)| Shared central memory table | Very High |
 
+### Comparison: Pros & Cons of Multi-Agent Patterns
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| **Supervisor** | - Simple star communication topology.<br>- Easy to orchestrate and log centrally. | - Supervisor prompt becomes an execution bottleneck.<br>- Gating agent prompt grows too large with worker descriptions. |
+| **Sequential** | - Low token footprint.<br>- Predictable latency and clean debugging traces. | - Inflexible: cannot backtrack or branch dynamically.<br>- Failures cascade downstream directly. |
+| **Debate** | - High critical accuracy and bias reduction.<br>- Evaluates edge cases thoroughly. | - Rounds of debate multiply latency and costs exponentially.<br>- Can lead to logical deadlocks if consensus is not reached. |
+| **Blackboard** | - Decoupled workers scale horizontally independently.<br>- High event-driven adaptability. | - Extremely difficult to debug execution graph loops.<br>- Highly non-deterministic execution order. |
+
+### When to Consider Multi-Agent Systems:
+- **Best Use Case**: Complex, multi-domain software applications (e.g., writing a complete codebase, managing supply chain logistics, conducting cross-disciplinary medical research) where tasks are too large to fit in a single model prompt.
+- **Avoid When**: Tasks require simple transactional logic or linear workflows (single-agent routers are significantly faster and cheaper).
+
+### Production Tip: Message Token Filtering
+In a Supervisor-Worker graph, **never** pass the full raw communication history of Worker A to Worker B. Instead, implement a **Message Filter**:
+- Worker A generates raw logs and thoughts locally.
+- The system summarizes Worker A's final answer, strips out the thought traces, and publishes only the summarized JSON payload back to the Supervisor, who forwards it to Worker B. This keeps downstream context windows clean and minimizes $O(N^2)$ message token inflation.
+
 ---
 
 ## 4. Detailed Computational Complexity (Time & Memory)
