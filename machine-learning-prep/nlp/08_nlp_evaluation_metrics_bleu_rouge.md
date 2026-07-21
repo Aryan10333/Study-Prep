@@ -152,9 +152,17 @@ BLEU checks what fraction of generated candidate n-grams are valid (preventing h
 ### What are their primary limitations?
 Surface-form exact match rigidity. They penalize valid paraphrases and modern conversational outputs. In GenAI production pipelines, **LLM-as-a-Judge** (using GPT-4 / G-Eval to evaluate response quality) is heavily preferred over BLEU/ROUGE.
 
-### Computational Complexity:
-- **BLEU / ROUGE Time Complexity**: $O(|c| \cdot |r|)$ sequence token matching.
-- **Perplexity Time Complexity**: $O(N)$ forward pass evaluation loss computation.
+### Detailed Computational Complexity (Time & Memory)
+- **BLEU Evaluation Time**: $O(N_{max} \cdot |c| \cdot |r|)$
+- **ROUGE-L LCS Dynamic Programming Time**: $O(|c| \cdot |r|)$
+- **Perplexity Evaluation Time**: $O(T \cdot d^2)$
+- **Memory Footprint Complexity**: $O(|c| \cdot |r|)$ for ROUGE-L table, $O(|c| + |r|)$ for BLEU n-grams
+- **Component Denotations**:
+  - $|c|$: Token length of the generated candidate sequence.
+  - $|r|$: Token length of the reference sequence.
+  - $N_{max}$: Maximum n-gram order evaluated (typically $N_{max}=4$ for BLEU-4).
+  - $T$: Evaluation sequence token length.
+  - $d$: Language model vocabulary projection dimension.
 
 ### Production Use Cases:
 - Automated regression testing during LLM fine-tuning runs (e.g. LoRA / QLoRA checkpoints).

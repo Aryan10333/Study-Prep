@@ -138,9 +138,14 @@ Early NLP models suffered from extreme sparsity and out-of-vocabulary failures. 
 ### What are its limitations?
 Over-cleaning can destroy critical signals. Removing casing ruins Named Entity Recognition (e.g., converting country `"US"` to pronoun `"us"`), while removing punctuation destroys sentence boundaries.
 
-### Computational Complexity:
-- **Preprocessing Time Complexity**: $O(N)$ linear time where $N$ is text string character length.
-- **Memory Complexity**: $O(N)$ temporary memory allocation.
+### Detailed Computational Complexity (Time & Memory)
+- **Text Cleaning & Regex Normalization Time**: $O(N \cdot L)$
+- **Type-Token Ratio (TTR) Computation Time**: $O(N \cdot L)$
+- **Memory Footprint Complexity**: $O(|V|)$ RAM
+- **Component Denotations**:
+  - $N$: Total number of documents in the training corpus.
+  - $L$: Maximum token length of a document.
+  - $|V|$: Vocabulary size (number of unique tokens in the corpus).
 
 ### Production Use Cases:
 - Web scraping text extraction (stripping HTML).

@@ -133,9 +133,16 @@ In cell update equation $C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$, if fo
 - **Sequential Bottleneck**: Hidden state $h_t$ depends sequentially on $h_{t-1}$, preventing parallel GPU execution over sequence length $T$.
 - **Fixed Hidden Capacity**: Forcing long sequences into fixed vector $h_t$ creates an information bottleneck (resolved by Attention).
 
-### Computational Complexity:
-- **Training Step Time Complexity**: $O(T \cdot (4 \cdot d^2 + 4 \cdot d \cdot d_x))$ per sequence.
-- **Inference Time Complexity**: $O(T \cdot d^2)$ strictly sequential operations.
+### Detailed Computational Complexity (Time & Memory)
+- **Forward Pass Inference Time**: $O(T \cdot (d_{in} \cdot d + d^2))$
+- **BPTT Backpropagation Training Time**: $O(T \cdot d^2)$
+- **Model Parameter Memory Footprint**: $O(4 \cdot (d_{in} \cdot d + d^2))$ for LSTM
+- **Activation Training RAM Memory**: $O(T \cdot d)$ GPU memory
+- **Component Denotations**:
+  - $T$: Sequence length (number of time steps).
+  - $d_{in}$: Dimension of the input vector $x_t$ at each time step.
+  - $d$: Hidden state projection dimension (hidden dimension).
+  - Note: LSTM requires 4 internal gate parameter matrices ($W_f, W_i, W_c, W_o$) vs GRU's 3 gates ($W_r, W_z, W_h$), resulting in 25% parameter savings for GRU.
 
 ### Production Use Cases:
 - Time-series forecasting and sensor telemetry anomaly detection.

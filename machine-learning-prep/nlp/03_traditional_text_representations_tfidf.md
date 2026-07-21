@@ -143,9 +143,18 @@ IDF measures word informativeness: rare domain keywords receive higher weights t
 - **Polysemy & Synonymy**: Treats `"database"` and `"DB"` as unrelated dimensions ($0.0$ similarity).
 - **High Dimensionality & Sparsity**: Vocabularies with $100,000$ terms create massive sparse matrices where $>99\%$ of values are zeros.
 
-### Computational Complexity:
-- **Training Indexing Complexity**: $O(|D| \times L)$ where $L$ is average document token length.
-- **Inference Query Complexity**: $O(k \times |V|)$ for sparse dot product.
+### Detailed Computational Complexity (Time & Memory)
+- **Corpus Indexing & Vectorization Time**: $O(N \cdot L)$
+- **Inference Vector Encoding Time**: $O(k \cdot |V|)$
+- **Cosine Similarity Search Time**: $O(N \cdot k)$
+- **Memory Footprint Complexity**: $O(\text{NNZ}) = O(N \cdot \bar{k})$ RAM
+- **Component Denotations**:
+  - $N$: Total number of documents in the indexed corpus.
+  - $L$: Average length of a document in tokens.
+  - $|V|$: Vocabulary size (dimension of the sparse TF-IDF space).
+  - $k$: Number of active non-zero terms in the input query document ($k \ll |V|$).
+  - $\bar{k}$: Average number of non-zero terms per document in the corpus ($0.1\%$ matrix density).
+  - $\text{NNZ}$: Number of Non-Zero elements stored in the Compressed Sparse Row (CSR) matrix.
 
 ### Production Use Cases:
 - BM25 Hybrid Keyword Search in RAG pipelines (combining sparse TF-IDF and dense vector embeddings).

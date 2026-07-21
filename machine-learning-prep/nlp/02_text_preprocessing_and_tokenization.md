@@ -117,9 +117,17 @@ BPE allows open-vocabulary processing where subwords adaptively decompose unknow
 - Sensitive to spacing, casing, and trailing whitespace.
 - Poor performance on numerical digits and arithmetic unless specialized byte-level fallbacks (BBPE) are implemented.
 
-### Computational Complexity:
-- **BPE Training Time Complexity**: $O(|V| \cdot N)$ where $N$ is total corpus character count.
-- **Inference Tokenization Time Complexity**: $O(T \log |V|)$ using Trie dictionary lookup.
+### Detailed Computational Complexity (Time & Memory)
+- **Word-Level Tokenization Time**: $O(L)$
+- **Byte Pair Encoding (BPE) Training Time**: $O(K \cdot N \cdot L)$
+- **BPE Inference Tokenization Time**: $O(L \log |V|)$
+- **Memory Footprint Complexity**: $O(|V| + S)$ RAM
+- **Component Denotations**:
+  - $N$: Total number of documents in the corpus.
+  - $L$: Token length of the input document/sequence.
+  - $|V|$: Final target subword vocabulary size.
+  - $K$: Total number of merge iterations during training.
+  - $S$: Total number of learned subword merge rules.
 
 ### Production Use Cases:
 - Tokenizer engine for all modern LLM families (GPT-4, Llama 3, Claude 3, Mistral).

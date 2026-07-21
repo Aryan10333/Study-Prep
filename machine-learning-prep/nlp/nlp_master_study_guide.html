@@ -452,10 +452,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Early NLP models suffered from extreme sparsity and out-of-vocabulary failures. Standardizing text representations improves model generalization across different data sources.</p>
 <h3 id="what-are-its-limitations">What are its limitations?</h3>
 <p>Over-cleaning can destroy critical signals. Removing casing ruins Named Entity Recognition (e.g., converting country <code>"US"</code> to pronoun <code>"us"</code>), while removing punctuation destroys sentence boundaries.</p>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>Preprocessing Time Complexity</strong>: $O(N)$ linear time where $N$ is text string character length.</li>
-<li><strong>Memory Complexity</strong>: $O(N)$ temporary memory allocation.</li>
+<li><strong>Text Cleaning &amp; Regex Normalization Time</strong>: $O(N \cdot L)$</li>
+<li><strong>Type-Token Ratio (TTR) Computation Time</strong>: $O(N \cdot L)$</li>
+<li><strong>Memory Footprint Complexity</strong>: $O(|V|)$ RAM</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$N$: Total number of documents in the training corpus.</li>
+<li>$L$: Maximum token length of a document.</li>
+<li>$|V|$: Vocabulary size (number of unique tokens in the corpus).</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -621,10 +626,18 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Sensitive to spacing, casing, and trailing whitespace.</li>
 <li>Poor performance on numerical digits and arithmetic unless specialized byte-level fallbacks (BBPE) are implemented.</li>
 </ul>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>BPE Training Time Complexity</strong>: $O(|V| \cdot N)$ where $N$ is total corpus character count.</li>
-<li><strong>Inference Tokenization Time Complexity</strong>: $O(T \log |V|)$ using Trie dictionary lookup.</li>
+<li><strong>Word-Level Tokenization Time</strong>: $O(L)$</li>
+<li><strong>Byte Pair Encoding (BPE) Training Time</strong>: $O(K \cdot N \cdot L)$</li>
+<li><strong>BPE Inference Tokenization Time</strong>: $O(L \log |V|)$</li>
+<li><strong>Memory Footprint Complexity</strong>: $O(|V| + S)$ RAM</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$N$: Total number of documents in the corpus.</li>
+<li>$L$: Token length of the input document/sequence.</li>
+<li>$|V|$: Final target subword vocabulary size.</li>
+<li>$K$: Total number of merge iterations during training.</li>
+<li>$S$: Total number of learned subword merge rules.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -763,10 +776,19 @@ $$v_{\text{norm}}(d_3) = [0.6228, 0, 0, 0.6228, 0, 0.6228, 0, 0]$$</p>
 <li><strong>Polysemy &amp; Synonymy</strong>: Treats <code>"database"</code> and <code>"DB"</code> as unrelated dimensions ($0.0$ similarity).</li>
 <li><strong>High Dimensionality &amp; Sparsity</strong>: Vocabularies with $100,000$ terms create massive sparse matrices where $>99\%$ of values are zeros.</li>
 </ul>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>Training Indexing Complexity</strong>: $O(|D| \times L)$ where $L$ is average document token length.</li>
-<li><strong>Inference Query Complexity</strong>: $O(k \times |V|)$ for sparse dot product.</li>
+<li><strong>Corpus Indexing &amp; Vectorization Time</strong>: $O(N \cdot L)$</li>
+<li><strong>Inference Vector Encoding Time</strong>: $O(k \cdot |V|)$</li>
+<li><strong>Cosine Similarity Search Time</strong>: $O(N \cdot k)$</li>
+<li><strong>Memory Footprint Complexity</strong>: $O(\text{NNZ}) = O(N \cdot \bar{k})$ RAM</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$N$: Total number of documents in the indexed corpus.</li>
+<li>$L$: Average length of a document in tokens.</li>
+<li>$|V|$: Vocabulary size (dimension of the sparse TF-IDF space).</li>
+<li>$k$: Number of active non-zero terms in the input query document ($k \ll |V|$).</li>
+<li>$\bar{k}$: Average number of non-zero terms per document in the corpus ($0.1\%$ matrix density).</li>
+<li>$\text{NNZ}$: Number of Non-Zero elements stored in the Compressed Sparse Row (CSR) matrix.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -912,10 +934,20 @@ For word <code>"where"</code> with $n=3$:<br />
 <li><strong>Static Embeddings</strong>: Assigns a single static vector per word, failing to handle polysemy (e.g. <code>"bank"</code> in river bank vs. investment bank gets identical vector).</li>
 <li><strong>Context Window Limit</strong>: Only captures local co-occurrences within radius $m$, ignoring global document context.</li>
 </ul>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>Training Time Complexity</strong>: $O(C \cdot m \cdot K \cdot d)$ where $C$ is corpus size, $m$ is window radius, $K$ is negative samples, and $d$ is embedding dimension.</li>
-<li><strong>Inference Lookup Complexity</strong>: $O(1)$ constant time vector array indexing.</li>
+<li><strong>Full Softmax Training Time</strong>: $O(N \cdot m \cdot |V| \cdot d)$ per epoch</li>
+<li><strong>Skip-Gram Negative Sampling (SGNS) Training Time</strong>: $O(N \cdot m \cdot (K + 1) \cdot d)$ per epoch</li>
+<li><strong>Inference Embedding Lookup Time</strong>: $O(1)$ constant time</li>
+<li><strong>FastText OOV Inference Time</strong>: $O(G \cdot d)$</li>
+<li><strong>Memory Footprint Complexity</strong>: $O(|V| \cdot d)$ RAM</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$N$: Total number of tokens in the training corpus.</li>
+<li>$m$: Context window size (number of sliding tokens on each side).</li>
+<li>$|V|$: Size of the vocabulary.</li>
+<li>$K$: Number of negative samples drawn per positive sample ($K = 5 - 20$).</li>
+<li>$d$: Vector embedding dimension (typically $d = 300$).</li>
+<li>$G$: Number of character n-grams generated for an Out-Of-Vocabulary (OOV) word.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -1043,10 +1075,20 @@ For word <code>"where"</code> with $n=3$:<br />
 <p>Without smoothing, any unseen vocabulary term in a class yields a zero probability likelihood $P(w_{\text{new}} \mid c) = 0$, causing the entire posterior product to collapse to zero regardless of other strong evidence.</p>
 <h3 id="what-is-the-primary-limitation-of-naive-bayes">What is the primary limitation of Naive Bayes?</h3>
 <p>The <strong>Conditional Independence Assumption</strong>: Naive Bayes assumes word occurrences are completely independent given the class label. In reality, text features are heavily correlated (e.g., <code>"credit"</code> and <code>"card"</code> co-occur together).</p>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>Training Time Complexity</strong>: $O(|D| \times L)$ single-pass vocabulary accumulation.</li>
-<li><strong>Inference Time Complexity</strong>: $O(C \times L)$ per text query where $C$ is class count and $L$ is token length.</li>
+<li><strong>Naive Bayes Training Time</strong>: $O(N \cdot L + C \cdot |V|)$</li>
+<li><strong>Naive Bayes Inference Time</strong>: $O(C \cdot L)$</li>
+<li><strong>Logistic Regression Training Time</strong>: $O(E \cdot N \cdot |V| \cdot C)$</li>
+<li><strong>Logistic Regression Inference Time</strong>: $O(k \cdot C)$</li>
+<li><strong>Memory Footprint Complexity</strong>: $O(C \cdot |V|)$ RAM</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$N$: Total number of documents in the training dataset.</li>
+<li>$L$: Token length of the test input sequence.</li>
+<li>$|V|$: Vocabulary size (feature dimension).</li>
+<li>$C$: Number of target routing classes/categories.</li>
+<li>$E$: Number of gradient optimization epochs.</li>
+<li>$k$: Number of active non-zero features in the input document vector.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -1191,10 +1233,17 @@ $$C_t = (0.8176 \times 0.8) + (0.8176 \times 0.9051) = 0.6541 + 0.7400 = \mathbf
 <li><strong>Sequential Bottleneck</strong>: Hidden state $h_t$ depends sequentially on $h_{t-1}$, preventing parallel GPU execution over sequence length $T$.</li>
 <li><strong>Fixed Hidden Capacity</strong>: Forcing long sequences into fixed vector $h_t$ creates an information bottleneck (resolved by Attention).</li>
 </ul>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>Training Step Time Complexity</strong>: $O(T \cdot (4 \cdot d^2 + 4 \cdot d \cdot d_x))$ per sequence.</li>
-<li><strong>Inference Time Complexity</strong>: $O(T \cdot d^2)$ strictly sequential operations.</li>
+<li><strong>Forward Pass Inference Time</strong>: $O(T \cdot (d_{in} \cdot d + d^2))$</li>
+<li><strong>BPTT Backpropagation Training Time</strong>: $O(T \cdot d^2)$</li>
+<li><strong>Model Parameter Memory Footprint</strong>: $O(4 \cdot (d_{in} \cdot d + d^2))$ for LSTM</li>
+<li><strong>Activation Training RAM Memory</strong>: $O(T \cdot d)$ GPU memory</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$T$: Sequence length (number of time steps).</li>
+<li>$d_{in}$: Dimension of the input vector $x_t$ at each time step.</li>
+<li>$d$: Hidden state projection dimension (hidden dimension).</li>
+<li>Note: LSTM requires 4 internal gate parameter matrices ($W_f, W_i, W_c, W_o$) vs GRU's 3 gates ($W_r, W_z, W_h$), resulting in 25% parameter savings for GRU.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -1343,10 +1392,17 @@ $$C_t = (0.8176 \times 0.8) + (0.8176 \times 0.9051) = 0.6541 + 0.7400 = \mathbf
 <p>Without $\sqrt{d_k}$ scaling, large projection dimensions $d_k$ cause dot products $q \cdot k$ to have high variance $d_k$. Large dot products push the Softmax function into saturated regions with near-zero gradients ($\text{softmax}'(z) \rightarrow 0$), causing vanishing gradients during backpropagation.</p>
 <h3 id="what-are-the-primary-limitations-of-self-attention">What are the primary limitations of Self-Attention?</h3>
 <p>Quadratic Time &amp; Memory Complexity $O(T^2)$ over sequence length $T$, making vanilla self-attention expensive for long contexts ($T > 8,000$).</p>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>Time Complexity</strong>: $O(T^2 \cdot d)$ matrix multiplication over sequence length $T$.</li>
-<li><strong>Memory Complexity</strong>: $O(T^2)$ for storing $T \times T$ attention matrix weights in RAM.</li>
+<li><strong>Scaled Dot-Product Attention Time</strong>: $O(T^2 \cdot d)$ per sequence</li>
+<li><strong>Multi-Head Attention Time</strong>: $O(T^2 \cdot d)$</li>
+<li><strong>Attention Matrix RAM Footprint</strong>: $O(T^2)$ memory per sequence</li>
+<li><strong>Weight Parameter Memory Footprint</strong>: $O(4 \cdot d^2)$ RAM</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$T$: Sequence length (number of input query/key/value tokens).</li>
+<li>$d$: Projection dimension of query, key, and value vectors.</li>
+<li>$h$: Number of parallel attention heads (where each head has head dimension $d_k = d/h$).</li>
+<li>Note: The quadratic time and space scaling $O(T^2)$ is the core constraint of transformer attention, preventing infinite context window scaling.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -1520,10 +1576,18 @@ $$\text{PPL} = \exp(2.3026) = \mathbf{10.0}$$</p>
 <p>BLEU checks what fraction of generated candidate n-grams are valid (preventing hallucinated ungrounded text in translation), whereas ROUGE checks what fraction of reference target information was captured in the summary (preventing key detail omission).</p>
 <h3 id="what-are-their-primary-limitations">What are their primary limitations?</h3>
 <p>Surface-form exact match rigidity. They penalize valid paraphrases and modern conversational outputs. In GenAI production pipelines, <strong>LLM-as-a-Judge</strong> (using GPT-4 / G-Eval to evaluate response quality) is heavily preferred over BLEU/ROUGE.</p>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>BLEU / ROUGE Time Complexity</strong>: $O(|c| \cdot |r|)$ sequence token matching.</li>
-<li><strong>Perplexity Time Complexity</strong>: $O(N)$ forward pass evaluation loss computation.</li>
+<li><strong>BLEU Evaluation Time</strong>: $O(N_{max} \cdot |c| \cdot |r|)$</li>
+<li><strong>ROUGE-L LCS Dynamic Programming Time</strong>: $O(|c| \cdot |r|)$</li>
+<li><strong>Perplexity Evaluation Time</strong>: $O(T \cdot d^2)$</li>
+<li><strong>Memory Footprint Complexity</strong>: $O(|c| \cdot |r|)$ for ROUGE-L table, $O(|c| + |r|)$ for BLEU n-grams</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$|c|$: Token length of the generated candidate sequence.</li>
+<li>$|r|$: Token length of the reference sequence.</li>
+<li>$N_{max}$: Maximum n-gram order evaluated (typically $N_{max}=4$ for BLEU-4).</li>
+<li>$T$: Evaluation sequence token length.</li>
+<li>$d$: Language model vocabulary projection dimension.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>
@@ -1638,10 +1702,17 @@ $$\text{PPL} = \exp(2.3026) = \mathbf{10.0}$$</p>
 <p>Native PyTorch/TensorFlow models carry Python interpreter overhead and un-fused execution graphs. ONNX exports models to a framework-agnostic computation graph, enabling graph optimizations (layer fusion, constant folding) across heterogeneous hardware backends (CPU, CUDA, TensorRT).</p>
 <h3 id="what-are-the-primary-trade-offs-of-quantization">What are the primary trade-offs of quantization?</h3>
 <p>Slight loss in numerical precision ($< 0.5\%$ accuracy drop). Highly sensitive layers (like attention softmax or final output logits) may require Mixed Precision (FP16) or selective quantization.</p>
-<h3 id="computational-complexity">Computational Complexity:</h3>
+<h3 id="detailed-computational-complexity-time-memory">Detailed Computational Complexity (Time &amp; Memory)</h3>
 <ul>
-<li><strong>INT8 Inference Time Complexity</strong>: $O(N \cdot d)$ with $4\text{x}$ SIMD instruction throughput.</li>
-<li><strong>Memory Footprint Complexity</strong>: $O(\frac{1}{4} M_{\text{FP32}})$ bytes.</li>
+<li><strong>FP32 Model Inference Time</strong>: $O(N \cdot d^2)$</li>
+<li><strong>INT8 Quantized Model Inference Time</strong>: $O(N \cdot d^2)$ with $4\text{x}$ CPU SIMD vector throughput boost</li>
+<li><strong>FP32 Memory Footprint</strong>: $O(M_{\text{FP32}}) = 4 \times P$ bytes</li>
+<li><strong>INT8 Quantized Memory Footprint</strong>: $O(\frac{1}{4} M_{\text{FP32}}) = 1 \times P$ bytes</li>
+<li><strong>Component Denotations</strong>:</li>
+<li>$N$: Batch size (number of concurrent inference requests).</li>
+<li>$d$: Dimensions of model weights and intermediate representations.</li>
+<li>$P$: Total model parameter count (number of weights).</li>
+<li>$M_{\text{FP32}}$: Memory footprint of the original 32-bit floating point model.</li>
 </ul>
 <h3 id="production-use-cases">Production Use Cases:</h3>
 <ul>

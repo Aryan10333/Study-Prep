@@ -91,9 +91,16 @@ Native PyTorch/TensorFlow models carry Python interpreter overhead and un-fused 
 ### What are the primary trade-offs of quantization?
 Slight loss in numerical precision ($< 0.5\%$ accuracy drop). Highly sensitive layers (like attention softmax or final output logits) may require Mixed Precision (FP16) or selective quantization.
 
-### Computational Complexity:
-- **INT8 Inference Time Complexity**: $O(N \cdot d)$ with $4\text{x}$ SIMD instruction throughput.
-- **Memory Footprint Complexity**: $O(\frac{1}{4} M_{\text{FP32}})$ bytes.
+### Detailed Computational Complexity (Time & Memory)
+- **FP32 Model Inference Time**: $O(N \cdot d^2)$
+- **INT8 Quantized Model Inference Time**: $O(N \cdot d^2)$ with $4\text{x}$ CPU SIMD vector throughput boost
+- **FP32 Memory Footprint**: $O(M_{\text{FP32}}) = 4 \times P$ bytes
+- **INT8 Quantized Memory Footprint**: $O(\frac{1}{4} M_{\text{FP32}}) = 1 \times P$ bytes
+- **Component Denotations**:
+  - $N$: Batch size (number of concurrent inference requests).
+  - $d$: Dimensions of model weights and intermediate representations.
+  - $P$: Total model parameter count (number of weights).
+  - $M_{\text{FP32}}$: Memory footprint of the original 32-bit floating point model.
 
 ### Production Use Cases:
 - High-throughput web microservices serving real-time predictions.

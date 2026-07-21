@@ -128,9 +128,19 @@ Without smoothing, any unseen vocabulary term in a class yields a zero probabili
 ### What is the primary limitation of Naive Bayes?
 The **Conditional Independence Assumption**: Naive Bayes assumes word occurrences are completely independent given the class label. In reality, text features are heavily correlated (e.g., `"credit"` and `"card"` co-occur together).
 
-### Computational Complexity:
-- **Training Time Complexity**: $O(|D| \times L)$ single-pass vocabulary accumulation.
-- **Inference Time Complexity**: $O(C \times L)$ per text query where $C$ is class count and $L$ is token length.
+### Detailed Computational Complexity (Time & Memory)
+- **Naive Bayes Training Time**: $O(N \cdot L + C \cdot |V|)$
+- **Naive Bayes Inference Time**: $O(C \cdot L)$
+- **Logistic Regression Training Time**: $O(E \cdot N \cdot |V| \cdot C)$
+- **Logistic Regression Inference Time**: $O(k \cdot C)$
+- **Memory Footprint Complexity**: $O(C \cdot |V|)$ RAM
+- **Component Denotations**:
+  - $N$: Total number of documents in the training dataset.
+  - $L$: Token length of the test input sequence.
+  - $|V|$: Vocabulary size (feature dimension).
+  - $C$: Number of target routing classes/categories.
+  - $E$: Number of gradient optimization epochs.
+  - $k$: Number of active non-zero features in the input document vector.
 
 ### Production Use Cases:
 - Real-time spam filtering and email routing engines.

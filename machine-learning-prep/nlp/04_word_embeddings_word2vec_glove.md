@@ -135,9 +135,19 @@ Standard Skip-Gram Softmax requires computing partition function $\sum_{w=1}^{|V
 - **Static Embeddings**: Assigns a single static vector per word, failing to handle polysemy (e.g. `"bank"` in river bank vs. investment bank gets identical vector).
 - **Context Window Limit**: Only captures local co-occurrences within radius $m$, ignoring global document context.
 
-### Computational Complexity:
-- **Training Time Complexity**: $O(C \cdot m \cdot K \cdot d)$ where $C$ is corpus size, $m$ is window radius, $K$ is negative samples, and $d$ is embedding dimension.
-- **Inference Lookup Complexity**: $O(1)$ constant time vector array indexing.
+### Detailed Computational Complexity (Time & Memory)
+- **Full Softmax Training Time**: $O(N \cdot m \cdot |V| \cdot d)$ per epoch
+- **Skip-Gram Negative Sampling (SGNS) Training Time**: $O(N \cdot m \cdot (K + 1) \cdot d)$ per epoch
+- **Inference Embedding Lookup Time**: $O(1)$ constant time
+- **FastText OOV Inference Time**: $O(G \cdot d)$
+- **Memory Footprint Complexity**: $O(|V| \cdot d)$ RAM
+- **Component Denotations**:
+  - $N$: Total number of tokens in the training corpus.
+  - $m$: Context window size (number of sliding tokens on each side).
+  - $|V|$: Size of the vocabulary.
+  - $K$: Number of negative samples drawn per positive sample ($K = 5 - 20$).
+  - $d$: Vector embedding dimension (typically $d = 300$).
+  - $G$: Number of character n-grams generated for an Out-Of-Vocabulary (OOV) word.
 
 ### Production Use Cases:
 - Pre-trained embedding lookup table for classification architectures.

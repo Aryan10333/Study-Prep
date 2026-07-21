@@ -138,9 +138,16 @@ Without $\sqrt{d_k}$ scaling, large projection dimensions $d_k$ cause dot produc
 ### What are the primary limitations of Self-Attention?
 Quadratic Time & Memory Complexity $O(T^2)$ over sequence length $T$, making vanilla self-attention expensive for long contexts ($T > 8,000$).
 
-### Computational Complexity:
-- **Time Complexity**: $O(T^2 \cdot d)$ matrix multiplication over sequence length $T$.
-- **Memory Complexity**: $O(T^2)$ for storing $T \times T$ attention matrix weights in RAM.
+### Detailed Computational Complexity (Time & Memory)
+- **Scaled Dot-Product Attention Time**: $O(T^2 \cdot d)$ per sequence
+- **Multi-Head Attention Time**: $O(T^2 \cdot d)$
+- **Attention Matrix RAM Footprint**: $O(T^2)$ memory per sequence
+- **Weight Parameter Memory Footprint**: $O(4 \cdot d^2)$ RAM
+- **Component Denotations**:
+  - $T$: Sequence length (number of input query/key/value tokens).
+  - $d$: Projection dimension of query, key, and value vectors.
+  - $h$: Number of parallel attention heads (where each head has head dimension $d_k = d/h$).
+  - Note: The quadratic time and space scaling $O(T^2)$ is the core constraint of transformer attention, preventing infinite context window scaling.
 
 ### Production Use Cases:
 - Core building block of Transformer LLMs (GPT-4, Llama 3, Claude 3).
