@@ -18,7 +18,7 @@ This document outlines the core background, architectural guidelines, code stand
 ## 2. Core Behavioral & Pedagogical Rules
 
 1. **No Academic Filler:**
-   - Skip introductory textbook summaries. Focus on the core mechanics, math intuition, system failure modes, and production realities tested in top tech interviews.
+   - Avoid generic, verbose textbook summaries. Instead, each topic must begin with a short, high-level conceptual introduction that orients the reader, explaining the core engineering motivation and the specific issue it resolves. Focus directly on the core mechanics, math intuition, system failure modes, and production realities tested in top tech interviews.
 2. **Focus on Production Trade-offs:**
    - Every mathematical formula and system component must map directly to:
      - An evaluation choice (e.g., ROC-AUC vs. PR-AUC, BLEU vs. ROUGE, Precision vs. Recall, Perplexity).
@@ -68,12 +68,16 @@ Every module study guide (`.md`) across any topic must conclude with a standardi
 
 ## 5. Execution & Deliverable Workflow
 
-1. **On-the-Spot Review & Verification After Every Artifact Generation:**
+1. **Incremental Creation & Self-Sufficiency Verification**:
+   - Create Markdown files incrementally (one section/file at a time or in logical batches) rather than attempting to generate massive guides in a single pass.
+   - Review each section/file on the spot immediately after creation to check that the material is self-sufficient, dense, highly detailed, and complete, containing no placeholders or hand-waving explanations.
+2. **On-the-Spot Review & Verification After Every Artifact Generation:**
    - Immediately after generating or modifying ANY asset (whether it is an image/plot, Markdown study guide (`.md`), Jupyter Notebook (`.ipynb`), HTML document, or PDF deliverable), the agent MUST inspect, execute, and review it on the spot before proceeding to the next file or step.
    - For notebooks: execute all code cells and verify printed outputs match markdown explanation cells 100%.
    - For plots/images: verify plot generation, visual clarity, axes labels, and markdown embedding links.
    - For study guides/cheatsheets: verify KaTeX math formatting, native GFM table borders, syntax highlighting, and variable denotation legends.
-2. **Sequential Module Refinement:**
+3. **Sequential Module Refinement:**
    - Work module-by-module sequentially (update `.md` study guide + companion `.ipynb` notebook), executing and verifying cell outputs on the spot before proceeding.
-3. **Comprehensive & Concise Deliverables:**
+4. **Comprehensive & Concise Deliverables:**
    - Maintain both a full comprehensive master PDF/HTML guide and a concise 1-page revision cheatsheet (`*_Interview_Cheatsheet.pdf`) for each major study topic.
+
