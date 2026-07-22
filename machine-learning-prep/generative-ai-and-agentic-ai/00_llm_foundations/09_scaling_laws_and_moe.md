@@ -47,28 +47,29 @@ $$L(N) \propto N^{-\alpha_N}, \quad L(D) \propto D^{-\alpha_D}, \quad L(C) \prop
 
 To scale model parameters without multiplying compute costs, Mixture of Experts (MoE) replaces dense FFN layers with multiple parallel experts, routing each token to a subset of them.
 
-```mermaid
-graph LR
-    Token["Input Token"] --> Router["Router / Gating"]
-    Router --> Top2["Select Top-k Experts (k=2)"]
-    Top2 --> Exp1["Expert 1 (Active)"]
-    Top2 --> Exp4["Expert 4 (Active)"]
-    Top2 -.-> Exp2["Expert 2 (Idle)"]
-    Top2 -.-> Exp3["Expert 3 (Idle)"]
-    
-    Exp1 --> Concat["Concatenate & Weight"]
-    Exp4 --> Concat
-    Concat --> Out["Final Output Token"]
-
-    style Token fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style Router fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style Top2 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style Exp1 fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
-    style Exp4 fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
-    style Exp2 fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px,color:#64748b,stroke-dasharray: 3, 3
-    style Exp3 fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px,color:#64748b,stroke-dasharray: 3, 3
-    style Concat fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <div style="display: flex; align-items: center; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px;">Input Token</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px;">Router / Gating</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px;">Select Top-k Experts (k=2)</div>
+    </div>
+    <div style="display: flex; gap: 20px; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <div style="background-color: #ecfdf5; color: #065f46; border: 2px solid #059669; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 600; text-align: center; width: 140px;">Expert 1 (Active)</div>
+            <div style="background-color: #ecfdf5; color: #065f46; border: 2px solid #059669; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 600; text-align: center; width: 140px;">Expert 4 (Active)</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; opacity: 0.5;">
+            <div style="background-color: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 11px; text-align: center; width: 140px;">Expert 2 (Idle)</div>
+            <div style="background-color: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 11px; text-align: center; width: 140px;">Expert 3 (Idle)</div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 15px; width: 100%; justify-content: center; margin-top: 10px;">
+        <div style="color: #94a3b8; font-weight: bold; transform: rotate(90deg); margin-bottom: 5px;">↓</div>
+    </div>
+    <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center;">Concatenate & Weight Outputs → Final Output Token</div>
+</div>
 
 - **Router (Gating Network)**: Computes a probability distribution over $E$ experts:
   $$\mathbf{g} = \text{Softmax}(\mathbf{x} \mathbf{W}_g)$$

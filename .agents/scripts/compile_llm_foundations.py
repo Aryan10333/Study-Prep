@@ -103,25 +103,6 @@ def compile_master_guide():
                     {{left: '$', right: '$', display: false}}
                 ]
             }});"></script>
-    <!-- Load Mermaid -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {{
-            const mermaidCodes = document.querySelectorAll("pre code.language-mermaid");
-            mermaidCodes.forEach(codeEl => {{
-                const preEl = codeEl.parentElement;
-                const divEl = document.createElement("div");
-                divEl.className = "mermaid";
-                divEl.textContent = codeEl.textContent;
-                preEl.replaceWith(divEl);
-            }});
-            mermaid.initialize({{
-                startOnLoad: true,
-                securityLevel: 'loose',
-                theme: 'neutral'
-            }});
-        }});
-    </script>
     <style>
         @page {{
             size: A4;

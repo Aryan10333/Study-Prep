@@ -70,24 +70,40 @@ To process variable-length sequential sentences, deep learning introduced recurr
   $$\mathbf{h}_t = \tanh(\mathbf{W}_{hh} \mathbf{h}_{t-1} + \mathbf{W}_{xh} \mathbf{x}_t + \mathbf{b}_h)$$
 - **Limitation: Exploding/Vanishing Gradients**: During backpropagation through time (BPTT), multiplying the weight matrix $\mathbf{W}_{hh}$ over $T$ steps causes gradient gradients $\frac{\partial \mathcal{L}}{\partial \mathbf{h}_0}$ to expand to infinity or decay to zero, preventing learning of dependencies longer than 10-15 steps.
 
-```mermaid
-graph LR
-    x1["x₁"] --> RNN1["RNN Cell"] --> h1["h₁"]
-    h1 --> RNN2["RNN Cell"] --> h2["h₂"]
-    x2["x₂"] --> RNN2
-    h2 --> RNN3["RNN Cell"] --> h3["h₃"]
-    x3["x₃"] --> RNN3
-
-    style x1 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style x2 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style x3 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style RNN1 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style RNN2 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style RNN3 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style h1 fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
-    style h2 fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
-    style h3 fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
-```
+<div class="custom-diagram" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit;">
+    <!-- Step 1 -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">x₁</div>
+        <div style="color: #64748b; font-size: 14px;">↓</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">RNN Cell</div>
+        <div style="color: #64748b; font-size: 14px;">↓</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">h₁</div>
+    </div>
+    
+    <!-- Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 16px; margin: 0 10px; align-self: center;">→</div>
+    
+    <!-- Step 2 -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">x₂</div>
+        <div style="color: #64748b; font-size: 14px;">↓</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">RNN Cell</div>
+        <div style="color: #64748b; font-size: 14px;">↓</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">h₂</div>
+    </div>
+    
+    <!-- Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 16px; margin: 0 10px; align-self: center;">→</div>
+    
+    <!-- Step 3 -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">x₃</div>
+        <div style="color: #64748b; font-size: 14px;">↓</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">RNN Cell</div>
+        <div style="color: #64748b; font-size: 14px;">↓</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">h₃</div>
+    </div>
+</div>
 
 ### LSTM (Long Short-Term Memory)
 - **Concept**: Introduces a constant error carousel via cell state $\mathbf{c}_t$, gated by three Sigmoid activations:

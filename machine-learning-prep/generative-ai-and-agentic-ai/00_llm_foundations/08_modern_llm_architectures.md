@@ -6,27 +6,27 @@ This study guide trace the chronological engineering evolution of Large Language
 
 ## 1. Timeline of Architectural Evolutions
 
-```mermaid
-graph TD
-    GPT["GPT (Decoder)"] --> BERT["BERT (Encoder)"]
-    BERT --> T5["T5 (Enc-Dec)"]
-    T5 --> Llama["Llama (RMSNorm/SwiGLU)"]
-    Llama --> Mistral["Mistral (Sliding Window)"]
-    Mistral --> Mixtral["Mixtral (MoE Route)"]
-    Mixtral --> Gemma["Gemma (GeGLU)"]
-    Gemma --> Qwen["Qwen (MQA Ext)"]
-    Qwen --> DeepSeek["DeepSeek (MLA/MoE)"]
-
-    style GPT fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style BERT fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style T5 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
-    style Llama fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style Mistral fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style Mixtral fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
-    style Gemma fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style Qwen fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style DeepSeek fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46,font-weight:bold
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; line-height: 2.2;">
+        <span style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">GPT (Decoder)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">BERT (Encoder)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">T5 (Enc-Dec)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">Llama (RMSNorm/SwiGLU)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">Mistral (Sliding Window)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">Mixtral (MoE Route)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">Gemma (GeGLU)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600;">Qwen (MQA Ext)</span>
+        <span style="color: #94a3b8; font-weight: bold;">→</span>
+        <span style="background-color: #ecfdf5; color: #065f46; border: 2px solid #059669; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold;">DeepSeek (MLA/MoE)</span>
+    </div>
+</div>
 
 ---
 

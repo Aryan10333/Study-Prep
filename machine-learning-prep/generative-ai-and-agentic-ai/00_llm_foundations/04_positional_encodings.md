@@ -12,19 +12,23 @@ Because the Self-Attention mechanism computes dot product similarities across al
 
 ## 2. Positional Representation Paradigms
 
-```mermaid
-graph TD
-    PE["Positional Encodings"] --> AP["Absolute Position"]
-    PE --> RP["Relative Position"]
-    AP --> Sin["Sinusoidal (Static)"]
-    AP --> Lrn["Learned Embeddings"]
-    RP --> ALiBi["Attention Biases (ALiBi)"]
-    RP --> RoPE["Rotary Embeddings (RoPE)"]
-
-    style PE fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af,font-weight:bold
-    style AP fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
-    style RP fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <div style="background-color: #eff6ff; color: #1e40af; border: 2px solid #2563eb; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 13px; text-align: center; width: fit-content;">Positional Encodings</div>
+    <div style="display: flex; gap: 30px; width: 100%; justify-content: center;">
+        <!-- Left Side: Absolute -->
+        <div style="flex: 1; max-width: 250px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; align-items: center; border-top: 3px solid #7c3aed;">
+            <div style="color: #5b21b6; font-weight: bold; font-size: 12px;">Absolute Position</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center;">Sinusoidal (Static)</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center;">Learned Embeddings</div>
+        </div>
+        <!-- Right Side: Relative -->
+        <div style="flex: 1; max-width: 250px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; align-items: center; border-top: 3px solid #059669;">
+            <div style="color: #065f46; font-weight: bold; font-size: 12px;">Relative Position</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center;">Attention Biases (ALiBi)</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center;">Rotary Embeddings (RoPE)</div>
+        </div>
+    </div>
+</div>
 
 ### Absolute Positional Encoding (Sinusoidal)
 - **Concept**: Adds fixed, deterministic sinusoidal coordinates directly to the input embedding:
