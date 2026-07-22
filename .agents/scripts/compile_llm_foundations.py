@@ -89,47 +89,61 @@ def compile_master_guide():
     body_content = "\n".join(modules_html)
 
     full_html = f"""<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>LLM Foundations Master Study Guide</title>
     <!-- Load KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {{
-            renderMathInElement(document.body, {{
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {{
                 delimiters: [
-                    {{left: "$$", right: "$$", display: true}},
-                    {{left: "$", right: "$", display: false}}
+                    {{left: '$$', right: '$$', display: true}},
+                    {{left: '$', right: '$', display: false}}
                 ]
-            }});
-        }});
-    </script>
+            }});"></script>
     <style>
+        @page {{
+            size: A4;
+            margin: 18mm 15mm 18mm 15mm;
+        }}
         body {{
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #0f172a;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-size: 13px;
             line-height: 1.6;
-            font-size: 14px;
-            padding: 40px;
-            max-width: 900px;
-            margin: 0 auto;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
         }}
-        h1, h2, h3, h4 {{
+        h1 {{
+            font-size: 22px;
             color: #0f172a;
-            font-weight: 700;
-            margin-top: 24px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
+            margin-top: 24px;
+            margin-bottom: 14px;
         }}
-        h1 {{ font-size: 24px; }}
-        h2 {{ font-size: 20px; }}
-        h3 {{ font-size: 16px; }}
+        h2 {{
+            font-size: 17px;
+            color: #1e40af;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }}
+        h3 {{
+            font-size: 15px;
+            color: #0369a1;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }}
         
-        p {{ margin-bottom: 14px; }}
+        p, li {{
+            color: #334155;
+            margin-bottom: 8px;
+        }}
         
         code {{
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
@@ -177,7 +191,85 @@ def compile_master_guide():
         span.linenos {{ color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }}
         td.linenos .special {{ color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }}
         span.linenos.special {{ color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }}
-        {pygments_css}
+        .codehilite .hll {{ background-color: #49483e }}
+        .codehilite {{ background: #272822; color: #f8f8f2 }}
+        .codehilite .c {{ color: #75715e }} /* Comment */
+        .codehilite .err {{ color: #960050; background-color: #1e0010 }} /* Error */
+        .codehilite .esc {{ color: #f8f8f2 }} /* Escape */
+        .codehilite .g {{ color: #f8f8f2 }} /* Generic */
+        .codehilite .k {{ color: #66d9ef }} /* Keyword */
+        .codehilite .l {{ color: #ae81ff }} /* Literal */
+        .codehilite .n {{ color: #f8f8f2 }} /* Name */
+        .codehilite .o {{ color: #f92672 }} /* Operator */
+        .codehilite .x {{ color: #f8f8f2 }} /* Other */
+        .codehilite .p {{ color: #f8f8f2 }} /* Punctuation */
+        .codehilite .ch {{ color: #75715e }} /* Comment.Hashbang */
+        .codehilite .cm {{ color: #75715e }} /* Comment.Multiline */
+        .codehilite .cp {{ color: #75715e }} /* Comment.Preproc */
+        .codehilite .cpf {{ color: #75715e }} /* Comment.PreprocFile */
+        .codehilite .c1 {{ color: #75715e }} /* Comment.Single */
+        .codehilite .cs {{ color: #75715e }} /* Comment.Special */
+        .codehilite .gd {{ color: #f92672 }} /* Generic.Deleted */
+        .codehilite .ge {{ color: #f8f8f2; font-style: italic }} /* Generic.Emph */
+        .codehilite .gr {{ color: #f8f8f2 }} /* Generic.Error */
+        .codehilite .gh {{ color: #f8f8f2 }} /* Generic.Heading */
+        .codehilite .gi {{ color: #a6e22e }} /* Generic.Inserted */
+        .codehilite .go {{ color: #66d9ef }} /* Generic.Output */
+        .codehilite .gp {{ color: #f92672; font-weight: bold }} /* Generic.Prompt */
+        .codehilite .gs {{ color: #f8f8f2; font-weight: bold }} /* Generic.Strong */
+        .codehilite .gu {{ color: #75715e }} /* Generic.Subheading */
+        .codehilite .gt {{ color: #f8f8f2 }} /* Generic.Traceback */
+        .codehilite .kc {{ color: #66d9ef }} /* Keyword.Constant */
+        .codehilite .kd {{ color: #66d9ef }} /* Keyword.Declaration */
+        .codehilite .kn {{ color: #f92672 }} /* Keyword.Namespace */
+        .codehilite .kp {{ color: #66d9ef }} /* Keyword.Pseudo */
+        .codehilite .kr {{ color: #66d9ef }} /* Keyword.Reserved */
+        .codehilite .kt {{ color: #66d9ef }} /* Keyword.Type */
+        .codehilite .ld {{ color: #e6db74 }} /* Literal.Date */
+        .codehilite .m {{ color: #ae81ff }} /* Literal.Number */
+        .codehilite .s {{ color: #e6db74 }} /* Literal.String */
+        .codehilite .na {{ color: #a6e22e }} /* Name.Attribute */
+        .codehilite .nb {{ color: #f8f8f2 }} /* Name.Builtin */
+        .codehilite .nc {{ color: #a6e22e }} /* Name.Class */
+        .codehilite .no {{ color: #66d9ef }} /* Name.Constant */
+        .codehilite .nd {{ color: #a6e22e }} /* Name.Decorator */
+        .codehilite .ni {{ color: #f8f8f2 }} /* Name.Entity */
+        .codehilite .ne {{ color: #a6e22e }} /* Name.Exception */
+        .codehilite .nf {{ color: #a6e22e }} /* Name.Function */
+        .codehilite .nl {{ color: #f8f8f2 }} /* Name.Label */
+        .codehilite .nn {{ color: #f8f8f2 }} /* Name.Namespace */
+        .codehilite .nx {{ color: #a6e22e }} /* Name.Other */
+        .codehilite .py {{ color: #f8f8f2 }} /* Name.Property */
+        .codehilite .nt {{ color: #f92672 }} /* Name.Tag */
+        .codehilite .nv {{ color: #f8f8f2 }} /* Name.Variable */
+        .codehilite .ow {{ color: #f92672 }} /* Operator.Word */
+        .codehilite .pm {{ color: #f8f8f2 }} /* Punctuation.Marker */
+        .codehilite .w {{ color: #f8f8f2 }} /* Text.Whitespace */
+        .codehilite .mb {{ color: #ae81ff }} /* Literal.Number.Bin */
+        .codehilite .mf {{ color: #ae81ff }} /* Literal.Number.Float */
+        .codehilite .mh {{ color: #ae81ff }} /* Literal.Number.Hex */
+        .codehilite .mi {{ color: #ae81ff }} /* Literal.Number.Integer */
+        .codehilite .mo {{ color: #ae81ff }} /* Literal.Number.Oct */
+        .codehilite .sa {{ color: #e6db74 }} /* Literal.String.Affix */
+        .codehilite .sb {{ color: #e6db74 }} /* Literal.String.Backtick */
+        .codehilite .sc {{ color: #e6db74 }} /* Literal.String.Char */
+        .codehilite .dl {{ color: #e6db74 }} /* Literal.String.Delimiter */
+        .codehilite .sd {{ color: #e6db74 }} /* Literal.String.Doc */
+        .codehilite .s2 {{ color: #e6db74 }} /* Literal.String.Double */
+        .codehilite .se {{ color: #ae81ff }} /* Literal.String.Escape */
+        .codehilite .sh {{ color: #e6db74 }} /* Literal.String.Heredoc */
+        .codehilite .si {{ color: #e6db74 }} /* Literal.String.Interpol */
+        .codehilite .sx {{ color: #e6db74 }} /* Literal.String.Other */
+        .codehilite .sr {{ color: #e6db74 }} /* Literal.String.Regex */
+        .codehilite .s1 {{ color: #e6db74 }} /* Literal.String.Single */
+        .codehilite .ss {{ color: #e6db74 }} /* Literal.String.Symbol */
+        .codehilite .bp {{ color: #f8f8f2 }} /* Name.Builtin.Pseudo */
+        .codehilite .fm {{ color: #a6e22e }} /* Name.Function.Magic */
+        .codehilite .vc {{ color: #f8f8f2 }} /* Name.Variable.Class */
+        .codehilite .vg {{ color: #f8f8f2 }} /* Name.Variable.Global */
+        .codehilite .vi {{ color: #f8f8f2 }} /* Name.Variable.Instance */
+        .codehilite .vm {{ color: #f8f8f2 }} /* Name.Variable.Magic */
+        .codehilite .il {{ color: #ae81ff }} /* Literal.Number.Integer.Long */
 
         /* Prevent white background artifacts and dark text inside code blocks */
         .codehilite, 
@@ -239,12 +331,34 @@ def compile_master_guide():
         Part 1: LLM Foundations: From NLP to Transformer Infrastructures
     </h1>
     <h2 style="font-size: 20px; color: #3b82f6; font-weight: 500; margin-bottom: 40px; border: none;">
-        Comprehensive Technical & Mathematical Study Guide
+        Comprehensive Production & Mathematical Study Guide
     </h2>
     <hr style="border: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); width: 35%; margin: 30px auto; border-radius: 2px;" />
-    <p style="font-size: 14px; color: #64748b; margin-top: 40px;">
-        Curated Study Guide Covering Evolution of NLP, Transformer Layers, Attention Math, Caching, Tokenization, and LLM Inference Pipelines.
-    </p>
+    
+    <div style="margin-top: 60px; font-size: 14px; color: #475569; line-height: 1.8;">
+        <p><b>Target Persona:</b> Senior AI Engineer / Applied AI Engineer (~3 YOE)</p>
+        <p><b>Core Modules:</b> Evolution of NLP, Transformer Layers, Attention Math, Caching, Tokenization, LLM Architectures, Scaling & MoE, Limitations, Serving & Optimization</p>
+        <p><b>Includes:</b> 11 Essential Formulas, Complexity Analyses, GFM Tables with Boundaries, Monokai Code Highlighting, PyTorch Code, Standardized Interview Q&A</p>
+    </div>
+</div>
+
+<div class="toc-page" style="page-break-after: always; padding-top: 20px;">
+    <h1 style="color: #0f172a; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">Table of Contents</h1>
+    <ul style="list-style-type: none; padding-left: 0; margin-top: 20px;">
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-01-evolution-of-nlp-from-bow-to-transformers" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 01: Evolution of NLP: From BoW to Transformers</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-02-transformer-architecture" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 02: Transformer Architecture</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-03-self-attention-deep-dive" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 03: Self-Attention Deep Dive</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-04-positional-encodings" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 04: Positional Encodings</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-05-tokenization-and-embeddings" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 05: Tokenization and Embeddings</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-06-context-window-and-kv-cache" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 06: Context Window and KV Cache</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-07-decoding-strategies" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 07: Decoding Strategies</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-08-modern-llm-architectures" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 08: Modern LLM Architectures</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-09-scaling-laws-and-moe" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 09: Scaling Laws and Mixture of Experts (MoE)</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-10-llm-limitations" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 10: LLM Limitations</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-11-llm-inference-pipeline" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 11: LLM Inference Pipeline</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-12-llm-foundations-master-interview-prep-cheatsheet" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 12: LLM Foundations Master Interview Prep & Cheatsheet</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-13-llm-foundations-interview-questions-answers" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 13: LLM Foundations Interview Questions & Answers</a></li>
+    </ul>
 </div>
 
 {body_content}
@@ -279,3 +393,4 @@ def compile_master_guide():
 
 if __name__ == "__main__":
     compile_master_guide()
+

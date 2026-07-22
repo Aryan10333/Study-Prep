@@ -44,9 +44,29 @@ During compilation, Markdown parsers can corrupt LaTeX syntax and code formats. 
    }
    ```
 
+## 3. Standard A4 Design System (from NLP Master Guide)
+
+The compiled guide must use the standardized NLP master guide CSS and layout structure:
+- **Page Dimensions**: Enforce standard A4 size with explicit margins:
+  ```css
+  @page {
+      size: A4;
+      margin: 18mm 15mm 18mm 15mm;
+  }
+  ```
+- **Typography & Colors**:
+  - Font: `'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif`
+  - Font Size: `13px` base text size with `1.6` line height
+  - Base Text Color: `#1e293b`
+  - Header 1 Color: `#0f172a` with a `#3b82f6` blue bottom border
+  - Header 2 Color: `#1e40af` with a `#e2e8f0` light grey bottom border
+  - Header 3 Color: `#0369a1`
+- **Cover Page Elements**: Include a metadata box detailing the target persona, core modules covered, and inclusion checklists (e.g. formulas, PyTorch code, Q&As).
+- **Table of Contents Page**: Inject a dedicated Table of Contents page (`<div class="toc-page" style="page-break-after: always; padding-top: 20px;">`) with dashed-underlined lists linking to each module anchor.
+
 ---
 
-## 3. PDF Generation via Headless Microsoft Edge
+## 4. PDF Generation via Headless Microsoft Edge
 
 Standard print engines often misalign KaTeX CSS layouts. To ensure perfect printing alignment, run headless Microsoft Edge to render HTML directly to PDF:
 
@@ -69,7 +89,9 @@ subprocess.run(cmd, capture_output=True, text=True)
 
 ---
 
-## 4. Verification Check
-- Verify that a cover page with center alignment and gradient borders is present at the front of the PDF.
+## 5. Verification Check
+- Verify that a cover page with center alignment, gradient borders, and the target persona box is present.
+- Check that a Table of Contents page is compiled immediately following the cover page.
 - Check that page breaks occur cleanly before each new module container.
 - Ensure that KaTeX math renders correctly on the generated PDF pages.
+
