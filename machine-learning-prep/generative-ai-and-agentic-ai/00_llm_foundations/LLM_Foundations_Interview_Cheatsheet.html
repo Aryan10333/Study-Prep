@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>LLM Foundations Master Study Guide</title>
+    <!-- Load KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            line-height: 1.6;
+            font-size: 14px;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2, h3, h4 {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+        h1 { font-size: 24px; }
+        h2 { font-size: 20px; }
+        h3 { font-size: 16px; }
+        
+        p { margin-bottom: 14px; }
+        
+        code {
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* Table Styling with Strict Cell Boundaries */
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 16px 0 !important;
+            font-size: 11.5px !important;
+            border: 1.5px solid #64748b !important;
+            page-break-inside: auto;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        th {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 700 !important;
+            border: 1.5px solid #475569 !important;
+            padding: 8px 10px !important;
+            text-align: left !important;
+        }
+        td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 7px 10px !important;
+            text-align: left !important;
+            vertical-align: top !important;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+        }
+
+        /* Pygments Code Syntax Highlighting Theme (Monokai Dark) */
+        pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #49483e }
+.codehilite { background: #272822; color: #F8F8F2 }
+.codehilite .c { color: #959077 } /* Comment */
+.codehilite .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.codehilite .esc { color: #F8F8F2 } /* Escape */
+.codehilite .g { color: #F8F8F2 } /* Generic */
+.codehilite .k { color: #66D9EF } /* Keyword */
+.codehilite .l { color: #AE81FF } /* Literal */
+.codehilite .n { color: #F8F8F2 } /* Name */
+.codehilite .o { color: #FF4689 } /* Operator */
+.codehilite .x { color: #F8F8F2 } /* Other */
+.codehilite .p { color: #F8F8F2 } /* Punctuation */
+.codehilite .ch { color: #959077 } /* Comment.Hashbang */
+.codehilite .cm { color: #959077 } /* Comment.Multiline */
+.codehilite .cp { color: #959077 } /* Comment.Preproc */
+.codehilite .cpf { color: #959077 } /* Comment.PreprocFile */
+.codehilite .c1 { color: #959077 } /* Comment.Single */
+.codehilite .cs { color: #959077 } /* Comment.Special */
+.codehilite .gd { color: #FF4689 } /* Generic.Deleted */
+.codehilite .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F8F8F2 } /* Generic.Error */
+.codehilite .gh { color: #F8F8F2 } /* Generic.Heading */
+.codehilite .gi { color: #A6E22E } /* Generic.Inserted */
+.codehilite .go { color: #66D9EF } /* Generic.Output */
+.codehilite .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #959077 } /* Generic.Subheading */
+.codehilite .gt { color: #F8F8F2 } /* Generic.Traceback */
+.codehilite .kc { color: #66D9EF } /* Keyword.Constant */
+.codehilite .kd { color: #66D9EF } /* Keyword.Declaration */
+.codehilite .kn { color: #FF4689 } /* Keyword.Namespace */
+.codehilite .kp { color: #66D9EF } /* Keyword.Pseudo */
+.codehilite .kr { color: #66D9EF } /* Keyword.Reserved */
+.codehilite .kt { color: #66D9EF } /* Keyword.Type */
+.codehilite .ld { color: #E6DB74 } /* Literal.Date */
+.codehilite .m { color: #AE81FF } /* Literal.Number */
+.codehilite .s { color: #E6DB74 } /* Literal.String */
+.codehilite .na { color: #A6E22E } /* Name.Attribute */
+.codehilite .nb { color: #F8F8F2 } /* Name.Builtin */
+.codehilite .nc { color: #A6E22E } /* Name.Class */
+.codehilite .no { color: #66D9EF } /* Name.Constant */
+.codehilite .nd { color: #A6E22E } /* Name.Decorator */
+.codehilite .ni { color: #F8F8F2 } /* Name.Entity */
+.codehilite .ne { color: #A6E22E } /* Name.Exception */
+.codehilite .nf { color: #A6E22E } /* Name.Function */
+.codehilite .nl { color: #F8F8F2 } /* Name.Label */
+.codehilite .nn { color: #F8F8F2 } /* Name.Namespace */
+.codehilite .nx { color: #A6E22E } /* Name.Other */
+.codehilite .py { color: #F8F8F2 } /* Name.Property */
+.codehilite .nt { color: #FF4689 } /* Name.Tag */
+.codehilite .nv { color: #F8F8F2 } /* Name.Variable */
+.codehilite .ow { color: #FF4689 } /* Operator.Word */
+.codehilite .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.codehilite .w { color: #F8F8F2 } /* Text.Whitespace */
+.codehilite .mb { color: #AE81FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #AE81FF } /* Literal.Number.Float */
+.codehilite .mh { color: #AE81FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #AE81FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #AE81FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #E6DB74 } /* Literal.String.Affix */
+.codehilite .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.codehilite .sc { color: #E6DB74 } /* Literal.String.Char */
+.codehilite .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #E6DB74 } /* Literal.String.Doc */
+.codehilite .s2 { color: #E6DB74 } /* Literal.String.Double */
+.codehilite .se { color: #AE81FF } /* Literal.String.Escape */
+.codehilite .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.codehilite .si { color: #E6DB74 } /* Literal.String.Interpol */
+.codehilite .sx { color: #E6DB74 } /* Literal.String.Other */
+.codehilite .sr { color: #E6DB74 } /* Literal.String.Regex */
+.codehilite .s1 { color: #E6DB74 } /* Literal.String.Single */
+.codehilite .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.codehilite .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #A6E22E } /* Name.Function.Magic */
+.codehilite .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.codehilite .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.codehilite .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.codehilite .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.codehilite .il { color: #AE81FF } /* Literal.Number.Integer.Long */
+
+        /* Prevent white background artifacts and dark text inside code blocks */
+        .codehilite, 
+        .codehilite pre, 
+        .codehilite code, 
+        .codehilite span,
+        .codehilite div,
+        .codehilite pre span,
+        .codehilite pre code {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+        }
+
+        .codehilite {
+            background-color: #0f172a !important;
+            border-radius: 6px !important;
+            padding: 12px 14px !important;
+            margin: 14px 0 !important;
+            overflow-x: auto !important;
+            border: 1px solid #334155 !important;
+        }
+        .codehilite pre {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        blockquote {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            margin: 12px 0;
+            padding: 8px 14px;
+            color: #1e40af;
+            border-radius: 0 4px 4px 0;
+        }
+        .katex-display {
+            margin: 14px 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .module-container {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+<h1 id="module-12-llm-foundations-master-interview-prep-cheatsheet">Module 12: LLM Foundations Master Interview Prep &amp; Cheatsheet</h1>
+<p>This module consolidates all formulas, computational complexities, and model architecture trade-offs from the LLM Foundations curriculum into a single master study guide for Machine Learning and AI Engineer interviews.</p>
+<hr />
+<h2 id="1-master-formula-sheet">1. Master Formula Sheet</h2>
+<h3 id="1-tf-idf-weights">1. TF-IDF Weights</h3>
+<p>$$\text{TF-IDF}(t, d, D) = \frac{f_{t,d}}{\sum_{t'} f_{t',d}} \times \log \left( \frac{|D|}{1 + |\{d' \in D : t \in d'\}|} \right)$$</p>
+<h3 id="2-word2vec-negative-sampling-sgns-loss">2. Word2Vec Negative Sampling (SGNS) Loss</h3>
+<p>$$\mathcal{L}_{\text{SGNS}} = -\log \sigma(\mathbf{v}'^T_{w_O} \mathbf{v}_{w_I}) - \sum_{i=1}^{k} \log \sigma(-\mathbf{v}'^T_{w_i} \mathbf{v}_{w_I})$$</p>
+<h3 id="3-bahdanau-additive-attention">3. Bahdanau (Additive) Attention</h3>
+<p>$$e_{i,j} = \mathbf{v}_a^T \tanh(\mathbf{W}_a \mathbf{s}_{i-1} + \mathbf{U}_a \mathbf{h}_j), \quad \alpha_{i,j} = \frac{\exp(e_{i,j})}{\sum_k \exp(e_{i,k})}, \quad \mathbf{c}_i = \sum_{j} \alpha_{i,j} \mathbf{h}_j$$</p>
+<h3 id="4-root-mean-square-normalization-rmsnorm">4. Root Mean Square Normalization (RMSNorm)</h3>
+<p>$$\text{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\text{RMS}(\mathbf{x})} \odot \boldsymbol{\gamma}, \quad \text{where } \text{RMS}(\mathbf{x}) = \sqrt{\frac{1}{d} \sum_{i=1}^{d} x_i^2 + \epsilon}$$</p>
+<h3 id="5-swiglu-gated-activation">5. SwiGLU Gated Activation</h3>
+<p>$$\text{SwiGLU}(\mathbf{x}) = \left( \text{Swish}(\mathbf{x} \mathbf{W}_1) \odot \mathbf{x} \mathbf{W}_2 \right) \mathbf{W}_3, \quad \text{where } \text{Swish}(a) = \frac{a}{1 + e^{-a}}$$</p>
+<h3 id="6-scaled-dot-product-attention">6. Scaled Dot-Product Attention</h3>
+<p>$$\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Softmax}\left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d_k}} \right) \mathbf{V}$$</p>
+<h3 id="7-rotary-positional-embeddings-rope-2d-slice">7. Rotary Positional Embeddings (RoPE 2D Slice)</h3>
+<p>$$\mathbf{R}_{\Theta, m}^2 \mathbf{x} = \begin{bmatrix} \cos m\theta & -\sin m\theta \\ \sin m\theta & \cos m\theta \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}$$</p>
+<h3 id="8-attention-with-linear-biases-alibi">8. Attention with Linear Biases (ALiBi)</h3>
+<p>$$a_{i,j} = \text{Softmax}\left( \frac{\mathbf{q}_i \mathbf{k}_j^T}{\sqrt{d_k}} - m \cdot |i - j| \right)$$</p>
+<h3 id="9-kv-cache-vram-size-fp16-precision">9. KV Cache VRAM Size (FP16 Precision)</h3>
+<p>$$\text{KV Cache VRAM Size} = 2 \times 2 \times b \times n_{\text{layers}} \times n_{\text{heads\_kv}} \times d_{\text{head}} \times s_{\text{len}} \text{ bytes}$$</p>
+<h3 id="10-chinchilla-scaling-compute-optimal-training">10. Chinchilla Scaling Compute-Optimal Training</h3>
+<p>$$D \approx 20 \cdot N, \quad C \approx 6ND \text{ FLOPS}$$</p>
+<h3 id="11-perplexity-ppl">11. Perplexity (PPL)</h3>
+<p>$$\text{PPL}(X) = \exp \left( -\frac{1}{L} \sum_{t=1}^{L} \log P(x_t | x_{<t}) \right)$$</p>
+<hr />
+<h2 id="2-master-computational-complexity-sheet">2. Master Computational Complexity Sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Layer / Model Operation</th>
+<th>Time Complexity</th>
+<th>VRAM Space Complexity</th>
+<th>Parallelizability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RNN Sequence Step</strong></td>
+<td>$O(L \cdot d^2)$</td>
+<td>$O(L \cdot d)$</td>
+<td>Sequential ($O(L)$ latency)</td>
+</tr>
+<tr>
+<td><strong>Self-Attention block</strong></td>
+<td>$O(L^2 \cdot d + L \cdot d^2)$</td>
+<td>$O(L^2 \cdot h + L \cdot d)$</td>
+<td>Fully parallel ($O(1)$ latency)</td>
+</tr>
+<tr>
+<td><strong>KV Cache Decoding Step</strong></td>
+<td>$O(L \cdot d + d^2)$</td>
+<td>$O(b \cdot L \cdot d)$</td>
+<td>Sequential (memory-bandwidth bound)</td>
+</tr>
+<tr>
+<td><strong>BPE Encoding Lookup</strong></td>
+<td>$O(L \cdot \log |V|)$</td>
+<td>$O(|V|)$</td>
+<td>Parallelizable</td>
+</tr>
+<tr>
+<td><strong>Top-p Nucleus Sort</strong></td>
+<td>$O(|V| \cdot \log |V|)$</td>
+<td>$O(|V|)$</td>
+<td>Non-parallelizable</td>
+</tr>
+<tr>
+<td><strong>FlashAttention Forward</strong></td>
+<td>$O(L^2 \cdot d)$</td>
+<td>$O(L \cdot d)$ (HBM writes reduced)</td>
+<td>Fully parallel (high MFU cache tiling)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-evolutionary-architectures-matrix">3. Evolutionary Architectures Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>GQA</th>
+<th>RMSNorm</th>
+<th>SwiGLU</th>
+<th>Positional Encoding</th>
+<th>Key Innovation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPT-3</strong></td>
+<td>No</td>
+<td>No (LayerNorm)</td>
+<td>No (GELU)</td>
+<td>Learned Absolute</td>
+<td>Decoders scale to 175B</td>
+</tr>
+<tr>
+<td><strong>BERT</strong></td>
+<td>No</td>
+<td>No (LayerNorm)</td>
+<td>No (GELU)</td>
+<td>Learned Absolute</td>
+<td>Bidirectional MLM encoding</td>
+</tr>
+<tr>
+<td><strong>T5</strong></td>
+<td>No</td>
+<td>No (LayerNorm)</td>
+<td>No (ReLU)</td>
+<td>Relative Bias</td>
+<td>Unified Text-to-Text format</td>
+</tr>
+<tr>
+<td><strong>Llama-3</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Rotary (RoPE)</td>
+<td>Pre-normalization stability</td>
+</tr>
+<tr>
+<td><strong>Mistral</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Rotary (RoPE)</td>
+<td>Sliding Window Attention</td>
+</tr>
+<tr>
+<td><strong>DeepSeek</strong></td>
+<td>MLA</td>
+<td>Yes</td>
+<td>Yes (MoE)</td>
+<td>Rotary (RoPE)</td>
+<td>Latent Attention / Multi-token prediction</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-interview-questions-production-trade-offs">4. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Consolidates theoretical ML math intuition, complexity tables, and system bottlenecks into a single quick-reference sheet to enable rapid interview revision.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Cracking high-level AI Engineer interviews requires connecting algorithmic choices (e.g. BPE vs WordPiece, GQA vs MHA) directly to production system constraints (VRAM, memory bandwidth, latency).</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Cheatsheets summarize formulas and complexity classes, but cannot replace code-level debugging intuition (e.g., verifying PyTorch tensor sizes and gradients).</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Time Complexity</strong>: $O(1)$ lookup reference.</li>
+<li><strong>Memory Complexity</strong>: $O(1)$ space.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$N$: Parameter count.</li>
+<li>$L$: Sequence token length.</li>
+<li>$|V|$: Vocabulary size.</li>
+<li>$d$: Hidden model dimension size.</li>
+<li>$b$: Batch size.</li>
+<li>$n_{\text{layers}}$: Transformer layer count.</li>
+<li>$n_{\text{heads\_kv}}$: Key-Value heads count.</li>
+<li>$d_{\text{head}}$: Dimension per attention head ($d/h$).</li>
+<li>$C$: Total FLOPS compute budget.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Estimating cluster VRAM requirements during deployment scaling meetings.</li>
+<li>Structuring algorithmic justifications for architectural choices in engineering design reviews.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does the backward pass of a parameter cost twice as much compute ($4N$) as the forward pass ($2N$) during LLM training?</em><br />
+   - <strong>Answer</strong>: The forward pass requires one matrix multiplication per layer to project inputs ($2N$ operations). The backward pass requires two separate matrix multiplications: one to calculate the gradients of the loss with respect to activations of the layer (for backpropagation down the stack), and a second to calculate the gradients of the loss with respect to the layer weights (to update parameters), resulting in $4N$ operations ($2 \times 2N$).</li>
+<li><em>Describe the exact mathematical relationship between Perplexity and Cross-Entropy Loss.</em><br />
+   - <strong>Answer</strong>: Perplexity is the exponentiated average cross-entropy loss: $\text{PPL} = e^{H(X)}$. If a model predicts tokens uniformly at random over a vocabulary of size $|V|$, its cross-entropy loss is $\log |V|$, and its perplexity is $e^{\log |V|} = |V|$. A lower loss scales perplexity down toward $1.0$, indicating absolute certainty.</li>
+<li><em>Why does memory-bandwidth bound decode processing cause low GPU utilization (low SM occupancy) during single-user LLM inference?</em><br />
+   - <strong>Answer</strong>: Standard GPUs are optimized for massive parallel floating-point computation (high FLOPS). During single-user decoding, only a single token is generated per step. The GPU must load gigabytes of weights from HBM to SRAM for that single token. Since memory transfer speed is orders of magnitude slower than tensor core compute speed, the GPU execution units sit idle waiting for memory loads, leading to extremely low compute core utilization ($5\% - 15\%$).</li>
+</ol>
+</body>
+</html>

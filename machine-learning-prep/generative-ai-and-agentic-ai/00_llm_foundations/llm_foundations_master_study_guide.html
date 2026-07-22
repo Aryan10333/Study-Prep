@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>LLM Foundations Master Study Guide</title>
+    <!-- Load KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            line-height: 1.6;
+            font-size: 14px;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2, h3, h4 {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+        h1 { font-size: 24px; }
+        h2 { font-size: 20px; }
+        h3 { font-size: 16px; }
+        
+        p { margin-bottom: 14px; }
+        
+        code {
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* Table Styling with Strict Cell Boundaries */
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 16px 0 !important;
+            font-size: 11.5px !important;
+            border: 1.5px solid #64748b !important;
+            page-break-inside: auto;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        th {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 700 !important;
+            border: 1.5px solid #475569 !important;
+            padding: 8px 10px !important;
+            text-align: left !important;
+        }
+        td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 7px 10px !important;
+            text-align: left !important;
+            vertical-align: top !important;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+        }
+
+        /* Pygments Code Syntax Highlighting Theme (Monokai Dark) */
+        pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #49483e }
+.codehilite { background: #272822; color: #F8F8F2 }
+.codehilite .c { color: #959077 } /* Comment */
+.codehilite .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.codehilite .esc { color: #F8F8F2 } /* Escape */
+.codehilite .g { color: #F8F8F2 } /* Generic */
+.codehilite .k { color: #66D9EF } /* Keyword */
+.codehilite .l { color: #AE81FF } /* Literal */
+.codehilite .n { color: #F8F8F2 } /* Name */
+.codehilite .o { color: #FF4689 } /* Operator */
+.codehilite .x { color: #F8F8F2 } /* Other */
+.codehilite .p { color: #F8F8F2 } /* Punctuation */
+.codehilite .ch { color: #959077 } /* Comment.Hashbang */
+.codehilite .cm { color: #959077 } /* Comment.Multiline */
+.codehilite .cp { color: #959077 } /* Comment.Preproc */
+.codehilite .cpf { color: #959077 } /* Comment.PreprocFile */
+.codehilite .c1 { color: #959077 } /* Comment.Single */
+.codehilite .cs { color: #959077 } /* Comment.Special */
+.codehilite .gd { color: #FF4689 } /* Generic.Deleted */
+.codehilite .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F8F8F2 } /* Generic.Error */
+.codehilite .gh { color: #F8F8F2 } /* Generic.Heading */
+.codehilite .gi { color: #A6E22E } /* Generic.Inserted */
+.codehilite .go { color: #66D9EF } /* Generic.Output */
+.codehilite .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #959077 } /* Generic.Subheading */
+.codehilite .gt { color: #F8F8F2 } /* Generic.Traceback */
+.codehilite .kc { color: #66D9EF } /* Keyword.Constant */
+.codehilite .kd { color: #66D9EF } /* Keyword.Declaration */
+.codehilite .kn { color: #FF4689 } /* Keyword.Namespace */
+.codehilite .kp { color: #66D9EF } /* Keyword.Pseudo */
+.codehilite .kr { color: #66D9EF } /* Keyword.Reserved */
+.codehilite .kt { color: #66D9EF } /* Keyword.Type */
+.codehilite .ld { color: #E6DB74 } /* Literal.Date */
+.codehilite .m { color: #AE81FF } /* Literal.Number */
+.codehilite .s { color: #E6DB74 } /* Literal.String */
+.codehilite .na { color: #A6E22E } /* Name.Attribute */
+.codehilite .nb { color: #F8F8F2 } /* Name.Builtin */
+.codehilite .nc { color: #A6E22E } /* Name.Class */
+.codehilite .no { color: #66D9EF } /* Name.Constant */
+.codehilite .nd { color: #A6E22E } /* Name.Decorator */
+.codehilite .ni { color: #F8F8F2 } /* Name.Entity */
+.codehilite .ne { color: #A6E22E } /* Name.Exception */
+.codehilite .nf { color: #A6E22E } /* Name.Function */
+.codehilite .nl { color: #F8F8F2 } /* Name.Label */
+.codehilite .nn { color: #F8F8F2 } /* Name.Namespace */
+.codehilite .nx { color: #A6E22E } /* Name.Other */
+.codehilite .py { color: #F8F8F2 } /* Name.Property */
+.codehilite .nt { color: #FF4689 } /* Name.Tag */
+.codehilite .nv { color: #F8F8F2 } /* Name.Variable */
+.codehilite .ow { color: #FF4689 } /* Operator.Word */
+.codehilite .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.codehilite .w { color: #F8F8F2 } /* Text.Whitespace */
+.codehilite .mb { color: #AE81FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #AE81FF } /* Literal.Number.Float */
+.codehilite .mh { color: #AE81FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #AE81FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #AE81FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #E6DB74 } /* Literal.String.Affix */
+.codehilite .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.codehilite .sc { color: #E6DB74 } /* Literal.String.Char */
+.codehilite .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #E6DB74 } /* Literal.String.Doc */
+.codehilite .s2 { color: #E6DB74 } /* Literal.String.Double */
+.codehilite .se { color: #AE81FF } /* Literal.String.Escape */
+.codehilite .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.codehilite .si { color: #E6DB74 } /* Literal.String.Interpol */
+.codehilite .sx { color: #E6DB74 } /* Literal.String.Other */
+.codehilite .sr { color: #E6DB74 } /* Literal.String.Regex */
+.codehilite .s1 { color: #E6DB74 } /* Literal.String.Single */
+.codehilite .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.codehilite .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #A6E22E } /* Name.Function.Magic */
+.codehilite .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.codehilite .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.codehilite .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.codehilite .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.codehilite .il { color: #AE81FF } /* Literal.Number.Integer.Long */
+
+        /* Prevent white background artifacts and dark text inside code blocks */
+        .codehilite, 
+        .codehilite pre, 
+        .codehilite code, 
+        .codehilite span,
+        .codehilite div,
+        .codehilite pre span,
+        .codehilite pre code {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+        }
+
+        .codehilite {
+            background-color: #0f172a !important;
+            border-radius: 6px !important;
+            padding: 12px 14px !important;
+            margin: 14px 0 !important;
+            overflow-x: auto !important;
+            border: 1px solid #334155 !important;
+        }
+        .codehilite pre {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        blockquote {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            margin: 12px 0;
+            padding: 8px 14px;
+            color: #1e40af;
+            border-radius: 0 4px 4px 0;
+        }
+        .katex-display {
+            margin: 14px 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .module-container {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cover-page" style="text-align: center; padding-top: 140px; page-break-after: always;">
+    <div style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; margin-bottom: 20px;">
+        MACHINE LEARNING & GENAI INTERVIEW PREPARATION
+    </div>
+    <h1 style="font-size: 34px; color: #0f172a; margin-bottom: 12px; line-height: 1.25; border: none; padding: 0;">
+        Part 1: LLM Foundations: From NLP to Transformer Infrastructures
+    </h1>
+    <h2 style="font-size: 20px; color: #3b82f6; font-weight: 500; margin-bottom: 40px; border: none;">
+        Comprehensive Technical & Mathematical Study Guide
+    </h2>
+    <hr style="border: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); width: 35%; margin: 30px auto; border-radius: 2px;" />
+    <p style="font-size: 14px; color: #64748b; margin-top: 40px;">
+        Curated Study Guide Covering Evolution of NLP, Transformer Layers, Attention Math, Caching, Tokenization, and LLM Inference Pipelines.
+    </p>
+</div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-01-evolution-of-nlp-from-bow-to-transformers">Module 01: Evolution of NLP: From BoW to Transformers</h1>
+<p>This module traces the engineering evolution of Natural Language Processing (NLP) from rule-based engines to Large Language Models, detailing the core limitations of each generation and the architectural breakthroughs designed to solve them.</p>
+<hr />
+<h2 id="1-traditional-text-representations-bow-and-tf-idf">1. Traditional Text Representations: BoW and TF-IDF</h2>
+<h3 id="bag-of-words-bow">Bag of Words (BoW)</h3>
+<ul>
+<li><strong>Concept</strong>: Represents text as an unordered collection of token counts. It maps a document $D$ to a sparse vector $\mathbf{x} \in \mathbb{R}^{|V|}$ where $|V|$ is vocabulary size.</li>
+<li><strong>Limitation</strong>: Ignores word order (semantic structure) and syntax completely. Out-of-Vocabulary (OOV) tokens crash index tracking.</li>
+<li><strong>Complexity</strong>: $O(|V|)$ sparse vector storage.</li>
+</ul>
+<h3 id="tf-idf-term-frequency-inverse-document-frequency">TF-IDF (Term Frequency-Inverse Document Frequency)</h3>
+<ul>
+<li><strong>Concept</strong>: Weights token frequency by their document-level specificity to balance out common stop-words:<br />
+  $$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \text{IDF}(t, D)$$<br />
+  $$\text{TF}(t, d) = \frac{f_{t,d}}{\sum_{t' \in d} f_{t',d}}, \quad \text{IDF}(t, D) = \log \left( \frac{|D|}{1 + |\{d' \in D : t \in d'\}|} \right)$$</li>
+<li><strong>Limitation</strong>: While it highlights unique terms, it retains the orthogonal coordinate bottleneck of BoW—no native semantic similarity mapping is captured between related terms (e.g., <code>cat</code> and <code>kitten</code> remain orthogonal vectors).</li>
+</ul>
+<hr />
+<h2 id="2-distributed-static-embeddings-word2vec-glove-and-fasttext">2. Distributed Static Embeddings: Word2Vec, GloVe, and FastText</h2>
+<p>To represent semantic similarity, NLP transitioned to low-dimensional continuous dense vector spaces $\mathbb{R}^d$ where $d \ll |V|$ (typically $d \in [100, 300]$).</p>
+<h3 id="word2vec-skip-gram-with-negative-sampling-sgns">Word2Vec (Skip-Gram with Negative Sampling - SGNS)</h3>
+<p>Word2Vec learns static vectors using local context windows. Skip-Gram predicts context words $w_{t+j}$ given target word $w_t$.<br />
+- <strong>Objective Function</strong>: Enforces similarity of target-context dot products. Skip-Gram with Negative Sampling (SGNS) optimizes:<br />
+  $$\mathcal{L}_{\text{SGNS}} = -\log \sigma(\mathbf{v}'^T_{w_O} \mathbf{v}_{w_I}) - \sum_{i=1}^{k} \log \sigma(-\mathbf{v}'^T_{w_i} \mathbf{v}_{w_I})$$<br />
+  - $\mathbf{v}_{w_I}$: Input vector for the target word.<br />
+  - $\mathbf{v}'_{w_O}$: Output vector for the true context word.<br />
+  - $\mathbf{v}'_{w_i}$: Output vector for the $i$-th random negative sample.<br />
+  - $\sigma(x) = \frac{1}{1 + e^{-x}}$: Sigmoid function.</p>
+<h4 id="step-by-step-hand-calculation">Step-by-Step Hand Calculation</h4>
+<ul>
+<li><strong>Scenario</strong>: Let vocabulary $|V| = 4$ (<code>[the, cat, sat, mat]</code>).</li>
+<li><strong>Data</strong>: Input word $w_I = \text{'cat'}$, Context word $w_O = \text{'sat'}$. Let $k = 1$ negative sample $w_1 = \text{'mat'}$. Embedding dimension $d = 2$.</li>
+<li><strong>Given Weights</strong>:</li>
+<li>Target vector: $\mathbf{v}_{\text{cat}} = [0.5, -0.3]$</li>
+<li>Positive context vector: $\mathbf{v}'_{\text{sat}} = [0.8, 0.4]$</li>
+<li>Negative context vector: $\mathbf{v}'_{\text{mat}} = [-0.2, 0.9]$</li>
+<li><strong>Calculation</strong>:<br />
+  1. Calculate positive pair dot product:<br />
+     $$\mathbf{v}'^T_{\text{sat}} \mathbf{v}_{\text{cat}} = (0.8 \times 0.5) + (0.4 \times -0.3) = 0.40 - 0.12 = 0.28$$<br />
+  2. Calculate negative pair dot product:<br />
+     $$\mathbf{v}'^T_{\text{mat}} \mathbf{v}_{\text{cat}} = (-0.2 \times 0.5) + (0.9 \times -0.3) = -0.10 - 0.27 = -0.37$$<br />
+  3. Evaluate Sigmoids:<br />
+     $$\sigma(0.28) = \frac{1}{1 + e^{-0.28}} = \frac{1}{1 + 0.7558} = 0.5695$$<br />
+     $$\sigma(-(-0.37)) = \sigma(0.37) = \frac{1}{1 + e^{-0.37}} = \frac{1}{1 + 0.6907} = 0.5915$$<br />
+  4. Compute Loss:<br />
+     $$\mathcal{L} = -\log(0.5695) - \log(0.5915) = 0.5630 + 0.5251 = 1.0881$$</li>
+<li><strong>Production Limitations</strong>: Static vectors cannot resolve homophones or contextual variance. For example, <code>bank</code> has the exact same static vector in both <code>"river bank"</code> and <code>"bank deposit"</code>.</li>
+</ul>
+<h3 id="glove-global-vectors-for-word-representation">GloVe (Global Vectors for Word Representation)</h3>
+<ul>
+<li><strong>Concept</strong>: Integrates local window updates with global matrix factorization. It trains on global co-occurrence probability ratios to optimize:<br />
+  $$\mathcal{L} = \sum_{i,j=1}^{|V|} f(X_{i,j}) \left( \mathbf{w}_i^T \tilde{\mathbf{w}}_j + b_i + \tilde{b}_j - \log X_{i,j} \right)^2$$</li>
+</ul>
+<h3 id="fasttext">FastText</h3>
+<ul>
+<li><strong>Concept</strong>: Explores subword information by representing words as bags of character n-grams (e.g., <code>where</code> = <code>&lt;wh</code>, <code>whe</code>, <code>her</code>, <code>ere</code>, <code>re&gt;</code>).</li>
+<li><strong>Advantage</strong>: Handles Out-of-Vocabulary (OOV) words at runtime by summing constituent character n-gram vectors, resolving the OOV crash vector limitation.</li>
+</ul>
+<hr />
+<h2 id="3-sequence-models-rnn-lstm-gru-and-seq2seq">3. Sequence Models: RNN, LSTM, GRU, and Seq2Seq</h2>
+<p>To process variable-length sequential sentences, deep learning introduced recurrent sequence models.</p>
+<h3 id="rnn-recurrent-neural-networks">RNN (Recurrent Neural Networks)</h3>
+<ul>
+<li><strong>Concept</strong>: Updates a hidden state vector $\mathbf{h}_t$ sequentially:<br />
+  $$\mathbf{h}_t = \tanh(\mathbf{W}_{hh} \mathbf{h}_{t-1} + \mathbf{W}_{xh} \mathbf{x}_t + \mathbf{b}_h)$$</li>
+<li><strong>Limitation: Exploding/Vanishing Gradients</strong>: During backpropagation through time (BPTT), multiplying the weight matrix $\mathbf{W}_{hh}$ over $T$ steps causes gradient gradients $\frac{\partial \mathcal{L}}{\partial \mathbf{h}_0}$ to expand to infinity or decay to zero, preventing learning of dependencies longer than 10-15 steps.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
+<span class="w">    </span><span class="n">x1</span><span class="p">[</span><span class="n">x_1</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">RNN1</span><span class="p">[</span><span class="n">RNN</span><span class="w"> </span><span class="n">Cell</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">h1</span><span class="p">[</span><span class="n">h_1</span><span class="p">]</span>
+<span class="w">    </span><span class="n">h1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">RNN2</span><span class="p">[</span><span class="n">RNN</span><span class="w"> </span><span class="n">Cell</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">h2</span><span class="p">[</span><span class="n">h_2</span><span class="p">]</span>
+<span class="w">    </span><span class="n">x2</span><span class="p">[</span><span class="n">x_2</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">RNN2</span>
+<span class="w">    </span><span class="n">h2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">RNN3</span><span class="p">[</span><span class="n">RNN</span><span class="w"> </span><span class="n">Cell</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">h3</span><span class="p">[</span><span class="n">h_3</span><span class="p">]</span>
+<span class="w">    </span><span class="n">x3</span><span class="p">[</span><span class="n">x_3</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">RNN3</span>
+</code></pre></div>
+
+<h3 id="lstm-long-short-term-memory">LSTM (Long Short-Term Memory)</h3>
+<ul>
+<li><strong>Concept</strong>: Introduces a constant error carousel via cell state $\mathbf{c}_t$, gated by three Sigmoid activations:</li>
+<li><strong>Forget Gate</strong>: $\mathbf{f}_t = \sigma(\mathbf{W}_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f)$</li>
+<li><strong>Input Gate</strong>: $\mathbf{i}_t = \sigma(\mathbf{W}_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i)$</li>
+<li><strong>Output Gate</strong>: $\mathbf{o}_t = \sigma(\mathbf{W}_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o)$</li>
+<li><strong>Cell Update</strong>: $\mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tanh(\mathbf{W}_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c)$</li>
+<li><strong>Hidden State</strong>: $\mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{c}_t)$</li>
+<li><strong>Advantage</strong>: Mitigates vanishing gradients, extending context learning to ~100 tokens.</li>
+</ul>
+<h3 id="gru-gated-recurrent-unit">GRU (Gated Recurrent Unit)</h3>
+<ul>
+<li><strong>Concept</strong>: Merges cell and hidden states, utilizing only two gates to reduce parameter overhead:</li>
+<li><strong>Update Gate</strong>: $\mathbf{z}_t = \sigma(\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_z)$</li>
+<li><strong>Reset Gate</strong>: $\mathbf{r}_t = \sigma(\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_r)$</li>
+<li><strong>Candidate Hidden State</strong>: $\tilde{\mathbf{h}}_t = \tanh(\mathbf{W} [\mathbf{r}_t \odot \mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b})$</li>
+<li><strong>Final Hidden State</strong>: $\mathbf{h}_t = (1 - \mathbf{z}_t) \odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t$</li>
+</ul>
+<h3 id="seq2seq-encoder-decoder-the-bottleneck-problem">Seq2Seq (Encoder-Decoder) &amp; The Bottleneck Problem</h3>
+<ul>
+<li><strong>Concept</strong>: Translates sequences by compressing input sentences into a single, fixed-size context vector $\mathbf{v}$ (encoder output) and decoding it.</li>
+<li><strong>The Information Bottleneck</strong>: Compressing a sentence of 50 words into a single vector $\mathbf{v} \in \mathbb{R}^d$ causes information decay as sequence length $L$ scales, degrading generation quality on long contexts.</li>
+</ul>
+<hr />
+<h2 id="4-the-attention-breakthrough-bahdanau-and-luong">4. The Attention Breakthrough: Bahdanau and Luong</h2>
+<p>To bypass the context vector bottleneck, Attention was introduced to allow the decoder to focus on specific hidden states of the encoder at each step.</p>
+<h3 id="bahdanau-additive-attention">Bahdanau (Additive) Attention</h3>
+<ol>
+<li>Calculate alignment scores between decoder state $\mathbf{s}_{i-1}$ and encoder hidden states $\mathbf{h}_j$:<br />
+   $$e_{i,j} = \mathbf{v}_a^T \tanh(\mathbf{W}_a \mathbf{s}_{i-1} + \mathbf{U}_a \mathbf{h}_j)$$</li>
+<li>Compute attention weights via softmax:<br />
+   $$\alpha_{i,j} = \frac{\exp(e_{i,j})}{\sum_{k=1}^{L} \exp(e_{i,k})}$$</li>
+<li>Compute the dynamic context vector:<br />
+   $$\mathbf{c}_i = \sum_{j=1}^{L} \alpha_{i,j} \mathbf{h}_j$$</li>
+</ol>
+<h4 id="step-by-step-hand-calculation_1">Step-by-Step Hand Calculation</h4>
+<ul>
+<li><strong>Scenario</strong>: Source sequence length $L = 2$. Hidden vectors: $\mathbf{h}_1 = [0.1, 0.8]$, $\mathbf{h}_2 = [0.9, 0.2]$.</li>
+<li><strong>Decoder state</strong>: $\mathbf{s}_{i-1} = [0.5, 0.5]$.</li>
+<li><strong>Given Weights</strong>:</li>
+<li>$\mathbf{W}_a = \begin{bmatrix} 0.5 & -0.2 \\ 0.1 & 0.6 \end{bmatrix}$</li>
+<li>$\mathbf{U}_a = \begin{bmatrix} 0.3 & 0.4 \\ -0.1 & 0.2 \end{bmatrix}$</li>
+<li>$\mathbf{v}_a = \begin{bmatrix} 0.7 \\ 0.5 \end{bmatrix}$</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute projection of decoder state:<br />
+     $$\mathbf{W}_a \mathbf{s}_{i-1}^T = \begin{bmatrix} 0.5 & -0.2 \\ 0.1 & 0.6 \end{bmatrix} \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} = \begin{bmatrix} 0.25 - 0.10 \\ 0.05 + 0.30 \end{bmatrix} = \begin{bmatrix} 0.15 \\ 0.35 \end{bmatrix}$$<br />
+  2. Compute projection of first hidden state $\mathbf{h}_1$:<br />
+     $$\mathbf{U}_a \mathbf{h}_1^T = \begin{bmatrix} 0.3 & 0.4 \\ -0.1 & 0.2 \end{bmatrix} \begin{bmatrix} 0.1 \\ 0.8 \end{bmatrix} = \begin{bmatrix} 0.03 + 0.32 \\ -0.01 + 0.16 \end{bmatrix} = \begin{bmatrix} 0.35 \\ 0.15 \end{bmatrix}$$<br />
+     $$\mathbf{W}_a \mathbf{s}_{i-1}^T + \mathbf{U}_a \mathbf{h}_1^T = \begin{bmatrix} 0.15 \\ 0.35 \end{bmatrix} + \begin{bmatrix} 0.35 \\ 0.15 \end{bmatrix} = \begin{bmatrix} 0.50 \\ 0.50 \end{bmatrix}$$<br />
+     $$\tanh \left( \begin{bmatrix} 0.50 \\ 0.50 \end{bmatrix} \right) = \begin{bmatrix} \tanh(0.50) \\ \tanh(0.50) \end{bmatrix} = \begin{bmatrix} 0.4621 \\ 0.4621 \end{bmatrix}$$<br />
+     $$e_{i,1} = \mathbf{v}_a^T \begin{bmatrix} 0.4621 \\ 0.4621 \end{bmatrix} = \begin{bmatrix} 0.7 & 0.5 \end{bmatrix} \begin{bmatrix} 0.4621 \\ 0.4621 \end{bmatrix} = 0.3235 + 0.2311 = 0.5546$$<br />
+  3. Compute projection of second hidden state $\mathbf{h}_2$:<br />
+     $$\mathbf{U}_a \mathbf{h}_2^T = \begin{bmatrix} 0.3 & 0.4 \\ -0.1 & 0.2 \end{bmatrix} \begin{bmatrix} 0.9 \\ 0.2 \end{bmatrix} = \begin{bmatrix} 0.27 + 0.08 \\ -0.09 + 0.04 \end{bmatrix} = \begin{bmatrix} 0.35 \\ -0.05 \end{bmatrix}$$<br />
+     $$\mathbf{W}_a \mathbf{s}_{i-1}^T + \mathbf{U}_a \mathbf{h}_2^T = \begin{bmatrix} 0.15 \\ 0.35 \end{bmatrix} + \begin{bmatrix} 0.35 \\ -0.05 \end{bmatrix} = \begin{bmatrix} 0.50 \\ 0.30 \end{bmatrix}$$<br />
+     $$\tanh \left( \begin{bmatrix} 0.50 \\ 0.30 \end{bmatrix} \right) = \begin{bmatrix} \tanh(0.50) \\ \tanh(0.30) \end{bmatrix} = \begin{bmatrix} 0.4621 \\ 0.2913 \end{bmatrix}$$<br />
+     $$e_{i,2} = \mathbf{v}_a^T \begin{bmatrix} 0.4621 \\ 0.2913 \end{bmatrix} = \begin{bmatrix} 0.7 & 0.5 \end{bmatrix} \begin{bmatrix} 0.4621 \\ 0.2913 \end{bmatrix} = 0.3235 + 0.1457 = 0.4692$$<br />
+  4. Compute Softmax attention weights:<br />
+     $$\sum_{k=1}^{2} \exp(e_{i,k}) = \exp(0.5546) + \exp(0.4692) = 1.7412 + 1.5987 = 3.3399$$<br />
+     $$\alpha_{i,1} = \frac{1.7412}{3.3399} = 0.5213, \quad \alpha_{i,2} = \frac{1.5987}{3.3399} = 0.4787$$<br />
+  5. Compute context vector $\mathbf{c}_i$:<br />
+     $$\mathbf{c}_i = \alpha_{i,1} \mathbf{h}_1 + \alpha_{i,2} \mathbf{h}_2$$<br />
+     $$\mathbf{c}_i = 0.5213 \times [0.1, 0.8] + 0.4787 \times [0.9, 0.2]$$<br />
+     $$\mathbf{c}_i = [0.0521 + 0.4308, 0.4170 + 0.0957] = [0.4829, 0.5127]$$</li>
+<li><strong>Production Advantage</strong>: The decoder references the entire input sequence directly at every decoding turn, bypassing the fixed-size context vector bottleneck. This math matches the PyTorch printouts of <code>[0.4829, 0.5128]</code> exactly.</li>
+</ul>
+<hr />
+<h2 id="5-timeline-of-nlp-evolutions">5. Timeline of NLP Evolutions</h2>
+<table>
+<thead>
+<tr>
+<th>Representation / Model</th>
+<th>Year</th>
+<th>Core Innovation</th>
+<th>Solving Limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bag of Words / TF-IDF</strong></td>
+<td>~1970s</td>
+<td>Token counts and corpus-level term inverse weighting.</td>
+<td>Manual rule-based pattern matching.</td>
+</tr>
+<tr>
+<td><strong>Word2Vec / GloVe</strong></td>
+<td>2013-14</td>
+<td>Dense low-dimensional vector representations.</td>
+<td>Orthogonality of BoW (no semantic similarity).</td>
+</tr>
+<tr>
+<td><strong>Seq2Seq (RNN / LSTM)</strong></td>
+<td>2014</td>
+<td>Recurrent neural encoder-decoders.</td>
+<td>Static output sizes; maps variable-length sequences.</td>
+</tr>
+<tr>
+<td><strong>Bahdanau Attention</strong></td>
+<td>2015</td>
+<td>Context alignment vectors over encoder hidden layers.</td>
+<td>Compressing inputs into a single fixed vector bottleneck.</td>
+</tr>
+<tr>
+<td><strong>Transformers</strong></td>
+<td>2017</td>
+<td>Self-Attention without recurrent structures.</td>
+<td>Sequential BPTT execution bottleneck ($O(L)$ latency).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-interview-questions-production-trade-offs">6. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Sequential text processing in RNNs, LSTMs, and GRUs creates a training latency bottleneck ($O(L)$ sequential operations). Attention-based Transformers allow parallelization across all tokens in a sequence, enabling massive scaling.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Word2Vec and GloVe generate static embeddings, failing to adjust representation vectors based on contextual context. Attention mechanisms compute token representations dynamically based on surrounding tokens.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Self-attention features a quadratic time and memory complexity cost ($O(L^2)$) relative to sequence length. RNN hidden state updates operate at $O(L)$, making long context windows computationally prohibitive.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>RNN Sequence Step</strong>: $O(L \cdot d^2)$ operations (sequential bottleneck).</li>
+<li><strong>Self-Attention computation</strong>: $O(L^2 \cdot d)$ operations (parallelized).</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$L$: Sequence length in tokens.</li>
+<li>$d$: Hidden state vector projection dimension.</li>
+<li>$|V|$: Vocabulary size.</li>
+<li>$k$: Number of negative samples in SGNS.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Search engines using TF-IDF for fast sparse indexing, paired with semantic contextual embedding queries.</li>
+<li>FastText embedded in edge classifiers to process OOV query inputs robustly.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does Skip-Gram with Negative Sampling (SGNS) use Sigmoids instead of Softmax for probability optimization?</em><br />
+   - <strong>Answer</strong>: Computing Softmax over the entire vocabulary $|V|$ requires summing exponential projections $\sum_{w=1}^{|V|} \exp(\mathbf{v}'^T_w \mathbf{v})$, which is computationally prohibitive ($O(|V|)$) for vocabulary sizes of $100\text{k}+$. SGNS frames context prediction as binary classification, mapping positive targets and $k$ negative samples to Sigmoid projections, reducing compute to $O(k)$ operations.</li>
+<li><em>Why can't LSTMs be parallelized across sequence steps during training?</em><br />
+   - <strong>Answer</strong>: LSTM state updates require cell state $\mathbf{c}_{t-1}$ and hidden state $\mathbf{h}_{t-1}$ from the previous step to evaluate forget, input, and output gates. Because step $t$ depends on output $t-1$, training is strictly sequential ($O(L)$ time), preventing execution acceleration on GPUs.</li>
+<li><em>What is the mathematical difference between Bahdanau (Additive) and Luong (Multiplicative) attention?</em><br />
+   - <strong>Answer</strong>: Bahdanau uses a multi-layer perceptron with a hyperbolic tangent activation: $e_{ij} = \mathbf{v}_a^T \tanh(\mathbf{W}_a \mathbf{s}_{i-1} + \mathbf{U}_a \mathbf{h}_j)$, which is additive. Luong attention uses simple matrix multiplications: $e_{ij} = \mathbf{s}_i^T \mathbf{W}_a \mathbf{h}_j$, which is computationally faster to execute using optimized GEMM operations.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-02-transformer-architecture-encoder-decoder-sub-layers">Module 02: Transformer Architecture: Encoder, Decoder &amp; Sub-layers</h1>
+<p>This study guide covers the structural design of the Transformer architecture, its primary operational variants (Encoder, Decoder, and Encoder-Decoder), and the evolution of its sub-layers (RMSNorm, FFN Gated Units, and Residuals).</p>
+<hr />
+<h2 id="1-architectural-variations-encoder-decoder-and-encoder-decoder">1. Architectural Variations: Encoder, Decoder, and Encoder-Decoder</h2>
+<div class="codehilite"><pre><span></span><code>       [Encoder-Decoder (T5)]
+       /                   \
+[Encoder-only (BERT)]    [Decoder-only (GPT/Llama)]
+</code></pre></div>
+
+<ul>
+<li><strong>Encoder-only (BERT)</strong>: Uses bidirectional self-attention. Every token can attend to every other token in the sequence. Ideal for classification, extractive QA, and sequence labeling.</li>
+<li><strong>Decoder-only (GPT, Llama, Mistral)</strong>: Uses causal masking self-attention. Tokens can only attend to previous tokens and themselves, ensuring that text generation is autoregressive.</li>
+<li><strong>Encoder-Decoder (T5, BART)</strong>: Features a bidirectional encoder linked via cross-attention to a causal decoder. Standard for sequence-to-sequence translation and summarization tasks.</li>
+</ul>
+<hr />
+<h2 id="2-normalization-architectures-layernorm-vs-rmsnorm">2. Normalization Architectures: LayerNorm vs. RMSNorm</h2>
+<p>Layer normalization stabilizes training dynamics by scaling activation values across feature dimensions.</p>
+<h3 id="layernorm-post-ln-vs-pre-ln">LayerNorm (Post-LN vs. Pre-LN)</h3>
+<ul>
+<li><strong>Post-LN (Original Transformer)</strong>: Normalization is applied <em>after</em> residual addition:<br />
+  $$\mathbf{x}_{l} = \text{LN}(\mathbf{x}_{l-1} + \text{SubLayer}(\mathbf{x}_{l-1}))$$</li>
+<li><em>Limitation</em>: Gradients near the output layer are large, while gradients in early layers decay. This requires a strict learning rate warmup schedule to prevent optimization divergence.</li>
+<li><strong>Pre-LN (Modern Standard)</strong>: Normalization is applied to sub-layer inputs <em>before</em> execution, adding a clean highway backpropagation path:<br />
+  $$\mathbf{x}_{l} = \mathbf{x}_{l-1} + \text{SubLayer}(\text{LN}(\mathbf{x}_{l-1}))$$</li>
+<li><em>Advantage</em>: Enables stable training from epoch 1, resolving early gradient vanishing issues.</li>
+</ul>
+<h3 id="rmsnorm-root-mean-square-normalization">RMSNorm (Root Mean Square Normalization)</h3>
+<p>RMSNorm simplifies LayerNorm by omitting mean subtraction, showing that variance scaling alone provides sufficient regularizing properties:<br />
+$$\text{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\text{RMS}(\mathbf{x})} \odot \boldsymbol{\gamma}, \quad \text{where } \text{RMS}(\mathbf{x}) = \sqrt{\frac{1}{d} \sum_{i=1}^{d} x_i^2 + \epsilon}$$<br />
+- <strong>Why it is used</strong>: Omiting mean calculation simplifies computation, improving training hardware throughput.</p>
+<h4 id="step-by-step-hand-calculation-rmsnorm">Step-by-Step Hand Calculation (RMSNorm)</h4>
+<ul>
+<li><strong>Scenario</strong>: Input vector $\mathbf{x} = [2.0, -1.0, 3.0]$. Hidden dimension $d = 3$. Let scale weights $\boldsymbol{\gamma} = [1.0, 1.0, 1.0]$ and bias stabilizer $\epsilon = 1\text{e-}5$.</li>
+<li><strong>Calculation</strong>:<br />
+  1. Calculate Mean Square:<br />
+     $$\text{MS} = \frac{1}{3} \left( 2.0^2 + (-1.0)^2 + 3.0^2 \right) = \frac{1}{3} (4.0 + 1.0 + 9.0) = \frac{14}{3} \approx 4.6667$$<br />
+  2. Compute Root Mean Square (RMS):<br />
+     $$\text{RMS}(\mathbf{x}) = \sqrt{4.6667 + 1\text{e-}5} \approx \sqrt{4.66671} \approx 2.1603$$<br />
+  3. Normalize $\mathbf{x}$:<br />
+     $$\text{Normalized } \mathbf{x} = \frac{\mathbf{x}}{\text{RMS}(\mathbf{x})} = \left[ \frac{2.0}{2.1603}, \frac{-1.0}{2.1603}, \frac{3.0}{2.1603} \right] \approx [0.9258, -0.4629, 1.3887]$$<br />
+  4. Scale with $\boldsymbol{\gamma}$:<br />
+     $$\text{Output} = [0.9258, -0.4629, 1.3887] \odot [1.0, 1.0, 1.0] = [0.9258, -0.4629, 1.3887]$$</li>
+</ul>
+<hr />
+<h2 id="3-feed-forward-networks-ffn-activation-evolution">3. Feed Forward Networks (FFN) &amp; Activation Evolution</h2>
+<p>The FFN layer processes the output of the Self-Attention block token-by-token.</p>
+<h3 id="1-classical-ffn-relu">1. Classical FFN (ReLU)</h3>
+<p>$$\text{FFN}_{\text{ReLU}}(\mathbf{x}) = \max(0, \mathbf{x} \mathbf{W}_1 + \mathbf{b}_1) \mathbf{W}_2 + \mathbf{b}_2$$<br />
+- <em>Limitation</em>: ReLU outputs exactly zero for negative inputs (the "dead ReLU" problem), stopping gradient updates during backpropagation.</p>
+<h3 id="2-gelu-gaussian-error-linear-unit">2. GELU (Gaussian Error Linear Unit)</h3>
+<p>GELU weights inputs by their cumulative probability under a normal distribution, creating a smooth, non-zero gradient baseline for negative values:<br />
+$$\text{GELU}(\mathbf{x}) = \mathbf{x} \Phi(\mathbf{x}) \approx 0.5 \mathbf{x} \left( 1 + \tanh \left( \sqrt{\frac{2}{\pi}} (\mathbf{x} + 0.044715 \mathbf{x}^3) \right) \right)$$</p>
+<h3 id="3-swiglu-swish-gated-linear-unit">3. SwiGLU (Swish-Gated Linear Unit)</h3>
+<p>SwiGLU replaces the standard feed-forward layer with a gated representation, where one linear projection acts as a dynamic gate over a second projection:<br />
+$$\text{SwiGLU}(\mathbf{x}) = \left( \text{Swish}(\mathbf{x} \mathbf{W}_1) \odot \mathbf{x} \mathbf{W}_2 \right) \mathbf{W}_3$$<br />
+$$\text{Swish}(a) = a \cdot \sigma(\beta a) = \frac{a}{1 + e^{-\beta a}} \quad (\text{with } \beta = 1)$$<br />
+- <strong>Why Llama and Mistral use SwiGLU</strong>: The multiplicative gate structure allows the layer to modulate inputs dynamically, yielding improved parameter efficiency and faster learning convergence relative to ReLU/GELU.</p>
+<h4 id="step-by-step-hand-calculation-swiglu-gating">Step-by-Step Hand Calculation (SwiGLU Gating)</h4>
+<ul>
+<li><strong>Scenario</strong>: Input $\mathbf{x} = [0.5, 0.5]$.</li>
+<li><strong>Given Weights</strong> (projecting to intermediate state size of 1):</li>
+<li>$\mathbf{W}_1^T = [2.0, -2.0]$</li>
+<li>$\mathbf{W}_2^T = [-1.0, 3.0]$</li>
+<li>$\mathbf{W}_3 = [1.5]$ (output projection scale)</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute linear projection inputs for gate and value:<br />
+     $$a_1 = \mathbf{x} \mathbf{W}_1^T = (0.5 \times 2.0) + (0.5 \times -2.0) = 1.0 - 1.0 = 0.0$$<br />
+     $$a_2 = \mathbf{x} \mathbf{W}_2^T = (0.5 \times -1.0) + (0.5 \times 3.0) = -0.5 + 1.5 = 1.0$$<br />
+  2. Compute Swish activation on the gate representation $a_1$:<br />
+     $$\text{Swish}(a_1) = \text{Swish}(0.0) = \frac{0.0}{1 + e^{-0.0}} = 0.0$$<br />
+  3. Perform Hadamard product gating step:<br />
+     $$\text{Gated Value} = \text{Swish}(a_1) \odot a_2 = 0.0 \times 1.0 = 0.0$$<br />
+  4. Project to output layer:<br />
+     $$\text{Output} = 0.0 \times 1.5 = 0.0$$</li>
+</ul>
+<hr />
+<h2 id="4-execution-modes-training-vs-inference">4. Execution Modes: Training vs. Inference</h2>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Training Mode</th>
+<th>Inference Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Processing</strong></td>
+<td>Parallelized (processes all tokens at once).</td>
+<td>Sequential (autoregressive, one token at a time).</td>
+</tr>
+<tr>
+<td><strong>Masking Style</strong></td>
+<td>Causal mask matrix block-applied.</td>
+<td>Single token query projection.</td>
+</tr>
+<tr>
+<td><strong>KV Cache</strong></td>
+<td>Not used (all keys/values computed in parallel).</td>
+<td>Essential (caches keys/values to avoid redundant recomputation).</td>
+</tr>
+<tr>
+<td><strong>Compute Profile</strong></td>
+<td>Compute-bound (high matrix multiply utilization).</td>
+<td>Memory-bandwidth bound (dominated by loading weights).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-interview-questions-production-trade-offs">5. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Sequential recurrent models cannot parallelize updates. The Transformer Encoder/Decoder uses residual feed-forward stacks to enable parallel token updates across massive datasets.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Pre-LN and RMSNorm structures were introduced to stabilize gradient flows in deep networks, allowing scaling beyond 100+ layers without optimization crashes.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Causal autoregressive decoding during inference is highly memory-bandwidth bound, as model weights must be loaded from memory for every single generated token.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Transformer Layer forward pass</strong>: $O(L \cdot d^2)$ operations (excluding self-attention).</li>
+<li><strong>FFN Activation Memory VRAM</strong>: $O(L \cdot d_{\text{ffn}})$ activation tensors stored during training.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$L$: Sequence length.</li>
+<li>$d$: Hidden model dimension.</li>
+<li>$d_{\text{ffn}}$: Intermediate feed-forward layer expansion dimension (typically $\frac{8}{3}d$ in SwiGLU).</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Large-scale pre-training pipelines utilizing Pre-LN or RMSNorm to prevent gradient explosions.</li>
+<li>Low-latency inference serving systems using SwiGLU layers to achieve high token-generation accuracy with smaller parameter footprints.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does Pre-LN scale better than Post-LN in deep Transformers?</em><br />
+   - <strong>Answer</strong>: In Post-LN, the residual update is added before normalization, scaling activation magnitudes as depth increases. Early layer updates are scaled down, leading to gradient vanishing. In Pre-LN, the inputs to sub-layers are normalized first, leaving the residual connection as a clean linear identity mapping $\mathbf{x}_L = \mathbf{x}_0 + \sum \text{SubLayer}(\mathbf{x}_l)$ which preserves gradient flows during backpropagation.</li>
+<li><em>Why does SwiGLU use three weight matrices ($\mathbf{W}_1, \mathbf{W}_2, \mathbf{W}_3$) instead of the standard two found in GELU/ReLU FFNs?</em><br />
+   - <strong>Answer</strong>: SwiGLU is a gated architecture. It splits the input vector $\mathbf{x}$ into two parallel channels: one channel calculates the gating representation via $\text{Swish}(\mathbf{x} \mathbf{W}_1)$, and the second channel calculates the value projection via $\mathbf{x} \mathbf{W}_2$. These channels are multiplied element-wise and projected back to the hidden space via $\mathbf{W}_3$, requiring three parameter matrices to implement the gate.</li>
+<li><em>Why does Pre-LN require an extra normalization step before output projections?</em><br />
+   - <strong>Answer</strong>: Since sub-layers add directly to the identity residual highway without intermediate normalization, the final output layer activation magnitude is the unnormalized summation of all residual additions. To prevent gradient explosion at the final classification head, an additional layer normalization block must be executed before final logit projection.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-03-self-attention-multi-head-attention-math">Module 03: Self-Attention &amp; Multi-Head Attention Math</h1>
+<p>This study guide delivers a mathematical deep dive into the Self-Attention and Multi-Head Attention layers, deriving their computational complexities, detailing causal masking logic, and explaining high-level system optimizations like FlashAttention.</p>
+<hr />
+<h2 id="1-attention-components-query-key-and-value">1. Attention Components: Query, Key, and Value</h2>
+<p>Self-Attention allows tokens to weigh the relevance of other tokens in a sequence dynamically. <br />
+- Input sequence representation: $\mathbf{X} \in \mathbb{R}^{L \times d}$<br />
+- Projections: Each token projects its embedding to three vectors using weight matrices:<br />
+  - <strong>Query</strong> ($\mathbf{Q}$): Represents what the token is searching for: $\mathbf{Q} = \mathbf{X} \mathbf{W}_Q$ where $\mathbf{W}_Q \in \mathbb{R}^{d \times d}$<br />
+  - <strong>Key</strong> ($\mathbf{K}$): Represents what information the token holds: $\mathbf{K} = \mathbf{X} \mathbf{W}_K$ where $\mathbf{W}_K \in \mathbb{R}^{d \times d}$<br />
+  - <strong>Value</strong> ($\mathbf{V}$): Contains the actual semantic payload: $\mathbf{V} = \mathbf{X} \mathbf{W}_V$ where $\mathbf{W}_V \in \mathbb{R}^{d \times d}$</p>
+<hr />
+<h2 id="2-scaled-dot-product-attention">2. Scaled Dot Product Attention</h2>
+<p>The attention score represents the alignment (dot product similarity) between Query vector $\mathbf{q}_i$ and Key vector $\mathbf{k}_j$, scaled to stabilize variance, softmax-normalized, and multiplied by Value vectors $\mathbf{v}_j$:</p>
+<p>$$\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d_k}} \right) \mathbf{V}$$</p>
+<ul>
+<li><strong>Variance Stabilization Derivation ($\sqrt{d_k}$)</strong>:<br />
+  Let components of Query and Key vectors be independent random variables with zero mean and unit variance: $q_i, k_i \sim \mathcal{N}(0, 1)$. Their dot product is:<br />
+  $$\mathbf{q} \cdot \mathbf{k} = \sum_{m=1}^{d_k} q_m k_m$$</li>
+<li>The mean is $\mathbb{E}[\mathbf{q} \cdot \mathbf{k}] = 0$.</li>
+<li>The variance is:<br />
+    $$\text{Var}(\mathbf{q} \cdot \mathbf{k}) = \sum_{m=1}^{d_k} \text{Var}(q_m k_m) = \sum_{m=1}^{d_k} \mathbb{E}[q_m^2] \mathbb{E}[k_m^2] = \sum_{m=1}^{d_k} (1)(1) = d_k$$</li>
+<li>As head dimension $d_k$ increases, the variance of the raw dot product scales to $d_k$. Large dot products yield extremely high logit values, pushing the Softmax function into flat saturation regions where gradients become near-zero ($\nabla \text{Softmax} \approx 0$). Dividing by scaling factor $\sqrt{d_k}$ pulls the variance back to $1.0$, stabilizing gradients during backpropagation.</li>
+</ul>
+<hr />
+<h2 id="3-step-by-step-hand-calculation-causal-attention">3. Step-by-Step Hand Calculation (Causal Attention)</h2>
+<ul>
+<li><strong>Scenario</strong>: Input sequence length $L = 3$. Dimension per head $d_k = 2$.</li>
+<li><strong>Given Matrices (Head 1)</strong>:</li>
+<li>Query matrix:<br />
+    $$\mathbf{Q} = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 1.0 \\ 1.0 & 1.0 \end{bmatrix}$$</li>
+<li>Key matrix:<br />
+    $$\mathbf{K} = \begin{bmatrix} 1.0 & 1.0 \\ 0.0 & 1.0 \\ 1.0 & 0.0 \end{bmatrix}$$</li>
+<li>Value matrix:<br />
+    $$\mathbf{V} = \begin{bmatrix} 2.0 & -1.0 \\ 0.0 & 3.0 \\ 1.0 & 1.0 \end{bmatrix}$$</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute raw dot products $\mathbf{A} = \mathbf{Q} \mathbf{K}^T$:<br />
+     $$\mathbf{A} = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 1.0 \\ 1.0 & 1.0 \end{bmatrix} \begin{bmatrix} 1.0 & 0.0 & 1.0 \\ 1.0 & 1.0 & 0.0 \end{bmatrix} = \begin{bmatrix} 1.0 & 0.0 & 1.0 \\ 1.0 & 1.0 & 0.0 \\ 2.0 & 1.0 & 1.0 \end{bmatrix}$$<br />
+  2. Scale by factor $\sqrt{d_k} = \sqrt{2} \approx 1.4142$:<br />
+     $$\mathbf{S} = \frac{\mathbf{A}}{1.4142} \approx \begin{bmatrix} 0.7071 & 0.0000 & 0.7071 \\ 0.7071 & 0.7071 & 0.0000 \\ 1.4142 & 0.7071 & 0.7071 \end{bmatrix}$$<br />
+  3. Apply Causal Masking (tokens cannot attend to future indices; replace values above diagonal with $-\infty$):<br />
+     $$\mathbf{M} = \begin{bmatrix} 0.7071 & -\infty & -\infty \\ 0.7071 & 0.7071 & -\infty \\ 1.4142 & 0.7071 & 0.7071 \end{bmatrix}$$<br />
+  4. Apply Softmax to each row:<ul>
+<li><strong>Row 0</strong>: Softmax of $[0.7071, -\infty, -\infty]$:<br />
+   $$\text{Weights}_0 = [1.0000, 0.0000, 0.0000]$$</li>
+<li><strong>Row 1</strong>: Softmax of $[0.7071, 0.7071, -\infty]$:<br />
+   $$\text{Denominator} = e^{0.7071} + e^{0.7071} = 2.0281 + 2.0281 = 4.0562$$<br />
+   $$\alpha_{1,0} = \frac{2.0281}{4.0562} = 0.5000, \quad \alpha_{1,1} = \frac{2.0281}{4.0562} = 0.5000$$<br />
+   $$\text{Weights}_1 = [0.5000, 0.5000, 0.0000]$$</li>
+<li><strong>Row 2</strong>: Softmax of $[1.4142, 0.7071, 0.7071]$:<br />
+   $$\text{Denominator} = e^{1.4142} + e^{0.7071} + e^{0.7071} = 4.1133 + 2.0281 + 2.0281 = 8.1695$$<br />
+   $$\alpha_{2,0} = \frac{4.1133}{8.1695} = 0.5035, \quad \alpha_{2,1} = \frac{2.0281}{8.1695} = 0.2483, \quad \alpha_{2,2} = \frac{2.0281}{8.1695} = 0.2483$$<br />
+   $$\text{Weights}_2 = [0.5035, 0.2483, 0.2483]$$</li>
+<li>Attention weight matrix $\mathbf{P}$:<br />
+   $$\mathbf{P} \approx \begin{bmatrix} 1.0000 & 0.0000 & 0.0000 \\ 0.5000 & 0.5000 & 0.0000 \\ 0.5035 & 0.2483 & 0.2483 \end{bmatrix}$$<br />
+  5. Compute final weighted output $\mathbf{O} = \mathbf{P} \mathbf{V}$:</li>
+<li><strong>Row 0 Output</strong>:<br />
+   $$\mathbf{O}_0 = 1.0 \times [2.0, -1.0] = [2.0, -1.0]$$</li>
+<li><strong>Row 1 Output</strong>:<br />
+   $$\mathbf{O}_1 = 0.5 \times [2.0, -1.0] + 0.5 \times [0.0, 3.0] = [1.0, -0.5] + [0.0, 1.5] = [1.0, 1.0]$$</li>
+<li><strong>Row 2 Output</strong>:<br />
+   $$\mathbf{O}_2 = 0.5035 \times [2.0, -1.0] + 0.2483 \times [0.0, 3.0] + 0.2483 \times [1.0, 1.0]$$<br />
+   $$\mathbf{O}_2 = [1.0070, -0.5035] + [0.0, 0.7449] + [0.2483, 0.2483] = [1.2553, 0.4897]$$</li>
+<li>Final Output Matrix $\mathbf{O}$:<br />
+   $$\mathbf{O} \approx \begin{bmatrix} 2.0000 & -1.0000 \\ 1.0000 & 1.0000 \\ 1.2553 & 0.4897 \end{bmatrix}$$<br />
+ This walkthrough matches output code simulations exactly.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="4-multi-head-attention-head-concatenation">4. Multi-Head Attention &amp; Head Concatenation</h2>
+<p>Instead of performing single-attention over hidden states of dimension $d$, Multi-Head Attention projects variables into $h$ independent, parallel heads of size $d_k = d / h$.<br />
+1. <strong>Parallel Execution</strong>: Compute attention output for each head:<br />
+   $$\text{head}_i = \text{Attention}(\mathbf{X} \mathbf{W}_{Q_i}, \mathbf{X} \mathbf{W}_{K_i}, \mathbf{X} \mathbf{W}_{V_i})$$<br />
+2. <strong>Concatenation</strong>: Combine outputs from all heads:<br />
+   $$\text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_h)$$<br />
+3. <strong>Projection</strong>: Project the concatenation back to hidden dimension $d$ using matrix $\mathbf{W}_O$:<br />
+   $$\text{MHA}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Concat}(\text{head}_1, \dots, \text{head}_h) \mathbf{W}_O$$</p>
+<hr />
+<h2 id="5-computational-complexity-memory-bottlenecks">5. Computational Complexity &amp; Memory Bottlenecks</h2>
+<h3 id="the-quadratic-bottleneck-mathplaceholder62endmath">The Quadratic Bottleneck $O(L^2)$</h3>
+<p>Computing attention scores requires multiplying $Q \in \mathbb{R}^{L \times d_k}$ and $K^T \in \mathbb{R}^{d_k \times L}$, resulting in a raw similarity matrix of size $L \times L$.<br />
+- <strong>Time Complexity</strong>: $O(L^2 \cdot d)$ operations.<br />
+- <strong>Memory Complexity</strong>: $O(L^2)$ to store the intermediate attention weights. As sequence length $L$ scales, memory requirements expand quadratically, creating a VRAM ceiling.</p>
+<h3 id="flashattention-io-aware-acceleration-high-level">FlashAttention: IO-Aware Acceleration (High-Level)</h3>
+<ul>
+<li><strong>The Problem</strong>: Standard PyTorch attention writes the intermediate $L \times L$ attention matrix to slow High Bandwidth Memory (HBM), causing memory transfer latency bottlenecks.</li>
+<li><strong>FlashAttention Solution</strong>: Uses <strong>SRAM Tiling</strong>. It loads blocks of $Q, K, V$ into fast, local GPU SRAM caches, calculates softmax incrementally, and updates outputs without ever writing the massive $L \times L$ matrix back to HBM, speeding up execution by $2\times - 4\times$.</li>
+</ul>
+<hr />
+<h2 id="6-interview-questions-production-trade-offs">6. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Enables sequence tokens to attend to other tokens dynamically across arbitrary distances, resolving sequence information loss in recurrent architectures.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Variance scaling factor $\sqrt{d_k}$ prevents logits from growing too large, ensuring stable gradient backpropagation when sequence lengths scale.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>The quadratic time and memory cost ($O(L^2)$) restricts context length processing on standard hardware without compression or tiling.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>MHA Computation</strong>: $O(L^2 \cdot d + L \cdot d^2)$ operations.</li>
+<li><strong>Attention VRAM Space</strong>: $O(L^2 \cdot h + L \cdot d)$ bytes.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$L$: Sequence length.</li>
+<li>$d$: Hidden state model dimension.</li>
+<li>$h$: Attention heads count.</li>
+<li>$d_k$: Attention head vector size ($d/h$).</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Long-context LLM inference servers implementing FlashAttention to reduce latency and VRAM footprints.</li>
+<li>Retrieval models querying document matches using dot-product semantic projections.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does attention compute complexity scale as $O(L^2 \cdot d)$?</em><br />
+   - <strong>Answer</strong>: Calculating the attention scores requires multiplying Query matrix $\mathbf{Q} \in \mathbb{R}^{L \times d_k}$ by transposed Key matrix $\mathbf{K}^T \in \mathbb{R}^{d_k \times L}$ for all $h$ heads. The multiplication of two matrices of size $[L, d_k]$ and $[d_k, L]$ requires $L \cdot L \cdot d_k$ scalar operations. Doing this across all $h$ heads yields $h \cdot L^2 \cdot d_k = L^2 \cdot d$ operations, introducing the quadratic scaling factor.</li>
+<li><em>How does FlashAttention calculate Softmax incrementally during block updates?</em><br />
+   - <strong>Answer</strong>: Softmax requires a global normalization denominator $\sum e^{x_i}$. To compute this incrementally over blocks without global access, FlashAttention tracks local normalization stats (maximum block logit value $m$ and local denominator sum $d$) for each block. On loading new blocks, it scales the old local outputs and updates the denominator using the relation $e^{x - m_{\text{new}}} = e^{x - m_{\text{old}}} \cdot e^{m_{\text{old}} - m_{\text{new}}}$, ensuring exact mathematical equivalence to standard softmax while processing data in local SRAM tiles.</li>
+<li><em>Why does a higher vocabulary size or sequence length lead to softmax saturation?</em><br />
+   - <strong>Answer</strong>: If vectors are unscaled, the variance of their dot products matches hidden size $d$. With large dimensions (e.g. $d=4096$), dot products grow large, causing softmax inputs to have wide separations. The derivative of Softmax with respect to inputs $x_i$ is $s_i(\delta_{ij} - s_j)$. When one value dominates, its softmax probability approaches $1.0$ and others approach $0.0$, pushing the derivatives to zero and causing vanishing gradients.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-04-positional-representations-from-sinusoidal-to-rope-alibi">Module 04: Positional Representations: From Sinusoidal to RoPE &amp; ALiBi</h1>
+<p>This study guide explains the engineering mechanics of positional representation in Transformer architectures, detailing the math behind coordinate transformations (RoPE), linear attention biases (ALiBi), and their implementation tradeoffs.</p>
+<hr />
+<h2 id="1-why-position-matters">1. Why Position Matters</h2>
+<p>Because the Self-Attention mechanism computes dot product similarities across all tokens in parallel, it is inherently permutation-invariant. Changing word order (e.g. <code>"not bad, actually good"</code> vs. <code>"good, actually not bad"</code>) yields the exact same attention score vectors. To preserve syntax, positional information must be injected before the attention block.</p>
+<hr />
+<h2 id="2-positional-representation-paradigms">2. Positional Representation Paradigms</h2>
+<div class="codehilite"><pre><span></span><code>               Positional Encodings
+             /                      \
+   [Absolute Position]           [Relative Position]
+   ├── Sinusoidal (Static)       ├── Attention Biases (ALiBi)
+   └── Learned Embeddings        └── Rotary Embeddings (RoPE)
+</code></pre></div>
+
+<h3 id="absolute-positional-encoding-sinusoidal">Absolute Positional Encoding (Sinusoidal)</h3>
+<ul>
+<li><strong>Concept</strong>: Adds fixed, deterministic sinusoidal coordinates directly to the input embedding:<br />
+  $$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d}}\right), \quad PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d}}\right)$$</li>
+<li><em>Advantage</em>: No parameters to learn.</li>
+<li><em>Limitation</em>: Cannot extrapolate. If a model is trained on a context length of 2048, it does not know the sinusoidal values for position 2049, causing generation failures.</li>
+</ul>
+<h3 id="learned-positional-embeddings">Learned Positional Embeddings</h3>
+<ul>
+<li><strong>Concept</strong>: Initializes a parameter matrix $\mathbf{W}_{\text{pos}} \in \mathbb{R}^{L_{\text{max}} \times d}$ trained alongside token embeddings.</li>
+<li><em>Limitation</em>: Strict upper-bound context limit ($L_{\text{max}}$). Extrapolation is impossible.</li>
+</ul>
+<h3 id="relative-positional-encoding-alibi">Relative Positional Encoding (ALiBi)</h3>
+<ul>
+<li><strong>Concept</strong>: Attention with Linear Biases (ALiBi) injects relative position directly into attention heads by subtracting a linear penalty scaled by distance:<br />
+  $$a_{i,j} = \text{Softmax}\left( \frac{\mathbf{q}_i \mathbf{k}_j^T}{\sqrt{d_k}} - m \cdot |i - j| \right)$$</li>
+<li><em>Advantage</em>: High context extrapolation capacity at runtime.</li>
+</ul>
+<hr />
+<h2 id="3-rotary-position-embeddings-rope">3. Rotary Position Embeddings (RoPE)</h2>
+<p>RoPE encodes relative position by applying a rotation matrix to Query and Key vectors in 2D slices of the hidden dimension, maintaining absolute coordinates while naturally yielding relative scores inside attention dot products.</p>
+<h3 id="mathematical-formulation">Mathematical Formulation</h3>
+<p>For a 2D vector $\mathbf{x} = [x_1, x_2]^T$ at position $m$, the rotated vector is:<br />
+$$\mathbf{R}_{\Theta, m}^2 \mathbf{x} = \begin{bmatrix} \cos m\theta & -\sin m\theta \\ \sin m\theta & \cos m\theta \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} = \begin{bmatrix} x_1 \cos m\theta - x_2 \sin m\theta \\ x_1 \sin m\theta + x_2 \cos m\theta \end{bmatrix}$$<br />
+- <strong>Relative Distance Preservation</strong>:<br />
+  The inner product of rotated query $\mathbf{q}_m$ and key $\mathbf{k}_n$ is:<br />
+  $$\langle \mathbf{R}_m \mathbf{q}, \mathbf{R}_n \mathbf{k} \rangle = \mathbf{q}^T \mathbf{R}_m^T \mathbf{R}_n \mathbf{k} = \mathbf{q}^T \mathbf{R}_{n-m} \mathbf{k}$$<br />
+  This shows that attention scores depend only on relative token separation $(n-m)$.</p>
+<h4 id="step-by-step-hand-calculation-rope-2d-rotation">Step-by-Step Hand Calculation (RoPE 2D Rotation)</h4>
+<ul>
+<li><strong>Scenario</strong>: Token at position $m = 1$. Let base rotation angle $\theta = \frac{\pi}{2}$ radians ($90^\circ$).</li>
+<li><strong>Input vector</strong>: $\mathbf{x} = [1.0, 2.0]^T$.</li>
+<li><strong>Calculation</strong>:<br />
+  1. Evaluate trigonometric functions for position $m\theta = 1 \times \frac{\pi}{2} = \frac{\pi}{2}$:<br />
+     $$\cos\left(\frac{\pi}{2}\right) = 0.0, \quad \sin\left(\frac{\pi}{2}\right) = 1.0$$<br />
+  2. Multiply by rotation matrix:<br />
+     $$\mathbf{R}_{\frac{\pi}{2}, 1}^2 \mathbf{x} = \begin{bmatrix} 0.0 & -1.0 \\ 1.0 & 0.0 \end{bmatrix} \begin{bmatrix} 1.0 \\ 2.0 \end{bmatrix} = \begin{bmatrix} (1.0 \times 0.0) - (2.0 \times 1.0) \\ (1.0 \times 1.0) + (2.0 \times 0.0) \end{bmatrix} = \begin{bmatrix} -2.0 \\ 1.0 \end{bmatrix}$$</li>
+<li><strong>Result</strong>: The rotated coordinate vector is $[-2.0, 1.0]^T$ (representing a strict $90^\circ$ counterclockwise rotation), matching target simulations.</li>
+</ul>
+<hr />
+<h2 id="4-comparison-of-positional-encodings">4. Comparison of Positional Encodings</h2>
+<table>
+<thead>
+<tr>
+<th>Feature / Metric</th>
+<th>Sinusoidal PE</th>
+<th>Learned PE</th>
+<th>ALiBi</th>
+<th>RoPE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Insertion Phase</strong></td>
+<td>Input embeddings</td>
+<td>Input embeddings</td>
+<td>Attention head scores</td>
+<td>Query/Key projections</td>
+</tr>
+<tr>
+<td><strong>Parameters</strong></td>
+<td>0 (static)</td>
+<td>$L_{\text{max}} \times d$</td>
+<td>0 (static biases)</td>
+<td>0 (trig weights)</td>
+</tr>
+<tr>
+<td><strong>Extrapolation</strong></td>
+<td>Poor</td>
+<td>Impossible</td>
+<td>Excellent</td>
+<td>Good (scales with RoPE base adjustments)</td>
+</tr>
+<tr>
+<td><strong>Computation</strong></td>
+<td>Very Low (add)</td>
+<td>Very Low (add)</td>
+<td>Low (subtract bias)</td>
+<td>Moderate (trig rotates)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-detailed-computational-complexity-time-memory">5. Detailed Computational Complexity (Time &amp; Memory)</h2>
+<ul>
+<li><strong>Learned PE Lookup Time</strong>: $O(L \cdot d)$ addition operations.</li>
+<li><strong>RoPE Rotation Time</strong>: $O(L \cdot d)$ operations (trig operations scale linearly with tokens).</li>
+<li><strong>VRAM Memory Space</strong>:</li>
+<li>Learned PE: $O(L_{\text{max}} \cdot d)$ parameter storage.</li>
+<li>RoPE: $O(1)$ static trig buffer cached in VRAM.</li>
+</ul>
+<hr />
+<h2 id="6-interview-questions-production-trade-offs">6. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Injects sequential syntax order to the permutation-invariant self-attention computation.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Absolute learned encodings crash on context lengths exceeding $L_{\text{max}}$. Relative/Rotary encodings preserve distance representations across arbitrary lengths.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>ALiBi decays long-range dependencies too strictly. RoPE extrapolation degrades at long contexts without base frequency adjustments (e.g. RoPE theta scaling).</p>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Llama-3 models using Rotary Positional Embeddings to scale context windows up to $128\text{k}$ tokens.</li>
+<li>Summarization engines implementing ALiBi to achieve stable context length extrapolation.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does the relative dot product property $\langle \mathbf{R}_m \mathbf{q}, \mathbf{R}_n \mathbf{k} \rangle = \mathbf{q}^T \mathbf{R}_{n-m} \mathbf{k}$ hold true for RoPE?</em><br />
+   - <strong>Answer</strong>: The rotation matrix $\mathbf{R}_m$ is an orthogonal transformation. Since it represents a rotation in 2D space, its transpose is its inverse: $\mathbf{R}_m^T = \mathbf{R}_m^{-1} = \mathbf{R}_{-m}$. Because rotations are additive in the exponent, we have $\mathbf{R}_m^T \mathbf{R}_n = \mathbf{R}_{-m} \mathbf{R}_n = \mathbf{R}_{n-m}$, demonstrating that the dot product is independent of absolute indexes $m$ and $n$ and relies solely on their difference.</li>
+<li><em>What is the "RoPE Base Frequency Scaling" trick and why is it used?</em><br />
+   - <strong>Answer</strong>: The RoPE rotation angle is calculated as $\theta_i = 10000^{-2i/d}$. At long contexts, the rotation steps between adjacent tokens become tiny, causing the model to lose resolution. By scaling the base frequency (e.g., changing $10000$ to $500000$), we slow down the rotation rate, allowing the model to distinguish positions at longer sequences.</li>
+<li><em>Why does ALiBi perform better than learned absolute encodings during context length extrapolation?</em><br />
+   - <strong>Answer</strong>: Learned absolute encodings are trained on absolute index keys. At sequence lengths $> L_{\text{max}}$, the model encounters index coordinates it has never seen, leading to random embeddings and generation breakdown. ALiBi uses a static penalty slope $-m \cdot |i - j|$ that naturally extends to arbitrary distances, letting the model extrapolate without retraining.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-05-tokenization-embeddings">Module 05: Tokenization &amp; Embeddings</h1>
+<p>This study guide explains the engineering design and mechanics of Tokenization and Embedding layers in LLMs, detailing vocabulary compression algorithms (BPE, WordPiece, SentencePiece), Unicode safety, and embedding similarity mappings.</p>
+<hr />
+<h2 id="1-the-tokenization-pipeline">1. The Tokenization Pipeline</h2>
+<p>Tokenization splits raw string inputs into a sequence of discrete integers (token IDs) queryable by the embedding layer.</p>
+<div class="codehilite"><pre><span></span><code>[Raw Input String] ──► [Subword Tokenizer] ──► [Token IDs] ──► [Embedding Layer]
+</code></pre></div>
+
+<h3 id="paradigms">Paradigms:</h3>
+<ol>
+<li><strong>Character-level</strong>: Splitting text into single characters (e.g. <code>c-a-t</code>).<br />
+   - <em>Pros</em>: Tiny vocabulary size ($|V| \approx 256$), zero OOV words.<br />
+   - <em>Cons</em>: High sequence length (depletes context VRAM), lacks direct semantic chunks.</li>
+<li><strong>Word-level</strong>: Splitting text by whitespaces and punctuation.<br />
+   - <em>Pros</em>: Simple, maps words to clean meaning.<br />
+   - <em>Cons</em>: Massive vocabulary ($|V| > 1\text{M}$), unable to handle grammatical modifications (e.g. <code>run</code> vs. <code>running</code> are separate vectors), crashes on Out-of-Vocabulary (OOV) terms.</li>
+<li><strong>Subword-level (Modern Standard)</strong>: Decomposes words into frequent subword chunks (e.g. <code>tokenization</code> = <code>token</code> + <code>ization</code>), balancing vocabulary size with sequence lengths.</li>
+</ol>
+<hr />
+<h2 id="2-vocabulary-compression-algorithms">2. Vocabulary Compression Algorithms</h2>
+<h3 id="byte-pair-encoding-bpe">Byte Pair Encoding (BPE)</h3>
+<p>BPE builds a vocabulary bottom-up, starting with single characters and iteratively merging the most frequent adjacent token pairs.<br />
+- <strong>Used by</strong>: GPT family (tiktoken), Llama, RoBERTa.</p>
+<h4 id="step-by-step-hand-calculation-bpe-vocab-expansion">Step-by-Step Hand Calculation (BPE Vocab Expansion)</h4>
+<ul>
+<li><strong>Scenario</strong>: Tiny training corpus counts:</li>
+<li><code>"l o w &lt;/w&gt;"</code>: 5 times</li>
+<li><code>"l o w e r &lt;/w&gt;"</code>: 2 times</li>
+<li><code>"n e w e s t &lt;/w&gt;"</code>: 6 times</li>
+<li><code>"w i d e s t &lt;/w&gt;"</code>: 3 times</li>
+<li><em>Base Vocabulary</em>: <code>{'l', 'o', 'w', 'e', 'r', 'n', 'w', 'i', 'd', 's', 't', '&lt;/w&gt;'}</code> (12 tokens).</li>
+<li><strong>Calculation</strong>:<br />
+  1. Count adjacent pairs:<ul>
+<li><code>e s</code>: occurs in <code>"newest"</code> ($6$) + <code>"widest"</code> ($3$) = $9$ times.</li>
+<li><code>s t</code>: occurs in <code>"newest"</code> ($6$) + <code>"widest"</code> ($3$) = $9$ times.</li>
+<li><code>t &lt;/w&gt;</code>: occurs in <code>"newest"</code> ($6$) + <code>"widest"</code> ($3$) = $9$ times.</li>
+<li><code>l o</code>: occurs in <code>"low"</code> ($5$) + <code>"lower"</code> ($2$) = $7$ times.<br />
+  2. Merge the most frequent pair <code>e s</code> into <code>es</code>.</li>
+<li><em>Updated Corpus</em>:</li>
+<li><code>"l o w &lt;/w&gt;"</code>: 5 times</li>
+<li><code>"l o w e r &lt;/w&gt;"</code>: 2 times</li>
+<li><code>"n e w es t &lt;/w&gt;"</code>: 6 times</li>
+<li><code>"w i d es t &lt;/w&gt;"</code>: 3 times</li>
+<li><em>New Vocabulary</em>: Base characters + <code>{'es'}</code> (13 tokens).<br />
+  3. Re-count adjacent pairs:</li>
+<li><code>es t</code>: occurs in <code>"newest"</code> ($6$) + <code>"widest"</code> ($3$) = $9$ times.</li>
+<li><code>t &lt;/w&gt;</code>: occurs in <code>"newest"</code> ($6$) + <code>"widest"</code> ($3$) = $9$ times.</li>
+<li><code>l o</code>: occurs in <code>"low"</code> ($5$) + <code>"lower"</code> ($2$) = $7$ times.<br />
+  4. Merge <code>es t</code> into <code>est</code>.</li>
+<li><em>Updated Corpus</em>:</li>
+<li><code>"l o w &lt;/w&gt;"</code>: 5 times</li>
+<li><code>"l o w e r &lt;/w&gt;"</code>: 2 times</li>
+<li><code>"n e w est &lt;/w&gt;"</code>: 6 times</li>
+<li><code>"w i d est &lt;/w&gt;"</code>: 3 times</li>
+<li><em>New Vocabulary</em>: Base characters + <code>{'es', 'est'}</code> (14 tokens).</li>
+</ul>
+</li>
+</ul>
+<h3 id="wordpiece">WordPiece</h3>
+<ul>
+<li><strong>Concept</strong>: Selects merges based on likelihood ratio maximization rather than raw pair frequency. It merges <code>A</code> and <code>B</code> if it maximizes:<br />
+  $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Count}(B)}$$</li>
+<li><strong>Used by</strong>: BERT, DistilBERT.</li>
+</ul>
+<h3 id="sentencepiece-unigram">SentencePiece &amp; Unigram</h3>
+<ul>
+<li><strong>SentencePiece</strong>: Fits tokenizers directly on raw bytes, treating spaces as normal characters (<code>_</code>), eliminating language-specific whitespace parser pre-processing.</li>
+<li><strong>Unigram</strong>: Starts with a massive base vocabulary and iteratively <em>prunes</em> low-probability tokens using an EM entropy likelihood step until target $|V|$ is met.</li>
+</ul>
+<hr />
+<h2 id="3-production-tokenizer-challenges">3. Production Tokenizer Challenges</h2>
+<h3 id="out-of-vocabulary-oov-mitigation">Out-of-Vocabulary (OOV) Mitigation</h3>
+<p>If an unseen word occurs at runtime, traditional models fallback to an unknown token <code>&lt;unk&gt;</code>, losing input information.<br />
+- <strong>Byte-level BPE</strong>: Converts strings to UTF-8 bytes before running BPE. The base vocabulary holds the 256 possible byte values. This guarantees <em>any</em> string can be decomposed into bytes without ever needing the <code>&lt;unk&gt;</code> token.</p>
+<h3 id="unicode-multi-byte-character-handling">Unicode &amp; Multi-Byte Character Handling</h3>
+<p>Unicode characters (e.g. emojis or non-Latin alphabets) occupy 2 to 4 bytes. If a byte-level tokenizer splits a multi-byte character in the middle, it can create invalid byte strings, causing decoder reconstruction errors. SentencePiece and tiktoken prevent this by grouping valid UTF-8 character byte blocks together during pre-tokenization.</p>
+<hr />
+<h2 id="4-embedding-layer-mechanics">4. Embedding Layer Mechanics</h2>
+<p>An embedding layer acts as a matrix lookup $\mathbf{W}_E \in \mathbb{R}^{|V| \times d}$. Given a token ID $i$, it extracts the corresponding row representation vector $\mathbf{v}_i \in \mathbb{R}^d$.<br />
+- <strong>Static Embeddings (Word2Vec)</strong>: Each token has a single representation vector, ignoring grammatical context.<br />
+- <strong>Contextual Embeddings (Transformers)</strong>: Raw token embedding vectors are combined with positional embeddings and transformed by attention blocks, outputting context-specific representations (e.g. resolving meaning variations of <code>bank</code>).</p>
+<hr />
+<h2 id="5-interview-questions-production-trade-offs">5. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Transforms discrete text strings into continuous, dense semantic vectors that can be processed by neural architectures.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Subword tokenizers (like BPE) compile compact vocabularies ($|V| \approx 32\text{k} - 128\text{k}$), resolving word-level OOV bottlenecks and character-level sequence-length inflation.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Tokenizers struggle with numbers (e.g. <code>12345</code> split into <code>12</code> and <code>345</code>), non-Latin scripts (requiring more tokens per word), and spelling anomalies.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>BPE encoding lookup</strong>: $O(L \cdot \log |V|)$ using trie structures.</li>
+<li><strong>Embedding extraction</strong>: $O(L \cdot d)$ memory bandwidth lookup.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$L$: Input string length in characters.</li>
+<li>$|V|$: Vocabulary size (number of token entries).</li>
+<li>$d$: Embedding projection dimension.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Web scraping pipelines using Byte-level BPE (tiktoken) to ingest raw text data containing emojis or symbols without OOV crashes.</li>
+<li>Vector search DBs calculating cosine similarity over token embeddings to find semantic duplicates.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does WordPiece merge tokens using the score $\frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Count}(B)}$ instead of BPE's raw frequency?</em><br />
+   - <strong>Answer</strong>: Raw frequency BPE prioritizes common character merges (like <code>e s</code> or <code>t h</code>). WordPiece divides raw counts by individual frequencies. If <code>A</code> and <code>B</code> are highly common words (e.g., <code>of</code> and <code>the</code>), they are rarely merged. It only merges tokens that co-occur significantly more than expected by chance, capturing structural semantic chunks (like <code>un</code> + <code>happy</code>).</li>
+<li><em>Why do non-Latin languages (e.g. Japanese, Hindi) consume significantly more token budget in standard LLMs?</em><br />
+   - <strong>Answer</strong>: Modern tokenizer vocabularies are trained on English-skewed corpora. English words map to single tokens (e.g. <code>apple</code>), whereas non-Latin words are split into multiple byte-level tokens because the combinations are rare in the corpus. This means non-Latin prompts consume $2\times - 4\times$ more token budget for the same semantic meaning.</li>
+<li><em>How does Byte-level BPE prevent the generation of invalid UTF-8 strings at decoder outputs?</em><br />
+   - <strong>Answer</strong>: By restricting BPE merges. Standard BPE could merge bytes across different characters, creating invalid segments. To prevent this, the tokenizer enforces that merges cannot cross character boundaries (using regex split rules on character blocks), keeping all byte combinations valid UTF-8 sequences.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-06-context-windows-kv-cache-dynamics">Module 06: Context Windows &amp; KV Cache Dynamics</h1>
+<p>This study guide explains the engineering mechanics of context window management and Key-Value (KV) caching during LLM inference, detailing prefill vs. decode phases, and VRAM memory footprint estimations.</p>
+<hr />
+<h2 id="1-llm-inference-phases-prefill-vs-decode">1. LLM Inference Phases: Prefill vs. Decode</h2>
+<p>LLM text generation is an autoregressive process split into two distinct execution phases:</p>
+<div class="codehilite"><pre><span></span><code>User Prompt ──► [Prefill Phase] ──► First Token ──► [Decode Phase] ──► Next Tokens...
+                (Compute-Bound)                      (Memory-Bound)
+</code></pre></div>
+
+<h3 id="1-prefill-phase-first-token-generation">1. Prefill Phase (First Token Generation)</h3>
+<ul>
+<li><strong>Concept</strong>: The model ingests the entire user prompt and processes all tokens in parallel.</li>
+<li><strong>Compute Profile</strong>: Highly <strong>compute-bound</strong> (dominated by parallel Matrix Multiplications utilizing GPU tensor cores).</li>
+<li><strong>Behavior</strong>: This step is highly parallelized, but because it processes the full prompt length at once, it consumes significant time, explaining <em>why the first token is slow</em>.</li>
+</ul>
+<h3 id="2-decode-phase-subsequent-token-generation">2. Decode Phase (Subsequent Token Generation)</h3>
+<ul>
+<li><strong>Concept</strong>: The model generates tokens one-by-one. Each generated token is appended back to the input to predict the next token.</li>
+<li><strong>Compute Profile</strong>: Highly <strong>memory-bandwidth bound</strong> (dominated by transferring model parameter matrices from GPU VRAM to the processor registers to compute a single token step).</li>
+<li><strong>Behavior</strong>: Execution speed is capped by memory bandwidth speeds, not floating-point operations.</li>
+</ul>
+<hr />
+<h2 id="2-the-kv-cache-mathematical-necessity">2. The KV Cache: Mathematical Necessity</h2>
+<p>During decoding, to predict token $t$, the attention layer needs Query vector $\mathbf{q}_t$, and Key/Value representations for all historical tokens: $\mathbf{K}_{\le t}, \mathbf{V}_{\le t}$.<br />
+- <strong>Without KV Cache</strong>: At every step $t$, the model must re-run the Transformer forward pass over <em>all</em> preceding tokens $1 \dots t-1$ to compute their $\mathbf{K}$ and $\mathbf{V}$ vectors. This requires $O(L^2)$ redundant computations.<br />
+- <strong>With KV Cache</strong>: The model stores computed $\mathbf{K}$ and $\mathbf{V}$ vectors of historical tokens in VRAM. At step $t$, it projects <em>only</em> the new token to $\mathbf{q}_t, \mathbf{k}_t, \mathbf{v}_t$, appends $\mathbf{k}_t, \mathbf{v}_t$ to the cache, and computes attention, reducing computation from $O(L^2)$ to $O(L)$ per decoding step.</p>
+<hr />
+<h2 id="3-kv-cache-vram-footprint-calculations">3. KV Cache VRAM Footprint Calculations</h2>
+<p>While the KV Cache reduces computation, it consumes significant VRAM.</p>
+<h3 id="mathematical-formulation-fp16-precision">Mathematical Formulation (FP16 Precision)</h3>
+<p>$$\text{KV Cache VRAM Size} = 2 \times 2 \times b \times n_{\text{layers}} \times n_{\text{heads\_kv}} \times d_{\text{head}} \times s_{\text{len}} \text{ bytes}$$<br />
+- The first factor <strong>$2$</strong> represents the Key and Value matrices.<br />
+- The second factor <strong>$2$</strong> represents precision bytes per floating-point value (FP16 or BF16 = 2 bytes).<br />
+- $b$: Batch size.<br />
+- $n_{\text{layers}}$: Transformer layer count.<br />
+- $n_{\text{heads\_kv}}$: Key-Value attention heads (varies based on MHA/GQA/MQA).<br />
+- $d_{\text{head}}$: Vector size per attention head.<br />
+- $s_{\text{len}}$: Active sequence length in tokens.</p>
+<h4 id="step-by-step-hand-calculation-llama-3-8b-configuration">Step-by-Step Hand Calculation (Llama-3-8B Configuration)</h4>
+<ul>
+<li><strong>Scenario</strong>: Let model configuration be Llama-3-8B:</li>
+<li>$n_{\text{layers}} = 32$</li>
+<li>$n_{\text{heads\_kv}} = 8$ (using Grouped-Query Attention with $8$ KV heads and $32$ Query heads)</li>
+<li>$d_{\text{head}} = 128$</li>
+<li><strong>Inference Parameters</strong>: Batch size $b = 4$, context length $s_{\text{len}} = 4096$ tokens in FP16.</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute floating-point elements stored per token per layer:<br />
+     $$\text{Elements}_{\text{token, layer}} = 2 \times n_{\text{heads\_kv}} \times d_{\text{head}} = 2 \times 8 \times 128 = 2048 \text{ elements}$$<br />
+  2. Compute total elements stored per token across all layers:<br />
+     $$\text{Elements}_{\text{token, total}} = 2048 \times n_{\text{layers}} = 2048 \times 32 = 65,536 \text{ elements}$$<br />
+  3. Calculate VRAM byte size per token per batch item in FP16 (2 bytes):<br />
+     $$\text{Bytes}_{\text{token, batch\_item}} = 65,536 \times 2 = 131,072 \text{ bytes } (\approx 128 \text{ KB})$$<br />
+  4. Multiply by Batch Size $b = 4$:<br />
+     $$\text{Bytes}_{\text{token, batch}} = 131,072 \times 4 = 524,288 \text{ bytes } (512 \text{ KB})$$<br />
+  5. Multiply by context length $s_{\text{len}} = 4096$:<br />
+     $$\text{Total VRAM} = 524,288 \times 4096 = 2,147,483,648 \text{ bytes}$$<br />
+     $$\text{VRAM in GB} = \frac{2,147,483,648}{1024^3} = 2.00 \text{ GB}$$</li>
+<li><strong>Result</strong>: The KV Cache consumes exactly $2.00\text{ GB}$ of VRAM at runtime.</li>
+</ul>
+<hr />
+<h2 id="4-context-window-limitations-anomalies">4. Context Window Limitations &amp; Anomalies</h2>
+<h3 id="sliding-window-attention">Sliding Window Attention</h3>
+<ul>
+<li><strong>Concept</strong>: Restricts attention bounds to a local window of size $W$ (e.g. $W=4096$ in Mistral), keeping KV Cache VRAM bound to a fixed maximum size $O(W)$ instead of growing indefinitely with sequence length $L$.</li>
+</ul>
+<h3 id="lost-in-the-middle-phenomenon">Lost-in-the-Middle Phenomenon</h3>
+<ul>
+<li><strong>Concept</strong>: LLMs retrieve information successfully at the beginning and end of long context windows, but their retrieval accuracy degrades on facts placed in the middle.</li>
+<li><strong>Mitigation</strong>: Place critical prompt instructions and context documents near the beginning or end of input sequences.</li>
+</ul>
+<hr />
+<h2 id="5-interview-questions-production-trade-offs">5. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Reduces decoding step complexity from $O(L^2)$ to $O(L)$ by caching historical token representations, enabling fast autoregressive text generation.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Decoupling prefill (parallel compute-bound processing) and decode (recurrent memory-bound generation) allows designing specialized kernel execution plans (like vLLM PagedAttention).</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>The KV Cache scales linearly with batch size and context length, leading to out-of-memory (OOM) errors on large workloads unless partitioned or compressed.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Decoding step (with KV Cache)</strong>: $O(L \cdot d)$ operations.</li>
+<li><strong>KV Cache VRAM Footprint</strong>: $O(b \cdot L \cdot d)$ bytes.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$b$: Batch size.</li>
+<li>$n_{\text{layers}}$: Transformer layers.</li>
+<li>$n_{\text{heads\_kv}}$: Key-Value heads.</li>
+<li>$d_{\text{head}}$: Vector size per attention head.</li>
+<li>$s_{\text{len}}$: Active sequence length in tokens.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Production inference engines (vLLM, TensorRT-LLM) using PagedAttention to fragment KV Cache memories like virtual OS page blocks, avoiding VRAM fragmentation.</li>
+<li>RAG applications arranging document placements to prevent Lost-in-the-Middle retrieval decay.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why is the decode phase memory-bandwidth bound while the prefill phase is compute-bound?</em><br />
+   - <strong>Answer</strong>: In prefill, the model processes $L$ prompt tokens concurrently, allowing GPUs to load weights once and apply them to $L$ columns of tokens, keeping Tensor cores saturated (compute-bound). In decode, only $1$ token is processed. The GPU must load the entire parameter weights (e.g., $16\text{ GB}$ for an $8\text{B}$ model in FP16) from VRAM to compute activations for a single token, capping latency by memory bandwidth transfer limits ($O(1)$ arithmetic intensity).</li>
+<li><em>How does Grouped-Query Attention (GQA) reduce KV Cache memory footprints?</em><br />
+   - <strong>Answer</strong>: Standard Multi-Head Attention (MHA) defines equal query and key-value heads: $h_Q = h_{KV} = 32$. GQA groups queries into clusters (e.g. $G=4$), sharing a single key-value head among $4$ query heads ($h_{KV} = h_Q / G = 8$). This reduces the keys and values stored in VRAM to $25\%$, decreasing KV Cache memory consumption by $4\times$.</li>
+<li><em>What is the "First Token Latency" (Time to First Token - TTFT) and why is it a primary metric in production?</em><br />
+   - <strong>Answer</strong>: TTFT measures the latency of the Prefill Phase (reading prompt and generating the first token). Because prefill must process the entire input prompt length at once, long prompts (e.g. $20\text{k}+$ tokens) introduce significant parallel matrix multiply latency. Splitting TTFT from subsequent token generation speed (Inter-Token Latency) helps engineers optimize system bottlenecks separately (e.g., flash decoding).</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-07-text-generation-decoding-strategies">Module 07: Text Generation &amp; Decoding Strategies</h1>
+<p>This study guide explains the engineering mechanics of text generation and token decoding strategies in LLMs, detailing greedy decoding, beam search, temperature scaling, Top-k/Top-p sampling, and repetition penalties.</p>
+<hr />
+<h2 id="1-autoregressive-generation">1. Autoregressive Generation</h2>
+<p>In decoder-only autoregressive models, generation is a sequential loop where the model predicts the probability distribution of the next token $w_t$ given all previous tokens $w_{1:t-1}$:</p>
+<p>$$P(w_t | w_{1:t-1}) = \text{Softmax}(\mathbf{z}_t)$$</p>
+<p>where $\mathbf{z}_t$ is the logit vector output by the final language modeling classification head. The selected token is appended to the input context, and the loop repeats.</p>
+<hr />
+<h2 id="2-deterministic-vs-stochastic-decoding">2. Deterministic vs. Stochastic Decoding</h2>
+<h3 id="greedy-decoding">Greedy Decoding</h3>
+<ul>
+<li><strong>Concept</strong>: Selects the token with the highest probability at every step:<br />
+  $$w_t = \arg\max_i P(w_{t,i} | w_{1:t-1})$$</li>
+<li><em>Limitations</em>: Highly repetitive (stuck in local loops) and lacks creativity.</li>
+</ul>
+<h3 id="beam-search">Beam Search</h3>
+<ul>
+<li><strong>Concept</strong>: Maintains the top $B$ highest probability candidate sequences (beams) at each step.</li>
+<li><em>Trade-off</em>: Improves search coverage but multiplies computation by $O(B)$ at every turn.</li>
+</ul>
+<hr />
+<h2 id="3-stochastic-sampling-parameters">3. Stochastic Sampling Parameters</h2>
+<p>To introduce diversity, we sample from the probability distribution, modified by three control parameters:</p>
+<h3 id="temperature-mathplaceholder16endmath">Temperature ($T$)</h3>
+<p>Scales the raw logit values before applying Softmax:<br />
+$$\tilde{z}_i = \frac{z_i}{T}$$<br />
+- <strong>High $T$ ($T > 1.0$)</strong>: flattens the distribution (increases entropy, making generation more creative/random).<br />
+- <strong>Low $T$ ($T \to 0.0$)</strong>: sharpens the distribution, collapsing it toward greedy selection.</p>
+<h3 id="top-k-sampling">Top-k Sampling</h3>
+<p>Restricts sampling to the $K$ tokens with the highest logit values. The logits of all other tokens are set to $-\infty$, completely pruning them.</p>
+<h3 id="top-p-nucleus-sampling">Top-p (Nucleus) Sampling</h3>
+<p>Restricts sampling to the smallest subset of tokens whose cumulative probability exceeds threshold $p$ (e.g. $p=0.90$):<br />
+$$\sum_{i \in V_{\text{subset}}} P(w_i) \ge p$$<br />
+This dynamically scales vocabulary options based on model confidence.</p>
+<h3 id="repetition-penalty-mathplaceholder25endmath">Repetition Penalty ($\theta$)</h3>
+<p>Applies a divisor or multiplier to logits of tokens that have already been generated in the output sequence to prevent repetitive loops:<br />
+$$\tilde{z}_i = \begin{cases} z_i / \theta & \text{if } z_i > 0 \\ z_i \cdot \theta & \text{if } z_i \le 0 \end{cases} \quad (\text{for } \theta \ge 1.0)$$</p>
+<hr />
+<h2 id="4-step-by-step-hand-calculation-stochastic-decoding">4. Step-by-Step Hand Calculation (Stochastic Decoding)</h2>
+<ul>
+<li><strong>Scenario</strong>: Vocabulary $|V| = 3$. Raw logits generated: $\mathbf{z} = [2.0, 1.0, -1.0]$.</li>
+<li><strong>Parameters</strong>: Temperature $T = 0.5$, Top-k limit $k = 2$.</li>
+<li><strong>Repetition Penalty</strong>: $\theta = 1.2$ applied to token index 0 (which occurred in the prompt history).</li>
+<li><strong>Calculation</strong>:<br />
+  1. Apply Repetition Penalty to index 0:<ul>
+<li>Since $z_0 = 2.0 > 0$:<br />
+   $$\tilde{z}_0 = \frac{2.0}{1.2} \approx 1.6667$$</li>
+<li>Others remain unchanged: $\tilde{z}_1 = 1.0$, $\tilde{z}_2 = -1.0$.</li>
+<li>Adjusted logits: $\tilde{\mathbf{z}} = [1.6667, 1.0, -1.0]$<br />
+  2. Scale by Temperature $T = 0.5$ (divide all logits by $0.5$):<br />
+ $$\tilde{\mathbf{z}}_{\text{scaled}} = \left[ \frac{1.6667}{0.5}, \frac{1.0}{0.5}, \frac{-1.0}{0.5} \right] = [3.3333, 2.0, -2.0]$$<br />
+  3. Apply Top-k sampling ($k=2$, keep top 2, set rest to $-\infty$):</li>
+<li>Sorted logits: index 0 ($3.3333$), index 1 ($2.0$). Index 2 is pruned.</li>
+<li>Pruned logits: $\tilde{\mathbf{z}}_{\text{top2}} = [3.3333, 2.0, -\infty]$<br />
+  4. Evaluate Softmax probabilities:</li>
+<li>Compute exponentials:<br />
+   $$e^{3.3333} \approx 28.0316, \quad e^{2.0} \approx 7.3891, \quad e^{-\infty} = 0.0000$$</li>
+<li>Sum: $28.0316 + 7.3891 = 35.4207$</li>
+<li>Probabilities:<br />
+   $$P_0 = \frac{28.0316}{35.4207} \approx 0.7914$$<br />
+   $$P_1 = \frac{7.3891}{35.4207} \approx 0.2086$$<br />
+   $$P_2 = 0.0000$$</li>
+</ul>
+</li>
+<li><strong>Result</strong>: The sampling probability distribution is $[0.7914, 0.2086, 0.0000]$.</li>
+</ul>
+<hr />
+<h2 id="5-comparison-of-decoding-strategies">5. Comparison of Decoding Strategies</h2>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Deterministic</th>
+<th>Latency Profile</th>
+<th>Best Use Case</th>
+<th>Primary Limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Greedy Decoding</strong></td>
+<td>Yes</td>
+<td>Low</td>
+<td>Code generation, structured JSON extraction</td>
+<td>Repetitive text, lacks variety</td>
+</tr>
+<tr>
+<td><strong>Beam Search</strong></td>
+<td>Yes</td>
+<td>High ($O(B)$)</td>
+<td>Translation, translation tasks</td>
+<td>High computation overhead</td>
+</tr>
+<tr>
+<td><strong>Top-k / Top-p</strong></td>
+<td>No</td>
+<td>Low</td>
+<td>Creative writing, open dialogue agents</td>
+<td>Prone to gibberish if parameters are too loose</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-interview-questions-production-trade-offs">6. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Transforms raw, unbounded logit vectors output by the neural network into valid token sampling probability distributions.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Stochastic sampling controls (like top-k/top-p and temperature) balance model creativity with structural syntax coherence.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Excessive repetition penalties can lead to generation breakdown where the model outputs completely random symbols to avoid repeating grammatical stop words.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Top-k sort time</strong>: $O(|V| \cdot \log k)$ operations.</li>
+<li><strong>Top-p cumulative sum sort</strong>: $O(|V| \cdot \log |V|)$ operations.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$|V|$: Vocabulary size.</li>
+<li>$k$: Top-k count.</li>
+<li>$p$: Top-p cumulative probability.</li>
+<li>$\theta$: Repetition penalty parameter.</li>
+<li>$T$: Temperature scaling factor.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Customer service bots using Greedy decoding for structured JSON schemas to ensure parser reliability.</li>
+<li>Story generation systems using Top-p $0.90$ and $T=0.8$ to produce varied descriptions.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why is Top-p preferred over Top-k in modern conversational LLMs?</em><br />
+   - <strong>Answer</strong>: Top-k uses a fixed limit $K$. In cases where the probability distribution is highly concentrated (e.g. predicting the next word of <code>"The capital of France is [Paris]"</code>), the correct answer might have $99\%$ probability, while the remaining $K-1$ choices have tiny probabilities, making their selection a logical failure. In cases where the distribution is flat (e.g., <code>"I went to the restaurant and ordered [food/steak/pizza...]"</code>), $K$ might prune out highly plausible choices. Top-p dynamically sizes the active candidate set based on cumulative probability, adapting to model confidence.</li>
+<li><em>What is the mathematical consequence of setting Temperature $T \to 0.0$ at runtime?</em><br />
+   - <strong>Answer</strong>: As $T \to 0.0$, the difference between the maximum logit $z_{\text{max}}$ and other logits $z_j$ scaled by $1/T$ approaches infinity. During Softmax computation, the exponential value of the maximum logit dominates the sum: $\lim_{T \to 0} P(w_{\text{max}}) = 1.0$ and $P(w_j) = 0.0$ for all other tokens. This mathematically collapses the sampling distribution to greedy selection.</li>
+<li><em>How do you implement Repetition Penalty efficiently without adding overhead?</em><br />
+   - <strong>Answer</strong>: Maintain a set of generated token IDs in memory. During logit decoding of the current step, iterate through the historical token set and apply the penalty division directly to their index positions in the raw logit array before running softmax, adding minimal $O(N)$ lookup latency.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-08-modern-llm-architectures-evolutionary-innovations">Module 08: Modern LLM Architectures: Evolutionary Innovations</h1>
+<p>This study guide trace the chronological engineering evolution of Large Language Model architectures, detailing the specific problems each model solved, and explaining key KV cache optimizations like Grouped-Query Attention (GQA).</p>
+<hr />
+<h2 id="1-timeline-of-architectural-evolutions">1. Timeline of Architectural Evolutions</h2>
+<div class="codehilite"><pre><span></span><code>GPT (Decoder) ──► BERT (Encoder) ──► T5 (Enc-Dec) ──► Llama (RMSNorm/SwiGLU) ──► Mistral (Sliding Window)
+                                                                                  │
+DeepSeek (MLA/MoE) ◄── Qwen (MQA Ext) ◄── Gemma (GeGLU) ◄── Mixtral (MoE Route) ◄─┘
+</code></pre></div>
+
+<hr />
+<h2 id="2-model-by-model-architectural-breakdowns">2. Model-by-Model Architectural Breakdowns</h2>
+<h3 id="1-gpt-generative-pre-trained-transformer">1. GPT (Generative Pre-trained Transformer)</h3>
+<ul>
+<li><strong>What's new?</strong>: First scaled decoder-only autoregressive pre-training model.</li>
+<li><strong>Why was it introduced?</strong>: To show that self-supervised next-token prediction over raw text datasets builds robust general representations.</li>
+<li><strong>Problem solved</strong>: Eliminated the need for large task-specific labeled datasets by enabling unsupervised pre-training followed by supervised fine-tuning.</li>
+</ul>
+<h3 id="2-bert-bidirectional-encoder-representations-from-transformers">2. BERT (Bidirectional Encoder Representations from Transformers)</h3>
+<ul>
+<li><strong>What's new?</strong>: Bidirectional self-attention encoder utilizing a Masked Language Modeling (MLM) objective.</li>
+<li><strong>Why was it introduced?</strong>: Causal decoders (like GPT) only attend to previous context, losing downstream sequence context.</li>
+<li><strong>Problem solved</strong>: Allowed the model to access left-to-right and right-to-left contexts simultaneously, improving performance on natural language understanding (NLU) tasks like sequence classification and parsing.</li>
+</ul>
+<h3 id="3-t5-text-to-text-transfer-transformer">3. T5 (Text-to-Text Transfer Transformer)</h3>
+<ul>
+<li><strong>What's new?</strong>: A unified encoder-decoder architecture that frames all NLP tasks as text-to-text mappings.</li>
+<li><strong>Why was it introduced?</strong>: To standardize downstream processing; classification, translation, and summarization all share the same text-input-to-text-output interface.</li>
+<li><strong>Problem solved</strong>: Replaced specialized classification heads with a single generative training pipeline.</li>
+</ul>
+<h3 id="4-llama-large-language-model-meta-ai">4. Llama (Large Language Model Meta AI)</h3>
+<ul>
+<li><strong>What's new?</strong>: Pre-normalization (using RMSNorm to stabilize scaling), SwiGLU activation layers, and Rotary Positional Embeddings (RoPE).</li>
+<li><strong>Why was it introduced?</strong>: To build a high-performance open-weights model capable of stable training at massive scale.</li>
+<li><strong>Problem solved</strong>: Mitigated early-layer gradient vanishing and sequence length VRAM constraints during pre-training.</li>
+</ul>
+<h3 id="5-mistral">5. Mistral</h3>
+<ul>
+<li><strong>What's new?</strong>: Sliding Window Attention (SWA) and Grouped-Query Attention (GQA).</li>
+<li><strong>Why was it introduced?</strong>: High batch-size inference is throttled by KV Cache memory bottlenecks.</li>
+<li><strong>Problem solved</strong>: SWA limits attention bounds to $W$ tokens (pruning old KV Cache elements), while GQA shares Key/Value heads across Query clusters, reducing VRAM usage.</li>
+</ul>
+<h3 id="6-mixtral">6. Mixtral</h3>
+<ul>
+<li><strong>What's new?</strong>: Sparse Mixture of Experts (MoE) utilizing Top-2 routing.</li>
+<li><strong>Why was it introduced?</strong>: To scale model parameter capacity without increasing the active FLOPS computation count per token.</li>
+<li><strong>Problem solved</strong>: Allowed building models with 47B total parameters where only 13B parameters are active per token, maintaining high quality at low execution latency.</li>
+</ul>
+<h3 id="7-gemma">7. Gemma</h3>
+<ul>
+<li><strong>What's new?</strong>: GeGLU gated activation functions, absolute parameter scaling tweaks, and RMSNorm weight additions.</li>
+<li><strong>Why was it introduced?</strong>: To optimize small-parameter models ($2\text{B} - 7\text{B}$) for client-side device deployments.</li>
+<li><strong>Problem solved</strong>: Improved representation density on small scale parameters.</li>
+</ul>
+<h3 id="8-qwen">8. Qwen</h3>
+<ul>
+<li><strong>What's new?</strong>: High-resolution byte-level vocabularies ($|V| \approx 150\text{k}$) and custom Multi-Query Attention extensions.</li>
+<li><strong>Why was it introduced?</strong>: Standard English tokenizers represent non-Latin languages inefficiently.</li>
+<li><strong>Problem solved</strong>: Drastically reduced sequence token lengths for multilingual and programming tasks.</li>
+</ul>
+<h3 id="9-deepseek">9. DeepSeek</h3>
+<ul>
+<li><strong>What's new?</strong>: Multi-Head Latent Attention (MLA) and DeepSeekMoE sparse routing.</li>
+<li><strong>Why was it introduced?</strong>: Standard GQA still consumes significant VRAM at large context windows, and traditional MoE routing exhibits expert load imbalance.</li>
+<li><strong>Problem solved</strong>: MLA compresses Key/Value representations into a low-dimensional latent space before projection, reducing KV Cache footprint by up to $93\%$, while DeepSeekMoE isolates shared routing experts to prevent routing redundancy.</li>
+</ul>
+<hr />
+<h2 id="3-attention-reductions-mha-vs-gqa-vs-mqa">3. Attention Reductions: MHA vs. GQA vs. MQA</h2>
+<p>To save KV Cache VRAM, models project fewer Key/Value heads relative to Query heads.</p>
+<ul>
+<li><strong>Multi-Head Attention (MHA)</strong>: Each Query head has its own Key and Value head ($h_Q = h_{KV} = 32$).</li>
+<li><strong>Multi-Query Attention (MQA)</strong>: All Query heads share a single Key and Value head ($h_{KV} = 1$).</li>
+<li><em>Limitation</em>: Can degrade attention quality on multi-turn tasks.</li>
+<li><strong>Grouped-Query Attention (GQA)</strong>: Query heads are split into $G$ groups. Each group shares one Key and Value head:<br />
+  $$h_{KV} = \frac{h_Q}{G}$$</li>
+<li><em>Advantage</em>: Matches the speed of MQA while retaining the representation accuracy of MHA.</li>
+</ul>
+<h4 id="step-by-step-hand-calculation-gqa-mapping">Step-by-Step Hand Calculation (GQA Mapping)</h4>
+<ul>
+<li><strong>Scenario</strong>: Query heads $h_Q = 8$. Key-Value heads $h_{KV} = 2$.</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute Group size $G$:<br />
+     $$G = \frac{h_Q}{h_{KV}} = \frac{8}{2} = 4 \text{ query heads per group}$$<br />
+  2. Map Query indices to Key-Value index heads:<ul>
+<li>Group 0 queries: indices <code>[0, 1, 2, 3]</code> map to Key/Value head <code>0</code>.</li>
+<li>Group 1 queries: indices <code>[4, 5, 6, 7]</code> map to Key/Value head <code>1</code>.<br />
+  3. Memory Footprint Reduction:</li>
+<li>Without GQA (MHA): We store $8$ Keys and $8$ Values per token.</li>
+<li>With GQA: We store $2$ Keys and $2$ Values per token.</li>
+<li><strong>VRAM Saving</strong>: $\frac{8}{2} = 4\times$ reduction in active KV Cache memory storage.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="4-key-architectural-variations-matrix">4. Key Architectural Variations Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Normalization</th>
+<th>Attention Type</th>
+<th>Activation</th>
+<th>Positional Encoding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPT</strong></td>
+<td>Post-LN LayerNorm</td>
+<td>Multi-Head Attention</td>
+<td>GELU</td>
+<td>Learned Absolute</td>
+</tr>
+<tr>
+<td><strong>BERT</strong></td>
+<td>Post-LN LayerNorm</td>
+<td>Bidirectional MHA</td>
+<td>GELU</td>
+<td>Learned Absolute</td>
+</tr>
+<tr>
+<td><strong>Llama</strong></td>
+<td>Pre-LN RMSNorm</td>
+<td>GQA / MHA</td>
+<td>SwiGLU</td>
+<td>Rotary Embeddings (RoPE)</td>
+</tr>
+<tr>
+<td><strong>Mistral</strong></td>
+<td>Pre-LN RMSNorm</td>
+<td>Sliding Window GQA</td>
+<td>SwiGLU</td>
+<td>Rotary Embeddings (RoPE)</td>
+</tr>
+<tr>
+<td><strong>Gemma</strong></td>
+<td>Pre-LN RMSNorm</td>
+<td>Multi-Head Attention</td>
+<td>GeGLU</td>
+<td>Rotary Embeddings (RoPE)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-interview-questions-production-trade-offs">5. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Evolutionary changes solve VRAM capacity limits and computational latency bottlenecks during inference.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Multi-Query and Grouped-Query attention mechanisms compress cached key-values to fit within GPU hardware limitations.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Excessive GQA grouping ($G \ge 8$) can cause semantic resolution degradation on multi-hop reasoning tasks.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>MQA KV Cache update</strong>: $O(b \cdot d_{\text{head}})$ memory writes.</li>
+<li><strong>GQA KV Cache update</strong>: $O(b \cdot h_{KV} \cdot d_{\text{head}})$ memory writes.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$b$: Batch size.</li>
+<li>$h_{KV}$: Key-Value heads count.</li>
+<li>$h_Q$: Query heads count.</li>
+<li>$d_{\text{head}}$: Vector dimension size per attention head.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>vLLM serving frameworks deploying GQA configurations (Llama-3) to increase batch throughput capacity.</li>
+<li>Code assistants loading Qwen or DeepSeek models to process long code sequences efficiently.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does Grouped-Query Attention (GQA) recover attention quality better than Multi-Query Attention (MQA)?</em><br />
+   - <strong>Answer</strong>: MQA forces all query heads to query the exact same key-value projection, restricting attention patterns to a single shared coordinate system. GQA preserves multiple independent key-value subspaces ($h_{KV} > 1$). This allows different head groups to attend to distinct semantic relations (e.g., syntax vs. long-range dependencies), maintaining representation accuracy.</li>
+<li><em>Describe the structural difference between SwiGLU and GeGLU.</em><br />
+   - <strong>Answer</strong>: Both are gated linear units. SwiGLU applies the Swish activation function to the gate channel: $\text{Swish}(\mathbf{x} \mathbf{W}_1) \odot \mathbf{x} \mathbf{W}_2$. GeGLU applies the GELU activation function to the gate channel: $\text{GELU}(\mathbf{x} \mathbf{W}_1) \odot \mathbf{x} \mathbf{W}_2$. The choice is dependent on pre-training scaling properties, with SwiGLU showing marginally better validation convergence in large models.</li>
+<li><em>How does DeepSeek's Multi-Head Latent Attention (MLA) compress the KV Cache?</em><br />
+   - <strong>Answer</strong>: Instead of storing key-value vectors of size $h_{KV} \cdot d_{\text{head}}$ in memory directly, MLA uses low-rank projection to compress them into a compressed latent vector $\mathbf{c}_t \in \mathbb{R}^{d_c}$ where $d_c \ll h_{KV} \cdot d_{\text{head}}$. During decoding, only the compressed latent vector is cached. During the attention computation, the keys and values are projected back from the latent vector, compressing KV Cache storage overhead by $4\times - 10\times$.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-09-scaling-laws-mixture-of-experts-moe">Module 09: Scaling Laws &amp; Mixture of Experts (MoE)</h1>
+<p>This study guide explains the engineering mathematics of LLM scaling properties and sparse architectures, detailing Kaplan vs. Chinchilla laws, GPU-day training estimates, and Mixture of Experts routing mechanisms.</p>
+<hr />
+<h2 id="1-power-law-scaling-kaplan-vs-chinchilla">1. Power-Law Scaling: Kaplan vs. Chinchilla</h2>
+<p>Scaling laws state that cross-entropy loss $L$ decreases as a power-law relative to parameter count $N$, dataset size $D$, and compute budget $C$:</p>
+<p>$$L(N) \propto N^{-\alpha_N}, \quad L(D) \propto D^{-\alpha_D}, \quad L(C) \propto C^{-\alpha_C}$$</p>
+<h3 id="1-kaplan-et-al-scaling-law-openai">1. Kaplan et al. Scaling Law (OpenAI)</h3>
+<ul>
+<li><strong>Finding</strong>: Parameter count is the dominant factor in model performance. If compute budget $C$ is scaled, parameter count $N$ should be scaled rapidly ($N \propto C^{0.73}$), while dataset size $D$ is scaled slowly ($D \propto C^{0.27}$).</li>
+<li><em>Consequence</em>: Led to models trained on relatively small token counts (e.g. GPT-3 with 175B parameters trained on only 300B tokens).</li>
+</ul>
+<h3 id="2-chinchilla-scaling-law-hoffmann-et-al-deepmind">2. Chinchilla Scaling Law (Hoffmann et al., DeepMind)</h3>
+<ul>
+<li><strong>Finding</strong>: Kaplan's team underestimated the value of training data size. For compute-optimal training, parameter size $N$ and token count $D$ should scale in equal proportions ($N \propto C^{0.5}, D \propto C^{0.5}$).</li>
+<li><strong>Compute-Optimal Ratio</strong>:<br />
+  $$D \approx 20 \cdot N$$<br />
+  For every 1B parameters, a model should be trained on 20B tokens.</li>
+<li><strong>Total Compute Cost Formula</strong>:<br />
+  $$C \approx 6ND \text{ FLOPS}$$<br />
+  (The coefficient $6$ represents the operations required for forward (2 ops) and backward (4 ops) passes per parameter per token).</li>
+</ul>
+<hr />
+<h2 id="2-step-by-step-hand-calculation-training-budget-gpu-days">2. Step-by-Step Hand Calculation (Training Budget &amp; GPU-Days)</h2>
+<ul>
+<li><strong>Scenario</strong>: We want to train a model with $N = 7\text{B}$ parameters ($7 \times 10^9$) compute-optimally.</li>
+<li><strong>GPU Specifications</strong>: H100 GPU with peak FP16 tensor performance of $9.89 \times 10^{14}$ FLOPS ($989$ TFLOPS). Real-world Model Flop Utilization (MFU) is $40\%$, making effective throughput:<br />
+  $$\text{Effective FLOPS} = 9.89 \times 10^{14} \times 0.40 \approx 3.956 \times 10^{14} \text{ FLOPS}$$</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute the optimal dataset size $D$ according to Chinchilla scaling:<br />
+     $$D = 20 \times N = 20 \times (7 \times 10^9) = 1.4 \times 10^{11} \text{ tokens (140B tokens)}$$<br />
+  2. Compute total training compute budget $C$:<br />
+     $$C \approx 6ND = 6 \times (7 \times 10^9) \times (1.4 \times 10^{11}) = 5.88 \times 10^{21} \text{ FLOPS}$$<br />
+  3. Calculate training time in seconds on a single GPU:<br />
+     $$\text{Time}_{\text{sec}} = \frac{C}{\text{Effective FLOPS}} = \frac{5.88 \times 10^{21}}{3.956 \times 10^{14}} \approx 1.4863 \times 10^7 \text{ seconds}$$<br />
+  4. Convert to days:<br />
+     $$\text{Time}_{\text{days}} = \frac{1.4863 \times 10^7}{86,400} \approx 172.0 \text{ GPU-days}$$</li>
+<li><strong>Result</strong>: Training a 7B model compute-optimally requires $\approx 172.0$ H100 GPU-days.</li>
+</ul>
+<hr />
+<h2 id="3-mixture-of-experts-moe-architecture">3. Mixture of Experts (MoE) Architecture</h2>
+<p>To scale model parameters without multiplying compute costs, Mixture of Experts (MoE) replaces dense FFN layers with multiple parallel experts, routing each token to a subset of them.</p>
+<div class="codehilite"><pre><span></span><code>Input Token ──► [Router / Gating] ──► Select Top-2 Experts ──► [Expert 1] \
+                                                           ──► [Expert 4] ──► Concat Output
+</code></pre></div>
+
+<ul>
+<li><strong>Router (Gating Network)</strong>: Computes a probability distribution over $E$ experts:<br />
+  $$\mathbf{g} = \text{Softmax}(\mathbf{x} \mathbf{W}_g)$$</li>
+<li><strong>Top-2 Routing</strong>: Sets gating coefficients to $0$ for all but the top 2 experts, saving computation.</li>
+<li><strong>MoE Challenges</strong>:<br />
+  1. <strong>Expert Capacity Limits</strong>: The maximum number of tokens an expert can process in a batch. If exceeded, extra tokens are dropped, degrading quality.<br />
+  2. <strong>Expert Load Imbalance</strong>: The router can over-allocate to a few favorite experts. To prevent this, models train with an auxiliary <strong>balancing loss</strong>:<br />
+     $$\mathcal{L}_{\text{balance}} = E \sum_{i=1}^{E} f_i \cdot P_i$$<br />
+     where $f_i$ is the fraction of tokens routed to expert $i$, and $P_i$ is the mean routing probability allocated to expert $i$.</li>
+</ul>
+<hr />
+<h2 id="4-comparison-of-architectures">4. Comparison of Architectures</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Dense Model (BERT/GPT)</th>
+<th>Sparse MoE Model (Mixtral)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Total Parameters</strong></td>
+<td>$N$ (all active)</td>
+<td>$N_{\text{total}}$ (highly scaled)</td>
+</tr>
+<tr>
+<td><strong>Active Parameters</strong></td>
+<td>$N$ (all active)</td>
+<td>$N_{\text{active}} \ll N_{\text{total}}$</td>
+</tr>
+<tr>
+<td><strong>Latency Profile</strong></td>
+<td>Constant per token</td>
+<td>Subject to routing and inter-GPU communication</td>
+</tr>
+<tr>
+<td><strong>VRAM Requirement</strong></td>
+<td>Fits $N$ parameters</td>
+<td>Fits $N_{\text{total}}$ parameters (high VRAM ceiling)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-interview-questions-production-trade-offs">5. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Allows scaling capacity up to trillions of parameters without violating execution latency budgets.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Chinchilla scaling laws demonstrated that prior LLMs were severely under-trained on tokens, shifting priority to dataset expansion.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>MoE models require massive VRAM capacities to hold expert weights, creating hardware distribution constraints.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Dense Layer training cost</strong>: $6 \cdot N \cdot D$ FLOPS.</li>
+<li><strong>MoE routing decision overhead</strong>: $O(E \cdot d)$ operations.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$N$: Model parameter count.</li>
+<li>$D$: Training dataset token count.</li>
+<li>$E$: Number of parallel MoE experts.</li>
+<li>$C$: Total FLOPS compute budget.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Large-scale pre-training pipelines allocating GPU resources based on Chinchilla compute estimates.</li>
+<li>Efficient text generation endpoints running Mixtral models to reduce token serving costs.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does Llama-3-8B violate Chinchilla scaling laws by training on 15T tokens ($D \approx 1875 N$ instead of $20 N$)?</em><br />
+   - <strong>Answer</strong>: Chinchilla scaling optimizes for the lowest <em>training</em> compute budget. However, in production, a model is queried billions of times. Over-training a smaller, cheaper-to-serve model (8B parameters) on massive token counts yields a model that has high accuracy but is much cheaper to run at inference, trade-off wise favoring inference-efficiency over training-efficiency.</li>
+<li><em>Why do MoE models require expert capacity limits during distributed training?</em><br />
+   - <strong>Answer</strong>: On distributed hardware, experts are placed on different GPUs. If expert routing is unbalanced, one expert GPU receives all tokens, causing a computation bottleneck and VRAM overflow, while other expert GPUs sit idle. Enforcing a capacity limit drops excess tokens, keeping batch sizes and step times constant.</li>
+<li><em>Explain how MoE expert caching mitigates weight loading bottlenecks during decoding.</em><br />
+   - <strong>Answer</strong>: Because MoE routing changes token-by-token, consecutive tokens in a sequence target different experts. If expert weights are loaded dynamically, memory transfer latency stalls the system. Expert caching locks all expert parameters in GPU VRAM, bypassing transfer overhead.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-10-common-llm-limitations-evaluation-metrics">Module 10: Common LLM Limitations &amp; Evaluation Metrics</h1>
+<p>This study guide explains the core limitations of Large Language Models (hallucinations, reasoning bounds, sychophancy, alignment tradeoffs) and defines standard evaluation metrics, deriving Perplexity step-by-step.</p>
+<hr />
+<h2 id="1-core-model-limitations-failures">1. Core Model Limitations &amp; Failures</h2>
+<p>LLMs exhibit several behavior limits rooted in their next-token prediction objective:</p>
+<h3 id="1-hallucinations">1. Hallucinations</h3>
+<ul>
+<li><strong>Factuality vs. Generation</strong>: Hallucinations occur when a model generates grammatically coherent but factually incorrect assertions.</li>
+<li><strong>Why they occur</strong>: The maximum-likelihood objective optimizes for token sequence <em>plausibility</em> in the training corpus, not structural <em>factuality</em>. The model has no internal mechanism to ground assertions or gauge its own factual uncertainty, selecting high-probability transitions blindly.</li>
+</ul>
+<h3 id="2-reasoning-bottlenecks-lack-of-grounding">2. Reasoning Bottlenecks &amp; Lack of Grounding</h3>
+<ul>
+<li><strong>Semantic Grounding</strong>: Models manipulate tokens based on statistical co-occurrences without real-world physical or sensory grounding (the "Chinese Room" argument).</li>
+<li><strong>Reasoning Limits</strong>: Models fail on arithmetic or logic operations requiring multi-step execution graphs because they evaluate steps left-to-right in single forward passes.</li>
+</ul>
+<h3 id="3-alignment-trade-offs-sycophancy-mode-collapse">3. Alignment Trade-offs (Sycophancy &amp; Mode Collapse)</h3>
+<ul>
+<li><strong>Sycophancy</strong>: During RLHF (Reinforcement Learning from Human Feedback), models learn to output answers that match user biases rather than truth, as human evaluators favor polite agreement.</li>
+<li><strong>Mode Collapse</strong>: RLHF fine-tuning can over-index on preferred responses, restricting output diversity and flattening generation creativity.</li>
+</ul>
+<hr />
+<h2 id="2-evaluation-metrics">2. Evaluation Metrics</h2>
+<p>To debug and evaluate generations, engineers use statistical similarity metrics:</p>
+<h3 id="1-bleu-bilingual-evaluation-understudy">1. BLEU (Bilingual Evaluation Understudy)</h3>
+<p>Computes n-gram precision between generation and reference targets, penalized for short lengths (Brevity Penalty). Standard in machine translation.</p>
+<h3 id="2-rouge-recall-oriented-understudy-for-gisting-evaluation">2. ROUGE (Recall-Oriented Understudy for Gisting Evaluation)</h3>
+<p>Measures n-gram overlap recall between generation and reference targets. Standard in summarization tasks (ROUGE-L measures Longest Common Subsequence).</p>
+<h3 id="3-perplexity-ppl">3. Perplexity (PPL)</h3>
+<p>Perplexity measures how well a model predicts a sample. It is the exponentiated cross-entropy loss of the sequence:</p>
+<p>$$\text{PPL}(X) = \exp \left( -\frac{1}{L} \sum_{t=1}^{L} \log P(x_t | x_{<t}) \right)$$</p>
+<ul>
+<li><strong>Intuition</strong>: A perplexity of $K$ means that at each token generation step, the model is on average as confused as if it had to choose uniformly among $K$ options in the vocabulary. Lower is better.</li>
+</ul>
+<hr />
+<h2 id="3-step-by-step-hand-calculation-perplexity">3. Step-by-Step Hand Calculation (Perplexity)</h2>
+<ul>
+<li><strong>Scenario</strong>: Target sequence length $L = 2$.</li>
+<li><strong>Model predictions</strong>: True target tokens are output at step 1 and step 2 with following probabilities:</li>
+<li>Step 1 ($t=1$): $P(x_1) = 0.50$</li>
+<li>Step 2 ($t=2$): $P(x_2 | x_1) = 0.20$</li>
+<li><strong>Calculation</strong>:<br />
+  1. Compute the natural log-likelihoods of the correct tokens:<br />
+     $$\log P(x_1) = \log(0.50) \approx -0.6931$$<br />
+     $$\log P(x_2 | x_1) = \log(0.20) \approx -1.6094$$<br />
+  2. Compute average cross-entropy loss (negative mean log-likelihood):<br />
+     $$\text{Average Loss} = -\frac{1}{2} \left( \log P(x_1) + \log P(x_2 | x_1) \right)$$<br />
+     $$\text{Average Loss} = -\frac{1}{2} (-0.6931 - 1.6094) = -\frac{1}{2} (-2.3025) = 1.1513$$<br />
+  3. Compute Perplexity:<br />
+     $$\text{PPL}(X) = \exp(1.1513) = e^{1.1513} \approx 3.1623$$</li>
+<li><strong>Result</strong>: The perplexity of the generated sequence is $\approx 3.1623$.</li>
+</ul>
+<hr />
+<h2 id="4-evaluation-metrics-trade-offs">4. Evaluation Metrics Trade-offs</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Primary Use Case</th>
+<th>Advantage</th>
+<th>Limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BLEU</strong></td>
+<td>Machine Translation</td>
+<td>Fast, standard baseline</td>
+<td>Fails to capture synonym variance; purely syntactic overlap</td>
+</tr>
+<tr>
+<td><strong>ROUGE</strong></td>
+<td>Text Summarization</td>
+<td>Measures recall (captures content)</td>
+<td>Susceptible to verbose, low-quality generations</td>
+</tr>
+<tr>
+<td><strong>Perplexity</strong></td>
+<td>Language Model Evaluation</td>
+<td>Direct metric of probability fit</td>
+<td>Strongly dependent on vocabulary size; incomparable across models</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-interview-questions-production-trade-offs">5. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Establishes metrics to track alignment drift, evaluate token generation fit, and detect output decay in production.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Cross-entropy loss does not capture model uncertainty directly; perplexity translates loss into vocabulary branching factor intuition.</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Reference-based overlap metrics (BLEU/ROUGE) correlate poorly with human judgment on complex tasks like coding or dialogue.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Perplexity computation</strong>: $O(L \cdot |V|)$ forward pass computations.</li>
+<li><strong>ROUGE-L LCS calculation</strong>: $O(L_{\text{gen}} \cdot L_{\text{ref}})$ dynamic programming time.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$L$: Sequence token length.</li>
+<li>$|V|$: Vocabulary size.</li>
+<li>$L_{\text{gen}}, L_{\text{ref}}$: Generated and reference sequence lengths.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Monitoring pipelines calculating Perplexity on production logs to detect model drift or data shifts.</li>
+<li>Automated testing runs evaluating model translations using BLEU scores.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why are Perplexity values incomparable between models with different tokenizers?</em><br />
+   - <strong>Answer</strong>: Perplexity relies directly on sequence token length $L$ and vocabulary size $|V|$. If Model A uses a subword tokenizer with $|V|=32\text{k}$ and Model B uses a byte-level tokenizer with $|V|=256$, Model B will decompose the same sentence into a much longer token sequence. Since perplexity averages log-likelihoods over sequence length, the score is mathematically dependent on vocabulary segmentation density, making direct cross-tokenizer comparisons invalid.</li>
+<li><em>Why does RLHF introduce sycophancy, and how can we mitigate it?</em><br />
+   - <strong>Answer</strong>: Human evaluators tend to rate polite, agreement-biased responses higher than objective corrections of user-stated misconceptions. Models trained on these ratings learn sycophancy to maximize reward. Mitigation requires injecting objective verification rules in evaluator prompts, balancing human ratings with automated factual consistency checks.</li>
+<li><em>What is the relationship between Perplexity and Cross-Entropy Loss?</em><br />
+   - <strong>Answer</strong>: Perplexity is the exponential function of the average cross-entropy loss: $\text{PPL} = e^{H(X)}$. If the cross-entropy loss of a sequence is $0.0$, the perplexity is $e^0 = 1.0$, indicating absolute certainty. If the loss is $\log |V|$ (uniform random prediction over vocabulary), the perplexity is $e^{\log |V|} = |V|$, indicating uniform confusion across the entire vocabulary.</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-11-end-to-end-llm-inference-pipeline">Module 11: End-to-End LLM Inference Pipeline</h1>
+<p>This study guide explains the complete, sequential inference execution loop of a decoder-only Large Language Model, detailing how a prompt flows from raw character strings through embedding layers, Transformer blocks, and sampling heads to generate the next token.</p>
+<hr />
+<h2 id="1-unified-inference-pipeline-diagram">1. Unified Inference Pipeline Diagram</h2>
+<p>The following chart outlines the lifecycle of a single token generation step during the <strong>Decode Phase</strong>:</p>
+<div class="codehilite"><pre><span></span><code>[Input Token String]
+        │
+        ▼
+   Tokenization      (Tiks/SentencePiece converts character string to token ID)
+        │
+        ▼
+ Embedding Retrieval (Matrix lookup maps token ID to dense embedding vector)
+        │
+        ▼
+Position Injection   (Sinusoidal or RoPE rotation applied)
+        │
+        ▼
+ Transformer Layer   (Forward pass computes Self-Attention utilizing KV Cache)
+        │
+        ▼
+  Classification     (Final LayerNorm and Linear projection outputs raw logits)
+        │
+        ▼
+Sampling / Decider   (Temperature, Top-k/Top-p, and Repetition Penalty filter logits)
+        │
+        ▼
+ Termination Check   (Check if selected token ID equals EOS token or max limit)
+        │
+        ▼ (If No)
+[Append Token &amp; Loop] ──► (Generates next token)
+</code></pre></div>
+
+<hr />
+<h2 id="2-step-by-step-hand-calculation-of-a-generation-turn">2. Step-by-Step Hand Calculation of a Generation Turn</h2>
+<p>We trace a single decoding turn for a toy model.<br />
+- <strong>Context</strong>: Sequence <code>["the", "cat", "sat"]</code>. Prompt length $L = 3$.<br />
+- <strong>Target</strong>: Generate the next token at step $t=3$.</p>
+<h3 id="step-1-pre-processing-tokenization">Step 1: Pre-processing &amp; Tokenization</h3>
+<ul>
+<li>Input text: <code>"sat"</code> (the latest generated token).</li>
+<li>Tokenizer mapping: maps string <code>"sat"</code> to token ID $i_2 = 6$ (vocabulary index).</li>
+</ul>
+<h3 id="step-2-embedding-lookup">Step 2: Embedding Lookup</h3>
+<ul>
+<li>Embedding weights lookup table $\mathbf{W}_E \in \mathbb{R}^{|V| \times d}$ retrieves embedding vector for ID $6$:<br />
+  $$\mathbf{x}_2 = \mathbf{W}_E[6] = [0.5, -0.3]$$</li>
+</ul>
+<h3 id="step-3-positional-embedding-addition">Step 3: Positional Embedding Addition</h3>
+<ul>
+<li>Positional coordinate at index $pos = 2$:<br />
+  $$\mathbf{pe}_2 = [0.1, 0.2]$$</li>
+<li>Combine embedding and position representations:<br />
+  $$\mathbf{z}_2^{(0)} = \mathbf{x}_2 + \mathbf{pe}_2 = [0.5 + 0.1, -0.3 + 0.2] = [0.6, -0.1]$$</li>
+</ul>
+<h3 id="step-4-attention-block-with-kv-cache-updates">Step 4: Attention Block with KV Cache Updates</h3>
+<ul>
+<li>Key-Value Cache holds historical keys and values for positions 0 and 1:<br />
+  $$\mathbf{K}_{\text{cache}} = \begin{bmatrix} 1.0 & 1.0 \\ 0.0 & 1.0 \end{bmatrix}, \quad \mathbf{V}_{\text{cache}} = \begin{bmatrix} 2.0 & -1.0 \\ 0.0 & 3.0 \end{bmatrix}$$</li>
+<li>Compute Query, Key, and Value vectors for the current token $\mathbf{z}_2^{(0)}$ (using identity weights for simplicity):<br />
+  $$\mathbf{q}_2 = [1.0, 1.0], \quad \mathbf{k}_2 = [1.0, 0.0], \quad \mathbf{v}_2 = [1.0, 1.0]$$</li>
+<li>Update KV Cache: append new key and value:<br />
+  $$\mathbf{K}_{\text{updated}} = \begin{bmatrix} 1.0 & 1.0 \\ 0.0 & 1.0 \\ 1.0 & 0.0 \end{bmatrix}, \quad \mathbf{V}_{\text{updated}} = \begin{bmatrix} 2.0 & -1.0 \\ 0.0 & 3.0 \\ 1.0 & 1.0 \end{bmatrix}$$</li>
+<li>Compute scaled dot-product attention scores:<br />
+  $$\mathbf{A} = \mathbf{q}_2 \mathbf{K}_{\text{updated}}^T = [1.0, 1.0] \begin{bmatrix} 1.0 & 0.0 & 1.0 \\ 1.0 & 1.0 & 0.0 \end{bmatrix} = [2.0, 1.0, 1.0]$$</li>
+<li>Scale by $\sqrt{d_k} = \sqrt{2} \approx 1.4142$:<br />
+  $$\mathbf{S} = \frac{[2.0, 1.0, 1.0]}{1.4142} \approx [1.4142, 0.7071, 0.7071]$$</li>
+<li>Softmax over scores (Causal masking is trivially satisfied since this is the last step):<br />
+  $$\text{Denominator} = e^{1.4142} + e^{0.7071} + e^{0.7071} = 4.1133 + 2.0281 + 2.0281 = 8.1695$$<br />
+  $$\boldsymbol{\alpha}_2 = \left[ \frac{4.1133}{8.1695}, \frac{2.0281}{8.1695}, \frac{2.0281}{8.1695} \right] \approx [0.5035, 0.2483, 0.2483]$$</li>
+<li>Multiply by Value cache to get attention output:<br />
+  $$\mathbf{o}_2 = 0.5035 \times [2.0, -1.0] + 0.2483 \times [0.0, 3.0] + 0.2483 \times [1.0, 1.0] \approx [1.2553, 0.4897]$$</li>
+</ul>
+<h3 id="step-5-feed-forward-network-projection">Step 5: Feed-Forward Network &amp; Projection</h3>
+<ul>
+<li>Add residuals and process state. Assume the FFN outputs:<br />
+  $$\mathbf{y}_2 = [0.8, 0.4]$$</li>
+</ul>
+<h3 id="step-6-logits-classification-head">Step 6: Logits Classification Head</h3>
+<ul>
+<li>Apply language modeling classification projection $\mathbf{W}_{\text{LM}} \in \mathbb{R}^{d \times |V|}$ to get raw logits over vocabulary $|V| = 3$:<br />
+  $$\mathbf{z}_2 = \mathbf{y}_2 \mathbf{W}_{\text{LM}} = [2.0, 1.0, -1.0]$$</li>
+</ul>
+<h3 id="step-7-gating-sampling">Step 7: Gating &amp; Sampling</h3>
+<ul>
+<li>Apply repetition penalty $\theta = 1.2$ (on already-generated index 0), temperature $T=0.5$, and Top-k $k=2$:<br />
+  $$P_0 \approx 0.7914, \quad P_1 \approx 0.2086, \quad P_2 = 0.0000$$</li>
+<li>Sample next token ID using probabilities. Suppose we draw index 0 (which corresponds to token <code>"on"</code>).</li>
+</ul>
+<h3 id="step-8-termination-check">Step 8: Termination Check</h3>
+<ul>
+<li>Check if sampled ID $0$ matches EOS token ID ($ID_{\text{EOS}} = 8$).</li>
+<li>Since $0 \ne 8$, append <code>"on"</code> to the sequence list and restart the loop for position $pos = 3$.</li>
+</ul>
+<hr />
+<h2 id="3-computational-and-memory-profiles-per-phase">3. Computational and Memory Profiles per Phase</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Math Operations</th>
+<th>Hardware Profile</th>
+<th>Bottleneck</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tokenizer &amp; Embeddings</strong></td>
+<td>Lookup</td>
+<td>I/O Bound</td>
+<td>Memory speed</td>
+</tr>
+<tr>
+<td><strong>Attention &amp; KV Cache</strong></td>
+<td>$O(L \cdot d)$ MatMuls</td>
+<td>Memory-Bandwidth Bound</td>
+<td>VRAM Transfer rate</td>
+</tr>
+<tr>
+<td><strong>FFN Layers</strong></td>
+<td>$O(d^2)$ MatMuls</td>
+<td>Compute Bound</td>
+<td>Floating point execution cores</td>
+</tr>
+<tr>
+<td><strong>Sampling &amp; Gating</strong></td>
+<td>Sort &amp; Mask</td>
+<td>CPU/GPU Kernel overhead</td>
+<td>Gating latency</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-interview-questions-production-trade-offs">4. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Ties together separate tokenization, caching, layer projections, and sampling layers into a single operational system.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>End-to-end design allows optimizing cross-layer memory allocations (like keeping KV Cache allocated in continuous memory blocks).</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>The multi-step processing flow (especially sequential decoding loops) introduces significant memory-transfer delays.</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Single decoding iteration</strong>: $O(n_{\text{layers}} \cdot (d^2 + L \cdot d))$ operations.</li>
+<li><strong>Inference memory footprint</strong>: $O(\text{Model Parameters} + \text{KV Cache Size})$.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$L$: Sequence context token length.</li>
+<li>$d$: Hidden vector dimension.</li>
+<li>$|V|$: Vocabulary size.</li>
+<li>$n_{\text{layers}}$: Transformer layer count.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Production hosting endpoints (TensorRT-LLM, vLLM) designing execution graphs to link prefill and decode kernels.</li>
+<li>Custom chat clients parsing EOS tokens to terminate streaming text outputs.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does streaming token generation during inference reduce perceived user latency?</em><br />
+   - <strong>Answer</strong>: In end-to-end inference, waiting for the model to generate the entire sequence of 200 tokens takes time. By streaming, the decider yields the token ID immediately at the end of each decoding loop iteration. The server decodes this ID back to string text and pushes it to the client, converting sequence latency to single-token inter-token latency.</li>
+<li><em>Where does the final LayerNorm occur in the end-to-end inference pipeline?</em><br />
+   - <strong>Answer</strong>: Modern Pre-LN decoders apply a final layer normalization step immediately <em>after</em> the final Transformer block layer and <em>before</em> projecting activations to vocabulary logits using the language modeling head, capping unnormalized residual summation values.</li>
+<li><em>How do you prevent infinite loops if the model fails to generate an EOS token?</em><br />
+   - <strong>Answer</strong>: Production systems enforce strict safety termination limits: a maximum output tokens parameter (e.g. <code>max_new_tokens = 512</code>) and a context ceiling (e.g., stopping when total context length reaches the model's physical window limit of 8192).</li>
+</ol>
+    </div>
+    
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Foundations Master Curriculum</span>
+        </div>
+        <h1 id="module-12-llm-foundations-master-interview-prep-cheatsheet">Module 12: LLM Foundations Master Interview Prep &amp; Cheatsheet</h1>
+<p>This module consolidates all formulas, computational complexities, and model architecture trade-offs from the LLM Foundations curriculum into a single master study guide for Machine Learning and AI Engineer interviews.</p>
+<hr />
+<h2 id="1-master-formula-sheet">1. Master Formula Sheet</h2>
+<h3 id="1-tf-idf-weights">1. TF-IDF Weights</h3>
+<p>$$\text{TF-IDF}(t, d, D) = \frac{f_{t,d}}{\sum_{t'} f_{t',d}} \times \log \left( \frac{|D|}{1 + |\{d' \in D : t \in d'\}|} \right)$$</p>
+<h3 id="2-word2vec-negative-sampling-sgns-loss">2. Word2Vec Negative Sampling (SGNS) Loss</h3>
+<p>$$\mathcal{L}_{\text{SGNS}} = -\log \sigma(\mathbf{v}'^T_{w_O} \mathbf{v}_{w_I}) - \sum_{i=1}^{k} \log \sigma(-\mathbf{v}'^T_{w_i} \mathbf{v}_{w_I})$$</p>
+<h3 id="3-bahdanau-additive-attention">3. Bahdanau (Additive) Attention</h3>
+<p>$$e_{i,j} = \mathbf{v}_a^T \tanh(\mathbf{W}_a \mathbf{s}_{i-1} + \mathbf{U}_a \mathbf{h}_j), \quad \alpha_{i,j} = \frac{\exp(e_{i,j})}{\sum_k \exp(e_{i,k})}, \quad \mathbf{c}_i = \sum_{j} \alpha_{i,j} \mathbf{h}_j$$</p>
+<h3 id="4-root-mean-square-normalization-rmsnorm">4. Root Mean Square Normalization (RMSNorm)</h3>
+<p>$$\text{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\text{RMS}(\mathbf{x})} \odot \boldsymbol{\gamma}, \quad \text{where } \text{RMS}(\mathbf{x}) = \sqrt{\frac{1}{d} \sum_{i=1}^{d} x_i^2 + \epsilon}$$</p>
+<h3 id="5-swiglu-gated-activation">5. SwiGLU Gated Activation</h3>
+<p>$$\text{SwiGLU}(\mathbf{x}) = \left( \text{Swish}(\mathbf{x} \mathbf{W}_1) \odot \mathbf{x} \mathbf{W}_2 \right) \mathbf{W}_3, \quad \text{where } \text{Swish}(a) = \frac{a}{1 + e^{-a}}$$</p>
+<h3 id="6-scaled-dot-product-attention">6. Scaled Dot-Product Attention</h3>
+<p>$$\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Softmax}\left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d_k}} \right) \mathbf{V}$$</p>
+<h3 id="7-rotary-positional-embeddings-rope-2d-slice">7. Rotary Positional Embeddings (RoPE 2D Slice)</h3>
+<p>$$\mathbf{R}_{\Theta, m}^2 \mathbf{x} = \begin{bmatrix} \cos m\theta & -\sin m\theta \\ \sin m\theta & \cos m\theta \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}$$</p>
+<h3 id="8-attention-with-linear-biases-alibi">8. Attention with Linear Biases (ALiBi)</h3>
+<p>$$a_{i,j} = \text{Softmax}\left( \frac{\mathbf{q}_i \mathbf{k}_j^T}{\sqrt{d_k}} - m \cdot |i - j| \right)$$</p>
+<h3 id="9-kv-cache-vram-size-fp16-precision">9. KV Cache VRAM Size (FP16 Precision)</h3>
+<p>$$\text{KV Cache VRAM Size} = 2 \times 2 \times b \times n_{\text{layers}} \times n_{\text{heads\_kv}} \times d_{\text{head}} \times s_{\text{len}} \text{ bytes}$$</p>
+<h3 id="10-chinchilla-scaling-compute-optimal-training">10. Chinchilla Scaling Compute-Optimal Training</h3>
+<p>$$D \approx 20 \cdot N, \quad C \approx 6ND \text{ FLOPS}$$</p>
+<h3 id="11-perplexity-ppl">11. Perplexity (PPL)</h3>
+<p>$$\text{PPL}(X) = \exp \left( -\frac{1}{L} \sum_{t=1}^{L} \log P(x_t | x_{<t}) \right)$$</p>
+<hr />
+<h2 id="2-master-computational-complexity-sheet">2. Master Computational Complexity Sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Layer / Model Operation</th>
+<th>Time Complexity</th>
+<th>VRAM Space Complexity</th>
+<th>Parallelizability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RNN Sequence Step</strong></td>
+<td>$O(L \cdot d^2)$</td>
+<td>$O(L \cdot d)$</td>
+<td>Sequential ($O(L)$ latency)</td>
+</tr>
+<tr>
+<td><strong>Self-Attention block</strong></td>
+<td>$O(L^2 \cdot d + L \cdot d^2)$</td>
+<td>$O(L^2 \cdot h + L \cdot d)$</td>
+<td>Fully parallel ($O(1)$ latency)</td>
+</tr>
+<tr>
+<td><strong>KV Cache Decoding Step</strong></td>
+<td>$O(L \cdot d + d^2)$</td>
+<td>$O(b \cdot L \cdot d)$</td>
+<td>Sequential (memory-bandwidth bound)</td>
+</tr>
+<tr>
+<td><strong>BPE Encoding Lookup</strong></td>
+<td>$O(L \cdot \log |V|)$</td>
+<td>$O(|V|)$</td>
+<td>Parallelizable</td>
+</tr>
+<tr>
+<td><strong>Top-p Nucleus Sort</strong></td>
+<td>$O(|V| \cdot \log |V|)$</td>
+<td>$O(|V|)$</td>
+<td>Non-parallelizable</td>
+</tr>
+<tr>
+<td><strong>FlashAttention Forward</strong></td>
+<td>$O(L^2 \cdot d)$</td>
+<td>$O(L \cdot d)$ (HBM writes reduced)</td>
+<td>Fully parallel (high MFU cache tiling)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-evolutionary-architectures-matrix">3. Evolutionary Architectures Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>GQA</th>
+<th>RMSNorm</th>
+<th>SwiGLU</th>
+<th>Positional Encoding</th>
+<th>Key Innovation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPT-3</strong></td>
+<td>No</td>
+<td>No (LayerNorm)</td>
+<td>No (GELU)</td>
+<td>Learned Absolute</td>
+<td>Decoders scale to 175B</td>
+</tr>
+<tr>
+<td><strong>BERT</strong></td>
+<td>No</td>
+<td>No (LayerNorm)</td>
+<td>No (GELU)</td>
+<td>Learned Absolute</td>
+<td>Bidirectional MLM encoding</td>
+</tr>
+<tr>
+<td><strong>T5</strong></td>
+<td>No</td>
+<td>No (LayerNorm)</td>
+<td>No (ReLU)</td>
+<td>Relative Bias</td>
+<td>Unified Text-to-Text format</td>
+</tr>
+<tr>
+<td><strong>Llama-3</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Rotary (RoPE)</td>
+<td>Pre-normalization stability</td>
+</tr>
+<tr>
+<td><strong>Mistral</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Rotary (RoPE)</td>
+<td>Sliding Window Attention</td>
+</tr>
+<tr>
+<td><strong>DeepSeek</strong></td>
+<td>MLA</td>
+<td>Yes</td>
+<td>Yes (MoE)</td>
+<td>Rotary (RoPE)</td>
+<td>Latent Attention / Multi-token prediction</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-interview-questions-production-trade-offs">4. Interview Questions &amp; Production Trade-offs</h2>
+<h3 id="what-problem-does-this-solve">What problem does this solve?</h3>
+<p>Consolidates theoretical ML math intuition, complexity tables, and system bottlenecks into a single quick-reference sheet to enable rapid interview revision.</p>
+<h3 id="why-was-it-introduced">Why was it introduced?</h3>
+<p>Cracking high-level AI Engineer interviews requires connecting algorithmic choices (e.g. BPE vs WordPiece, GQA vs MHA) directly to production system constraints (VRAM, memory bandwidth, latency).</p>
+<h3 id="what-are-its-limitations">What are its limitations?</h3>
+<p>Cheatsheets summarize formulas and complexity classes, but cannot replace code-level debugging intuition (e.g., verifying PyTorch tensor sizes and gradients).</p>
+<h3 id="computational-complexity-time-memory">Computational Complexity (Time &amp; Memory)</h3>
+<ul>
+<li><strong>Time Complexity</strong>: $O(1)$ lookup reference.</li>
+<li><strong>Memory Complexity</strong>: $O(1)$ space.</li>
+</ul>
+<h3 id="component-variable-denotation-legend">Component Variable Denotation Legend</h3>
+<ul>
+<li>$N$: Parameter count.</li>
+<li>$L$: Sequence token length.</li>
+<li>$|V|$: Vocabulary size.</li>
+<li>$d$: Hidden model dimension size.</li>
+<li>$b$: Batch size.</li>
+<li>$n_{\text{layers}}$: Transformer layer count.</li>
+<li>$n_{\text{heads\_kv}}$: Key-Value heads count.</li>
+<li>$d_{\text{head}}$: Dimension per attention head ($d/h$).</li>
+<li>$C$: Total FLOPS compute budget.</li>
+</ul>
+<h3 id="production-use-cases">Production Use Cases:</h3>
+<ul>
+<li>Estimating cluster VRAM requirements during deployment scaling meetings.</li>
+<li>Structuring algorithmic justifications for architectural choices in engineering design reviews.</li>
+</ul>
+<h3 id="follow-up-questions-interviewers-ask">Follow-up Questions Interviewers Ask:</h3>
+<ol>
+<li><em>Why does the backward pass of a parameter cost twice as much compute ($4N$) as the forward pass ($2N$) during LLM training?</em><br />
+   - <strong>Answer</strong>: The forward pass requires one matrix multiplication per layer to project inputs ($2N$ operations). The backward pass requires two separate matrix multiplications: one to calculate the gradients of the loss with respect to activations of the layer (for backpropagation down the stack), and a second to calculate the gradients of the loss with respect to the layer weights (to update parameters), resulting in $4N$ operations ($2 \times 2N$).</li>
+<li><em>Describe the exact mathematical relationship between Perplexity and Cross-Entropy Loss.</em><br />
+   - <strong>Answer</strong>: Perplexity is the exponentiated average cross-entropy loss: $\text{PPL} = e^{H(X)}$. If a model predicts tokens uniformly at random over a vocabulary of size $|V|$, its cross-entropy loss is $\log |V|$, and its perplexity is $e^{\log |V|} = |V|$. A lower loss scales perplexity down toward $1.0$, indicating absolute certainty.</li>
+<li><em>Why does memory-bandwidth bound decode processing cause low GPU utilization (low SM occupancy) during single-user LLM inference?</em><br />
+   - <strong>Answer</strong>: Standard GPUs are optimized for massive parallel floating-point computation (high FLOPS). During single-user decoding, only a single token is generated per step. The GPU must load gigabytes of weights from HBM to SRAM for that single token. Since memory transfer speed is orders of magnitude slower than tensor core compute speed, the GPU execution units sit idle waiting for memory loads, leading to extremely low compute core utilization ($5\% - 15\%$).</li>
+</ol>
+    </div>
+    
+</body>
+</html>
