@@ -29,7 +29,7 @@ The generation pipeline relies on the following specific libraries and binaries 
 ---
 
 ## 3. Writing Markdown Study Guides (`.md`)
-Study guides must skip introductory fluff and target top-tier tech interviews (FAANG, Tier-1 startups). We adhere to the following rules:
+Study guides must include a short, high-level conceptual introduction for each topic (orienting the reader and explaining the core engineering motivation and the issue it resolves) rather than skipping context entirely. We then directly target top-tier tech interview standards (FAANG, Tier-1 startups) by adhering to the following rules:
 
 1. **Andrew Ng "Practical Math" Structure**:
    - State the math formula.
