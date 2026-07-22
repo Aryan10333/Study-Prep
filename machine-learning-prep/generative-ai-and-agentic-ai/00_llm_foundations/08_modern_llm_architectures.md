@@ -6,10 +6,26 @@ This study guide trace the chronological engineering evolution of Large Language
 
 ## 1. Timeline of Architectural Evolutions
 
-```text
-GPT (Decoder) ──► BERT (Encoder) ──► T5 (Enc-Dec) ──► Llama (RMSNorm/SwiGLU) ──► Mistral (Sliding Window)
-                                                                                  │
-DeepSeek (MLA/MoE) ◄── Qwen (MQA Ext) ◄── Gemma (GeGLU) ◄── Mixtral (MoE Route) ◄─┘
+```mermaid
+graph TD
+    GPT["GPT (Decoder)"] --> BERT["BERT (Encoder)"]
+    BERT --> T5["T5 (Enc-Dec)"]
+    T5 --> Llama["Llama (RMSNorm/SwiGLU)"]
+    Llama --> Mistral["Mistral (Sliding Window)"]
+    Mistral --> Mixtral["Mixtral (MoE Route)"]
+    Mixtral --> Gemma["Gemma (GeGLU)"]
+    Gemma --> Qwen["Qwen (MQA Ext)"]
+    Qwen --> DeepSeek["DeepSeek (MLA/MoE)"]
+
+    style GPT fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style BERT fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style T5 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style Llama fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Mistral fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Mixtral fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
+    style Gemma fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Qwen fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style DeepSeek fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46,font-weight:bold
 ```
 
 ---

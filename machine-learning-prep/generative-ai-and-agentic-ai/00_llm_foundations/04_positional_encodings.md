@@ -12,12 +12,18 @@ Because the Self-Attention mechanism computes dot product similarities across al
 
 ## 2. Positional Representation Paradigms
 
-```text
-               Positional Encodings
-             /                      \
-   [Absolute Position]           [Relative Position]
-   ├── Sinusoidal (Static)       ├── Attention Biases (ALiBi)
-   └── Learned Embeddings        └── Rotary Embeddings (RoPE)
+```mermaid
+graph TD
+    PE["Positional Encodings"] --> AP["Absolute Position"]
+    PE --> RP["Relative Position"]
+    AP --> Sin["Sinusoidal (Static)"]
+    AP --> Lrn["Learned Embeddings"]
+    RP --> ALiBi["Attention Biases (ALiBi)"]
+    RP --> RoPE["Rotary Embeddings (RoPE)"]
+
+    style PE fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af,font-weight:bold
+    style AP fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style RP fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
 ```
 
 ### Absolute Positional Encoding (Sinusoidal)

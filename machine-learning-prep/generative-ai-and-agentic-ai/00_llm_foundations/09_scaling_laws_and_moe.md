@@ -47,9 +47,27 @@ $$L(N) \propto N^{-\alpha_N}, \quad L(D) \propto D^{-\alpha_D}, \quad L(C) \prop
 
 To scale model parameters without multiplying compute costs, Mixture of Experts (MoE) replaces dense FFN layers with multiple parallel experts, routing each token to a subset of them.
 
-```text
-Input Token ──► [Router / Gating] ──► Select Top-2 Experts ──► [Expert 1] \
-                                                           ──► [Expert 4] ──► Concat Output
+```mermaid
+graph LR
+    Token["Input Token"] --> Router["Router / Gating"]
+    Router --> Top2["Select Top-k Experts (k=2)"]
+    Top2 --> Exp1["Expert 1 (Active)"]
+    Top2 --> Exp4["Expert 4 (Active)"]
+    Top2 -.-> Exp2["Expert 2 (Idle)"]
+    Top2 -.-> Exp3["Expert 3 (Idle)"]
+    
+    Exp1 --> Concat["Concatenate & Weight"]
+    Exp4 --> Concat
+    Concat --> Out["Final Output Token"]
+
+    style Token fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style Router fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Top2 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Exp1 fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
+    style Exp4 fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
+    style Exp2 fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px,color:#64748b,stroke-dasharray: 3, 3
+    style Exp3 fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px,color:#64748b,stroke-dasharray: 3, 3
+    style Concat fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
 ```
 
 - **Router (Gating Network)**: Computes a probability distribution over $E$ experts:

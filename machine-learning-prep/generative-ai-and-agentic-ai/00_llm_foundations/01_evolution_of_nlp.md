@@ -72,11 +72,21 @@ To process variable-length sequential sentences, deep learning introduced recurr
 
 ```mermaid
 graph LR
-    x1[x_1] --> RNN1[RNN Cell] --> h1[h_1]
-    h1 --> RNN2[RNN Cell] --> h2[h_2]
-    x2[x_2] --> RNN2
-    h2 --> RNN3[RNN Cell] --> h3[h_3]
-    x3[x_3] --> RNN3
+    x1["x₁"] --> RNN1["RNN Cell"] --> h1["h₁"]
+    h1 --> RNN2["RNN Cell"] --> h2["h₂"]
+    x2["x₂"] --> RNN2
+    h2 --> RNN3["RNN Cell"] --> h3["h₃"]
+    x3["x₃"] --> RNN3
+
+    style x1 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style x2 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style x3 fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style RNN1 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style RNN2 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style RNN3 fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style h1 fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
+    style h2 fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
+    style h3 fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
 ```
 
 ### LSTM (Long Short-Term Memory)

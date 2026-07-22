@@ -8,32 +8,30 @@ This study guide explains the complete, sequential inference execution loop of a
 
 The following chart outlines the lifecycle of a single token generation step during the **Decode Phase**:
 
-```text
-[Input Token String]
-        │
-        ▼
-   Tokenization      (Tiks/SentencePiece converts character string to token ID)
-        │
-        ▼
- Embedding Retrieval (Matrix lookup maps token ID to dense embedding vector)
-        │
-        ▼
-Position Injection   (Sinusoidal or RoPE rotation applied)
-        │
-        ▼
- Transformer Layer   (Forward pass computes Self-Attention utilizing KV Cache)
-        │
-        ▼
-  Classification     (Final LayerNorm and Linear projection outputs raw logits)
-        │
-        ▼
-Sampling / Decider   (Temperature, Top-k/Top-p, and Repetition Penalty filter logits)
-        │
-        ▼
- Termination Check   (Check if selected token ID equals EOS token or max limit)
-        │
-        ▼ (If No)
-[Append Token & Loop] ──► (Generates next token)
+```mermaid
+flowchart TD
+    In["[Input Token String]"] --> Token["Tokenization (Converts character string to token ID)"]
+    Token --> Embed["Embedding Retrieval (Maps token ID to dense embedding vector)"]
+    Embed --> Pos["Position Injection (Sinusoidal or RoPE rotation applied)"]
+    Pos --> Trans["Transformer Layers (Computes Self-Attention with KV Cache)"]
+    Trans --> Class["Classification (Outputs raw logits)"]
+    Class --> Samp["Sampling / Decider (Temperature, Top-k/Top-p, penalty filters)"]
+    Samp --> Term{"Termination Check (EOS or limit reached?)"}
+    
+    Term -- Yes --> Out["[Final Generated Text]"]
+    Term -- No --> Loop["Append Token & Loop"]
+    Loop --> Trans
+
+    style In fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style Token fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style Embed fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style Pos fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Trans fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
+    style Class fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style Samp fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px,color:#5b21b6
+    style Term fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#92400e
+    style Loop fill:#ecfdf5,stroke:#059669,stroke-width:1px,color:#065f46
+    style Out fill:#eff6ff,stroke:#2563eb,stroke-width:1px,color:#1e40af
 ```
 
 ---
