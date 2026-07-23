@@ -1259,14 +1259,38 @@ $$\text{Faithfulness Score} = \frac{\text{Number of statements supported by cont
 <hr />
 <h2 id="2-decision-frameworks-for-production-genai">2. Decision Frameworks for Production GenAI</h2>
 <h3 id="framework-a-adaptation-strategies-selection">Framework A: Adaptation Strategies Selection</h3>
-<div class="codehilite"><pre><span></span><code>                         Adaptation Requirement
-                                   |
-         +-------------------------+-------------------------+
-         |                                                   |
-      Factual/Grounding                              Behavior/Style/Format
-         |                                                   |
-   RAG Indexing                                      Supervised Fine-Tuning (SFT)
-</code></pre></div>
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <div style="font-weight: bold; color: #0f172a; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Adaptation Decision Flow</div>
+    <!-- Root -->
+    <div style="background-color: #ffffff; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 6px; text-align: center; border-top: 3px solid #64748b; font-weight: bold; font-size: 12px; color: #1e293b;">
+        Adaptation Requirement
+    </div>
+    <!-- Split connector line -->
+    <div style="width: 60%; height: 2px; background-color: #cbd5e1; position: relative; margin: 5px 0;">
+        <div style="position: absolute; left: 50%; top: -5px; width: 2px; height: 10px; background-color: #cbd5e1;"></div>
+        <div style="position: absolute; left: 0; top: 0; width: 2px; height: 10px; background-color: #cbd5e1;"></div>
+        <div style="position: absolute; right: 0; top: 0; width: 2px; height: 10px; background-color: #cbd5e1;"></div>
+    </div>
+    <!-- Children -->
+    <div style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; width: 100%;">
+        <!-- Left: RAG -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #2563eb;">
+            <div style="color: #1e40af; font-weight: bold; font-size: 11px; text-transform: uppercase;">Factual & Grounding</div>
+            <div style="align-self: center; color: #94a3b8; font-weight: bold; font-size: 12px; margin: 2px 0;">↓</div>
+            <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; width: 85%; text-align: center;">
+                RAG Indexing
+            </div>
+        </div>
+        <!-- Right: SFT -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #7c3aed;">
+            <div style="color: #5b21b6; font-weight: bold; font-size: 11px; text-transform: uppercase;">Behavior, Style & Format</div>
+            <div style="align-self: center; color: #94a3b8; font-weight: bold; font-size: 12px; margin: 2px 0;">↓</div>
+            <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; width: 85%; text-align: center;">
+                Supervised Fine-Tuning (SFT)
+            </div>
+        </div>
+    </div>
+</div>
 
 <ul>
 <li><strong>RAG</strong>: Choose when you need to ground generation in verifiable, real-time files, retrieve specific codes, or maintain data lineage.</li>
@@ -1379,17 +1403,54 @@ $$\text{Faithfulness Score} = \frac{\text{Number of statements supported by cont
 - <strong>Short Interview Answer (30–60 seconds)</strong>: Prompt engineering requires no training but scales poorly in token costs and latency. RAG provides real-time data freshness and factual grounding with low latency. Fine-tuning (SFT) is best for behavior, formatting, and style adjustment but struggles to learn new facts and requires retraining. Continued Pre-training (CP) is the most expensive, adjusting all weights to acquire domain-specific vocabularies.<br />
 - <strong>Key Interview Points</strong>: Training costs vs. inference costs, static vs. dynamic knowledge, parametric adjustments.<br />
 - <strong>Technical Intuition &amp; Complexity</strong>:<br />
-  - Let's compare via a native GFM matrix:<br />
-  | Adaptability Dimension | Prompt Engineering | RAG | Fine-Tuning (SFT) | Continued Pre-Training (CP) |<br />
-  | :--- | :--- | :--- | :--- | :--- |<br />
-  | <strong>Compute Cost</strong> | $0$ (Inference only) | Low (Index creation) | Medium (GPU training run) | High (Massive GPU cluster) |<br />
-  | <strong>Latency</strong> | High (Context payload) | Medium (Search + LLM) | Lowest (Native weights) | Lowest (Native weights) |<br />
-  | <strong>Data Freshness</strong> | Immediate | Real-time DB sync | Delayed (Batch cycles) | Highly Delayed |<br />
-  | <strong>Domain Adaptability</strong>| Low | Medium (Fact lookup) | High (Format/Behavior) | Highest (Terminology) |<br />
-- <strong>Production Perspective &amp; Trade-offs</strong>: Production architectures often combine RAG (for factual injection) with SFT (to train the LLM to format the retrieved facts into JSON/SQL templates).<br />
-- <strong>Follow-up Questions</strong>:<br />
-  - <em>If your company updates its documentation daily, which approach is best?</em> (RAG).<br />
-- <strong>Common Mistakes</strong>: Choosing fine-tuning to solve a dynamic factual lookup task.</p>
+  - Let's compare via a native GFM matrix:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Adaptability Dimension</th>
+<th style="text-align: left;">Prompt Engineering</th>
+<th style="text-align: left;">RAG</th>
+<th style="text-align: left;">Fine-Tuning (SFT)</th>
+<th style="text-align: left;">Continued Pre-Training (CP)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Compute Cost</strong></td>
+<td style="text-align: left;">$0$ (Inference only)</td>
+<td style="text-align: left;">Low (Index creation)</td>
+<td style="text-align: left;">Medium (GPU training run)</td>
+<td style="text-align: left;">High (Massive GPU cluster)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Latency</strong></td>
+<td style="text-align: left;">High (Context payload)</td>
+<td style="text-align: left;">Medium (Search + LLM)</td>
+<td style="text-align: left;">Lowest (Native weights)</td>
+<td style="text-align: left;">Lowest (Native weights)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Data Freshness</strong></td>
+<td style="text-align: left;">Immediate</td>
+<td style="text-align: left;">Real-time DB sync</td>
+<td style="text-align: left;">Delayed (Batch cycles)</td>
+<td style="text-align: left;">Highly Delayed</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Domain Adaptability</strong></td>
+<td style="text-align: left;">Low</td>
+<td style="text-align: left;">Medium (Fact lookup)</td>
+<td style="text-align: left;">High (Format/Behavior)</td>
+<td style="text-align: left;">Highest (Terminology)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Production Perspective &amp; Trade-offs</strong>: Production architectures often combine RAG (for factual injection) with SFT (to train the LLM to format the retrieved facts into JSON/SQL templates).</li>
+<li><strong>Follow-up Questions</strong>:</li>
+<li><em>If your company updates its documentation daily, which approach is best?</em> (RAG).</li>
+<li><strong>Common Mistakes</strong>: Choosing fine-tuning to solve a dynamic factual lookup task.</li>
+</ul>
 <hr />
 <h3 id="4-hallucinations-under-correct-retrieval">4. Hallucinations Under Correct Retrieval</h3>
 <p><strong>What causes an LLM to hallucinate <em>even when the correct and relevant document chunks are successfully retrieved</em> into the context window?</strong><br />

@@ -42,12 +42,14 @@
 - **Key Interview Points**: Training costs vs. inference costs, static vs. dynamic knowledge, parametric adjustments.
 - **Technical Intuition & Complexity**:
   - Let's compare via a native GFM matrix:
-  | Adaptability Dimension | Prompt Engineering | RAG | Fine-Tuning (SFT) | Continued Pre-Training (CP) |
-  | :--- | :--- | :--- | :--- | :--- |
-  | **Compute Cost** | $0$ (Inference only) | Low (Index creation) | Medium (GPU training run) | High (Massive GPU cluster) |
-  | **Latency** | High (Context payload) | Medium (Search + LLM) | Lowest (Native weights) | Lowest (Native weights) |
-  | **Data Freshness** | Immediate | Real-time DB sync | Delayed (Batch cycles) | Highly Delayed |
-  | **Domain Adaptability**| Low | Medium (Fact lookup) | High (Format/Behavior) | Highest (Terminology) |
+
+| Adaptability Dimension | Prompt Engineering | RAG | Fine-Tuning (SFT) | Continued Pre-Training (CP) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Compute Cost** | $0$ (Inference only) | Low (Index creation) | Medium (GPU training run) | High (Massive GPU cluster) |
+| **Latency** | High (Context payload) | Medium (Search + LLM) | Lowest (Native weights) | Lowest (Native weights) |
+| **Data Freshness** | Immediate | Real-time DB sync | Delayed (Batch cycles) | Highly Delayed |
+| **Domain Adaptability**| Low | Medium (Fact lookup) | High (Format/Behavior) | Highest (Terminology) |
+
 - **Production Perspective & Trade-offs**: Production architectures often combine RAG (for factual injection) with SFT (to train the LLM to format the retrieved facts into JSON/SQL templates).
 - **Follow-up Questions**:
   - *If your company updates its documentation daily, which approach is best?* (RAG).

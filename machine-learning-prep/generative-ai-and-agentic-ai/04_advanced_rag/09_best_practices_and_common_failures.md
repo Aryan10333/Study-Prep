@@ -25,15 +25,39 @@ Designing production RAG systems requires anticipating structural failure patter
 
 ### Framework A: Adaptation Strategies Selection
 
-```
-                         Adaptation Requirement
-                                   |
-         +-------------------------+-------------------------+
-         |                                                   |
-      Factual/Grounding                              Behavior/Style/Format
-         |                                                   |
-   RAG Indexing                                      Supervised Fine-Tuning (SFT)
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <div style="font-weight: bold; color: #0f172a; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Adaptation Decision Flow</div>
+    <!-- Root -->
+    <div style="background-color: #ffffff; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 6px; text-align: center; border-top: 3px solid #64748b; font-weight: bold; font-size: 12px; color: #1e293b;">
+        Adaptation Requirement
+    </div>
+    <!-- Split connector line -->
+    <div style="width: 60%; height: 2px; background-color: #cbd5e1; position: relative; margin: 5px 0;">
+        <div style="position: absolute; left: 50%; top: -5px; width: 2px; height: 10px; background-color: #cbd5e1;"></div>
+        <div style="position: absolute; left: 0; top: 0; width: 2px; height: 10px; background-color: #cbd5e1;"></div>
+        <div style="position: absolute; right: 0; top: 0; width: 2px; height: 10px; background-color: #cbd5e1;"></div>
+    </div>
+    <!-- Children -->
+    <div style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; width: 100%;">
+        <!-- Left: RAG -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #2563eb;">
+            <div style="color: #1e40af; font-weight: bold; font-size: 11px; text-transform: uppercase;">Factual & Grounding</div>
+            <div style="align-self: center; color: #94a3b8; font-weight: bold; font-size: 12px; margin: 2px 0;">↓</div>
+            <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; width: 85%; text-align: center;">
+                RAG Indexing
+            </div>
+        </div>
+        <!-- Right: SFT -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #7c3aed;">
+            <div style="color: #5b21b6; font-weight: bold; font-size: 11px; text-transform: uppercase;">Behavior, Style & Format</div>
+            <div style="align-self: center; color: #94a3b8; font-weight: bold; font-size: 12px; margin: 2px 0;">↓</div>
+            <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; width: 85%; text-align: center;">
+                Supervised Fine-Tuning (SFT)
+            </div>
+        </div>
+    </div>
+</div>
+
 
 - **RAG**: Choose when you need to ground generation in verifiable, real-time files, retrieve specific codes, or maintain data lineage.
 - **Fine-Tuning (SFT)**: Choose when you need to enforce structured output formatting, match a strict persona style, or adapt to hardware VRAM limitations.
