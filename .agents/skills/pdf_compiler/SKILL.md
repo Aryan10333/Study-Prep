@@ -63,6 +63,7 @@ The compiled guide must use the standardized NLP master guide CSS and layout str
   - Header 3 Color: `#0369a1`
 - **Cover Page Elements**: Include a metadata box detailing the target persona, core modules covered, and inclusion checklists (e.g. formulas, PyTorch code, Q&As).
 - **Table of Contents Page**: Inject a dedicated Table of Contents page (`<div class="toc-page" style="page-break-after: always; padding-top: 20px;">`) with dashed-underlined lists linking to each module anchor.
+- **HTML/CSS Inline Diagrams**: Ensure diagrams in guides use inline styled HTML/CSS elements to ensure clean, instant vector-perfect rendering without external JavaScript/CDN dependencies. Do not import Mermaid scripts in the HTML headers.
 
 ---
 

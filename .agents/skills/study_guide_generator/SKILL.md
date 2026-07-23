@@ -47,6 +47,10 @@ All technical study guides must follow a strict **Practical Mathematics** progre
 - Fenced code blocks must compile using Pygments syntax highlighting (`monokai` or dark slate).
 - Ensure styling overrides are present in target configurations to maintain transparent code block backgrounds and clean white text defaults, preventing dark-text-on-dark-background rendering errors.
 
+### Native HTML/CSS Diagrams (No Mermaid or ASCII blocks):
+- Do not use raw text-based ASCII flowcharts or Mermaid code blocks in study guides, as they do not render reliably in PDF compilers and require external CDN loading.
+- Instead, construct diagrams using **pure inline HTML/CSS blocks** (using flexbox/grid containers, rounded borders, colored headers, and simple arrows). This guarantees that diagrams render instantly, print as vector-sharp shapes, and match the target A4 styles perfectly without external JavaScript.
+
 ---
 
 ## 4. Standardized Checklist Closure

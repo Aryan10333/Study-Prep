@@ -57,26 +57,24 @@ Not every question requires math formulas, numerical examples, complexity analys
 
 Compilation scripts (e.g., written in Python) must compile the Q&A documents separately from raw theory documents when building standalone cheatsheets, while also supporting consolidated master guides.
 
-```mermaid
-graph TD
-    subgraph Raw Source Files
-        T1[01_Theory.md]
-        T2[02_Theory.md]
-        QA[13_Interview_Questions.md]
-    end
-
-    subgraph Independent Compilation
-        QA -->|compile_cheatsheet.py| CS_HTML[Cheatsheet.html]
-        CS_HTML -->|msedge headless| CS_PDF[Cheatsheet.pdf]
-    end
-
-    subgraph Master Compilation
-        T1 -->|compile_master.py| M_HTML[Master_Guide.html]
-        T2 -->|compile_master.py| M_HTML
-        QA -->|compile_master.py (Final Chapter)| M_HTML
-        M_HTML -->|msedge headless| M_PDF[Master_Guide.pdf]
-    end
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <div style="font-weight: bold; color: #0f172a; font-size: 13px;">Compilation Pipeline Architecture</div>
+    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;">
+        <!-- Left Box: Source -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
+            <div style="color: #475569; font-weight: bold; font-size: 11px; text-transform: uppercase;">Raw Source Files</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 4px 10px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center;">01_Theory.md</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 4px 10px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center;">02_Theory.md</div>
+            <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 4px 10px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">13_Interview_Questions.md</div>
+        </div>
+        <!-- Right Box: Formats -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; align-items: center;">
+            <div style="color: #475569; font-weight: bold; font-size: 11px; text-transform: uppercase;">Compilation Outputs</div>
+            <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">Standalone Cheatsheet (PDF)</div>
+            <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">Master Study Guide (PDF)</div>
+        </div>
+    </div>
+</div>
 
 ### PDF & HTML Build Rules:
 1. **Alert Parsing**: Convert GitHub alert styles (`> [!NOTE]`, etc.) into left-bordered HTML divs with background colors.
