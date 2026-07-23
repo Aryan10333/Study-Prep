@@ -28,7 +28,15 @@ After generating the draft, the script must execute the notebook in place:
 2. **Virtual Environment**: Execute using the local python executable:
    `d:\Study\Prep\.venv\Scripts\python.exe`
 3. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
-4. **Save Executed State**: Save the final notebook with cell outputs populated.
+4. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
+   - `GEMINI_API_KEY` (for Google GenAI models)
+   - `GROQ_API_KEY` (for Groq model endpoints)
+   - `HF_TOKEN` (for Hugging Face Hub downloads/uploads)
+   - `OLLAMA_BASE_URL` (for local Ollama endpoints)
+   - `SERPER_API_KEY` (for Google search queries via Serper)
+   - `TAVILY_API_KEY` (for Tavily search API)
+   - `GITHUB_TOKEN` (for GitHub API integrations)
+5. **Save Executed State**: Save the final notebook with cell outputs populated.
 
 ---
 
