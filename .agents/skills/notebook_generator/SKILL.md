@@ -33,6 +33,7 @@ After generating the draft, the script must execute the notebook in place:
    - `GROQ_API_KEY` (for Groq model endpoints)
    - `HF_TOKEN` (for Hugging Face Hub downloads/uploads)
    - `OLLAMA_BASE_URL` (for local Ollama endpoints)
+   - `OPENAI_API_KEY` (for OpenAI models)
    - `SERPER_API_KEY` (for Google search queries via Serper)
    - `TAVILY_API_KEY` (for Tavily search API)
    - `GITHUB_TOKEN` (for GitHub API integrations)
