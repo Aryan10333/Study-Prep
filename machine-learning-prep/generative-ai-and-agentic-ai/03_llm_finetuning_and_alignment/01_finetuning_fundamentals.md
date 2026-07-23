@@ -88,12 +88,26 @@ In modern post-training, LIMA (Less Is More for Alignment) proved that **data qu
 
 ## 6. End-to-End Fine-tuning Pipeline Architecture
 
-```
-[Raw Domain Data] -> [Deduplication & Quality Filter] -> [Tokenization & Chat Templates]
-                                                                     |
-                                                                     v
-[Loss Evaluation] <- [Backward Pass & Optimizer Step] <- [Target-Only Loss Masking]
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <!-- Row 1 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Raw Domain Data</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Deduplication & Quality Filter</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Tokenization & Chat Templates</div>
+    </div>
+    <!-- Connector Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 16px; margin: 2px 0;">↓</div>
+    <!-- Row 2 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Loss Evaluation</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Backward Pass & Optimizer Step</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Target-Only Loss Masking</div>
+    </div>
+</div>
 
 1. **Extraction & Filtering**: Raw domain documents are parsed, deduplicated, and formatted into prompt-response splits.
 2. **Tokenization & Formatting**: Data is passed through Jinja2 chat templates to inject roles (`system`, `user`, `assistant`) and tokenized.

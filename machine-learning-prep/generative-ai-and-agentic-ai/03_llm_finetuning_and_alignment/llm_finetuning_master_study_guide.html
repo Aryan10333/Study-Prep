@@ -359,11 +359,26 @@ Where $F_i$ is the Fisher information score for parameter $i$, and $\lambda$ is 
 </ol>
 <hr />
 <h2 id="6-end-to-end-fine-tuning-pipeline-architecture">6. End-to-End Fine-tuning Pipeline Architecture</h2>
-<div class="codehilite"><pre><span></span><code><span class="k">[Raw Domain Data] -&gt; [Deduplication &amp; Quality Filter] -&gt; [Tokenization &amp; Chat Templates]</span>
-<span class="w">                                                                     </span><span class="na">|</span>
-<span class="w">                                                                     </span><span class="na">v</span>
-<span class="k">[Loss Evaluation] &lt;- [Backward Pass &amp; Optimizer Step] &lt;- [Target-Only Loss Masking]</span>
-</code></pre></div>
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <!-- Row 1 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Raw Domain Data</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Deduplication & Quality Filter</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Tokenization & Chat Templates</div>
+    </div>
+    <!-- Connector Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 16px; margin: 2px 0;">↓</div>
+    <!-- Row 2 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Loss Evaluation</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Backward Pass & Optimizer Step</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Target-Only Loss Masking</div>
+    </div>
+</div>
 
 <ol>
 <li><strong>Extraction &amp; Filtering</strong>: Raw domain documents are parsed, deduplicated, and formatted into prompt-response splits.</li>
@@ -729,27 +744,45 @@ The higher loss penalizes the model for misaligning the rewards.</p>
 <hr />
 <h2 id="3-rlhf-pipeline-overview-ppo">3. RLHF Pipeline Overview (PPO)</h2>
 <p>Reinforcement Learning from Human Feedback (RLHF) utilizes Proximal Policy Optimization (PPO) to align a generator model using four concurrent models in GPU memory:</p>
-<div class="codehilite"><pre><span></span><code><span class="c">                  </span><span class="nb">+--------------------------------+</span>
-<span class="c">                  |         Input Prompt x         |</span>
-<span class="c">                  </span><span class="nb">+--------------------------------+</span>
-<span class="c">                            /             \</span>
-<span class="c">                           /               \</span>
-<span class="c">                          v                 v</span>
-<span class="c">            </span><span class="nb">+-------------------+</span><span class="c">     </span><span class="nb">+---------------------+</span>
-<span class="c">            | Active Policy (pi)|     | Reference Model(ref)| </span><span class="k">[</span><span class="c">Frozen</span><span class="k">]</span>
-<span class="c">            </span><span class="nb">+-------------------+</span><span class="c">     </span><span class="nb">+---------------------+</span>
-<span class="c">                          \                 /</span>
-<span class="c">             </span><span class="k">[</span><span class="c">Tokens y</span><span class="k">]</span><span class="c">    \               / </span><span class="k">[</span><span class="c">Reference Logits</span><span class="k">]</span>
-<span class="c">                            v             v</span>
-<span class="c">                    </span><span class="nb">+-----------------------------+</span>
-<span class="c">                    |    KL Divergence Penalty    |</span>
-<span class="c">                    </span><span class="nb">+-----------------------------+</span>
-<span class="c">                                  |</span>
-<span class="c">                                  v</span>
-<span class="c">                    </span><span class="nb">+-----------------------------+</span>
-<span class="c">                    |      Value Critic / RM      |</span>
-<span class="c">                    </span><span class="nb">+-----------------------------+</span>
-</code></pre></div>
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <!-- Step 1: Input -->
+    <div style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: fit-content;">Input Prompt x</div>
+
+    <!-- Split Rows -->
+    <div style="display: flex; gap: 30px; width: 100%; justify-content: center; flex-wrap: wrap;">
+        <!-- Left Column: Active Policy -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #2563eb;">
+            <div style="color: #1e40af; font-weight: bold; font-size: 12px;">Active Policy (π_θ)</div>
+            <div style="font-size: 10px; color: #64748b; margin-bottom: 4px;">[Trainable Generator]</div>
+            <div style="background-color: #eff6ff; color: #1e40af; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">Tokens y</div>
+        </div>
+        <!-- Right Column: Reference Model -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #64748b;">
+            <div style="color: #334155; font-weight: bold; font-size: 12px;">Reference Model (π_ref)</div>
+            <div style="font-size: 10px; color: #64748b; margin-bottom: 4px;">[Frozen SFT Baseline]</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">Reference Logits</div>
+        </div>
+    </div>
+
+    <!-- Arrows connecting columns to KL Divergence -->
+    <div style="display: flex; gap: 100px; justify-content: center; width: 100%; color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">
+        <span>↓</span>
+        <span>↓</span>
+    </div>
+
+    <!-- KL Penalty Block -->
+    <div style="background-color: #fffbeb; color: #92400e; border: 1px solid #d97706; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: 60%;">
+        KL Divergence Penalty Calculation
+    </div>
+
+    <!-- Downward Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">↓</div>
+
+    <!-- Critic / Reward Model Block -->
+    <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: 60%;">
+        Value Critic / Reward Model Evaluation
+    </div>
+</div>
 
 <ol>
 <li><strong>Active Policy Model ($\pi_{\theta}$)</strong>: The generative model undergoing alignment.</li>
@@ -856,11 +889,26 @@ $$\text{Odds}(y_w|x) = \frac{\pi_{\theta}(y_w|x)}{1 - \pi_{\theta}(y_w|x)}$$</p>
 <hr />
 <h2 id="4-grpo-group-relative-policy-optimization">4. GRPO (Group Relative Policy Optimization)</h2>
 <p>GRPO, popularized by DeepSeek, scales reinforcement learning without requiring a separate Critic/Value network. It samples a group of $G$ outputs $\{y_1, y_2, \dots, y_G\}$ for each prompt $x$.</p>
-<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="n">Prompt</span><span class="w"> </span><span class="n">x</span><span class="p">]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">Active</span><span class="w"> </span><span class="n">Policy</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="p">(</span><span class="n">pi_theta</span><span class="p">)]</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Sample</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">outputs</span><span class="w"> </span><span class="p">{</span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">yG</span><span class="p">}</span>
-<span class="w">                                                             </span><span class="o">|</span>
-<span class="w">                                                             </span><span class="n">v</span>
-<span class="p">[</span><span class="n">Group</span><span class="w"> </span><span class="n">Advantage</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="p">[</span><span class="n">Standardize</span><span class="w"> </span><span class="n">Rewards</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="p">[</span><span class="n">Compute</span><span class="w"> </span><span class="n">Rewards</span><span class="w"> </span><span class="p">{</span><span class="n">r1</span><span class="p">,</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">rG</span><span class="p">}]</span>
-</code></pre></div>
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+    <!-- Step 1 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Prompt x</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Active Policy Model (π_θ)</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Sample G Outputs {y₁, ..., y_G}</div>
+    </div>
+    <!-- Connector Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 16px; margin: 2px 0;">↓</div>
+    <!-- Step 2 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Group Advantage (A_i)</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Standardize Rewards</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Compute Rewards {r₁, ..., r_G}</div>
+    </div>
+</div>
 
 <p>Instead of a critic network predicting token-level baselines, GRPO standardizes the rewards within the sampled group to determine token advantages:<br />
 $$A_i = \frac{r_i - \text{mean}(r)}{\text{std}(r)}$$</p>
@@ -1136,18 +1184,44 @@ $$\text{VRAM}_{\text{total}} = \text{VRAM}_{\text{weights}} + \text{VRAM}_{\text
 <hr />
 <h2 id="3-multi-lora-serving-infrastructure">3. Multi-LoRA Serving Infrastructure</h2>
 <p>In multi-tenant SaaS environments, serving unique models per tenant is costly. <strong>Multi-LoRA Serving</strong> (pioneered by vLLM, LoRAX, and SGLang) allows serving a single base model and dynamically hot-swapping adapters:</p>
-<div class="codehilite"><pre><span></span><code><span class="w">                         </span>[<span class="nv">Incoming</span><span class="w"> </span><span class="nv">Request</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">Tenant</span><span class="w"> </span><span class="nv">A</span>]
-<span class="w">                                        </span><span class="o">|</span>
-<span class="w">                                        </span><span class="nv">v</span>
-<span class="w">                    </span><span class="o">+---------------------------------------+</span>
-<span class="w">                    </span><span class="o">|</span><span class="w"> </span><span class="nv">vLLM</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">SGLang</span><span class="w"> </span><span class="nv">Multi</span><span class="o">-</span><span class="nv">LoRA</span><span class="w"> </span><span class="nv">Orchestrator</span><span class="w"> </span><span class="o">|</span>
-<span class="w">                    </span><span class="o">+---------------------------------------+</span>
-<span class="w">                     </span><span class="o">/</span><span class="w">                  </span><span class="o">|</span><span class="w">                  </span>\
-<span class="w">                    </span><span class="o">/</span><span class="w">                   </span><span class="o">|</span><span class="w">                   </span>\
-<span class="w">                   </span><span class="nv">v</span><span class="w">                    </span><span class="nv">v</span><span class="w">                    </span><span class="nv">v</span>
-<span class="w">         </span>[<span class="nv">Base</span><span class="w"> </span><span class="nv">Model</span><span class="w"> </span><span class="ss">(</span><span class="nv">BF16</span><span class="ss">)</span>]<span class="w">   </span>[<span class="nv">LoRA</span><span class="w"> </span><span class="nv">Adapter</span><span class="w"> </span><span class="nv">A</span>]<span class="w">     </span>[<span class="nv">LoRA</span><span class="w"> </span><span class="nv">Adapter</span><span class="w"> </span><span class="nv">B</span>]
-<span class="w">             </span><span class="ss">(</span><span class="nv">Shared</span><span class="ss">)</span><span class="w">             </span><span class="ss">(</span><span class="nv">Loaded</span><span class="ss">)</span><span class="w">             </span><span class="ss">(</span><span class="nv">Cached</span><span class="ss">)</span>
-</code></pre></div>
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <!-- Step 1: Request -->
+    <div style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: fit-content;">Incoming Request for Tenant A</div>
+
+    <!-- Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">↓</div>
+
+    <!-- Orchestrator -->
+    <div style="background-color: #eff6ff; color: #1e40af; border: 2px solid #2563eb; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 13px; text-align: center; width: 70%;">
+        vLLM / SGLang / LoRAX Multi-LoRA Orchestrator
+    </div>
+
+    <!-- Arrow split -->
+    <div style="display: flex; gap: 100px; justify-content: center; width: 100%; color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">
+        <span>↓</span>
+        <span>↓</span>
+        <span>↓</span>
+    </div>
+
+    <!-- Active Components -->
+    <div style="display: flex; gap: 20px; width: 100%; justify-content: center; flex-wrap: wrap;">
+        <!-- Base Model -->
+        <div style="flex: 1; min-width: 150px; max-width: 180px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; border-top: 3px solid #7c3aed;">
+            <div style="color: #5b21b6; font-weight: bold; font-size: 11px;">Base Model (BF16)</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">[Shared in VRAM]</div>
+        </div>
+        <!-- Adapter A -->
+        <div style="flex: 1; min-width: 150px; max-width: 180px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; border-top: 3px solid #059669;">
+            <div style="color: #065f46; font-weight: bold; font-size: 11px;">LoRA Adapter A</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">[Active / Loaded]</div>
+        </div>
+        <!-- Adapter B -->
+        <div style="flex: 1; min-width: 150px; max-width: 180px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; border-top: 3px solid #94a3b8; opacity: 0.5;">
+            <div style="color: #64748b; font-weight: bold; font-size: 11px;">LoRA Adapter B</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">[Inactive / Cached]</div>
+        </div>
+    </div>
+</div>
 
 <ol>
 <li><strong>Shared Base Model</strong>: The 16-bit base model parameters are kept in VRAM, computing baseline activations once.</li>

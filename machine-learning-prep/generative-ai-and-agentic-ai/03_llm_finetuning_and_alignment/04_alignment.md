@@ -62,28 +62,45 @@ The higher loss penalizes the model for misaligning the rewards.
 
 Reinforcement Learning from Human Feedback (RLHF) utilizes Proximal Policy Optimization (PPO) to align a generator model using four concurrent models in GPU memory:
 
-```
-                  +--------------------------------+
-                  |         Input Prompt x         |
-                  +--------------------------------+
-                            /             \
-                           /               \
-                          v                 v
-            +-------------------+     +---------------------+
-            | Active Policy (pi)|     | Reference Model(ref)| [Frozen]
-            +-------------------+     +---------------------+
-                          \                 /
-             [Tokens y]    \               / [Reference Logits]
-                            v             v
-                    +-----------------------------+
-                    |    KL Divergence Penalty    |
-                    +-----------------------------+
-                                  |
-                                  v
-                    +-----------------------------+
-                    |      Value Critic / RM      |
-                    +-----------------------------+
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <!-- Step 1: Input -->
+    <div style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: fit-content;">Input Prompt x</div>
+    
+    <!-- Split Rows -->
+    <div style="display: flex; gap: 30px; width: 100%; justify-content: center; flex-wrap: wrap;">
+        <!-- Left Column: Active Policy -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #2563eb;">
+            <div style="color: #1e40af; font-weight: bold; font-size: 12px;">Active Policy (π_θ)</div>
+            <div style="font-size: 10px; color: #64748b; margin-bottom: 4px;">[Trainable Generator]</div>
+            <div style="background-color: #eff6ff; color: #1e40af; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">Tokens y</div>
+        </div>
+        <!-- Right Column: Reference Model -->
+        <div style="flex: 1; min-width: 200px; max-width: 250px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; align-items: center; border-top: 3px solid #64748b;">
+            <div style="color: #334155; font-weight: bold; font-size: 12px;">Reference Model (π_ref)</div>
+            <div style="font-size: 10px; color: #64748b; margin-bottom: 4px;">[Frozen SFT Baseline]</div>
+            <div style="background-color: #f1f5f9; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 11px; width: 90%; text-align: center; font-weight: 600;">Reference Logits</div>
+        </div>
+    </div>
+    
+    <!-- Arrows connecting columns to KL Divergence -->
+    <div style="display: flex; gap: 100px; justify-content: center; width: 100%; color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">
+        <span>↓</span>
+        <span>↓</span>
+    </div>
+
+    <!-- KL Penalty Block -->
+    <div style="background-color: #fffbeb; color: #92400e; border: 1px solid #d97706; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: 60%;">
+        KL Divergence Penalty Calculation
+    </div>
+
+    <!-- Downward Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">↓</div>
+
+    <!-- Critic / Reward Model Block -->
+    <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: 60%;">
+        Value Critic / Reward Model Evaluation
+    </div>
+</div>
 
 1. **Active Policy Model ($\pi_{\theta}$)**: The generative model undergoing alignment.
 2. **Reference Model ($\pi_{\text{ref}}$)**: A frozen copy of the pre-trained SFT model used to keep the policy from drifting too far from logical syntax.

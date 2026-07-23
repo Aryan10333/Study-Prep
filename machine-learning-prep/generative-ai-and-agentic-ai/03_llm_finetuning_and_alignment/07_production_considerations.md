@@ -90,19 +90,44 @@ Let's calculate the VRAM required to train an 8B parameter model ($\Phi = 8 \tim
 
 In multi-tenant SaaS environments, serving unique models per tenant is costly. **Multi-LoRA Serving** (pioneered by vLLM, LoRAX, and SGLang) allows serving a single base model and dynamically hot-swapping adapters:
 
-```
-                         [Incoming Request for Tenant A]
-                                        |
-                                        v
-                    +---------------------------------------+
-                    | vLLM / SGLang Multi-LoRA Orchestrator |
-                    +---------------------------------------+
-                     /                  |                  \
-                    /                   |                   \
-                   v                    v                    v
-         [Base Model (BF16)]   [LoRA Adapter A]     [LoRA Adapter B]
-             (Shared)             (Loaded)             (Cached)
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <!-- Step 1: Request -->
+    <div style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; text-align: center; width: fit-content;">Incoming Request for Tenant A</div>
+    
+    <!-- Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">↓</div>
+
+    <!-- Orchestrator -->
+    <div style="background-color: #eff6ff; color: #1e40af; border: 2px solid #2563eb; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 13px; text-align: center; width: 70%;">
+        vLLM / SGLang / LoRAX Multi-LoRA Orchestrator
+    </div>
+
+    <!-- Arrow split -->
+    <div style="display: flex; gap: 100px; justify-content: center; width: 100%; color: #94a3b8; font-weight: bold; font-size: 14px; margin: -5px 0;">
+        <span>↓</span>
+        <span>↓</span>
+        <span>↓</span>
+    </div>
+
+    <!-- Active Components -->
+    <div style="display: flex; gap: 20px; width: 100%; justify-content: center; flex-wrap: wrap;">
+        <!-- Base Model -->
+        <div style="flex: 1; min-width: 150px; max-width: 180px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; border-top: 3px solid #7c3aed;">
+            <div style="color: #5b21b6; font-weight: bold; font-size: 11px;">Base Model (BF16)</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">[Shared in VRAM]</div>
+        </div>
+        <!-- Adapter A -->
+        <div style="flex: 1; min-width: 150px; max-width: 180px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; border-top: 3px solid #059669;">
+            <div style="color: #065f46; font-weight: bold; font-size: 11px;">LoRA Adapter A</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">[Active / Loaded]</div>
+        </div>
+        <!-- Adapter B -->
+        <div style="flex: 1; min-width: 150px; max-width: 180px; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; border-top: 3px solid #94a3b8; opacity: 0.5;">
+            <div style="color: #64748b; font-weight: bold; font-size: 11px;">LoRA Adapter B</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">[Inactive / Cached]</div>
+        </div>
+    </div>
+</div>
 
 1. **Shared Base Model**: The 16-bit base model parameters are kept in VRAM, computing baseline activations once.
 2. **Paged Adapter Cache**: Adapter weights ($<100\text{ MB}$) are cached in non-GPU memory or pre-allocated GPU spaces.

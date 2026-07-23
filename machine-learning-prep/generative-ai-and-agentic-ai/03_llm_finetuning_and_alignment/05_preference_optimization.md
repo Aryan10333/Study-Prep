@@ -81,12 +81,26 @@ $$\mathcal{L}_{\text{ORPO}}(\theta) = \mathcal{L}_{\text{SFT}}(\theta) + \lambda
 
 GRPO, popularized by DeepSeek, scales reinforcement learning without requiring a separate Critic/Value network. It samples a group of $G$ outputs $\{y_1, y_2, \dots, y_G\}$ for each prompt $x$.
 
-```
-[Prompt x] -> [Active Policy Model (pi_theta)] -> Sample G outputs {y1, ..., yG}
-                                                             |
-                                                             v
-[Group Advantage] <- [Standardize Rewards] <- [Compute Rewards {r1, ..., rG}]
-```
+<div class="custom-diagram" style="margin: 20px 0; background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+    <!-- Step 1 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Prompt x</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #eff6ff; color: #1e40af; border: 1px solid #2563eb; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Active Policy Model (π_θ)</div>
+        <div style="color: #94a3b8; font-weight: bold;">→</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Sample G Outputs {y₁, ..., y_G}</div>
+    </div>
+    <!-- Connector Arrow -->
+    <div style="color: #94a3b8; font-weight: bold; font-size: 16px; margin: 2px 0;">↓</div>
+    <!-- Step 2 -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Group Advantage (A_i)</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #ecfdf5; color: #065f46; border: 1px solid #059669; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Standardize Rewards</div>
+        <div style="color: #94a3b8; font-weight: bold;">←</div>
+        <div style="background-color: #f5f3ff; color: #5b21b6; border: 1px solid #7c3aed; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11px;">Compute Rewards {r₁, ..., r_G}</div>
+    </div>
+</div>
 
 Instead of a critic network predicting token-level baselines, GRPO standardizes the rewards within the sampled group to determine token advantages:
 $$A_i = \frac{r_i - \text{mean}(r)}{\text{std}(r)}$$
