@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>LLM Fine-tuning & Alignment Master Study Guide</title>
@@ -24,34 +24,32 @@
             line-height: 1.6;
             color: #1e293b;
             background-color: #ffffff;
+            margin: 0;
+            padding: 0;
         }
-        
-        /* Heading elements styling */
         h1 {
-            font-size: 20px;
+            font-size: 22px;
             color: #0f172a;
-            border-bottom: 1px solid #cbd5e1;
+            border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
-            margin-top: 28px;
-            margin-bottom: 12px;
-            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 14px;
         }
         h2 {
-            font-size: 16px;
-            color: #1e293b;
-            margin-top: 22px;
-            margin-bottom: 8px;
-            font-weight: 600;
+            font-size: 17px;
+            color: #1e40af;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
         }
         h3 {
-            font-size: 14px;
-            color: #334155;
-            margin-top: 18px;
-            margin-bottom: 6px;
-            font-weight: 600;
+            font-size: 15px;
+            color: #0369a1;
+            margin-top: 16px;
+            margin-bottom: 8px;
         }
         
-        /* Table of Contents links */
         a {
             color: #2563eb;
             text-decoration: none;
@@ -59,26 +57,50 @@
         a:hover {
             text-decoration: underline;
         }
-
-        /* GFM standard native tables styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 16px 0;
-            font-size: 12px;
+        
+        p, li {
+            color: #334155;
+            margin-bottom: 8px;
         }
-        th, td {
-            border: 1px solid #e2e8f0;
-            padding: 8px 10px;
-            text-align: left;
-        }
-        th {
+        
+        code {
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
             background-color: #f1f5f9;
             color: #0f172a;
-            font-weight: 600;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 12px;
         }
-        tr:nth-child(even) {
-            background-color: #f8fafc;
+        
+        /* Table Styling with Strict Cell Boundaries */
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 16px 0 !important;
+            font-size: 11.5px !important;
+            border: 1.5px solid #64748b !important;
+            page-break-inside: auto;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        th {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 700 !important;
+            border: 1.5px solid #475569 !important;
+            padding: 8px 10px !important;
+            text-align: left !important;
+        }
+        td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 7px 10px !important;
+            text-align: left !important;
+            vertical-align: top !important;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8fafc !important;
         }
 
         /* Code Syntax Highlighting Styling & Transparency */
@@ -167,17 +189,33 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .vi { color: #F8F8F2 } /* Name.Variable.Instance */
 .codehilite .vm { color: #F8F8F2 } /* Name.Variable.Magic */
 .codehilite .il { color: #AE81FF } /* Literal.Number.Integer.Long */
-        .codehilite {
-            background-color: #272822 !important;
-            padding: 12px;
-            border-radius: 6px;
-            overflow-x: auto;
-            margin: 14px 0;
-        }
-        .codehilite pre, .codehilite code, .codehilite span {
+        
+        /* Prevent white background artifacts and dark text inside code blocks */
+        .codehilite, 
+        .codehilite pre, 
+        .codehilite code, 
+        .codehilite span,
+        .codehilite div,
+        .codehilite pre span,
+        .codehilite pre code {
             background-color: transparent !important;
             color: #f8fafc !important;
-            font-family: 'Consolas', 'Courier New', Courier, monospace !important;
+        }
+
+        .codehilite {
+            background-color: #0f172a !important;
+            border-radius: 6px !important;
+            padding: 12px 14px !important;
+            margin: 14px 0 !important;
+            overflow-x: auto !important;
+            border: 1px solid #334155 !important;
+        }
+        .codehilite pre {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
             font-size: 11px !important;
             line-height: 1.45 !important;
             white-space: pre-wrap !important;

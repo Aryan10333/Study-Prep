@@ -33,6 +33,11 @@ All technical study guides must follow a strict **Practical Mathematics** progre
 - Always escape percent signs inside math blocks (use `\%`) to prevent the KaTeX engine from interpreting them as line comments.
 - Do not use unescaped subscripts/superscripts.
 
+### Premium Headings Styling:
+- **Heading 1 (`#`)**: Main titles. In compiled guides, styled as `#0f172a` with a `2px solid #3b82f6` bottom border.
+- **Heading 2 (`##`)**: Topics. Styled as `#1e40af` (dark blue) with a `1px solid #e2e8f0` bottom border.
+- **Heading 3 (`###`)**: Subtopics. Styled as `#0369a1` (light blue/cyan).
+
 ### Native GFM Tables:
 - Never wrap Markdown tables in fenced backticks (` ```text ` or ` ``` `).
 - Write native GitHub Flavored Markdown (GFM) tables directly:
