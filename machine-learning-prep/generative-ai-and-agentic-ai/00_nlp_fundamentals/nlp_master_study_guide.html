@@ -459,11 +459,12 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <hr />
 <h2 id="2-stemming-vs-lemmatization">2. Stemming vs. Lemmatization</h2>
 <p><img alt="Lexical Reduction Latency" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/stem_vs_lemma_latency.png" /></p>
-<h4 id="plot-explanation-intuition-lexical-reduction-latency">Plot Explanation &amp; Intuition: Lexical Reduction Latency</h4>
-<p>This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens. <br />
-- <strong>Porter Stemmer</strong> executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing <code>"ing"</code> or <code>"ies"</code> based on character lengths) without consulting external databases.<br />
-- <strong>WordNet Lemmatizer</strong> requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).<br />
-- <strong>Production Takeaway</strong>: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing <code>"saw"</code> as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Lexical Reduction Latency**
+ This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens. 
+ - **Porter Stemmer** executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing `"ing"` or `"ies"` based on character lengths) without consulting external databases.
+ - **WordNet Lemmatizer** requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).
+ - **Production Takeaway**: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing `"saw"` as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.</div></div>
+
 <p>Before vectorization, classical pipelines reduce morphological variations of words to a common base form:</p>
 <div class="codehilite"><pre><span></span><code>                  &quot;studies&quot; / &quot;studying&quot;
                             │
@@ -582,11 +583,12 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <hr />
 <h2 id="3-cosine-similarity">3. Cosine Similarity</h2>
 <p><img alt="Cosine Similarity Heatmap" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/tfidf_similarity_heatmap.png" /></p>
-<h4 id="plot-explanation-intuition-tf-idf-cosine-similarity-heatmap">Plot Explanation &amp; Intuition: TF-IDF Cosine Similarity Heatmap</h4>
-<p>This heatmap visualizes the cosine similarity matrix computed across three documents:<br />
-- <strong>Document 1 (Cat/Feline)</strong> and <strong>Document 2 (Feline/Rug)</strong> share the token <code>"feline"</code>, resulting in a similarity score of $0.34$.<br />
-- <strong>Document 3 (Dog/Garden)</strong> shares no vocabulary with Document 1 or Document 2, resulting in a similarity score of $0.00$ and $0.05$ respectively.<br />
-- <strong>Production Takeaway</strong>: The heatmap illustrates the orthogonal limit of sparse models. Even though <code>"cat"</code> and <code>"feline"</code> are semantically related, they are treated as completely independent dimensions. This demonstrates why keyword search algorithms (like TF-IDF/BM25) require exact string matches to retrieve documents, highlighting the need for dense semantic retrieval (like SBERT) for conceptual matching.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: TF-IDF Cosine Similarity Heatmap**
+ This heatmap visualizes the cosine similarity matrix computed across three documents:
+ - **Document 1 (Cat/Feline)** and **Document 2 (Feline/Rug)** share the token `"feline"`, resulting in a similarity score of $0.34$.
+ - **Document 3 (Dog/Garden)** shares no vocabulary with Document 1 or Document 2, resulting in a similarity score of $0.00$ and $0.05$ respectively.
+ - **Production Takeaway**: The heatmap illustrates the orthogonal limit of sparse models. Even though `"cat"` and `"feline"` are semantically related, they are treated as completely independent dimensions. This demonstrates why keyword search algorithms (like TF-IDF/BM25) require exact string matches to retrieve documents, highlighting the need for dense semantic retrieval (like SBERT) for conceptual matching.</div></div>
+
 <p>Cosine similarity measures the angular orientation between two normalized vectors, ignoring magnitude differences:</p>
 <p>$$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$</p>
 <p>For our normalized vectors:<br />
@@ -695,11 +697,12 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="4-perplexity-ppl-intuition">4. Perplexity (PPL) Intuition</h2>
 <p><img alt="Perplexity Decay" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/perplexity_decay.png" /></p>
-<h4 id="plot-explanation-intuition-perplexity-vs-n-gram-context-order">Plot Explanation &amp; Intuition: Perplexity vs. N-gram Context Order</h4>
-<p>This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.<br />
-- <strong>Unigram</strong> models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.<br />
-- <strong>Bigram and Trigram</strong> models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.<br />
-- <strong>Production Takeaway</strong>: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Perplexity vs. N-gram Context Order**
+ This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.
+ - **Unigram** models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.
+ - **Bigram and Trigram** models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.
+ - **Production Takeaway**: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.</div></div>
+
 <p>Perplexity evaluates language model performance on a test sequence.</p>
 <h3 id="conceptual-formulation">Conceptual Formulation</h3>
 <p>$$\text{PPL} = e^{\text{Cross-Entropy Loss}}$$</p>
@@ -763,11 +766,12 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 </ul>
 <h3 id="spatial-analogy-visualization">Spatial Analogy Visualization</h3>
 <p><img alt="Word Embedding Analogy Projection" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/embedding_analogy_projection.png" /></p>
-<h4 id="plot-explanation-intuition-embedding-analogy-projection">Plot Explanation &amp; Intuition: Embedding Analogy Projection</h4>
-<p>This plot projects word embedding vectors onto a 2D coordinate space to demonstrate semantic properties like analogies:<br />
-- <strong>Gender Offset (Horizontal Blue Vector)</strong>: The direction and distance from <code>"woman"</code> to <code>"man"</code> matches the vector from <code>"queen"</code> to <code>"king"</code>. This indicates the model has learned the abstract concept of gender as a consistent spatial translation vector.<br />
-- <strong>Royalty Offset (Vertical Green Vector)</strong>: The transition from <code>"man"</code> to <code>"king"</code> is parallel to the transition from <code>"woman"</code> to <code>"queen"</code>, capturing the concept of royalty.<br />
-- <strong>Production Takeaway</strong>: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Embedding Analogy Projection**
+ This plot projects word embedding vectors onto a 2D coordinate space to demonstrate semantic properties like analogies:
+ - **Gender Offset (Horizontal Blue Vector)**: The direction and distance from `"woman"` to `"man"` matches the vector from `"queen"` to `"king"`. This indicates the model has learned the abstract concept of gender as a consistent spatial translation vector.
+ - **Royalty Offset (Vertical Green Vector)**: The transition from `"man"` to `"king"` is parallel to the transition from `"woman"` to `"queen"`, capturing the concept of royalty.
+ - **Production Takeaway**: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.</div></div>
+
 <div class="codehilite"><pre><span></span><code><span class="n">Vector</span><span class="w"> </span><span class="n">Dimension</span><span class="w"> </span><span class="n">y</span>
 <span class="w">      </span><span class="err">▲</span>
 <span class="w">      </span><span class="err">│</span><span class="w">       </span><span class="o">[</span><span class="n">queen</span><span class="o">]</span><span class="w"> </span>
@@ -846,11 +850,12 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="1-rnns-and-the-intuition-of-vanishing-gradients">1. RNNs and the Intuition of Vanishing Gradients</h2>
 <p><img alt="Gradient Flow Comparison" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/gradient_flow_comparison.png" /></p>
-<h4 id="plot-explanation-intuition-gradient-flow-decay-comparison">Plot Explanation &amp; Intuition: Gradient Flow Decay Comparison</h4>
-<p>This chart visualizes the gradient norm ratio during backpropagation over 30 sequence steps:<br />
-- <strong>Standard RNN (Red Line)</strong>: The gradient decay curves show exponential decay towards $0$ as the number of backpropagation steps increases. This is caused by repeatedly multiplying the recurrent weight matrix $W_{hh}$ (multiplicative decay), making the network unable to learn long-range context dependencies.<br />
-- <strong>LSTM (Green Line)</strong>: The gradient norm ratio remains constant near $1.0$. This is enabled by the LSTM's <strong>Constant Error Carousel (CEC)</strong>, which routes updates via linear addition, preventing exponential gradient decay.<br />
-- <strong>Production Takeaway</strong>: This visualization demonstrates why standard RNNs are unsuitable for sequences longer than 10-15 tokens. To process longer sentences, engineers must use gated architectures (LSTM/GRU) or self-attention to maintain stable gradient flow.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Gradient Flow Decay Comparison**
+ This chart visualizes the gradient norm ratio during backpropagation over 30 sequence steps:
+ - **Standard RNN (Red Line)**: The gradient decay curves show exponential decay towards $0$ as the number of backpropagation steps increases. This is caused by repeatedly multiplying the recurrent weight matrix $W_{hh}$ (multiplicative decay), making the network unable to learn long-range context dependencies.
+ - **LSTM (Green Line)**: The gradient norm ratio remains constant near $1.0$. This is enabled by the LSTM's **Constant Error Carousel (CEC)**, which routes updates via linear addition, preventing exponential gradient decay.
+ - **Production Takeaway**: This visualization demonstrates why standard RNNs are unsuitable for sequences longer than 10-15 tokens. To process longer sentences, engineers must use gated architectures (LSTM/GRU) or self-attention to maintain stable gradient flow.</div></div>
+
 <p>A standard Recurrent Neural Network (RNN) processes tokens sequentially, updating a hidden state vector $h_t$ at each step:</p>
 <p>$$h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$</p>
 <h3 id="why-gradients-vanish-or-explode">Why Gradients Vanish or Explode</h3>
@@ -964,11 +969,12 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$</p>
 <hr />
 <h2 id="3-query-key-and-value-intuition">3. Query, Key, and Value Intuition</h2>
 <p><img alt="Attention Matrix Heatmap" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/attention_matrix_heatmap.png" /></p>
-<h4 id="plot-explanation-intuition-attention-alignment-matrix-heatmap">Plot Explanation &amp; Intuition: Attention Alignment Matrix Heatmap</h4>
-<p>This heatmap visualizes the self-attention alignment weights computed between query words and key words:<br />
-- <strong>Semantic Mapping</strong>: The query word <code>"feline"</code> aligns strongly with the key word <code>"cat"</code> ($0.90$ alignment score), while <code>"sat"</code> aligns with <code>"sat"</code> ($0.95$).<br />
-- <strong>Alignment Matrix</strong>: The values are soft probability distributions across the keys, summing to $1.0$ along each query row.<br />
-- <strong>Production Takeaway</strong>: The heatmap demonstrates the concept of dynamic alignment. Unlike recurrent hidden states that compress all history into a single vector, self-attention maps query-key relationships directly, allowing the model to focus on related terms across long sequence gaps.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Attention Alignment Matrix Heatmap**
+ This heatmap visualizes the self-attention alignment weights computed between query words and key words:
+ - **Semantic Mapping**: The query word `"feline"` aligns strongly with the key word `"cat"` ($0.90$ alignment score), while `"sat"` aligns with `"sat"` ($0.95$).
+ - **Alignment Matrix**: The values are soft probability distributions across the keys, summing to $1.0$ along each query row.
+ - **Production Takeaway**: The heatmap demonstrates the concept of dynamic alignment. Unlike recurrent hidden states that compress all history into a single vector, self-attention maps query-key relationships directly, allowing the model to focus on related terms across long sequence gaps.</div></div>
+
 <p>Attention models map query vectors against key-value pairs:</p>
 <p>$$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$$</p>
 <ul>
@@ -1125,11 +1131,12 @@ Candidate:
 <hr />
 <h2 id="2-monitoring-production-drift-data-vs-concept-drift">2. Monitoring Production Drift: Data vs. Concept Drift</h2>
 <p><img alt="Data Drift Distributions" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/data_drift_distributions.png" /></p>
-<h4 id="plot-explanation-intuition-data-drift-distribution-divergence">Plot Explanation &amp; Intuition: Data Drift Distribution Divergence</h4>
-<p>This chart illustrates the probability density curves of training data vs. production data projected onto a lexical feature space:<br />
-- <strong>Covariate Shift</strong>: The training distribution $P(X_{\text{train}})$ (blue curve) is centered at $0$, representing clean, formal vocabulary. The production distribution $P(X_{\text{prod}})$ (orange curve) is shifted to the right, representing informal text, emojis, and slang.<br />
-- <strong>Divergence</strong>: The overlap between curves represents regions where the baseline model remains accurate. The non-overlapping shifted region represents drifted inputs that will trigger low-confidence predictions or out-of-vocabulary errors.<br />
-- <strong>Production Takeaway</strong>: This visualization demonstrates the importance of monitoring data drift. When the distance between distributions (measured using metrics like Population Stability Index or Wasserstein Distance) exceeds a threshold, it signals that the pipeline must trigger a retraining loop with updated production data to prevent model decay.</p>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Data Drift Distribution Divergence**
+ This chart illustrates the probability density curves of training data vs. production data projected onto a lexical feature space:
+ - **Covariate Shift**: The training distribution $P(X_{\text{train}})$ (blue curve) is centered at $0$, representing clean, formal vocabulary. The production distribution $P(X_{\text{prod}})$ (orange curve) is shifted to the right, representing informal text, emojis, and slang.
+ - **Divergence**: The overlap between curves represents regions where the baseline model remains accurate. The non-overlapping shifted region represents drifted inputs that will trigger low-confidence predictions or out-of-vocabulary errors.
+ - **Production Takeaway**: This visualization demonstrates the importance of monitoring data drift. When the distance between distributions (measured using metrics like Population Stability Index or Wasserstein Distance) exceeds a threshold, it signals that the pipeline must trigger a retraining loop with updated production data to prevent model decay.</div></div>
+
 <p>Once deployed, models experience performance decay due to environmental changes:</p>
 <table>
 <thead>

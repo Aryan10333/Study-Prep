@@ -69,11 +69,12 @@ Good-Turing smoothing estimates the probability of unseen items based on the fre
 
 ![Perplexity Decay](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/perplexity_decay.png)
 
-#### Plot Explanation & Intuition: Perplexity vs. N-gram Context Order
-This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.
-- **Unigram** models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.
-- **Bigram and Trigram** models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.
-- **Production Takeaway**: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.
+> [!NOTE]
+> **Plot Explanation & Intuition: Perplexity vs. N-gram Context Order**
+> This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.
+> - **Unigram** models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.
+> - **Bigram and Trigram** models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.
+> - **Production Takeaway**: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.
 
 Perplexity evaluates language model performance on a test sequence.
 

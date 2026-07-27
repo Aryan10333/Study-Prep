@@ -61,11 +61,12 @@ Unigram (used in T5 and SentencePiece) operates in a top-down manner. It starts 
 
 ![Lexical Reduction Latency](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/stem_vs_lemma_latency.png)
 
-#### Plot Explanation & Intuition: Lexical Reduction Latency
-This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens. 
-- **Porter Stemmer** executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing `"ing"` or `"ies"` based on character lengths) without consulting external databases.
-- **WordNet Lemmatizer** requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).
-- **Production Takeaway**: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing `"saw"` as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.
+> [!NOTE]
+> **Plot Explanation & Intuition: Lexical Reduction Latency**
+> This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens. 
+> - **Porter Stemmer** executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing `"ing"` or `"ies"` based on character lengths) without consulting external databases.
+> - **WordNet Lemmatizer** requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).
+> - **Production Takeaway**: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing `"saw"` as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.
 
 Before vectorization, classical pipelines reduce morphological variations of words to a common base form:
 
