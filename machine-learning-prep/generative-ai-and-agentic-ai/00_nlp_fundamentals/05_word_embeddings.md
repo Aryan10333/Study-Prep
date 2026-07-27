@@ -23,6 +23,9 @@ Distributional Hypothesis      Prediction Objective             Hidden Layer    
 - **Embedding Space**: The weights of this bottleneck layer form the embedding matrix $\mathbf{W} \in \mathbb{R}^{|V| \times d}$, capturing semantic properties like analogies (e.g., $\mathbf{v}_{\text{king}} - \mathbf{v}_{\text{man}} + \mathbf{v}_{\text{woman}} \approx \mathbf{v}_{\text{queen}}$).
 
 ### Spatial Analogy Visualization
+
+![Word Embedding Analogy Projection](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/embedding_analogy_projection.png)
+
 ```
 Vector Dimension y
       ▲

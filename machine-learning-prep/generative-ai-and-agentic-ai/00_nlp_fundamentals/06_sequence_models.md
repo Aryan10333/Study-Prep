@@ -6,6 +6,8 @@ Sequence models process variable-length inputs by maintaining sequential state r
 
 ## 1. RNNs and the Intuition of Vanishing Gradients
 
+![Gradient Flow Comparison](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/gradient_flow_comparison.png)
+
 A standard Recurrent Neural Network (RNN) processes tokens sequentially, updating a hidden state vector $h_t$ at each step:
 
 $$h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$

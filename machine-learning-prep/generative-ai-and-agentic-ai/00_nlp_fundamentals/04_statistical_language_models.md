@@ -67,6 +67,8 @@ Good-Turing smoothing estimates the probability of unseen items based on the fre
 
 ## 4. Perplexity (PPL) Intuition
 
+![Perplexity Decay](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/perplexity_decay.png)
+
 Perplexity evaluates language model performance on a test sequence.
 
 ### Conceptual Formulation

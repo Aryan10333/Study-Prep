@@ -61,6 +61,8 @@ Let's calculate the TF-IDF vectors for a 2-document corpus:
 
 ## 3. Cosine Similarity
 
+![Cosine Similarity Heatmap](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/tfidf_similarity_heatmap.png)
+
 Cosine similarity measures the angular orientation between two normalized vectors, ignoring magnitude differences:
 
 $$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$

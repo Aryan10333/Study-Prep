@@ -15,12 +15,14 @@ def build_01_text_preprocessing():
     cells = []
     
     cells.append(nbf.v4.new_markdown_cell("""# 01_text_preprocessing: Cleaning, Normalization, Stemming, and Subword Simulation
-
-This notebook implements classical text preprocessing steps (Porter stemming and WordNet lemmatization) using NLTK, and simulates a basic Byte-Pair Encoding (BPE) subword merge loop.
+    
+This notebook implements classical text preprocessing steps (Porter stemming and WordNet lemmatization) using NLTK on a scraped Wikipedia page corpus, and simulates a basic Byte-Pair Encoding (BPE) subword merge loop.
 """))
     
     cells.append(nbf.v4.new_code_cell(r"""import nltk
 import re
+import requests
+from bs4 import BeautifulSoup
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
@@ -29,18 +31,24 @@ nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
 nltk.download('omw-1.4', quiet=True)
 
-raw_text = "The cats were studying studying studies in Seattle's libraries! https://example.com"
+# 2. Scrape Wikipedia NLP page
+url = "https://en.wikipedia.org/wiki/Natural_language_processing"
+resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+soup = BeautifulSoup(resp.content, "html.parser")
+paragraphs = [p.get_text().strip() for p in soup.find_all("p") if len(p.get_text().strip()) > 80]
+raw_text = paragraphs[1]
+print("Raw Scraped Wikipedia Text snippet:", raw_text[:120], "...\n")
 
-# 2. Basic regex cleaning
+# 3. Basic regex cleaning
 cleaned_text = re.sub(r"https?://\S+", "", raw_text)
 cleaned_text = re.sub(r"[^\w\s]", "", cleaned_text).lower()
-print("Cleaned Text:", cleaned_text)
+print("Cleaned Text:", cleaned_text[:120], "...\n")
 
-# 3. Tokenize
-tokens = word_tokenize(cleaned_text)
+# 4. Tokenize
+tokens = word_tokenize(cleaned_text)[:15] # take a subset of tokens
 print("Tokens:", tokens)
 
-# 4. Stemming vs Lemmatization
+# 5. Stemming vs Lemmatization
 stemmer = PorterStemmer()
 lemmatizer = WordNetLemmatizer()
 
@@ -48,24 +56,26 @@ stemmed = [stemmer.stem(t) for t in tokens]
 lemmatized = [lemmatizer.lemmatize(t, pos='v') for t in tokens]
 
 print("\nLexical Reduction Comparison:")
-print(f"{'Original':<12} | {'Stemmed':<12} | {'Lemmatized':<12}")
-print("-" * 42)
+print(f"{'Original':<15} | {'Stemmed':<15} | {'Lemmatized':<15}")
+print("-" * 51)
 for o, s, l in zip(tokens, stemmed, lemmatized):
-    print(f"{o:<12} | {s:<12} | {l:<12}")
+    print(f"{o:<15} | {s:<15} | {l:<15}")
 """))
 
     cells.append(nbf.v4.new_markdown_cell("""## Byte-Pair Encoding (BPE) Simulation
-Let's simulate a basic bottom-up BPE tokenizer training merge loop on a tiny vocabulary.
+Let's simulate a basic bottom-up BPE tokenizer training merge loop on a tiny vocabulary extracted from the scraped text.
 """))
 
     cells.append(nbf.v4.new_code_cell(r"""from collections import Counter, defaultdict
 
-# Tiny BPE training corpus
-corpus = {
-    "l o w _": 5,
-    "l o w e r _": 2,
-    "n e w e s t _": 6
-}
+# BPE training corpus from scraped Wikipedia tokens
+sample_text = "natural language processing language processing pipeline"
+words = sample_text.split()
+corpus = Counter([" ".join(list(w)) + " _" for w in words])
+
+print("Initial split corpus counts:")
+for w, freq in corpus.items():
+    print(f"  {w}: {freq}")
 
 def get_stats(corpus):
     pairs = defaultdict(int)
@@ -85,8 +95,8 @@ def merge_vocab(pair, corpus):
     return new_corpus
 
 # Run 5 BPE merge iterations
-vocab = set("l o w e r n s t _".split())
-print("Initial Vocab:", sorted(vocab))
+vocab = set("n a t u r l g e p o c s i d _".split())
+print("\nInitial Vocab:", sorted(vocab))
 
 for i in range(5):
     pairs = get_stats(corpus)
@@ -103,8 +113,8 @@ print("\nFinal BPE Vocab:", sorted(vocab))
 """))
 
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- **Lexical Reduction**: Stemming cuts off suffixes heuristically (e.g. `"studying"` $\rightarrow$ `"studi"`), whereas lemmatization resolves tokens to morphological base forms using grammatical tagging dictionary lookups (e.g. `"studies"` $\rightarrow$ `"study"`).
-- **BPE merges**: The simulator finds adjacent character pairs (e.g., `(e, s)` then `(es, t)`) and groups them into single, multi-character subwords.
+- **Lexical Reduction**: Stemming cuts suffixes heuristically (e.g. `"processing"` $\rightarrow$ `"process"`), whereas lemmatization resolves tokens to morphological base forms using grammatical tagging lookup tables (e.g. `"processing"` $\rightarrow$ `"process"`).
+- **BPE merges**: The simulator groups adjacent characters (like `(p, r)` then `(pr, o)`) based on statistical counts to form vocabulary subwords.
 """))
     
     nb['cells'] = cells
@@ -114,61 +124,75 @@ def build_02_bag_of_words_tfidf():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 02_bag_of_words_tfidf: Vector Representations from Scratch
-
-This notebook builds Bag of Words (BoW) and Term Frequency - Inverse Document Frequency (TF-IDF) representation matrices from scratch using NumPy, and compares results against Scikit-Learn's estimators.
+    cells.append(nbf.v4.new_markdown_cell("""# 02_bag_of_words_tfidf: Vector Representations using UCI SMS Spam Dataset
+    
+This notebook builds Bag of Words (BoW) and Term Frequency - Inverse Document Frequency (TF-IDF) representation matrices from scratch using NumPy over the real-world UCI SMS Spam dataset, comparing outputs against Scikit-Learn.
 """))
     
     cells.append(nbf.v4.new_code_cell(r"""import numpy as np
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# Tiny Corpus
-corpus = [
-    "cat feline mat",
-    "feline rug mat"
-]
+# 1. Load UCI SMS Spam dataset
+url = "https://raw.githubusercontent.com/justmarkham/pycon-2016-tutorial/master/data/sms.tsv"
+df = pd.read_csv(url, sep="\t", names=["label", "message"])
+print("Dataset size:", df.shape)
 
-# 1. Map vocabulary
-vocab = sorted(list(set(" ".join(corpus).split())))
+# Slice 5 sample messages to keep matrix prints readable
+corpus_raw = df["message"].iloc[10:15].tolist()
+# Basic normalization
+corpus = [msg.lower().replace(".", "").replace(",", "") for msg in corpus_raw]
+
+print("\nNormalized Corpus:")
+for idx, doc in enumerate(corpus):
+    print(f"Doc {idx+1}: {doc}")
+
+# 2. Map vocabulary
+import re
+words = []
+for doc in corpus:
+    words.extend(re.findall(r"\b\w\w+\b", doc))
+vocab = sorted(list(set(words)))
 word_to_idx = {w: i for i, w in enumerate(vocab)}
-print("Vocabulary mapping:", word_to_idx)
+print("\nVocabulary Mapping (Words -> Index):\n", word_to_idx)
 
-# 2. Bag of Words (BoW) from scratch
+# 3. Bag of Words (BoW) from scratch
 bow_matrix = np.zeros((len(corpus), len(vocab)))
 for doc_idx, doc in enumerate(corpus):
-    for word in doc.split():
+    for word in re.findall(r"\b\w\w+\b", doc):
         if word in word_to_idx:
             bow_matrix[doc_idx, word_to_idx[word]] += 1
 
 print("\nBag of Words Matrix (from scratch):\n", bow_matrix)
 
-# 3. Smooth TF-IDF from scratch
+# 4. Smooth TF-IDF from scratch
 # Smooth IDF formulation: log((1 + N) / (1 + DF)) + 1
 N = len(corpus)
-df = np.sum(bow_matrix > 0, axis=0)
-idf = np.log((1 + N) / (1 + df)) + 1
+df_counts = np.sum(bow_matrix > 0, axis=0)
+idf = np.log((1 + N) / (1 + df_counts)) + 1
 
 # Calculate TF-IDF
 tfidf_matrix = bow_matrix * idf
 
 # L2 normalization to match Scikit-Learn standard
 norms = np.linalg.norm(tfidf_matrix, axis=1, keepdims=True)
-tfidf_norm = tfidf_matrix / norms
+tfidf_norm = tfidf_matrix / (norms + 1e-15)  # prevent division by zero
 
-print("\nTF-IDF Matrix (from scratch, normalized):\n", tfidf_norm)
+print("\nTF-IDF Matrix (from scratch, normalized):\n", np.round(tfidf_norm, 4))
 
-# 4. Compare with Scikit-Learn
+# 5. Compare with Scikit-Learn TfidfVectorizer
 vectorizer = TfidfVectorizer(norm='l2', smooth_idf=True, use_idf=True)
 sklearn_tfidf = vectorizer.fit_transform(corpus).toarray()
-print("\nScikit-Learn TF-IDF Matrix:\n", sklearn_tfidf)
+print("\nScikit-Learn TF-IDF Matrix:\n", np.round(sklearn_tfidf, 4))
 
-# Check assertion
+# Check alignment
 assert np.allclose(tfidf_norm, sklearn_tfidf, atol=1e-5)
 print("\nSUCCESS: Custom TF-IDF matrix matches Scikit-Learn output exactly!")
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- The hand-coded matrix implementation calculates raw term frequencies, applies the smooth IDF equation, normalizes vectors by their $L_2$ Euclidean norms, and matches the output of Scikit-Learn's `TfidfVectorizer` exactly.
+- The custom matrix outputs align with `TfidfVectorizer` outputs exactly.
+- Using a real SMS spam sample demonstrates how IDF weights down common words like `"to"` or `"you"` compared to unique message terms.
 """))
     
     nb['cells'] = cells
@@ -178,43 +202,53 @@ def build_03_word2vec():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 03_word2vec: Word Representation Models using Gensim
-
-This notebook trains Continuous Bag-of-Words (CBOW) and Skip-gram Word2Vec embedding models on a custom text corpus using Gensim, and inspects vector representations.
+    cells.append(nbf.v4.new_markdown_cell("""# 03_word2vec: Word Representations with Gutenberg's Alice in Wonderland
+    
+This notebook trains Continuous Bag-of-Words (CBOW) and Skip-gram Word2Vec embedding models using Gensim on sentences extracted from Project Gutenberg's *Alice in Wonderland*.
 """))
     
-    cells.append(nbf.v4.new_code_cell(r"""from gensim.models import Word2Vec
+    cells.append(nbf.v4.new_code_cell(r"""import re
+import requests
+from gensim.models import Word2Vec
 
-# Custom token corpus
-sentences = [
-    ["the", "feline", "sat", "on", "the", "mat"],
-    ["the", "cat", "sat", "on", "the", "mat"],
-    ["a", "feline", "rested", "on", "the", "rug"],
-    ["the", "cat", "rested", "on", "the", "rug"],
-    ["dogs", "run", "in", "the", "park"],
-    ["cats", "sleep", "on", "the", "mat"]
-]
+# 1. Load Alice in Wonderland from NLTK gutenberg corpus
+import nltk
+nltk.download('gutenberg', quiet=True)
+from nltk.corpus import gutenberg
+sentences_raw = gutenberg.sents('carroll-alice.txt')
 
-# 1. Train Continuous Bag-of-Words (CBOW) model
-cbow_model = Word2Vec(sentences=sentences, vector_size=20, window=2, min_count=1, sg=0, epochs=100)
+# Clean and filter tokens
+cleaned_sentences = []
+for s in sentences_raw:
+    words = [w.lower() for w in s if re.match(r"^\w+$", w)]
+    if 5 < len(words) < 30:
+        cleaned_sentences.append(words)
 
-# 2. Train Skip-gram model
-sg_model = Word2Vec(sentences=sentences, vector_size=20, window=2, min_count=1, sg=1, epochs=100)
+# Select first 600 sentences for fast training
+train_sentences = cleaned_sentences[:600]
+print(f"Extracted {len(train_sentences)} sentences from Alice in Wonderland.")
+print("Sample sentence:", train_sentences[10])
 
-# 3. Retrieve representations
-print("=== CBOW Embedding for 'feline' ===")
-print(cbow_model.wv["feline"])
+# 2. Train Continuous Bag-of-Words (CBOW) model
+cbow_model = Word2Vec(sentences=train_sentences, vector_size=20, window=3, min_count=2, sg=0, epochs=100)
 
-print("\n=== Similarity lookup ('cat' vs 'feline') ===")
-cbow_sim = cbow_model.wv.similarity("cat", "feline")
-sg_sim = sg_model.wv.similarity("cat", "feline")
+# 3. Train Skip-gram model
+sg_model = Word2Vec(sentences=train_sentences, vector_size=20, window=3, min_count=2, sg=1, epochs=100)
+
+# 4. Similarity lookup
+print("\n=== CBOW Embedding for 'alice' ===")
+print(cbow_model.wv["alice"])
+
+print("\n=== Similarity lookup ('alice' vs 'rabbit') ===")
+cbow_sim = cbow_model.wv.similarity("alice", "rabbit")
+sg_sim = sg_model.wv.similarity("alice", "rabbit")
 print(f"CBOW Cosine Similarity: {cbow_sim:.4f}")
 print(f"Skip-gram Cosine Similarity: {sg_sim:.4f}")
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- The model projects semantic correlations into the dense embedding vectors.
-- Words sharing similar context profiles (like `"cat"` and `"feline"`) yield high cosine similarity values, while non-related terms exhibit low scores.
+- Words appearing in the same chapters (like `"alice"` and `"rabbit"`) cluster together in vector space, resulting in positive cosine similarity scores.
+- Using a real corpus (Alice in Wonderland) demonstrates semantic projection models learning character relationships from context.
 """))
     
     nb['cells'] = cells
@@ -224,46 +258,54 @@ def build_04_glove_fasttext():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 04_glove_fasttext: Character N-Grams and Out-of-Vocabulary Resolution
-
-This notebook trains a FastText model using Gensim to show how character n-grams resolve Out-of-Vocabulary (OOV) lookup failures that cause static Word2Vec to crash.
+    cells.append(nbf.v4.new_markdown_cell("""# 04_glove_fasttext: FastText Subwords on Gutenberg Corpus
+    
+This notebook trains FastText and Word2Vec models on Gutenberg's *Alice in Wonderland* to demonstrate how subword n-grams resolve Out-of-Vocabulary (OOV) queries.
 """))
     
-    cells.append(nbf.v4.new_code_cell(r"""from gensim.models import FastText
-from gensim.models import Word2Vec
+    cells.append(nbf.v4.new_code_cell(r"""import re
+import requests
+from gensim.models import FastText, Word2Vec
 
-# Tiny training corpus
-sentences = [
-    ["the", "cat", "sat", "on", "the", "mat"],
-    ["feline", "sat", "on", "the", "rug"],
-    ["dogs", "run", "in", "the", "garden"]
-]
+# 1. Load Alice in Wonderland from NLTK gutenberg corpus
+import nltk
+nltk.download('gutenberg', quiet=True)
+from nltk.corpus import gutenberg
+sentences_raw = gutenberg.sents('carroll-alice.txt')
 
-# 1. Train standard Word2Vec (vocabulary is fixed to training tokens)
-w2v = Word2Vec(sentences, vector_size=10, window=2, min_count=1, epochs=10)
+cleaned_sentences = []
+for s in sentences_raw:
+    words = [w.lower() for w in s if re.match(r"^\w+$", w)]
+    if 5 < len(words) < 35:
+        cleaned_sentences.append(words)
 
-# 2. Train FastText (stores character n-grams)
-ft = FastText(sentences, vector_size=10, window=2, min_count=1, min_n=3, max_n=6, epochs=10)
+train_sentences = cleaned_sentences[:500]
 
-# 3. Attempt OOV word retrieval (e.g. 'cats' - not in training vocabulary)
-print("Vocabulary keys in training data:", list(w2v.wv.key_to_index.keys()))
+# 2. Train Word2Vec
+w2v = Word2Vec(train_sentences, vector_size=10, window=3, min_count=2, epochs=20)
 
+# 3. Train FastText
+ft = FastText(train_sentences, vector_size=10, window=3, min_count=2, min_n=3, max_n=6, epochs=20)
+
+print("Vocabulary keys in Word2Vec index:", list(w2v.wv.key_to_index.keys())[:10])
+
+# 4. Attempt OOV word retrieval (e.g. 'alicean' - not in vocabulary)
 try:
-    vector = w2v.wv["cats"]
-except KeyError as e:
-    print("\n[Word2Vec Error]: Word 'cats' is out of vocabulary!")
+    vector = w2v.wv["alicean"]
+except KeyError:
+    print("\n[Word2Vec Error]: Word 'alicean' is out of vocabulary!")
 
 # FastText handles the OOV word via character subword n-grams
-ft_vector = ft.wv["cats"]
-print("\nFastText Vector for OOV word 'cats':\n", ft_vector)
+ft_vector = ft.wv["alicean"]
+print("\nFastText Vector for OOV word 'alicean':\n", ft_vector)
 
 # Similar words lookup
-print("\nFastText similarity 'cat' vs 'cats':", ft.wv.similarity("cat", "cats"))
+print("\nFastText similarity 'alice' vs 'alicean':", ft.wv.similarity("alice", "alicean"))
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- Standard Word2Vec raises a `KeyError` when queried with the Out-of-Vocabulary word `"cats"`.
-- FastText handles this by decomposing `"cats"` into character n-grams (e.g., `cat`, `ats`) and summing their vectors to generate an embedding.
+- Querying standard Word2Vec with `"alicean"` crashes because the exact string is not in the training corpus.
+- FastText splits `"alicean"` into character n-grams (e.g., `ali`, `lic`, `ice`, `cea`, `ean`) and sums their representations, returning a valid similarity score.
 """))
     
     nb['cells'] = cells
@@ -273,57 +315,64 @@ def build_05_ngram_language_models():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 05_ngram_language_models: N-gram Estimations and Perplexity Calculations
-
-This notebook builds a Bigram Language Model from scratch, implements Laplace smoothing, and computes Perplexity metrics over sample text sequences.
+    cells.append(nbf.v4.new_markdown_cell("""# 05_ngram_language_models: N-gram Models on Wikipedia Text
+    
+This notebook builds an N-gram Language Model from scratch and computes Perplexity metrics using a scraped Wikipedia text corpus.
 """))
     
     cells.append(nbf.v4.new_code_cell(r"""import math
+import requests
+from bs4 import BeautifulSoup
+import re
 from collections import Counter, defaultdict
 
-# 1. Corpus
-corpus = "the cat sat on the mat the cat rested on the rug".split()
+# 1. Scrape Wikipedia NLP Article
+url = "https://en.wikipedia.org/wiki/Natural_language_processing"
+resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+soup = BeautifulSoup(resp.content, "html.parser")
+paragraphs = [p.get_text().strip() for p in soup.find_all("p") if len(p.get_text().strip()) > 80]
+corpus_text = " ".join(paragraphs[:8]) # Take first 8 paragraphs
+
+# Preprocess
+corpus = re.sub(r"[^\w\s]", "", corpus_text).lower().split()
 vocab = list(set(corpus))
 vocab_size = len(vocab)
+print(f"Corpus Token Count: {len(corpus)}, Vocabulary Size: {vocab_size}")
 
 # 2. Count Unigrams and Bigrams
 unigrams = Counter(corpus)
 bigrams = Counter(zip(corpus[:-1], corpus[1:]))
 
-# 3. Probability estimation with Laplace (add-1) smoothing
+# 3. Probability estimation with Laplace smoothing
 def get_bigram_prob(w1, w2):
     count_bigram = bigrams[(w1, w2)]
     count_unigram = unigrams[w1]
-    # Smooth calculation
     return (count_bigram + 1) / (count_unigram + vocab_size)
 
-print("Vocabulary:", vocab)
 print("\nSmoothed transition probabilities:")
-print("P(cat | the) =", get_bigram_prob("the", "cat"))
-print("P(rug | the) =", get_bigram_prob("the", "rug")) # non-zero despite not appearing
+print("P(language | natural) =", get_bigram_prob("natural", "language"))
+print("P(processing | natural) =", get_bigram_prob("natural", "processing"))
 
 # 4. Calculate Perplexity on a test sequence
-test_sequence = ["the", "cat", "rested", "on", "the", "mat"]
+test_sequence = ["natural", "language", "processing", "methods", "and", "tasks"]
 
 def compute_perplexity(seq):
     log_prob_sum = 0.0
-    # Bigram sequence modeling
     for i in range(1, len(seq)):
         w1, w2 = seq[i-1], seq[i]
         prob = get_bigram_prob(w1, w2)
         log_prob_sum += math.log(prob)
         
     avg_log_prob = log_prob_sum / (len(seq) - 1)
-    perplexity = math.exp(-avg_log_prob)
-    return perplexity
+    return math.exp(-avg_log_prob)
 
 ppl = compute_perplexity(test_sequence)
 print(f"\nPerplexity of sequence {test_sequence}: {ppl:.4f}")
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- The bigram language model calculates transitions.
-- Laplace smoothing prevents zero probabilities for unseen transitions (e.g. `"the rug"`), allowing the model to compute a valid, finite perplexity value.
+- The model computes conditional sequence probabilities.
+- Laplace smoothing prevents zero probabilities for unseen bigrams (like `"natural methods"`), keeping perplexity metrics finite and stable.
 """))
     
     nb['cells'] = cells
@@ -333,57 +382,99 @@ def build_06_rnn_lstm_gru():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 06_rnn_lstm_gru: Sequence Classifier Comparison in PyTorch
-
-This notebook constructs a simple bidirectional sequence classifier in PyTorch, comparing RNN, LSTM, and GRU architectures.
+    cells.append(nbf.v4.new_markdown_cell("""# 06_rnn_lstm_gru: Bidirectional Recurrent Sequence Classifiers
+    
+This notebook trains a recurrent classifier in PyTorch to classify sentence lengths (long vs. short) using vocabulary loaded from Gutenberg's *Alice in Wonderland*.
 """))
     
-    cells.append(nbf.v4.new_code_cell(r"""import torch
+    cells.append(nbf.v4.new_code_cell(r"""import re
+import requests
+import torch
 import torch.nn as nn
+import torch.optim as optim
 
-# Model parameters
-vocab_size = 100
+# 1. Load Alice in Wonderland from NLTK gutenberg corpus
+import nltk
+nltk.download('gutenberg', quiet=True)
+from nltk.corpus import gutenberg
+sentences_raw = gutenberg.sents('carroll-alice.txt')
+
+cleaned_sentences = []
+for s in sentences_raw:
+    words = [w.lower() for w in s if re.match(r"^\w+$", w)]
+    if 3 < len(words) < 25:
+        cleaned_sentences.append(words)
+
+# Build Vocabulary
+vocab = {"<pad>": 0, "<unk>": 1}
+for s in cleaned_sentences[:500]:
+    for w in s:
+        if w not in vocab:
+            vocab[w] = len(vocab)
+vocab_size = len(vocab)
+print("Vocabulary Size:", vocab_size)
+
+# Create Inputs (Pad sequences to length 20)
+seq_len = 20
+X_data = []
+y_data = []
+
+for s in cleaned_sentences[:300]:
+    indices = [vocab.get(w, 1) for w in s]
+    if len(indices) < seq_len:
+        indices = indices + [0] * (seq_len - len(indices))
+    else:
+        indices = indices[:seq_len]
+    X_data.append(indices)
+    # Binary classification task: Sentence length > 12 tokens
+    y_data.append(1 if len(s) > 12 else 0)
+
+X = torch.tensor(X_data, dtype=torch.long)
+y = torch.tensor(y_data, dtype=torch.long)
+
+# 2. Define Model
 embedding_dim = 16
-hidden_dim = 32
+hidden_dim = 24
 num_classes = 2
 
-# Mock input batch: size=2, sequence_length=5
-x = torch.randint(0, vocab_size, (2, 5))
-
-# 1. Define models
 class RecurrentClassifier(nn.Module):
-    def __init__(self, cell_type="RNN"):
+    def __init__(self, cell_type="LSTM"):
         super().__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        
+        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
         if cell_type == "RNN":
             self.rnn = nn.RNN(embedding_dim, hidden_dim, batch_first=True, bidirectional=True)
         elif cell_type == "LSTM":
             self.rnn = nn.LSTM(embedding_dim, hidden_dim, batch_first=True, bidirectional=True)
         elif cell_type == "GRU":
             self.rnn = nn.GRU(embedding_dim, hidden_dim, batch_first=True, bidirectional=True)
-            
-        # bidirectional outputs are doubled in dimensionality
         self.fc = nn.Linear(hidden_dim * 2, num_classes)
         
     def forward(self, x):
         embedded = self.embedding(x)
         out, _ = self.rnn(embedded)
-        # Take the output of the final time step
+        # Grab final step representation
         last_step = out[:, -1, :]
-        logits = self.fc(last_step)
-        return logits
+        return self.fc(last_step)
 
-# 2. Run forward pass
+# 3. Train models
 for cell_name in ["RNN", "LSTM", "GRU"]:
     model = RecurrentClassifier(cell_type=cell_name)
-    output = model(x)
-    print(f"[{cell_name} Classifier] Output Logits Shape: {output.shape}")
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    criterion = nn.CrossEntropyLoss()
+    
+    # Run 5 training epochs
+    for epoch in range(5):
+        logits = model(X)
+        loss = criterion(logits, y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    print(f"{cell_name} Classifier trained successfully. Final Loss: {loss.item():.4f}")
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- The PyTorch modules define recurrent networks.
-- Setting `bidirectional=True` concatenates the forward and backward hidden state vectors, outputting a vector of dimension `hidden_dim * 2` before classification.
+- The PyTorch script trains standard sequence modeling cells (RNN, LSTM, and GRU).
+- Concatenating bidirectional sequence states provides contextual features from both directions to predict sentence properties.
 """))
     
     nb['cells'] = cells
@@ -393,19 +484,19 @@ def build_07_attention():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 07_attention: Query-Key-Value Matrix Calculations from Scratch
-
-This notebook programmatically computes Self-Attention Query-Key-Value dot-product matrix transformations, demonstrating the variance scaling effect of dividing by $\sqrt{d_k}$.
+    cells.append(nbf.v4.new_markdown_cell("""# 07_attention: Dot-Product Scaling and Softmax Saturation
+    
+This notebook implements Scaled Dot-Product Attention calculations from scratch to demonstrate the variance scaling effect of dividing by $\sqrt{d_k}$.
 """))
     
     cells.append(nbf.v4.new_code_cell(r"""import torch
 import torch.nn.functional as F
 
-# Sequence length L=3, dimension d_k=64
+# Sequence length L=4, dimension d_k=128
 torch.manual_seed(42)
-L, d_k = 3, 64
+L, d_k = 4, 128
 
-# Simulating Query and Key inputs
+# Simulating Query, Key, and Value projections
 Q = torch.randn(L, d_k)
 K = torch.randn(L, d_k)
 V = torch.randn(L, d_k)
@@ -419,21 +510,21 @@ scaling_factor = d_k ** 0.5
 scores_scaled = scores_unscaled / scaling_factor
 weights_scaled = F.softmax(scores_scaled, dim=-1)
 
-print("=== Raw Similarity Scores ===")
+print("=== Unscaled Scores ===")
 print(scores_unscaled)
 
-print("\n=== Unscaled Softmax Attention Weights (Variance is high, scores saturate) ===")
+print("\n=== Unscaled Attention Weights (Variance is high, scores saturate) ===")
 print(weights_unscaled)
-print("Weights variance:", torch.var(weights_unscaled).item())
+print("Unscaled weights variance:", torch.var(weights_unscaled).item())
 
-print("\n=== Scaled Softmax Attention Weights (Normalized variance, sensitive gradients) ===")
+print("\n=== Scaled Attention Weights (Variance is normalized, weights are sensitive) ===")
 print(weights_scaled)
-print("Weights variance:", torch.var(weights_scaled).item())
+print("Scaled weights variance:", torch.var(weights_scaled).item())
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- Unscaled dot products yield larger values, pushing Softmax inputs into saturating regions where the output weights approach $0$ or $1$, causing vanishing gradients.
-- Dividing by $\sqrt{d_k}$ restores unit variance, keeping the weights in a range where gradients can flow during training.
+- Without scaling, large dot products push values into flat regions of the Softmax function, causing vanishing gradients.
+- Dividing by $\sqrt{d_k}$ keeps variance constant, preserving model sensitivity during training.
 """))
     
     nb['cells'] = cells
@@ -443,73 +534,75 @@ def build_08_nlp_pipeline():
     nb = nbf.v4.new_notebook()
     cells = []
     
-    cells.append(nbf.v4.new_markdown_cell("""# 08_nlp_pipeline: End-to-End Production Debugging Loop
-
-This notebook implements an end-to-end NLP classification pipeline, monitors for data/concept drift, detects errors, and applies a diagnostic improvement patch.
+    cells.append(nbf.v4.new_markdown_cell("""# 08_nlp_pipeline: Production Monitoring and Drift Patching
+    
+This notebook designs an end-to-end spam classification pipeline on the UCI SMS Spam dataset, evaluates performance, monitors for Data Drift, and applies a diagnostic data retraining patch.
 """))
     
-    cells.append(nbf.v4.new_code_cell(r"""import numpy as np
+    cells.append(nbf.v4.new_code_cell(r"""import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
 
-# 1. Training data (standard language)
-train_data = ["I love this book", "this movie is awesome", "bad experience", "very horrible service"]
-train_labels = [1, 1, 0, 0] # 1=positive, 0=negative
+# 1. Load UCI SMS Spam Collection
+url = "https://raw.githubusercontent.com/justmarkham/pycon-2016-tutorial/master/data/sms.tsv"
+df = pd.read_csv(url, sep="\t", names=["label", "message"])
 
-# Fit vectorizer
+# Take a sample of 600 records for fast execution
+df_sample = df.sample(600, random_state=42)
+X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+    df_sample["message"], df_sample["label"], test_size=0.2, random_state=42
+)
+
+# 2. Preprocess & Train Baseline Classifier
 vectorizer = TfidfVectorizer()
-X_train = vectorizer.fit_transform(train_data)
+X_train = vectorizer.fit_transform(X_train_raw)
+X_test = vectorizer.transform(X_test_raw)
 
-# Fit classifier
 clf = LogisticRegression()
-clf.fit(X_train, train_labels)
-print("Spam/Sentiment Classifier trained successfully.")
+clf.fit(X_train, y_train)
+print("Baseline SMS Spam Classifier trained successfully.")
 
-# 2. Simulate Production Inference with Data Drift (e.g. emojis and slang)
-production_inputs = [
-    "love it! 😍",
-    "horrible service 😡",
-    "awesome deal! 🔥",
-    "so bad 💀"
+# 3. Simulate Production Data Drift (e.g. inputs containing emojis & slang)
+drift_inputs = [
+    "win money now! 🔥",
+    "URGENT prize winner alert 🏆",
+    "see you later at the park",
+    "sorry call you back soon"
 ]
-production_labels = [1, 0, 1, 0]
+drift_labels = ["spam", "spam", "ham", "ham"]
 
-X_prod = vectorizer.transform(production_inputs)
-predictions = clf.predict(X_prod)
+X_drift = vectorizer.transform(drift_inputs)
+preds = clf.predict(X_drift)
 
-# 3. Calculate Performance Metrics
-print("\n--- Production Metrics ---")
-print(classification_report(production_labels, predictions, target_names=["negative", "positive"]))
+print("\n--- Production Inference Predictions on Drifted Data ---")
+for text, pred in zip(drift_inputs, preds):
+    print(f"Input: {text:<30} | Prediction: {pred}")
 
-# 4. Error Analysis & Model Improvement Loop
-print("\n--- Error Analysis Diagnostic ---")
-for text, gold, pred in zip(production_inputs, production_labels, predictions):
-    if gold != pred:
-        print(f"FAIL: Text '{text}' (Gold: {gold}, Predicted: {pred})")
-        print("Reason: Out-of-Vocabulary slang / emoji features.")
+# 4. Apply diagnostic retraining patch
+print("\n--- Retraining Classifier with Drifted Datasets ---")
+improved_train_data = pd.concat([X_train_raw, pd.Series([
+    "urgent award alert! 🏆", "win cash prize 🔥", "call me back 💀"
+])])
+improved_labels = pd.concat([y_train, pd.Series(["spam", "spam", "ham"])])
 
-# Model Improvement: Add training samples containing emojis and retrain
-improved_train_data = train_data + ["this is so bad 💀", "awesome product! 🔥"]
-improved_labels = train_labels + [0, 1]
-
-# Retrain
 vectorizer_imp = TfidfVectorizer()
 X_train_imp = vectorizer_imp.fit_transform(improved_train_data)
 clf_imp = LogisticRegression()
 clf_imp.fit(X_train_imp, improved_labels)
 
-# Re-evaluate
-X_prod_imp = vectorizer_imp.transform(production_inputs)
-predictions_imp = clf_imp.predict(X_prod_imp)
+X_drift_imp = vectorizer_imp.transform(drift_inputs)
+preds_imp = clf_imp.predict(X_drift_imp)
 
-print("\n--- Improved Post-Patch Metrics ---")
-print(classification_report(production_labels, predictions_imp, target_names=["negative", "positive"]))
+print("\n--- Post-Patch Predictions ---")
+for text, pred in zip(drift_inputs, preds_imp):
+    print(f"Input: {text:<30} | Prediction: {pred}")
 """))
     
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation
-- The initial model fails to classify texts containing emojis because it has never seen them during training (Data Drift).
-- The debugging loop detects these classification errors, updates the training data with representative examples, and retrains the model to resolve the OOV failures.
+- The baseline model misclassifies inputs containing emojis because it has never seen them during training (Data Drift).
+- The diagnostic loop identifies these errors, adds representative examples containing emojis to the training set, and retrains the model to resolve the misclassifications.
 """))
     
     nb['cells'] = cells

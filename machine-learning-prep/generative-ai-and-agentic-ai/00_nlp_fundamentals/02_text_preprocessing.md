@@ -59,6 +59,8 @@ Unigram (used in T5 and SentencePiece) operates in a top-down manner. It starts 
 
 ## 2. Stemming vs. Lemmatization
 
+![Lexical Reduction Latency](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/stem_vs_lemma_latency.png)
+
 Before vectorization, classical pipelines reduce morphological variations of words to a common base form:
 
 ```

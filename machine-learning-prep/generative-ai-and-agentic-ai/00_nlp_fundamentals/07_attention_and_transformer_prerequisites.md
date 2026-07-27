@@ -25,6 +25,8 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$
 
 ## 3. Query, Key, and Value Intuition
 
+![Attention Matrix Heatmap](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/attention_matrix_heatmap.png)
+
 Attention models map query vectors against key-value pairs:
 
 $$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$$

@@ -16,6 +16,8 @@ Production systems deploy models using one of two ingestion patterns:
 
 ## 2. Monitoring Production Drift: Data vs. Concept Drift
 
+![Data Drift Distributions](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/data_drift_distributions.png)
+
 Once deployed, models experience performance decay due to environmental changes:
 
 | Drift Type | Definition | Mathematical Concept | Concrete Example |
