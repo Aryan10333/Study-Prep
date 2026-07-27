@@ -51,19 +51,24 @@ The compiled guide must use the standardized NLP master guide CSS and layout str
   ```css
   @page {
       size: A4;
-      margin: 18mm 15mm 18mm 15mm;
+      margin: 20mm 18mm 20mm 18mm;
   }
   ```
 - **Typography & Colors**:
   - Font: `'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif`
-  - Font Size: `13px` base text size with `1.6` line height
+  - Font Size: `15px` base text size with `1.62` line height (A4 standard legible size)
   - Base Text Color: `#1e293b`
   - Header 1 Color: `#0f172a` with a `#3b82f6` blue bottom border
   - Header 2 Color: `#1e40af` with a `#e2e8f0` light grey bottom border
   - Header 3 Color: `#0369a1`
-- **Cover Page Elements**: Include a metadata box detailing the target persona, core modules covered, and inclusion checklists (e.g. formulas, PyTorch code, Q&As).
-- **Table of Contents Page**: Inject a dedicated Table of Contents page (`<div class="toc-page" style="page-break-after: always; padding-top: 20px;">`) with dashed-underlined lists linking to each module anchor.
+- **Layout Scale Preservation**: To prevent headless PDF printers from scaling down document fonts (auto-zooming down to fit oversized elements), all images, tables, and code pre-containers must be constrained horizontally:
+  - Code blocks: Use `max-width: 100% !important; overflow-x: hidden !important;` on the wrapper, and `white-space: pre-wrap !important; word-wrap: break-word !important; word-break: break-word !important; font-size: 12px !important;` on the inner `pre` container.
+  - Tables: Use `width: 100% !important; max-width: 100% !important; table-layout: auto !important;` with `word-wrap: break-word !important;` on cells.
+  - Images: Use `max-width: 90% !important; height: auto !important; margin: 24px auto; display: block;`.
 - **HTML/CSS Inline Diagrams**: Ensure diagrams in guides use inline styled HTML/CSS elements to ensure clean, instant vector-perfect rendering without external JavaScript/CDN dependencies. Do not import Mermaid scripts in the HTML headers.
+- **Double Escaping in Python F-strings**: When defining the full HTML string template within a Python f-string (`f"""..."""`), all CSS curly braces must be double-escaped (e.g. `body {{ font-size: 15px; }}`) to prevent runtime formatting `KeyError` crashes.
+- **Blockquote Alert Parsing & Inner Markdown**: Do not globally replace `>` in blockquote blocks (e.g. using `replace('>', '')`), as this deletes mathematical subscripts (like `<unk>`) and arrows (`->`). Instead, split the blockquote line-by-line and strip only the leading `>` from each line. Furthermore, compile the inner markdown of the blockquote to HTML first using `markdown.markdown()` before wrapping it in container divs, ensuring lists (`-`) and bold text (`**`) are parsed correctly.
+- **Math Block HTML Escaping**: Inside extracted LaTeX mathematical blocks, convert all brackets `<` and `>` into `&lt;` and `&gt;` entities prior to inserting them back into the HTML body. This stops browsers from parsing subscripts (like `_{<t>}`) as hidden HTML tags, which breaks KaTeX rendering.
 
 ---
 

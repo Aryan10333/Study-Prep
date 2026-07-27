@@ -27,8 +27,10 @@ After generating the draft, the script must execute the notebook in place:
 1. **Local Kernel**: Use `nbconvert.preprocessors.ExecutePreprocessor` to run the cells in sequence.
 2. **Virtual Environment**: Execute using the local python executable:
    `d:\Study\Prep\.venv\Scripts\python.exe`
-3. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
-4. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
+3. **Matplotlib Agg Backend Gotcha**: When generating plots or executing notebooks headlessly, Matplotlib will attempt to use the Tkinter (`_backend_tk.py`) GUI backend by default, throwing Tcl/Tk errors. Ensure that `import matplotlib; matplotlib.use('Agg')` is called **prior** to importing `matplotlib.pyplot` in any pipeline script or notebook cell.
+4. **Multi-Cell Structuring**: Do not write all notebook code inside a single large cell. Split execution pipelines logically into 3 to 4 sequential code cells (e.g. Data Ingestion $\rightarrow$ Processing $\rightarrow$ Modeling $\rightarrow$ Evaluation) to allow interactive step-by-step runs.
+5. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
+6. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
    - `GEMINI_API_KEY` (for Google GenAI models)
    - `GROQ_API_KEY` (for Groq model endpoints)
    - `HF_TOKEN` (for Hugging Face Hub downloads/uploads)
@@ -37,7 +39,7 @@ After generating the draft, the script must execute the notebook in place:
    - `SERPER_API_KEY` (for Google search queries via Serper)
    - `TAVILY_API_KEY` (for Tavily search API)
    - `GITHUB_TOKEN` (for GitHub API integrations)
-5. **Save Executed State**: Save the final notebook with cell outputs populated.
+7. **Save Executed State**: Save the final notebook with cell outputs populated.
 
 ---
 
