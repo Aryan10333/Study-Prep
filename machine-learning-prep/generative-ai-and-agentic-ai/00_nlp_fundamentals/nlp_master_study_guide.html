@@ -16,38 +16,41 @@
     <style>
         @page {
             size: A4;
-            margin: 18mm 15mm 18mm 15mm;
+            margin: 20mm 18mm 20mm 18mm;
         }
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            font-size: 13px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.62;
             color: #1e293b;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
         }
         h1 {
-            font-size: 22px;
+            font-size: 24px;
             color: #0f172a;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
-            margin-top: 24px;
-            margin-bottom: 14px;
+            margin-top: 30px;
+            margin-bottom: 16px;
+            page-break-after: avoid;
         }
         h2 {
-            font-size: 17px;
+            font-size: 19px;
             color: #1e40af;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 24px;
+            margin-bottom: 12px;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 4px;
+            page-break-after: avoid;
         }
         h3 {
-            font-size: 15px;
+            font-size: 16px;
             color: #0369a1;
-            margin-top: 16px;
-            margin-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            page-break-after: avoid;
         }
         
         a {
@@ -60,26 +63,38 @@
         
         p, li {
             color: #334155;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         code {
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
             background-color: #f1f5f9;
             color: #0f172a;
-            padding: 2px 5px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
         }
         
-        /* Table Styling with Strict Cell Boundaries */
+        img {
+            max-width: 90% !important;
+            height: auto !important;
+            display: block;
+            margin: 24px auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            page-break-inside: avoid;
+        }
+        
+        /* Table Styling with Strict Cell Boundaries & wrapping */
         table {
             width: 100% !important;
             border-collapse: collapse !important;
-            margin: 16px 0 !important;
-            font-size: 11.5px !important;
+            margin: 20px 0 !important;
+            font-size: 13px !important;
             border: 1.5px solid #64748b !important;
             page-break-inside: auto;
+            table-layout: auto !important;
+            max-width: 100% !important;
         }
         tr {
             page-break-inside: avoid;
@@ -90,19 +105,20 @@
             color: #f8fafc !important;
             font-weight: 700 !important;
             border: 1.5px solid #475569 !important;
-            padding: 8px 10px !important;
+            padding: 10px 12px !important;
             text-align: left !important;
         }
         td {
             border: 1px solid #cbd5e1 !important;
-            padding: 7px 10px !important;
+            padding: 9px 12px !important;
             text-align: left !important;
             vertical-align: top !important;
+            word-wrap: break-word !important;
         }
         tr:nth-child(even) td {
             background-color: #f8fafc !important;
         }
-
+        
         /* Code Syntax Highlighting Styling & Transparency */
         pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -201,14 +217,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             background-color: transparent !important;
             color: #f8fafc !important;
         }
-
+        
         .codehilite {
             background-color: #0f172a !important;
             border-radius: 6px !important;
-            padding: 12px 14px !important;
-            margin: 14px 0 !important;
-            overflow-x: auto !important;
+            padding: 14px 16px !important;
+            margin: 16px 0 !important;
             border: 1px solid #334155 !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important; /* Avoid horizontal scrollbar breaking PDF page scale */
         }
         .codehilite pre {
             background-color: transparent !important;
@@ -216,22 +233,24 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             padding: 0 !important;
             margin: 0 !important;
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
-            font-size: 11px !important;
-            line-height: 1.45 !important;
-            white-space: pre-wrap !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            white-space: pre-wrap !important; /* Force line wrap in PDF */
+            word-wrap: break-word !important;
             word-break: break-word !important;
+            max-width: 100% !important;
         }
-
+        
         blockquote {
             border-left: 4px solid #3b82f6;
             background-color: #eff6ff;
-            margin: 12px 0;
-            padding: 8px 14px;
+            margin: 16px 0;
+            padding: 10px 16px;
             color: #1e40af;
             border-radius: 0 4px 4px 0;
         }
         .katex-display {
-            margin: 14px 0 !important;
+            margin: 16px 0 !important;
             overflow-x: auto;
             overflow-y: hidden;
         }
