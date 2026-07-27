@@ -68,24 +68,69 @@ Word embeddings translate semantic similarity into spatial proximity. The learni
 > - **Royalty Offset (Vertical Green Vector)**: The transition from `"man"` to `"king"` is parallel to the transition from `"woman"` to `"queen"`, capturing the concept of royalty.
 > - **Production Takeaway**: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.
 
-```
-Vector Dimension y
-      ▲
-      │       [queen] 
-      │       (e.g., coordinate: [1.8, 2.5])
-      │      /
-      │     / (Shift by vector: "woman" -> "man")
-      │    v
-      │   [king] (e.g., coordinate: [1.8, 1.2])
-      │
-      │                                     [woman] (e.g., coordinate: [0.5, 2.5])
-      │                                    /
-      │                                   / (Shift by vector: "woman" -> "man")
-      │                                  v
-      │                                 [man] (e.g., coordinate: [0.5, 1.2])
-      │
-      └──────────────────────────────────────────────────────────▶ Vector Dimension x
-```
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 30px 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; justify-content: center; align-items: center; page-break-inside: avoid;">
+  <div style="position: relative; width: 440px; height: 260px; border-left: 2px solid #64748b; border-bottom: 2px solid #64748b;">
+    
+    <!-- Y-Axis Label -->
+    <div style="position: absolute; top: -25px; left: -10px; font-size: 11px; font-weight: bold; color: #475569;">Vector Dimension y</div>
+    
+    <!-- X-Axis Label -->
+    <div style="position: absolute; bottom: -25px; right: 0; font-size: 11px; font-weight: bold; color: #475569;">Vector Dimension x</div>
+    
+    <!-- Points -->
+    
+    <!-- Woman (0.5, 2.5) -->
+    <div style="position: absolute; left: 70px; top: 30px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[woman]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(0.5, 2.5)</span>
+    </div>
+    
+    <!-- Man (0.5, 1.2) -->
+    <div style="position: absolute; left: 70px; top: 160px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[man]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(0.5, 1.2)</span>
+    </div>
+    
+    <!-- Queen (1.8, 2.5) -->
+    <div style="position: absolute; left: 270px; top: 30px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[queen]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(1.8, 2.5)</span>
+    </div>
+    
+    <!-- King (1.8, 1.2) -->
+    <div style="position: absolute; left: 270px; top: 160px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[king]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(1.8, 1.2)</span>
+    </div>
+    
+    <!-- Vectors -->
+    
+    <!-- Left Vector: Woman -> Man (downward) -->
+    <div style="position: absolute; left: 105px; top: 72px; width: 0px; height: 85px; border-left: 2px dashed #3b82f6; z-index: 1;">
+      <div style="position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #3b82f6;"></div>
+      <div style="position: absolute; left: 8px; top: 32px; font-size: 9px; color: #2563eb; font-weight: bold; white-space: nowrap;">Gender Offset</div>
+    </div>
+    
+    <!-- Right Vector: Queen -> King (downward) -->
+    <div style="position: absolute; left: 305px; top: 72px; width: 0px; height: 85px; border-left: 2px dashed #3b82f6; z-index: 1;">
+      <div style="position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #3b82f6;"></div>
+      <div style="position: absolute; left: 8px; top: 32px; font-size: 9px; color: #2563eb; font-weight: bold; white-space: nowrap;">Gender Offset</div>
+    </div>
+
+    <!-- Top Vector: Woman -> Queen (rightward) -->
+    <div style="position: absolute; left: 145px; top: 48px; width: 115px; height: 0px; border-top: 2px dashed #10b981; z-index: 1;">
+      <div style="position: absolute; right: -5px; top: -4px; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #10b981;"></div>
+      <div style="position: absolute; left: 24px; top: -16px; font-size: 9px; color: #059669; font-weight: bold; white-space: nowrap;">Royalty Offset</div>
+    </div>
+
+    <!-- Bottom Vector: Man -> King (rightward) -->
+    <div style="position: absolute; left: 145px; top: 178px; width: 115px; height: 0px; border-top: 2px dashed #10b981; z-index: 1;">
+      <div style="position: absolute; right: -5px; top: -4px; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #10b981;"></div>
+      <div style="position: absolute; left: 24px; top: -16px; font-size: 9px; color: #059669; font-weight: bold; white-space: nowrap;">Royalty Offset</div>
+    </div>
+
+  </div>
+</div>
 
 ---
 

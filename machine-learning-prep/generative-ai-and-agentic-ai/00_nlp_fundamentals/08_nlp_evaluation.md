@@ -45,16 +45,14 @@ To resolve these blind spots, production systems use embedding-based semantic ev
 - **BERTScore**: Computes token-level semantic alignments using contextual embeddings (e.g. BERT hidden states):
 
 ### BERTScore Alignment Matrix Example
-```
-                  Reference:   "The"     "cat"     "sat"     "on"      "the"     "mat"
-Candidate:
-  "A"                           0.12      0.08      0.05      0.02      0.09      0.04
-  "feline"                      0.09      0.88      0.12      0.05      0.08      0.11   <-- Match found!
-  "rested"                      0.04      0.11      0.82      0.10      0.05      0.07   <-- Match found!
-  "on"                          0.01      0.04      0.09      0.95      0.02      0.04   <-- Match found!
-  "the"                         0.08      0.07      0.05      0.03      0.98      0.06   <-- Match found!
-  "rug"                         0.05      0.12      0.08      0.04      0.07      0.85   <-- Match found!
-```
+| Candidate Token | Reference: "The" | Reference: "cat" | Reference: "sat" | Reference: "on" | Reference: "the" | Reference: "mat" | Alignment Result |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **"A"** | 0.12 | 0.08 | 0.05 | 0.02 | 0.09 | 0.04 | - |
+| **"feline"** | 0.09 | **0.88** | 0.12 | 0.05 | 0.08 | 0.11 | &larr; **Match found!** (with *"cat"*) |
+| **"rested"** | 0.04 | 0.11 | **0.82** | 0.10 | 0.05 | 0.07 | &larr; **Match found!** (with *"sat"*) |
+| **"on"** | 0.01 | 0.04 | 0.09 | **0.95** | 0.02 | 0.04 | &larr; **Match found!** (with *"on"*) |
+| **"the"** | 0.08 | 0.07 | 0.05 | 0.03 | **0.98** | 0.06 | &larr; **Match found!** (with *"the"*) |
+| **"rug"** | 0.05 | 0.12 | 0.08 | 0.04 | 0.07 | **0.85** | &larr; **Match found!** (with *"mat"*) |
 
 BERTScore aligns each candidate token to its most semantically similar reference token using cosine similarity, capturing synonyms (e.g. `"feline"` matching `"cat"` with $0.88$ score) and resolving n-gram overlap limitations.
 

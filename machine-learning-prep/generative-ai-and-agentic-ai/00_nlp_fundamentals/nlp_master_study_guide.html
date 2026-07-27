@@ -853,23 +853,69 @@ This plot projects word embedding vectors onto a 2D coordinate space to demonstr
 - <strong>Royalty Offset (Vertical Green Vector)</strong>: The transition from <code>"man"</code> to <code>"king"</code> is parallel to the transition from <code>"woman"</code> to <code>"queen"</code>, capturing the concept of royalty.<br />
 - <strong>Production Takeaway</strong>: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.</p></div></div>
 
-<div class="codehilite"><pre><span></span><code><span class="n">Vector</span><span class="w"> </span><span class="n">Dimension</span><span class="w"> </span><span class="n">y</span>
-<span class="w">      </span><span class="err">▲</span>
-<span class="w">      </span><span class="err">│</span><span class="w">       </span><span class="o">[</span><span class="n">queen</span><span class="o">]</span><span class="w"> </span>
-<span class="w">      </span><span class="err">│</span><span class="w">       </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.,</span><span class="w"> </span><span class="nl">coordinate</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">1.8, 2.5</span><span class="o">]</span><span class="p">)</span>
-<span class="w">      </span><span class="err">│</span><span class="w">      </span><span class="o">/</span>
-<span class="w">      </span><span class="err">│</span><span class="w">     </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">Shift</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="nl">vector</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;woman&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">&quot;man&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="err">│</span><span class="w">    </span><span class="n">v</span>
-<span class="w">      </span><span class="err">│</span><span class="w">   </span><span class="o">[</span><span class="n">king</span><span class="o">]</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.,</span><span class="w"> </span><span class="nl">coordinate</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">1.8, 1.2</span><span class="o">]</span><span class="p">)</span>
-<span class="w">      </span><span class="err">│</span>
-<span class="w">      </span><span class="err">│</span><span class="w">                                     </span><span class="o">[</span><span class="n">woman</span><span class="o">]</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.,</span><span class="w"> </span><span class="nl">coordinate</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">0.5, 2.5</span><span class="o">]</span><span class="p">)</span>
-<span class="w">      </span><span class="err">│</span><span class="w">                                    </span><span class="o">/</span>
-<span class="w">      </span><span class="err">│</span><span class="w">                                   </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">Shift</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="nl">vector</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;woman&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">&quot;man&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="err">│</span><span class="w">                                  </span><span class="n">v</span>
-<span class="w">      </span><span class="err">│</span><span class="w">                                 </span><span class="o">[</span><span class="n">man</span><span class="o">]</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.,</span><span class="w"> </span><span class="nl">coordinate</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">0.5, 1.2</span><span class="o">]</span><span class="p">)</span>
-<span class="w">      </span><span class="err">│</span>
-<span class="w">      </span><span class="err">└──────────────────────────────────────────────────────────▶</span><span class="w"> </span><span class="n">Vector</span><span class="w"> </span><span class="n">Dimension</span><span class="w"> </span><span class="n">x</span>
-</code></pre></div>
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 30px 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; justify-content: center; align-items: center; page-break-inside: avoid;">
+  <div style="position: relative; width: 440px; height: 260px; border-left: 2px solid #64748b; border-bottom: 2px solid #64748b;">
+
+    <!-- Y-Axis Label -->
+    <div style="position: absolute; top: -25px; left: -10px; font-size: 11px; font-weight: bold; color: #475569;">Vector Dimension y</div>
+
+    <!-- X-Axis Label -->
+    <div style="position: absolute; bottom: -25px; right: 0; font-size: 11px; font-weight: bold; color: #475569;">Vector Dimension x</div>
+
+    <!-- Points -->
+
+    <!-- Woman (0.5, 2.5) -->
+    <div style="position: absolute; left: 70px; top: 30px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[woman]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(0.5, 2.5)</span>
+    </div>
+
+    <!-- Man (0.5, 1.2) -->
+    <div style="position: absolute; left: 70px; top: 160px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[man]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(0.5, 1.2)</span>
+    </div>
+
+    <!-- Queen (1.8, 2.5) -->
+    <div style="position: absolute; left: 270px; top: 30px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[queen]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(1.8, 2.5)</span>
+    </div>
+
+    <!-- King (1.8, 1.2) -->
+    <div style="position: absolute; left: 270px; top: 160px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; z-index: 10;">
+      <span style="font-weight: bold; color: #0f172a; font-size: 12px;">[king]</span><br>
+      <span style="font-size: 9px; color: #64748b; font-family: monospace;">(1.8, 1.2)</span>
+    </div>
+
+    <!-- Vectors -->
+
+    <!-- Left Vector: Woman -> Man (downward) -->
+    <div style="position: absolute; left: 105px; top: 72px; width: 0px; height: 85px; border-left: 2px dashed #3b82f6; z-index: 1;">
+      <div style="position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #3b82f6;"></div>
+      <div style="position: absolute; left: 8px; top: 32px; font-size: 9px; color: #2563eb; font-weight: bold; white-space: nowrap;">Gender Offset</div>
+    </div>
+
+    <!-- Right Vector: Queen -> King (downward) -->
+    <div style="position: absolute; left: 305px; top: 72px; width: 0px; height: 85px; border-left: 2px dashed #3b82f6; z-index: 1;">
+      <div style="position: absolute; bottom: -5px; left: -5px; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #3b82f6;"></div>
+      <div style="position: absolute; left: 8px; top: 32px; font-size: 9px; color: #2563eb; font-weight: bold; white-space: nowrap;">Gender Offset</div>
+    </div>
+
+    <!-- Top Vector: Woman -> Queen (rightward) -->
+    <div style="position: absolute; left: 145px; top: 48px; width: 115px; height: 0px; border-top: 2px dashed #10b981; z-index: 1;">
+      <div style="position: absolute; right: -5px; top: -4px; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #10b981;"></div>
+      <div style="position: absolute; left: 24px; top: -16px; font-size: 9px; color: #059669; font-weight: bold; white-space: nowrap;">Royalty Offset</div>
+    </div>
+
+    <!-- Bottom Vector: Man -> King (rightward) -->
+    <div style="position: absolute; left: 145px; top: 178px; width: 115px; height: 0px; border-top: 2px dashed #10b981; z-index: 1;">
+      <div style="position: absolute; right: -5px; top: -4px; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #10b981;"></div>
+      <div style="position: absolute; left: 24px; top: -16px; font-size: 9px; color: #059669; font-weight: bold; white-space: nowrap;">Royalty Offset</div>
+    </div>
+
+  </div>
+</div>
 
 <hr />
 <h2 id="2-word2vec-cbow-vs-skip-gram">2. Word2Vec: CBOW vs. Skip-gram</h2>
@@ -1182,16 +1228,82 @@ Self-attention requires computing alignment scores for all query-key pairs, scal
 <li><strong>BERTScore</strong>: Computes token-level semantic alignments using contextual embeddings (e.g. BERT hidden states):</li>
 </ul>
 <h3 id="bertscore-alignment-matrix-example">BERTScore Alignment Matrix Example</h3>
-<div class="codehilite"><pre><span></span><code>                  Reference:   &quot;The&quot;     &quot;cat&quot;     &quot;sat&quot;     &quot;on&quot;      &quot;the&quot;     &quot;mat&quot;
-Candidate:
-  &quot;A&quot;                           0.12      0.08      0.05      0.02      0.09      0.04
-  &quot;feline&quot;                      0.09      0.88      0.12      0.05      0.08      0.11   &lt;-- Match found!
-  &quot;rested&quot;                      0.04      0.11      0.82      0.10      0.05      0.07   &lt;-- Match found!
-  &quot;on&quot;                          0.01      0.04      0.09      0.95      0.02      0.04   &lt;-- Match found!
-  &quot;the&quot;                         0.08      0.07      0.05      0.03      0.98      0.06   &lt;-- Match found!
-  &quot;rug&quot;                         0.05      0.12      0.08      0.04      0.07      0.85   &lt;-- Match found!
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Candidate Token</th>
+<th style="text-align: center;">Reference: "The"</th>
+<th style="text-align: center;">Reference: "cat"</th>
+<th style="text-align: center;">Reference: "sat"</th>
+<th style="text-align: center;">Reference: "on"</th>
+<th style="text-align: center;">Reference: "the"</th>
+<th style="text-align: center;">Reference: "mat"</th>
+<th style="text-align: left;">Alignment Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>"A"</strong></td>
+<td style="text-align: center;">0.12</td>
+<td style="text-align: center;">0.08</td>
+<td style="text-align: center;">0.05</td>
+<td style="text-align: center;">0.02</td>
+<td style="text-align: center;">0.09</td>
+<td style="text-align: center;">0.04</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>"feline"</strong></td>
+<td style="text-align: center;">0.09</td>
+<td style="text-align: center;"><strong>0.88</strong></td>
+<td style="text-align: center;">0.12</td>
+<td style="text-align: center;">0.05</td>
+<td style="text-align: center;">0.08</td>
+<td style="text-align: center;">0.11</td>
+<td style="text-align: left;">&larr; <strong>Match found!</strong> (with <em>"cat"</em>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>"rested"</strong></td>
+<td style="text-align: center;">0.04</td>
+<td style="text-align: center;">0.11</td>
+<td style="text-align: center;"><strong>0.82</strong></td>
+<td style="text-align: center;">0.10</td>
+<td style="text-align: center;">0.05</td>
+<td style="text-align: center;">0.07</td>
+<td style="text-align: left;">&larr; <strong>Match found!</strong> (with <em>"sat"</em>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>"on"</strong></td>
+<td style="text-align: center;">0.01</td>
+<td style="text-align: center;">0.04</td>
+<td style="text-align: center;">0.09</td>
+<td style="text-align: center;"><strong>0.95</strong></td>
+<td style="text-align: center;">0.02</td>
+<td style="text-align: center;">0.04</td>
+<td style="text-align: left;">&larr; <strong>Match found!</strong> (with <em>"on"</em>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>"the"</strong></td>
+<td style="text-align: center;">0.08</td>
+<td style="text-align: center;">0.07</td>
+<td style="text-align: center;">0.05</td>
+<td style="text-align: center;">0.03</td>
+<td style="text-align: center;"><strong>0.98</strong></td>
+<td style="text-align: center;">0.06</td>
+<td style="text-align: left;">&larr; <strong>Match found!</strong> (with <em>"the"</em>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>"rug"</strong></td>
+<td style="text-align: center;">0.05</td>
+<td style="text-align: center;">0.12</td>
+<td style="text-align: center;">0.08</td>
+<td style="text-align: center;">0.04</td>
+<td style="text-align: center;">0.07</td>
+<td style="text-align: center;"><strong>0.85</strong></td>
+<td style="text-align: left;">&larr; <strong>Match found!</strong> (with <em>"mat"</em>)</td>
+</tr>
+</tbody>
+</table>
 <p>BERTScore aligns each candidate token to its most semantically similar reference token using cosine similarity, capturing synonyms (e.g. <code>"feline"</code> matching <code>"cat"</code> with $0.88$ score) and resolving n-gram overlap limitations.</p>
 <hr />
 <div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Automated Metrics vs. Human Audits</strong><br />
