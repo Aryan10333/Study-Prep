@@ -38,12 +38,55 @@ Once deployed, models experience performance decay due to environmental changes:
 
 Production maintenance requires a continuous monitoring and updating cycle to identify and resolve model decay:
 
-```
-        Inference ────────▶ Metrics Log ────────▶ Error Analysis
-            ▲                                           │
-            │                                           ▼
-      Deployment ◀─────── Model Update ◀─────── Diagnostic Actions
-```
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center; text-align: center;">
+    <!-- Step 1 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #3b82f6; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">1</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Inference</div>
+    </div>
+    
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+    
+    <!-- Step 2 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #10b981; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">2</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Metrics Log</div>
+    </div>
+    
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+    
+    <!-- Step 3 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #f59e0b; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">3</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Error Analysis</div>
+    </div>
+    
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+    
+    <!-- Step 4 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #7c3aed; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">4</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Diagnostics</div>
+    </div>
+    
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+    
+    <!-- Step 5 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #ec4899; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">5</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Model Update</div>
+    </div>
+    
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+    
+    <!-- Step 6 -->
+    <div style="flex: 1; min-width: 120px; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #ef4444; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">6</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #1e3a8a;">Deployment</div>
+    </div>
+  </div>
+</div>
 
 1. **Inference**: Models process incoming user tokens and record output classifications and confidence scores.
 2. **Metrics Log**: Tracks performance metrics (e.g. drop in classification confidence, spike in user fallbacks) and checks for data drift.

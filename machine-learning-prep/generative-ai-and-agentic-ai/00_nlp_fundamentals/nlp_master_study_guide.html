@@ -307,23 +307,54 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <h2 id="1-the-standard-nlp-pipeline">1. The Standard NLP Pipeline</h2>
 <p>In production systems, processing raw text requires translating unstructured strings into structured numerical matrices.</p>
 <h3 id="walkthrough-of-a-sample-string-seattles-libraries-are-awesome">Walkthrough of a Sample String: <code>"Seattle's libraries are awesome! 🌟"</code></h3>
-<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="n">Raw</span><span class="w"> </span><span class="n">Input</span><span class="p">]</span><span class="w"> </span><span class="err">──▶</span><span class="w"> </span><span class="s">&quot;Seattle&#39;s libraries are awesome! 🌟&quot;</span>
-<span class="w">                      </span><span class="err">│</span>
-<span class="w">                      </span><span class="err">▼</span>
-<span class="p">[</span><span class="n">Preprocessed</span><span class="p">]</span><span class="w"> </span><span class="err">──▶</span><span class="w"> </span><span class="s">&quot;seattles libraries are awesome&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">lowercased</span><span class="p">,</span><span class="w"> </span><span class="n">emoji</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">punctuation</span><span class="w"> </span><span class="n">removed</span><span class="p">)</span>
-<span class="w">                      </span><span class="err">│</span>
-<span class="w">                      </span><span class="err">▼</span>
-<span class="p">[</span><span class="n">Tokenized</span><span class="p">]</span><span class="w">    </span><span class="err">──▶</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;seattle&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;s&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;libraries&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;are&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;awesome&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n">split</span><span class="w"> </span><span class="n">into</span><span class="w"> </span><span class="n">tokens</span><span class="p">)</span>
-<span class="w">                      </span><span class="err">│</span>
-<span class="w">                      </span><span class="err">▼</span>
-<span class="p">[</span><span class="n">Represented</span><span class="p">]</span><span class="w">  </span><span class="err">──▶</span><span class="w"> </span><span class="p">[</span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">107</span><span class="p">,</span><span class="w"> </span><span class="mi">856</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">93</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n">indices</span><span class="w"> </span><span class="n">mapped</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">dense</span><span class="w"> </span><span class="n">embedding</span><span class="w"> </span><span class="n">vectors</span><span class="p">)</span>
-<span class="w">                      </span><span class="err">│</span>
-<span class="w">                      </span><span class="err">▼</span>
-<span class="p">[</span><span class="n">Model</span><span class="w"> </span><span class="n">Feed</span><span class="p">]</span><span class="w">   </span><span class="err">──▶</span><span class="w"> </span><span class="p">[[</span><span class="mf">0.12</span><span class="p">,</span><span class="w"> </span><span class="mf">-0.4</span><span class="p">,</span><span class="w"> </span><span class="p">...],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.88</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="p">...]]</span><span class="w"> </span><span class="p">(</span><span class="n">fed</span><span class="w"> </span><span class="n">into</span><span class="w"> </span><span class="n">sequence</span><span class="w"> </span><span class="n">classifier</span><span class="p">)</span>
-<span class="w">                      </span><span class="err">│</span>
-<span class="w">                      </span><span class="err">▼</span>
-<span class="p">[</span><span class="n">Prediction</span><span class="p">]</span><span class="w">   </span><span class="err">──▶</span><span class="w"> </span><span class="n">Sentiment</span><span class="o">:</span><span class="w"> </span><span class="n">POSITIVE</span><span class="w"> </span><span class="p">(</span><span class="n">Confidence</span><span class="o">:</span><span class="w"> </span><span class="mf">98.4</span><span class="o">%</span><span class="p">)</span>
-</code></pre></div>
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <!-- Step 1 -->
+  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+    <div style="flex: 0 0 140px; background-color: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Raw Input</div>
+    <div style="margin-left: 15px; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="margin-left: 15px; font-family: monospace; font-size: 14px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; flex-grow: 1;">"Seattle's libraries are awesome! 🌟"</div>
+  </div>
+  <!-- Arrow -->
+  <div style="margin-left: 70px; height: 16px; border-left: 2px dashed #cbd5e1; margin-bottom: 12px;"></div>
+  <!-- Step 2 -->
+  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+    <div style="flex: 0 0 140px; background-color: #10b981; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Preprocessed</div>
+    <div style="margin-left: 15px; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="margin-left: 15px; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; flex-grow: 1;">"seattles libraries are awesome" <span style="color: #64748b; font-family: sans-serif; font-size: 12px; margin-left: 8px;">(lowercased, emoji & punctuation removed)</span></div>
+  </div>
+  <!-- Arrow -->
+  <div style="margin-left: 70px; height: 16px; border-left: 2px dashed #cbd5e1; margin-bottom: 12px;"></div>
+  <!-- Step 3 -->
+  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+    <div style="flex: 0 0 140px; background-color: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Tokenized</div>
+    <div style="margin-left: 15px; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="margin-left: 15px; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; flex-grow: 1;">["seattle", "s", "libraries", "are", "awesome"] <span style="color: #64748b; font-family: sans-serif; font-size: 12px; margin-left: 8px;">(split into word tokens)</span></div>
+  </div>
+  <!-- Arrow -->
+  <div style="margin-left: 70px; height: 16px; border-left: 2px dashed #cbd5e1; margin-bottom: 12px;"></div>
+  <!-- Step 4 -->
+  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+    <div style="flex: 0 0 140px; background-color: #8b5cf6; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Represented</div>
+    <div style="margin-left: 15px; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="margin-left: 15px; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; flex-grow: 1;">[42, 107, 856, 12, 93] <span style="color: #64748b; font-family: sans-serif; font-size: 12px; margin-left: 8px;">(indices mapped to embedding vectors)</span></div>
+  </div>
+  <!-- Arrow -->
+  <div style="margin-left: 70px; height: 16px; border-left: 2px dashed #cbd5e1; margin-bottom: 12px;"></div>
+  <!-- Step 5 -->
+  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+    <div style="flex: 0 0 140px; background-color: #ec4899; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Model Feed</div>
+    <div style="margin-left: 15px; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="margin-left: 15px; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; flex-grow: 1;">[[0.12, -0.4, ...], [0.88, 0.1, ...]] <span style="color: #64748b; font-family: sans-serif; font-size: 12px; margin-left: 8px;">(fed into sequence classifier)</span></div>
+  </div>
+  <!-- Arrow -->
+  <div style="margin-left: 70px; height: 16px; border-left: 2px dashed #cbd5e1; margin-bottom: 12px;"></div>
+  <!-- Step 6 -->
+  <div style="display: flex; align-items: center;">
+    <div style="flex: 0 0 140px; background-color: #ef4444; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Prediction</div>
+    <div style="margin-left: 15px; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="margin-left: 15px; font-family: monospace; font-size: 13px; color: #1e3a8a; background-color: #eff6ff; padding: 6px 12px; border-radius: 4px; border: 1px solid #bfdbfe; flex-grow: 1; font-weight: bold;">Sentiment: POSITIVE (Confidence: 98.4%)</div>
+  </div>
+</div>
 
 <hr />
 <h2 id="2-tokenization-strategies-character-vs-word-vs-subword">2. Tokenization Strategies: Character vs. Word vs. Subword</h2>
@@ -375,8 +406,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li><strong>Transformers (Modern GenAI)</strong>: Replaced recurrence with Self-Attention query-key-value projections. Enabled parallel training calculations and long-range context mapping.</li>
 </ol>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Latency vs. Vocabulary Constraints**
- When deploying real-time classification models (e.g., streaming chat routing), subword tokenizers (like WordPiece) offer the best balance of speed and coverage. Avoid word-level models in production, as typos will trigger OOV errors, returning useless `<unk` tokens that degrade classification performance.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Latency vs. Vocabulary Constraints</strong><br />
+When deploying real-time classification models (e.g., streaming chat routing), subword tokenizers (like WordPiece) offer the best balance of speed and coverage. Avoid word-level models in production, as typos will trigger OOV errors, returning useless <code>&lt;unk&gt;</code> tokens that degrade classification performance.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -459,25 +490,39 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <hr />
 <h2 id="2-stemming-vs-lemmatization">2. Stemming vs. Lemmatization</h2>
 <p><img alt="Lexical Reduction Latency" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/stem_vs_lemma_latency.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Lexical Reduction Latency**
- This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens. 
- - **Porter Stemmer** executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing `"ing"` or `"ies"` based on character lengths) without consulting external databases.
- - **WordNet Lemmatizer** requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).
- - **Production Takeaway**: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing `"saw"` as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: Lexical Reduction Latency</strong><br />
+This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens.<br />
+- <strong>Porter Stemmer</strong> executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing <code>"ing"</code> or <code>"ies"</code> based on character lengths) without consulting external databases.<br />
+- <strong>WordNet Lemmatizer</strong> requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).<br />
+- <strong>Production Takeaway</strong>: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing <code>"saw"</code> as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.</p></div></div>
 
 <p>Before vectorization, classical pipelines reduce morphological variations of words to a common base form:</p>
-<div class="codehilite"><pre><span></span><code>                  &quot;studies&quot; / &quot;studying&quot;
-                            │
-            ┌───────────────┴───────────────┐
-            ▼                               ▼
-    Stemming (Porter)             Lemmatization (WordNet)
-  (Heuristic truncation)           (Morphological Lookup)
-            │                               │
-            ▼                               ▼
-        &quot;studi&quot;                         &quot;study&quot;
-  (Fast, non-dictionary,         (Slower, dictionary-backed,
-  results in non-words)           preserves real root word)
-</code></pre></div>
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="text-align: center; margin-bottom: 15px;">
+    <div style="display: inline-block; background-color: #ffffff; padding: 8px 24px; border: 1px solid #cbd5e1; border-radius: 20px; font-family: monospace; font-size: 15px; font-weight: bold; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">"studies" / "studying"</div>
+    <div style="margin: 10px auto 0 auto; width: 2px; height: 16px; border-left: 2px solid #cbd5e1;"></div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; gap: 20px;">
+    <!-- Stemming Path -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Stemming (Porter)</div>
+      <div style="color: #64748b; font-size: 11.5px; margin-bottom: 12px;">Heuristic Suffix Truncation</div>
+      <div style="font-size: 16px; color: #cbd5e1; margin-bottom: 12px;">&darr;</div>
+      <div style="font-family: monospace; font-size: 16px; font-weight: bold; color: #dc2626; margin-bottom: 8px;">"studi"</div>
+      <div style="color: #475569; font-size: 11.5px; line-height: 1.4;">Fast, rule-based suffix chopping. Often produces non-dictionary words.</div>
+    </div>
+
+    <!-- Lemmatization Path -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #8b5cf6; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Lemmatization (WordNet)</div>
+      <div style="color: #64748b; font-size: 11.5px; margin-bottom: 12px;">Morphological Lexicon Lookup</div>
+      <div style="font-size: 16px; color: #cbd5e1; margin-bottom: 12px;">&darr;</div>
+      <div style="font-family: monospace; font-size: 16px; font-weight: bold; color: #16a34a; margin-bottom: 8px;">"study"</div>
+      <div style="color: #475569; font-size: 11.5px; line-height: 1.4;">Slower, dictionary-backed check. Always preserves valid root words.</div>
+    </div>
+  </div>
+</div>
 
 <ul>
 <li><strong>Stemming (Porter Stemmer)</strong>: A fast, rule-based heuristic that chops off word prefixes and suffixes.</li>
@@ -498,8 +543,8 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <li><strong>NFD (Decomposition)</strong>: Decomposed into base <code>e</code> (<code>\u0065</code>) and combining accent character <code>´</code> (<code>\u0301</code>).</li>
 </ul>
 <hr />
-<div style="border-left: 4px solid #7c3aed; background-color: #f5f3ff; color: #5b21b6; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>⚡ IMPORTANT:</strong><div style="margin-top: 4px;">**Production Insight: Unicode Vocabulary Alignment**
- Always apply NFC normalization (e.g. `unicodedata.normalize('NFC', text)`) during both training and inference. If user inputs use NFD encoding (decomposed characters) while the model was trained on NFC, the tokenizer will split the characters differently, mapping them to incorrect token indices and degrading predictions.</div></div>
+<div style="border-left: 4px solid #7c3aed; background-color: #f5f3ff; color: #5b21b6; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>⚡ IMPORTANT:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Unicode Vocabulary Alignment</strong><br />
+Always apply NFC normalization (e.g. <code>unicodedata.normalize('NFC', text)</code>) during both training and inference. If user inputs use NFD encoding (decomposed characters) while the model was trained on NFC, the tokenizer will split the characters differently, mapping them to incorrect token indices and degrading predictions.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -583,11 +628,11 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <hr />
 <h2 id="3-cosine-similarity">3. Cosine Similarity</h2>
 <p><img alt="Cosine Similarity Heatmap" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/tfidf_similarity_heatmap.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: TF-IDF Cosine Similarity Heatmap**
- This heatmap visualizes the cosine similarity matrix computed across three documents:
- - **Document 1 (Cat/Feline)** and **Document 2 (Feline/Rug)** share the token `"feline"`, resulting in a similarity score of $0.34$.
- - **Document 3 (Dog/Garden)** shares no vocabulary with Document 1 or Document 2, resulting in a similarity score of $0.00$ and $0.05$ respectively.
- - **Production Takeaway**: The heatmap illustrates the orthogonal limit of sparse models. Even though `"cat"` and `"feline"` are semantically related, they are treated as completely independent dimensions. This demonstrates why keyword search algorithms (like TF-IDF/BM25) require exact string matches to retrieve documents, highlighting the need for dense semantic retrieval (like SBERT) for conceptual matching.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: TF-IDF Cosine Similarity Heatmap</strong><br />
+This heatmap visualizes the cosine similarity matrix computed across three documents:<br />
+- <strong>Document 1 (Cat/Feline)</strong> and <strong>Document 2 (Feline/Rug)</strong> share the token <code>"feline"</code>, resulting in a similarity score of $0.34$.<br />
+- <strong>Document 3 (Dog/Garden)</strong> shares no vocabulary with Document 1 or Document 2, resulting in a similarity score of $0.00$ and $0.05$ respectively.<br />
+- <strong>Production Takeaway</strong>: The heatmap illustrates the orthogonal limit of sparse models. Even though <code>"cat"</code> and <code>"feline"</code> are semantically related, they are treated as completely independent dimensions. This demonstrates why keyword search algorithms (like TF-IDF/BM25) require exact string matches to retrieve documents, highlighting the need for dense semantic retrieval (like SBERT) for conceptual matching.</p></div></div>
 
 <p>Cosine similarity measures the angular orientation between two normalized vectors, ignoring magnitude differences:</p>
 <p>$$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$</p>
@@ -618,10 +663,10 @@ Since the vectors are pre-normalized, the cosine similarity is simply the dot pr
    - <strong>$b$ parameter</strong> (typically $0.75$): Controls document length normalization. It penalizes long documents containing query terms simply due to length.</li>
 </ol>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Sparse (BM25) vs. Dense Retrieval**
- - **Sparse (BM25)**: Excellent for exact matches (e.g. product IDs, serial numbers, specific names). Extremely cheap to host (Lucene/Elasticsearch).
- - **Dense (Embeddings)**: Captures semantic meaning (synonyms like `"cat"` and `"feline"`), but requires higher computational cost (GPU vector search) and does not handle exact matching well.
- - **Hybrid Search**: Combine both models using Reciprocal Rank Fusion (RRF) to get the benefits of both paradigms in production search engines.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Sparse (BM25) vs. Dense Retrieval</strong><br />
+- <strong>Sparse (BM25)</strong>: Excellent for exact matches (e.g. product IDs, serial numbers, specific names). Extremely cheap to host (Lucene/Elasticsearch).<br />
+- <strong>Dense (Embeddings)</strong>: Captures semantic meaning (synonyms like <code>"cat"</code> and <code>"feline"</code>), but requires higher computational cost (GPU vector search) and does not handle exact matching well.<br />
+- <strong>Hybrid Search</strong>: Combine both models using Reciprocal Rank Fusion (RRF) to get the benefits of both paradigms in production search engines.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -697,11 +742,11 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="4-perplexity-ppl-intuition">4. Perplexity (PPL) Intuition</h2>
 <p><img alt="Perplexity Decay" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/perplexity_decay.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Perplexity vs. N-gram Context Order**
- This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.
- - **Unigram** models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.
- - **Bigram and Trigram** models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.
- - **Production Takeaway**: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: Perplexity vs. N-gram Context Order</strong><br />
+This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.<br />
+- <strong>Unigram</strong> models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.<br />
+- <strong>Bigram and Trigram</strong> models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.<br />
+- <strong>Production Takeaway</strong>: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.</p></div></div>
 
 <p>Perplexity evaluates language model performance on a test sequence.</p>
 <h3 id="conceptual-formulation">Conceptual Formulation</h3>
@@ -710,8 +755,8 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 - <strong>PPL = 10</strong>: The model is choosing among 10 equally likely words at each step (indicating high confidence and strong prediction).<br />
 - <strong>PPL = 100</strong>: The model is choosing among 100 equally likely words (indicating high uncertainty and poor prediction).</p>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: N-gram Memory Scaling Limits**
- Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A trigram model ($N=3$) with a vocabulary $|V| = 100,000$ requires storing up to $10^{15}$ count entries, which crashes standard lookup databases. In production search auto-completes, prune n-gram hash tables by filtering entries with count frequency $&lt; 5$, keeping memory usage minimal.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: N-gram Memory Scaling Limits</strong><br />
+Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A trigram model ($N=3$) with a vocabulary $|V| = 100,000$ requires storing up to $10^{15}$ count entries, which crashes standard lookup databases. In production search auto-completes, prune n-gram hash tables by filtering entries with count frequency $&lt; 5$, keeping memory usage minimal.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -750,13 +795,49 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="1-embedding-space-projection-theory">1. Embedding Space Projection Theory</h2>
 <p>Word embeddings translate semantic similarity into spatial proximity. The learning pipeline follows four main steps:</p>
-<div class="codehilite"><pre><span></span><code>Distributional Hypothesis      Prediction Objective             Hidden Layer                Embedding Space
-(&quot;Words in similar contexts     (Predict context given       (Linear projection maps       (Dense continuous vectors
- have similar meanings&quot;)        target word, or vice-versa)   tokens to bottleneck)       capture semantic analogies)
-          │                            │                             │                            │
-          ▼                            ▼                             ▼                            ▼
-   Co-occurrence data           Skip-gram / CBOW           Shared Weight Matrix W        Cosine similarity maps
-</code></pre></div>
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="display: flex; gap: 12px; justify-content: space-between;">
+    <!-- Step 1 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #3b82f6; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">1. Paradigm</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Distributional Hypothesis</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">"Words in similar contexts have similar meanings."</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #1e3a8a; font-family: monospace; font-size: 11px; font-weight: bold;">Co-occurrence data</div>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #10b981; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">2. Objective</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Prediction Setup</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">Predict context given target word (or vice-versa).</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #065f46; font-family: monospace; font-size: 11px; font-weight: bold;">Skip-gram / CBOW</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #f59e0b; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">3. Bottleneck</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Hidden Layer</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">Linear projection maps sparse tokens to continuous states.</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #92400e; font-family: monospace; font-size: 11px; font-weight: bold;">Weight Matrix W</div>
+    </div>
+
+    <!-- Step 4 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #8b5cf6; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">4. Representation</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Embedding Space</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">Dense vectors capture analogical offsets geometrically.</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #5b21b6; font-family: monospace; font-size: 11px; font-weight: bold;">Cosine Similarity</div>
+    </div>
+  </div>
+</div>
 
 <ul>
 <li><strong>Distributional Hypothesis</strong>: Words that occur in similar contexts share semantic meaning.</li>
@@ -766,11 +847,11 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 </ul>
 <h3 id="spatial-analogy-visualization">Spatial Analogy Visualization</h3>
 <p><img alt="Word Embedding Analogy Projection" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/embedding_analogy_projection.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Embedding Analogy Projection**
- This plot projects word embedding vectors onto a 2D coordinate space to demonstrate semantic properties like analogies:
- - **Gender Offset (Horizontal Blue Vector)**: The direction and distance from `"woman"` to `"man"` matches the vector from `"queen"` to `"king"`. This indicates the model has learned the abstract concept of gender as a consistent spatial translation vector.
- - **Royalty Offset (Vertical Green Vector)**: The transition from `"man"` to `"king"` is parallel to the transition from `"woman"` to `"queen"`, capturing the concept of royalty.
- - **Production Takeaway**: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: Embedding Analogy Projection</strong><br />
+This plot projects word embedding vectors onto a 2D coordinate space to demonstrate semantic properties like analogies:<br />
+- <strong>Gender Offset (Horizontal Blue Vector)</strong>: The direction and distance from <code>"woman"</code> to <code>"man"</code> matches the vector from <code>"queen"</code> to <code>"king"</code>. This indicates the model has learned the abstract concept of gender as a consistent spatial translation vector.<br />
+- <strong>Royalty Offset (Vertical Green Vector)</strong>: The transition from <code>"man"</code> to <code>"king"</code> is parallel to the transition from <code>"woman"</code> to <code>"queen"</code>, capturing the concept of royalty.<br />
+- <strong>Production Takeaway</strong>: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.</p></div></div>
 
 <div class="codehilite"><pre><span></span><code><span class="n">Vector</span><span class="w"> </span><span class="n">Dimension</span><span class="w"> </span><span class="n">y</span>
 <span class="w">      </span><span class="err">▲</span>
@@ -811,8 +892,8 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <li><em>OOV Resolution</em>: If <code>"supercomputing"</code> was not seen during training, FastText can still generate its embedding vector by summing the vectors of its constituent character n-grams, whereas Word2Vec and GloVe return a generic <code>&lt;unk&gt;</code> token.</li>
 </ul>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Embedding Layer Memory Footprint**
- Static embedding layers require significant VRAM. A vocabulary of size $|V| = 250,000$ with dimension $d = 300$ requires storing $75,000,000$ float32 parameters ($\approx 300\text{MB}$). While small compared to LLMs, this can exceed memory budgets on edge devices. Quantizing the embedding matrix to int8 reduces this size to $75\text{MB}$ with minimal semantic decay.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Embedding Layer Memory Footprint</strong><br />
+Static embedding layers require significant VRAM. A vocabulary of size $|V| = 250,000$ with dimension $d = 300$ requires storing $75,000,000$ float32 parameters ($\approx 300\text{MB}$). While small compared to LLMs, this can exceed memory budgets on edge devices. Quantizing the embedding matrix to int8 reduces this size to $75\text{MB}$ with minimal semantic decay.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -850,11 +931,11 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="1-rnns-and-the-intuition-of-vanishing-gradients">1. RNNs and the Intuition of Vanishing Gradients</h2>
 <p><img alt="Gradient Flow Comparison" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/gradient_flow_comparison.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Gradient Flow Decay Comparison**
- This chart visualizes the gradient norm ratio during backpropagation over 30 sequence steps:
- - **Standard RNN (Red Line)**: The gradient decay curves show exponential decay towards $0$ as the number of backpropagation steps increases. This is caused by repeatedly multiplying the recurrent weight matrix $W_{hh}$ (multiplicative decay), making the network unable to learn long-range context dependencies.
- - **LSTM (Green Line)**: The gradient norm ratio remains constant near $1.0$. This is enabled by the LSTM's **Constant Error Carousel (CEC)**, which routes updates via linear addition, preventing exponential gradient decay.
- - **Production Takeaway**: This visualization demonstrates why standard RNNs are unsuitable for sequences longer than 10-15 tokens. To process longer sentences, engineers must use gated architectures (LSTM/GRU) or self-attention to maintain stable gradient flow.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: Gradient Flow Decay Comparison</strong><br />
+This chart visualizes the gradient norm ratio during backpropagation over 30 sequence steps:<br />
+- <strong>Standard RNN (Red Line)</strong>: The gradient decay curves show exponential decay towards $0$ as the number of backpropagation steps increases. This is caused by repeatedly multiplying the recurrent weight matrix $W_{hh}$ (multiplicative decay), making the network unable to learn long-range context dependencies.<br />
+- <strong>LSTM (Green Line)</strong>: The gradient norm ratio remains constant near $1.0$. This is enabled by the LSTM's <strong>Constant Error Carousel (CEC)</strong>, which routes updates via linear addition, preventing exponential gradient decay.<br />
+- <strong>Production Takeaway</strong>: This visualization demonstrates why standard RNNs are unsuitable for sequences longer than 10-15 tokens. To process longer sentences, engineers must use gated architectures (LSTM/GRU) or self-attention to maintain stable gradient flow.</p></div></div>
 
 <p>A standard Recurrent Neural Network (RNN) processes tokens sequentially, updating a hidden state vector $h_t$ at each step:</p>
 <p>$$h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$</p>
@@ -868,17 +949,44 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="2-lstm-gating-mechanics-and-the-constant-error-carousel">2. LSTM Gating Mechanics and the Constant Error Carousel</h2>
 <p>The Long Short-Term Memory (LSTM) network introduces a dedicated cell state vector $C_t$ to act as a linear conveyor belt for gradient flow.</p>
-<h3 id="lstm-gating-diagram">LSTM Gating Diagram</h3>
-<div class="codehilite"><pre><span></span><code><span class="w">              </span><span class="p">[</span><span class="w"> </span><span class="n">Cell</span><span class="w"> </span><span class="n">State</span><span class="w"> </span><span class="n">C</span><span class="p">(</span><span class="n">t</span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">──────────────</span><span class="p">(</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="p">)</span><span class="err">──────────────────</span><span class="p">(</span><span class="o">+</span><span class="p">)</span><span class="err">─────────────▶</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="n">Cell</span><span class="w"> </span><span class="n">State</span><span class="w"> </span><span class="n">C</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">]</span>
-<span class="w">                                                   </span><span class="err">│</span><span class="w">                      </span><span class="err">▲</span>
-<span class="w">                                                   </span><span class="err">│</span><span class="w"> </span><span class="p">(</span><span class="n">Forget</span><span class="w"> </span><span class="n">Gate</span><span class="w"> </span><span class="n">f_t</span><span class="p">)</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="p">(</span><span class="n">Input</span><span class="w"> </span><span class="n">Gate</span><span class="w"> </span><span class="n">i_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Candidate</span><span class="w"> </span><span class="n">C</span><span class="o">~</span><span class="n">_t</span><span class="p">)</span>
-<span class="w">                                                   </span><span class="err">▼</span><span class="w">                      </span><span class="err">│</span>
-<span class="w">  </span><span class="p">[</span><span class="w"> </span><span class="n">Input</span><span class="w"> </span><span class="n">x_t</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">─────┐</span><span class="w">                       </span><span class="p">[</span><span class="w"> </span><span class="n">Forget</span><span class="w"> </span><span class="n">Gate</span><span class="w"> </span><span class="p">]</span><span class="w">        </span><span class="p">[</span><span class="w"> </span><span class="n">Input</span><span class="w"> </span><span class="n">Gate</span><span class="w"> </span><span class="p">]</span>
-<span class="w">                     </span><span class="err">├─────▶</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="n">Gates</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">─────▶</span><span class="p">[</span><span class="w"> </span><span class="n">Candidate</span><span class="w">  </span><span class="p">]</span><span class="w"> </span><span class="err">───────▶</span><span class="p">[</span><span class="w"> </span><span class="n">Output</span><span class="w"> </span><span class="n">Gate</span><span class="w"> </span><span class="p">]</span>
-<span class="w">  </span><span class="p">[</span><span class="w"> </span><span class="n">Hidden</span><span class="w"> </span><span class="n">h</span><span class="p">(</span><span class="n">t</span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">─┘</span><span class="w">                       </span><span class="p">[</span><span class="w"> </span><span class="n">Output</span><span class="w"> </span><span class="n">Gate</span><span class="w"> </span><span class="p">]</span><span class="w">              </span><span class="err">│</span>
-<span class="w">                                                   </span><span class="err">│</span><span class="w">                      </span><span class="err">▼</span>
-<span class="w">                                                   </span><span class="err">└────────────────────</span><span class="p">(</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="p">)</span><span class="err">────────────▶</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="n">Hidden</span><span class="w"> </span><span class="n">h_t</span><span class="w"> </span><span class="p">]</span>
-</code></pre></div>
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="display: flex; gap: 15px; justify-content: space-between; align-items: stretch; margin-bottom: 16px;">
+    <!-- Inputs Block -->
+    <div style="flex: 1; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+      <div style="font-weight: bold; font-size: 11px; color: #475569; text-transform: uppercase; margin-bottom: 4px;">Inputs at Step t</div>
+      <div style="background-color: #ffffff; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a;">Input text: x_t</div>
+      <div style="background-color: #ffffff; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a;">Previous Hidden: h_{t-1}</div>
+      <div style="background-color: #ffffff; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a;">Previous Cell: C_{t-1}</div>
+    </div>
+
+    <!-- Math Gates Block -->
+    <div style="flex: 1.5; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="font-weight: bold; font-size: 11px; color: #7c3aed; text-transform: uppercase; margin-bottom: 4px;">Gating Mechanisms</div>
+      <div style="font-size: 11px; line-height: 1.4; color: #334155;">
+        <span style="font-weight: 600; color: #dc2626;">Forget Gate ($f_t$):</span> Filters history via multiplication: $C_{t-1} \odot f_t$
+      </div>
+      <div style="font-size: 11px; line-height: 1.4; color: #334155;">
+        <span style="font-weight: 600; color: #2563eb;">Input Gate ($i_t \odot \tilde{C}_t$):</span> Controls candidate state integration.
+      </div>
+      <div style="font-size: 11px; line-height: 1.4; color: #334155;">
+        <span style="font-weight: 600; color: #059669;">Output Gate ($o_t$):</span> Projects cell value to new hidden state: $h_t = o_t \odot \tanh(C_t)$
+      </div>
+    </div>
+
+    <!-- Outputs Block -->
+    <div style="flex: 1; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+      <div style="font-weight: bold; font-size: 11px; color: #1e3a8a; text-transform: uppercase; margin-bottom: 4px;">Updated States</div>
+      <div style="background-color: #ffffff; padding: 8px 10px; border-radius: 4px; border: 1px solid #bfdbfe; font-family: monospace; font-size: 11px; color: #1e40af; font-weight: bold; line-height: 1.35;">
+        Cell State: C_t<br>
+        <span style="font-size: 10px; font-weight: normal; color: #475569;">C_{t-1} \odot f_t + i_t \odot \tilde{C}_t</span>
+      </div>
+      <div style="background-color: #ffffff; padding: 8px 10px; border-radius: 4px; border: 1px solid #bfdbfe; font-family: monospace; font-size: 11px; color: #1e40af; font-weight: bold; line-height: 1.35;">
+        Hidden State: h_t<br>
+        <span style="font-size: 10px; font-weight: normal; color: #475569;">o_t \odot \tanh(C_t)</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <h3 id="lstm-gating-equations">LSTM Gating Equations</h3>
 <p>At step $t$, the LSTM updates its state vectors using four gating mechanisms:<br />
@@ -913,12 +1021,12 @@ This allows the gradient to flow backward through time indefinitely without expo
 <em>Limitation</em>: Cannot backtrack; an early error propagates through the rest of the generation.<br />
 - <strong>Beam Search</strong>: Keeps a running set of the $B$ most likely hypothesis sequences (beams). At each step, it expands all beams and retains the top $B$ paths with the highest cumulative log probability.</p>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Gradient Norm Clipping**
- To prevent exploding gradients in recurrent models, implement gradient clipping:
- ```python
- torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
- ```
- This scales down the gradients if their total norm exceeds `max_norm`, preventing training loops from crashing with `NaN` losses.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Gradient Norm Clipping</strong><br />
+To prevent exploding gradients in recurrent models, implement gradient clipping:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">max_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+
+<p>This scales down the gradients if their total norm exceeds <code>max_norm</code>, preventing training loops from crashing with <code>NaN</code> losses.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -969,11 +1077,11 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$</p>
 <hr />
 <h2 id="3-query-key-and-value-intuition">3. Query, Key, and Value Intuition</h2>
 <p><img alt="Attention Matrix Heatmap" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/attention_matrix_heatmap.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Attention Alignment Matrix Heatmap**
- This heatmap visualizes the self-attention alignment weights computed between query words and key words:
- - **Semantic Mapping**: The query word `"feline"` aligns strongly with the key word `"cat"` ($0.90$ alignment score), while `"sat"` aligns with `"sat"` ($0.95$).
- - **Alignment Matrix**: The values are soft probability distributions across the keys, summing to $1.0$ along each query row.
- - **Production Takeaway**: The heatmap demonstrates the concept of dynamic alignment. Unlike recurrent hidden states that compress all history into a single vector, self-attention maps query-key relationships directly, allowing the model to focus on related terms across long sequence gaps.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: Attention Alignment Matrix Heatmap</strong><br />
+This heatmap visualizes the self-attention alignment weights computed between query words and key words:<br />
+- <strong>Semantic Mapping</strong>: The query word <code>"feline"</code> aligns strongly with the key word <code>"cat"</code> ($0.90$ alignment score), while <code>"sat"</code> aligns with <code>"sat"</code> ($0.95$).<br />
+- <strong>Alignment Matrix</strong>: The values are soft probability distributions across the keys, summing to $1.0$ along each query row.<br />
+- <strong>Production Takeaway</strong>: The heatmap demonstrates the concept of dynamic alignment. Unlike recurrent hidden states that compress all history into a single vector, self-attention maps query-key relationships directly, allowing the model to focus on related terms across long sequence gaps.</p></div></div>
 
 <p>Attention models map query vectors against key-value pairs:</p>
 <p>$$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$$</p>
@@ -1004,8 +1112,8 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$</p>
 1. <strong>No Parallel Training</strong>: RNN hidden state updates require sequential processing ($t-1 \rightarrow t$). Transformers process all tokens in parallel by replacing recurrent steps with self-attention matrix operations.<br />
 2. <strong>No Long-Range Path Decay</strong>: In RNNs, information must travel through sequential steps, causing path decay. In self-attention, the path length between any two tokens is $O(1)$, resolving the vanishing gradient problem over long sequences.</p>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Quadratic Scaling Limits**
- Self-attention requires computing alignment scores for all query-key pairs, scaling as $O(L^2)$ quadratic space and time complexity. For a sequence length $L = 2048$, this requires storing $4,194,304$ attention entries per head. Processing very long contexts (e.g. $100,000$ tokens) crashes GPU memory, requiring specialized sparse attention (e.g., FlashAttention) to run in production.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Quadratic Scaling Limits</strong><br />
+Self-attention requires computing alignment scores for all query-key pairs, scaling as $O(L^2)$ quadratic space and time complexity. For a sequence length $L = 2048$, this requires storing $4,194,304$ attention entries per head. Processing very long contexts (e.g. $100,000$ tokens) crashes GPU memory, requiring specialized sparse attention (e.g., FlashAttention) to run in production.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -1086,8 +1194,8 @@ Candidate:
 
 <p>BERTScore aligns each candidate token to its most semantically similar reference token using cosine similarity, capturing synonyms (e.g. <code>"feline"</code> matching <code>"cat"</code> with $0.88$ score) and resolving n-gram overlap limitations.</p>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Automated Metrics vs. Human Audits**
- While automated metrics like BLEU or BERTScore are excellent for Continuous Integration (CI) regression checks, they cannot replace human evaluations. In production, establish a random audit loop that routes $1\text{--}5\%$ of live system outputs to human reviewers to construct a manual "golden evaluation set" for calibration.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Automated Metrics vs. Human Audits</strong><br />
+While automated metrics like BLEU or BERTScore are excellent for Continuous Integration (CI) regression checks, they cannot replace human evaluations. In production, establish a random audit loop that routes $1\text{--}5\%$ of live system outputs to human reviewers to construct a manual "golden evaluation set" for calibration.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -1131,11 +1239,11 @@ Candidate:
 <hr />
 <h2 id="2-monitoring-production-drift-data-vs-concept-drift">2. Monitoring Production Drift: Data vs. Concept Drift</h2>
 <p><img alt="Data Drift Distributions" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/data_drift_distributions.png" /></p>
-<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;">**Plot Explanation & Intuition: Data Drift Distribution Divergence**
- This chart illustrates the probability density curves of training data vs. production data projected onto a lexical feature space:
- - **Covariate Shift**: The training distribution $P(X_{\text{train}})$ (blue curve) is centered at $0$, representing clean, formal vocabulary. The production distribution $P(X_{\text{prod}})$ (orange curve) is shifted to the right, representing informal text, emojis, and slang.
- - **Divergence**: The overlap between curves represents regions where the baseline model remains accurate. The non-overlapping shifted region represents drifted inputs that will trigger low-confidence predictions or out-of-vocabulary errors.
- - **Production Takeaway**: This visualization demonstrates the importance of monitoring data drift. When the distance between distributions (measured using metrics like Population Stability Index or Wasserstein Distance) exceeds a threshold, it signals that the pipeline must trigger a retraining loop with updated production data to prevent model decay.</div></div>
+<div style="border-left: 4px solid #2563eb; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>📌 NOTE:</strong><div style="margin-top: 4px;"><p><strong>Plot Explanation &amp; Intuition: Data Drift Distribution Divergence</strong><br />
+This chart illustrates the probability density curves of training data vs. production data projected onto a lexical feature space:<br />
+- <strong>Covariate Shift</strong>: The training distribution $P(X_{\text{train}})$ (blue curve) is centered at $0$, representing clean, formal vocabulary. The production distribution $P(X_{\text{prod}})$ (orange curve) is shifted to the right, representing informal text, emojis, and slang.<br />
+- <strong>Divergence</strong>: The overlap between curves represents regions where the baseline model remains accurate. The non-overlapping shifted region represents drifted inputs that will trigger low-confidence predictions or out-of-vocabulary errors.<br />
+- <strong>Production Takeaway</strong>: This visualization demonstrates the importance of monitoring data drift. When the distance between distributions (measured using metrics like Population Stability Index or Wasserstein Distance) exceeds a threshold, it signals that the pipeline must trigger a retraining loop with updated production data to prevent model decay.</p></div></div>
 
 <p>Once deployed, models experience performance decay due to environmental changes:</p>
 <table>
@@ -1165,11 +1273,55 @@ Candidate:
 <hr />
 <h2 id="3-the-production-debugging-retraining-feedback-loop">3. The Production Debugging &amp; Retraining Feedback Loop</h2>
 <p>Production maintenance requires a continuous monitoring and updating cycle to identify and resolve model decay:</p>
-<div class="codehilite"><pre><span></span><code>        Inference ────────▶ Metrics Log ────────▶ Error Analysis
-            ▲                                           │
-            │                                           ▼
-      Deployment ◀─────── Model Update ◀─────── Diagnostic Actions
-</code></pre></div>
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center; text-align: center;">
+    <!-- Step 1 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #3b82f6; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">1</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Inference</div>
+    </div>
+
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+
+    <!-- Step 2 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #10b981; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">2</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Metrics Log</div>
+    </div>
+
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+
+    <!-- Step 3 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #f59e0b; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">3</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Error Analysis</div>
+    </div>
+
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+
+    <!-- Step 4 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #7c3aed; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">4</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Diagnostics</div>
+    </div>
+
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+
+    <!-- Step 5 -->
+    <div style="flex: 1; min-width: 120px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #ec4899; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">5</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #0f172a;">Model Update</div>
+    </div>
+
+    <div style="font-size: 16px; color: #cbd5e1;">&rarr;</div>
+
+    <!-- Step 6 -->
+    <div style="flex: 1; min-width: 120px; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #ef4444; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; padding: 2px 6px; margin-bottom: 6px; display: inline-block;">6</div>
+      <div style="font-weight: bold; font-size: 12.5px; color: #1e3a8a;">Deployment</div>
+    </div>
+  </div>
+</div>
 
 <ol>
 <li><strong>Inference</strong>: Models process incoming user tokens and record output classifications and confidence scores.</li>
@@ -1178,11 +1330,11 @@ Candidate:
 <li><strong>Diagnostic Actions &amp; Model Update</strong>: Adjust the vocabulary mapping tables, tune classification thresholds, or retrain the model on newly drifted samples. The updated model is then validated against a golden test set and re-deployed.</li>
 </ol>
 <hr />
-<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Troubleshooting Checklist**
- When debugging a decaying production classifier:
- 1. **Tokenization boundaries**: Check if new Unicode characters (like emojis or special formatting) are split into `<unk` tokens.
- 2. **Vocabulary Sync**: Ensure that preprocessing steps (such as lowercase rules or vocabulary indexing tables) are perfectly aligned between the training pipeline and the serving environment.
- 3. **Class Imbalance**: When retraining on newly drifted data, apply class weighting or synthetic oversampling (SMOTE) to prevent the classifier from biasing towards dominant categories.</div></div>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Troubleshooting Checklist</strong><br />
+When debugging a decaying production classifier:<br />
+1. <strong>Tokenization boundaries</strong>: Check if new Unicode characters (like emojis or special formatting) are split into <code>&lt;unk&gt;</code> tokens.<br />
+2. <strong>Vocabulary Sync</strong>: Ensure that preprocessing steps (such as lowercase rules or vocabulary indexing tables) are perfectly aligned between the training pipeline and the serving environment.<br />
+3. <strong>Class Imbalance</strong>: When retraining on newly drifted data, apply class weighting or synthetic oversampling (SMOTE) to prevent the classifier from biasing towards dominant categories.</p></div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>

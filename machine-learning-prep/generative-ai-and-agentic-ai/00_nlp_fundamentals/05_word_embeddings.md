@@ -8,14 +8,49 @@ Word embeddings project discrete vocabulary tokens into low-dimensional, dense c
 
 Word embeddings translate semantic similarity into spatial proximity. The learning pipeline follows four main steps:
 
-```
-Distributional Hypothesis      Prediction Objective             Hidden Layer                Embedding Space
-("Words in similar contexts     (Predict context given       (Linear projection maps       (Dense continuous vectors
- have similar meanings")        target word, or vice-versa)   tokens to bottleneck)       capture semantic analogies)
-          │                            │                             │                            │
-          ▼                            ▼                             ▼                            ▼
-   Co-occurrence data           Skip-gram / CBOW           Shared Weight Matrix W        Cosine similarity maps
-```
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="display: flex; gap: 12px; justify-content: space-between;">
+    <!-- Step 1 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #3b82f6; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">1. Paradigm</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Distributional Hypothesis</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">"Words in similar contexts have similar meanings."</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #1e3a8a; font-family: monospace; font-size: 11px; font-weight: bold;">Co-occurrence data</div>
+    </div>
+    
+    <!-- Step 2 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #10b981; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">2. Objective</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Prediction Setup</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">Predict context given target word (or vice-versa).</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #065f46; font-family: monospace; font-size: 11px; font-weight: bold;">Skip-gram / CBOW</div>
+    </div>
+    
+    <!-- Step 3 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #f59e0b; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">3. Bottleneck</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Hidden Layer</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">Linear projection maps sparse tokens to continuous states.</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #92400e; font-family: monospace; font-size: 11px; font-weight: bold;">Weight Matrix W</div>
+    </div>
+    
+    <!-- Step 4 -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="color: #8b5cf6; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 6px;">4. Representation</div>
+        <div style="color: #0f172a; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Embedding Space</div>
+        <div style="color: #64748b; font-size: 11px; line-height: 1.45;">Dense vectors capture analogical offsets geometrically.</div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 8px; color: #5b21b6; font-family: monospace; font-size: 11px; font-weight: bold;">Cosine Similarity</div>
+    </div>
+  </div>
+</div>
 
 - **Distributional Hypothesis**: Words that occur in similar contexts share semantic meaning.
 - **Prediction Objective**: Rather than counting co-occurrences directly, models set up a prediction task (e.g. predicting a word from its neighbors).

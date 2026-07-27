@@ -70,19 +70,32 @@ Unigram (used in T5 and SentencePiece) operates in a top-down manner. It starts 
 
 Before vectorization, classical pipelines reduce morphological variations of words to a common base form:
 
-```
-                  "studies" / "studying"
-                            │
-            ┌───────────────┴───────────────┐
-            ▼                               ▼
-    Stemming (Porter)             Lemmatization (WordNet)
-  (Heuristic truncation)           (Morphological Lookup)
-            │                               │
-            ▼                               ▼
-        "studi"                         "study"
-  (Fast, non-dictionary,         (Slower, dictionary-backed,
-  results in non-words)           preserves real root word)
-```
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="text-align: center; margin-bottom: 15px;">
+    <div style="display: inline-block; background-color: #ffffff; padding: 8px 24px; border: 1px solid #cbd5e1; border-radius: 20px; font-family: monospace; font-size: 15px; font-weight: bold; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">"studies" / "studying"</div>
+    <div style="margin: 10px auto 0 auto; width: 2px; height: 16px; border-left: 2px solid #cbd5e1;"></div>
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; gap: 20px;">
+    <!-- Stemming Path -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Stemming (Porter)</div>
+      <div style="color: #64748b; font-size: 11.5px; margin-bottom: 12px;">Heuristic Suffix Truncation</div>
+      <div style="font-size: 16px; color: #cbd5e1; margin-bottom: 12px;">&darr;</div>
+      <div style="font-family: monospace; font-size: 16px; font-weight: bold; color: #dc2626; margin-bottom: 8px;">"studi"</div>
+      <div style="color: #475569; font-size: 11.5px; line-height: 1.4;">Fast, rule-based suffix chopping. Often produces non-dictionary words.</div>
+    </div>
+    
+    <!-- Lemmatization Path -->
+    <div style="flex: 1; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="background-color: #8b5cf6; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Lemmatization (WordNet)</div>
+      <div style="color: #64748b; font-size: 11.5px; margin-bottom: 12px;">Morphological Lexicon Lookup</div>
+      <div style="font-size: 16px; color: #cbd5e1; margin-bottom: 12px;">&darr;</div>
+      <div style="font-family: monospace; font-size: 16px; font-weight: bold; color: #16a34a; margin-bottom: 8px;">"study"</div>
+      <div style="color: #475569; font-size: 11.5px; line-height: 1.4;">Slower, dictionary-backed check. Always preserves valid root words.</div>
+    </div>
+  </div>
+</div>
 
 - **Stemming (Porter Stemmer)**: A fast, rule-based heuristic that chops off word prefixes and suffixes.
   - *Failure mode*: Over-stemming (collapsing words with different meanings: `"organization"` and `"organs"` both map to `"organ"`) or under-stemming (failing to merge `"alumnus"` and `"alumni"`).

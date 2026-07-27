@@ -46,8 +46,17 @@ def compile_master_guide():
         for alert, (border, bg, color, label) in alert_types.items():
             pattern = re.compile(rf'>\s*\[!{alert}\]\s*\n((?:>[^\n]*\n?)*)', re.IGNORECASE)
             def alert_replacer(match):
-                body_lines = match.group(1).replace('>', '').strip()
-                return f'<div style="border-left: 4px solid {border}; background-color: {bg}; color: {color}; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>{label}:</strong><div style="margin-top: 4px;">{body_lines}</div></div>\n'
+                lines = match.group(1).split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    stripped = line.strip()
+                    if stripped.startswith('>'):
+                        cleaned_lines.append(stripped[1:].strip())
+                    else:
+                        cleaned_lines.append(stripped)
+                body_markdown = '\n'.join(cleaned_lines).strip()
+                body_html = markdown.markdown(body_markdown, extensions=['fenced_code', 'tables', 'nl2br', 'sane_lists', 'codehilite'])
+                return f'<div style="border-left: 4px solid {border}; background-color: {bg}; color: {color}; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>{label}:</strong><div style="margin-top: 4px;">{body_html}</div></div>\n'
             md_text = pattern.sub(alert_replacer, md_text)
 
         # Protect math blocks

@@ -33,18 +33,44 @@ $$\frac{\partial h_T}{\partial h_t} = \prod_{k=t+1}^T \frac{\partial h_k}{\parti
 
 The Long Short-Term Memory (LSTM) network introduces a dedicated cell state vector $C_t$ to act as a linear conveyor belt for gradient flow.
 
-### LSTM Gating Diagram
-```
-              [ Cell State C(t-1) ] ──────────────( X )──────────────────(+)─────────────▶ [ Cell State C(t) ]
-                                                   │                      ▲
-                                                   │ (Forget Gate f_t)    │ (Input Gate i_t * Candidate C~_t)
-                                                   ▼                      │
-  [ Input x_t ] ─────┐                       [ Forget Gate ]        [ Input Gate ]
-                     ├─────▶ [ Gates ] ─────▶[ Candidate  ] ───────▶[ Output Gate ]
-  [ Hidden h(t-1) ] ─┘                       [ Output Gate ]              │
-                                                   │                      ▼
-                                                   └────────────────────( X )────────────▶ [ Hidden h_t ]
-```
+<div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <div style="display: flex; gap: 15px; justify-content: space-between; align-items: stretch; margin-bottom: 16px;">
+    <!-- Inputs Block -->
+    <div style="flex: 1; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+      <div style="font-weight: bold; font-size: 11px; color: #475569; text-transform: uppercase; margin-bottom: 4px;">Inputs at Step t</div>
+      <div style="background-color: #ffffff; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a;">Input text: x_t</div>
+      <div style="background-color: #ffffff; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a;">Previous Hidden: h_{t-1}</div>
+      <div style="background-color: #ffffff; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a;">Previous Cell: C_{t-1}</div>
+    </div>
+
+    <!-- Math Gates Block -->
+    <div style="flex: 1.5; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+      <div style="font-weight: bold; font-size: 11px; color: #7c3aed; text-transform: uppercase; margin-bottom: 4px;">Gating Mechanisms</div>
+      <div style="font-size: 11px; line-height: 1.4; color: #334155;">
+        <span style="font-weight: 600; color: #dc2626;">Forget Gate ($f_t$):</span> Filters history via multiplication: $C_{t-1} \odot f_t$
+      </div>
+      <div style="font-size: 11px; line-height: 1.4; color: #334155;">
+        <span style="font-weight: 600; color: #2563eb;">Input Gate ($i_t \odot \tilde{C}_t$):</span> Controls candidate state integration.
+      </div>
+      <div style="font-size: 11px; line-height: 1.4; color: #334155;">
+        <span style="font-weight: 600; color: #059669;">Output Gate ($o_t$):</span> Projects cell value to new hidden state: $h_t = o_t \odot \tanh(C_t)$
+      </div>
+    </div>
+
+    <!-- Outputs Block -->
+    <div style="flex: 1; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+      <div style="font-weight: bold; font-size: 11px; color: #1e3a8a; text-transform: uppercase; margin-bottom: 4px;">Updated States</div>
+      <div style="background-color: #ffffff; padding: 8px 10px; border-radius: 4px; border: 1px solid #bfdbfe; font-family: monospace; font-size: 11px; color: #1e40af; font-weight: bold; line-height: 1.35;">
+        Cell State: C_t<br>
+        <span style="font-size: 10px; font-weight: normal; color: #475569;">C_{t-1} \odot f_t + i_t \odot \tilde{C}_t</span>
+      </div>
+      <div style="background-color: #ffffff; padding: 8px 10px; border-radius: 4px; border: 1px solid #bfdbfe; font-family: monospace; font-size: 11px; color: #1e40af; font-weight: bold; line-height: 1.35;">
+        Hidden State: h_t<br>
+        <span style="font-size: 10px; font-weight: normal; color: #475569;">o_t \odot \tanh(C_t)</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 ### LSTM Gating Equations
 At step $t$, the LSTM updates its state vectors using four gating mechanisms:
