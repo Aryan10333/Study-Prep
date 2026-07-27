@@ -1,46 +1,30 @@
 # Module 08: NLP Evaluation Metrics & Semantic Validation
 
-Evaluating natural language outputs requires measuring both exact tokens and semantic meaning. This module details classification and generation metrics, derives BLEU and ROUGE scores, highlights the limitations of n-gram overlaps, and explains semantic metrics like BERTScore.
+Evaluating natural language outputs requires measuring both exact tokens and semantic meaning. This module details classification and generation metrics, highlights the limitations of n-gram overlaps, and explains semantic metrics like BERTScore.
 
 ---
 
 ## 1. Classification Metrics: Precision, Recall, and F1
 
-For classification tasks (e.g. sentiment classification, token classification), performance is evaluated using confusion matrix derivatives:
+For classification tasks (e.g. sentiment classification, spam detection), models are evaluated using a confusion matrix:
 
-- **Precision (Positive Predictive Value)**: Measures the proportion of positive identifications that were actually correct:
+- **Precision**: Measures the proportion of positive predictions that were actually correct:
   $$\text{Precision} = \frac{\text{True Positives (TP)}}{\text{True Positives (TP)} + \text{False Positives (FP)}}$$
-- **Recall (Sensitivity)**: Measures the proportion of actual positives that were correctly identified:
+- **Recall**: Measures the proportion of actual positives that were correctly identified:
   $$\text{Recall} = \frac{\text{True Positives (TP)}}{\text{True Positives (TP)} + \text{False Negatives (FN)}}$$
 - **F1 Score**: The harmonic mean of precision and recall, balancing both metrics when dealing with class imbalances:
   $$\text{F1} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
 
 ---
 
-## 2. Generation Metrics: BLEU, ROUGE, and METEOR
+## 2. Generation Metrics: BLEU and ROUGE
 
 For sequence generation tasks (e.g. translation, summarization), models are evaluated against ground-truth reference texts:
 
-### Bilingual Evaluation Understudy (BLEU)
-BLEU measures n-gram precision (how many generated n-grams appear in the reference text) combined with a penalty for short generations:
-
-$$\text{BLEU} = \text{BP} \cdot \exp\left(\sum_{n=1}^N w_n \log p_n\right)$$
-
-Where:
-- $p_n$ is the modified n-gram precision:
-  $$p_n = \frac{\sum_{\text{ngram}} \text{Count}_{\text{clip}}(\text{ngram})}{\sum_{\text{ngram}} \text{Count}(\text{ngram})}$$
-- $w_n$ are uniform weights (typically $0.25$ for $N=4$).
-- $\text{BP}$ is the Brevity Penalty, which penalizes generations that are shorter than the reference:
-  $$\text{BP} = \begin{cases} 1 & \text{if } c > r \\ e^{1 - r/c} & \text{if } c \le r \end{cases}$$
-  Where $c$ is candidate length and $r$ is reference length.
-
----
-
-### Recall-Oriented Understudy for Gisting Evaluation (ROUGE)
-ROUGE measures n-gram recall (how many reference n-grams are captured by the generated text):
-- **ROUGE-N**: Measures n-gram overlap:
-  $$\text{ROUGE-N} = \frac{\sum_{\text{ngram}} \text{Count}_{\text{match}}(\text{ngram})}{\sum_{\text{ngram}} \text{Count}_{\text{reference}}(\text{ngram})}$$
-- **ROUGE-L**: Measures the Longest Common Subsequence (LCS) between candidate and reference texts, preserving word order without requiring exact n-gram alignments.
+- **BLEU (Bilingual Evaluation Understudy)**: Measures n-gram precision (how many generated words appear in the reference text) combined with a brevity penalty to prevent short, trivial outputs.
+  - *Equation*: $\text{BLEU} = \text{Brevity Penalty} \times \exp(\sum w_n \log p_n)$
+- **ROUGE (Recall-Oriented Understudy for Gisting Evaluation)**: Measures n-gram recall (how many reference words are captured by the generated text).
+  - *ROUGE-L*: Evaluates the Longest Common Subsequence (LCS) to track sequence word order without requiring exact n-gram alignments.
 
 ---
 
@@ -57,27 +41,28 @@ N-gram overlap metrics (BLEU, ROUGE) measure exact match counts. Consequently, t
 
 To resolve these blind spots, production systems use embedding-based semantic evaluation:
 
-### Sentence-BERT (SBERT)
-Maps entire sentences to dense, fixed-sized semantic vectors $\mathbf{u}$ and $\mathbf{v}$ using a Siamese network. Similarity is measured using cosine distance:
+- **Sentence-BERT (SBERT)**: Maps entire sentences to dense, fixed-sized semantic vectors using a Siamese network. Similarity is measured using cosine distance.
+- **BERTScore**: Computes token-level semantic alignments using contextual embeddings (e.g. BERT hidden states):
 
-$$\text{Similarity} = \text{CosineSimilarity}(\mathbf{u}, \mathbf{v})$$
-
-### BERTScore: Contextual Token Alignments
-BERTScore computes token-level semantic alignments using contextual embeddings (e.g. BERT hidden states):
-
+### BERTScore Alignment Matrix Example
 ```
-Candidate:   A   feline  rested   on  the  rug
-              \    /       |       |   |   /
-Reference:   The  cat     sat     on  the mat
-             (Aligned via Cosine Similarity of contextual tokens)
+                  Reference:   "The"     "cat"     "sat"     "on"      "the"     "mat"
+Candidate:
+  "A"                           0.12      0.08      0.05      0.02      0.09      0.04
+  "feline"                      0.09      0.88      0.12      0.05      0.08      0.11   <-- Match found!
+  "rested"                      0.04      0.11      0.82      0.10      0.05      0.07   <-- Match found!
+  "on"                          0.01      0.04      0.09      0.95      0.02      0.04   <-- Match found!
+  "the"                         0.08      0.07      0.05      0.03      0.98      0.06   <-- Match found!
+  "rug"                         0.05      0.12      0.08      0.04      0.07      0.85   <-- Match found!
 ```
 
-1. **Represent Tokens**: Map words in candidate $C$ and reference $R$ to contextual token vectors.
-2. **Compute Similarity**: Calculate a cosine similarity matrix between all candidate and reference tokens.
-3. **Greedy Matching**: Match each token in candidate $C$ to its most similar token in reference $R$:
-   $$\text{Recall} = \frac{1}{|R|} \sum_{r_i \in R} \max_{c_j \in C} \mathbf{r}_i^T \mathbf{c}_j$$
-   $$\text{Precision} = \frac{1}{|C|} \sum_{c_j \in C} \max_{r_i \in R} \mathbf{r}_i^T \mathbf{c}_j$$
-4. **F1 Calculation**: Compute the harmonic mean of the greedy precision and recall scores. This captures semantic similarity even when the words used are different.
+BERTScore aligns each candidate token to its most semantically similar reference token using cosine similarity, capturing synonyms (e.g. `"feline"` matching `"cat"` with $0.88$ score) and resolving n-gram overlap limitations.
+
+---
+
+> [!TIP]
+> **Production Insight: Automated Metrics vs. Human Audits**
+> While automated metrics like BLEU or BERTScore are excellent for Continuous Integration (CI) regression checks, they cannot replace human evaluations. In production, establish a random audit loop that routes $1\text{--}5\%$ of live system outputs to human reviewers to construct a manual "golden evaluation set" for calibration.
 
 ---
 

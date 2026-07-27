@@ -1,6 +1,6 @@
 # Module 10: NLP Fundamentals High-Frequency Interview Question Bank
 
-This module provides **40 high-frequency interview questions** covering NLP foundations, mathematical derivations, debugging procedures, and production systems design.
+This module provides **40 high-frequency interview questions** covering NLP foundations, practical math calculations, debugging procedures, and production systems design.
 
 ---
 
@@ -22,7 +22,7 @@ BPE merges adjacent token pairs based on raw co-occurrence frequency counts. Wor
 $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Count}(B)}$$
 
 ### Q5: How does Unigram tokenization differ from BPE in its building strategy?
-BPE is a bottom-up algorithm, starting with individual characters and iteratively merging frequent pairs. Unigram is a top-down algorithm, starting with a large vocabulary and iteratively pruning tokens that have the lowest contribution to corpus likelihood.
+BPE is a bottom-up algorithm, starting with individual characters and forging merges. Unigram is a top-down algorithm, starting with a large vocabulary and pruning tokens that have the lowest contribution to corpus likelihood.
 
 ### Q6: What is the Distributional Hypothesis and how does it relate to dense word embeddings?
 The Distributional Hypothesis states that words occurring in similar contexts share semantic meaning. Dense embeddings learn representations by optimizing models to predict a word given its context (or vice versa), mapping co-occurrence patterns to vector spaces.
@@ -41,55 +41,38 @@ Recurrent models process tokens sequentially, creating an execution bottleneck. 
 
 ---
 
-## 2. Mathematical Questions (11-20)
+## 2. Mathematical & Intuitive Questions (11-20)
 
 ### Q11: Derive the TF-IDF calculation for a word that appears twice in a document of 10 words, where the word occurs in 5 out of 100 total documents.
 - Term Frequency: $\text{TF} = 2 / 10 = 0.2$
 - Smooth IDF: $\text{IDF} = \log\left(\frac{1 + 100}{1 + 5}\right) + 1 = \log(101/6) + 1 \approx \log(16.83) + 1 \approx 2.823 + 1 = 3.823$
 - Unnormalized weight: $\text{TF-IDF} = 0.2 \times 3.823 = 0.7646$
 
-### Q12: Prove mathematically why scaled dot-product attention scales scores by $1/\sqrt{d_k}$.
-Assume components of query $\mathbf{q}$ and key $\mathbf{k}$ are independent random variables with mean $0$ and variance $1$. The dot product is:
-$$u = \sum_{i=1}^{d_k} q_i k_i$$
-- Mean: $\mathbb{E}[u] = \sum \mathbb{E}[q_i]\mathbb{E}[k_i] = 0$
-- Variance: $\text{Var}(q_i k_i) = \mathbb{E}[q_i^2]\mathbb{E}[k_i^2] - 0 = (1)(1) = 1$
-- Total Variance: $\text{Var}(u) = \sum_{i=1}^{d_k} 1 = d_k$
-If $d_k$ is large, the dot product values grow, pushing Softmax into regions with extremely small gradients. Dividing by $\sqrt{d_k}$ scales the input variance to $1$:
-$$\text{Var}\left(\frac{\mathbf{q} \cdot \mathbf{k}}{\sqrt{d_k}}\right) = \frac{d_k}{d_k} = 1$$
+### Q12: Why does scaled dot-product attention divide scores by $\sqrt{d_k}$?
+As key dimension $d_k$ grows large, the dot product values grow, pushing Softmax inputs into flat regions where output gradients are extremely small (saturating Softmax). Dividing by $\sqrt{d_k}$ scales the input variance to $1$, keeping gradients sensitive during backpropagation.
 
-### Q13: Write the cell state update equation of an LSTM and explain why it prevents vanishing gradients.
+### Q13: Write the cell state update equation of an LSTM and explain how it prevents vanishing gradients.
 - Cell State: $C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$
-- Gradient Flow: The derivative with respect to the previous cell state is:
-  $$\frac{\partial C_t}{\partial C_{t-1}} = f_t + \dots$$
-  If the forget gate $f_t \approx 1$, the error gradient propagates back through time linearly via addition, bypassing the multiplicative decay of standard RNNs.
+- Intuition: Because the cell state update uses addition ($+$) instead of multiplication ($*$), the derivative contains the linear term $f_t$. If the forget gate is open ($f_t \approx 1$), error gradients flow backward through time without exponential decay.
 
 ### Q14: Calculate the Laplace-smoothed bigram probability $P(\text{"cat"} \mid \text{"the"})$ given: $C(\text{"the", "cat"}) = 0$, $C(\text{"the"}) = 100$, and vocabulary size $|V| = 10,000$.
 $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{C(\text{"the", "cat"}) + 1}{C(\text{"the"}) + |V|} = \frac{0 + 1}{100 + 10000} = \frac{1}{10100} \approx 9.9 \times 10^{-5}$$
 
-### Q15: Prove that Perplexity is equal to $e^{H(W)}$, where $H(W)$ is the cross-entropy loss of the sequence.
-$$\text{PPL}(W) = P(w_1, \dots, w_m)^{-\frac{1}{m}}$$
-Taking the natural logarithm:
-$$\ln(\text{PPL}(W)) = -\frac{1}{m} \ln P(w_1, \dots, w_m) = -\frac{1}{m} \sum_{i=1}^m \ln P(w_i \mid w_{1..i-1}) = H(W)$$
-Exponentiating both sides:
-$$\text{PPL}(W) = e^{H(W)}$$
+### Q15: What is the branching factor intuition behind Perplexity (PPL)?
+Perplexity represents the average branching factor (i.e. the number of equally likely next words the model must choose from). A PPL of 10 means the model is choosing among 10 equally likely words at each step, while a PPL of 100 indicates higher uncertainty.
 
-### Q16: Show how Katz Backoff calculates bigram probabilities when co-occurrence counts are zero.
+### Q16: How does Katz Backoff estimate bigram probabilities when co-occurrence counts are zero?
 If $C(w_{i-1}, w_i) = 0$, Katz Backoff estimates the probability by backing off to the lower-order unigram probability, scaled by a normalization factor $\alpha$:
 $$P_{\text{Katz}}(w_i \mid w_{i-1}) = \alpha(w_{i-1}) P(w_i)$$
 
-### Q17: Write the loss function for Skip-gram with Negative Sampling (SGNS) and define its components.
-$$\mathcal{L} = -\log \sigma(\mathbf{v}'_{w_O} \cdot \mathbf{v}_{w_I}) - \sum_{i=1}^K \log \sigma(-\mathbf{v}'_{w_i} \cdot \mathbf{v}_{w_I})$$
-- $w_I$: Input target word.
-- $w_O$: True output context word.
-- $w_i$: Negative sample words.
-- $K$: Number of negative samples.
+### Q17: What is Good-Turing smoothing conceptually?
+Good-Turing smoothing reallocates probability mass to unseen sequences by counting the frequency of single-occurrence items (hapax legomena) in the training corpus.
 
 ### Q18: Calculate the BLEU brevity penalty (BP) for a generated candidate of 8 words compared to a reference translation of 10 words.
 Since candidate length $c = 8 \le r = 10$:
 $$\text{BP} = e^{1 - r/c} = e^{1 - 10/8} = e^{-0.25} \approx 0.7788$$
 
-### Q19: Express the GloVe weighting function $f(X_{i,j})$ mathematically and explain its purpose.
-$$f(x) = \min\left(1, \left(\frac{x}{x_{\max}}\right)^\alpha\right)$$
+### Q19: Express the GloVe weighting function $f(X_{i,j})$ conceptually.
 It bounds the loss contribution of extremely frequent word co-occurrences (e.g. `"the"`, `"and"`), preventing them from dominating the optimization gradient.
 
 ### Q20: Show the matrix multiplication steps to compute Self-Attention scores for input matrix $X$.
@@ -103,10 +86,8 @@ It bounds the loss contribution of extremely frequent word co-occurrences (e.g. 
 ## 3. Production Questions (21-30)
 
 ### Q21: What is the difference between Data Drift and Concept Drift in production NLP pipelines?
-- **Data Drift**: The input text distribution changes (e.g. new vocabulary, slang), but the target relationship remains the same:
-  $$P(X_{\text{prod}}) \neq P(X_{\text{train}}), \quad P(Y \mid X_{\text{prod}}) = P(Y \mid X_{\text{train}})$$
-- **Concept Drift**: The mapping relationship between inputs and outputs shifts (e.g. the word `"viral"` shifts from a negative health context to a positive marketing context):
-  $$P(Y \mid X_{\text{prod}}) \neq P(Y \mid X_{\text{train}})$$
+- **Data Drift**: The input text distribution changes (e.g. new vocabulary, slang), but target labels stay consistent.
+- **Concept Drift**: The mapping relationship between inputs and outputs shifts (e.g. the word `"viral"` shifts from a negative health context to a positive marketing context).
 
 ### Q22: How do you identify data drift in a production NLP application?
 By measuring statistical divergence between token frequency distributions in production and training data using metrics like Wasserstein Distance or Population Stability Index (PSI).
