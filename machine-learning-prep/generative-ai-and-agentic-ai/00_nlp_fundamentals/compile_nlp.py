@@ -57,7 +57,6 @@ def compile_master_guide():
             return f"MATHPLACEHOLDER{len(math_blocks)-1}ENDMATH"
 
         md_text = re.sub(r'\$\$[\s\S]*?\$\$', store_math, md_text)
-        md_text = re.sub(r'(?<!\$)\$[^$\n]+\*(?!\$)', store_math, md_text) # check unescaped subscripts
         md_text = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', store_math, md_text)
 
         # Convert to HTML
@@ -66,9 +65,10 @@ def compile_master_guide():
             extensions=['fenced_code', 'tables', 'toc', 'nl2br', 'sane_lists', 'codehilite']
         )
 
-        # Restore math blocks
+        # Restore math blocks with HTML escaping for brackets
         for idx, block in enumerate(math_blocks):
-            html_body = html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", block)
+            escaped_block = block.replace('<', '&lt;').replace('>', '&gt;')
+            html_body = html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", escaped_block)
 
         # Wrap in module container
         module_html = f"""

@@ -8,6 +8,12 @@ Sequence models process variable-length inputs by maintaining sequential state r
 
 ![Gradient Flow Comparison](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/gradient_flow_comparison.png)
 
+#### Plot Explanation & Intuition: Gradient Flow Decay Comparison
+This chart visualizes the gradient norm ratio during backpropagation over 30 sequence steps:
+- **Standard RNN (Red Line)**: The gradient decay curves show exponential decay towards $0$ as the number of backpropagation steps increases. This is caused by repeatedly multiplying the recurrent weight matrix $W_{hh}$ (multiplicative decay), making the network unable to learn long-range context dependencies.
+- **LSTM (Green Line)**: The gradient norm ratio remains constant near $1.0$. This is enabled by the LSTM's **Constant Error Carousel (CEC)**, which routes updates via linear addition, preventing exponential gradient decay.
+- **Production Takeaway**: This visualization demonstrates why standard RNNs are unsuitable for sequences longer than 10-15 tokens. To process longer sentences, engineers must use gated architectures (LSTM/GRU) or self-attention to maintain stable gradient flow.
+
 A standard Recurrent Neural Network (RNN) processes tokens sequentially, updating a hidden state vector $h_t$ at each step:
 
 $$h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$

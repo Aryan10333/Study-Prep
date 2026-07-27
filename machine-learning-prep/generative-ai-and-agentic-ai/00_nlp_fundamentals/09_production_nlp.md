@@ -18,6 +18,12 @@ Production systems deploy models using one of two ingestion patterns:
 
 ![Data Drift Distributions](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/data_drift_distributions.png)
 
+#### Plot Explanation & Intuition: Data Drift Distribution Divergence
+This chart illustrates the probability density curves of training data vs. production data projected onto a lexical feature space:
+- **Covariate Shift**: The training distribution $P(X_{\text{train}})$ (blue curve) is centered at $0$, representing clean, formal vocabulary. The production distribution $P(X_{\text{prod}})$ (orange curve) is shifted to the right, representing informal text, emojis, and slang.
+- **Divergence**: The overlap between curves represents regions where the baseline model remains accurate. The non-overlapping shifted region represents drifted inputs that will trigger low-confidence predictions or out-of-vocabulary errors.
+- **Production Takeaway**: This visualization demonstrates the importance of monitoring data drift. When the distance between distributions (measured using metrics like Population Stability Index or Wasserstein Distance) exceeds a threshold, it signals that the pipeline must trigger a retraining loop with updated production data to prevent model decay.
+
 Once deployed, models experience performance decay due to environmental changes:
 
 | Drift Type | Definition | Mathematical Concept | Concrete Example |

@@ -348,7 +348,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Word-Level</strong></td>
-<td style="text-align: left;">Massive ($>1,000,000$ tokens)</td>
+<td style="text-align: left;">Massive ($&gt;1,000,000$ tokens)</td>
 <td style="text-align: left;">Extremely High</td>
 <td style="text-align: left;">Short</td>
 <td style="text-align: left;">Vocabulary size drains GPU memory; cannot map new words.</td>
@@ -459,6 +459,11 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <hr />
 <h2 id="2-stemming-vs-lemmatization">2. Stemming vs. Lemmatization</h2>
 <p><img alt="Lexical Reduction Latency" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/stem_vs_lemma_latency.png" /></p>
+<h4 id="plot-explanation-intuition-lexical-reduction-latency">Plot Explanation &amp; Intuition: Lexical Reduction Latency</h4>
+<p>This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatizer per 1,000 tokens. <br />
+- <strong>Porter Stemmer</strong> executes in sub-2ms time because it relies on simple, heuristic suffix-chopping rules (e.g. slicing <code>"ing"</code> or <code>"ies"</code> based on character lengths) without consulting external databases.<br />
+- <strong>WordNet Lemmatizer</strong> requires a significantly higher latency ($\approx 5$ms) because it relies on dictionary lookups, grammatical validation, and part-of-speech context tags to resolve words to their canonical base form (lemma).<br />
+- <strong>Production Takeaway</strong>: In high-throughput streaming systems (like customer ticket triage), stemming is preferred for speed if morphological precision is not critical. If POS disambiguation is vital (e.g. distinguishing <code>"saw"</code> as a noun vs. verb), lemmatization is required despite the $4\times$ latency penalty.</p>
 <p>Before vectorization, classical pipelines reduce morphological variations of words to a common base form:</p>
 <div class="codehilite"><pre><span></span><code>                  &quot;studies&quot; / &quot;studying&quot;
                             │
@@ -562,12 +567,12 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 </ul>
 <h4 id="2-compute-unnormalized-tf-idf-vectors">2. Compute Unnormalized TF-IDF Vectors</h4>
 <ul>
-<li>**Document 1 ($d_1$) counts**: <code>{"cat": 1, "feline": 1, "rug": 0}</code><br />
+<li><strong>Document 1 ($d_1$) counts</strong>: <code>{"cat": 1, "feline": 1, "rug": 0}</code><br />
   $$\text{Vector}_{d_1} = [1 \times 1.405, \ 1 \times 1.0, \ 0 \times 1.405] = [1.405, \ 1.0, \ 0.0]$$</li>
-<li>**Document 2 ($d_2$) counts**: <code>{"cat": 0, "feline": 1, "rug": 1}</code><br />
+<li><strong>Document 2 ($d_2$) counts</strong>: <code>{"cat": 0, "feline": 1, "rug": 1}</code><br />
   $$\text{Vector}_{d_2} = [0 \times 1.405, \ 1 \times 1.0, \ 1 \times 1.405] = [0.0, \ 1.0, \ 1.405]$$</li>
 </ul>
-<h4 id="3-apply-mathplaceholder29endmath-normalization-unit-length">3. Apply $L_2$ Normalization (Unit Length)</h4>
+<h4 id="3-apply-mathplaceholder26endmath-normalization-unit-length">3. Apply $L_2$ Normalization (Unit Length)</h4>
 <ul>
 <li>Norm for $d_1$: $\|\text{Vector}_{d_1}\|_2 = \sqrt{1.405^2 + 1.0^2} \approx 1.725$<br />
   $$\mathbf{v}_{d_1} = \left[\frac{1.405}{1.725}, \ \frac{1.0}{1.725}, \ 0.0\right] \approx [0.814, \ 0.580, \ 0.0]$$</li>
@@ -577,6 +582,11 @@ $$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Co
 <hr />
 <h2 id="3-cosine-similarity">3. Cosine Similarity</h2>
 <p><img alt="Cosine Similarity Heatmap" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/tfidf_similarity_heatmap.png" /></p>
+<h4 id="plot-explanation-intuition-tf-idf-cosine-similarity-heatmap">Plot Explanation &amp; Intuition: TF-IDF Cosine Similarity Heatmap</h4>
+<p>This heatmap visualizes the cosine similarity matrix computed across three documents:<br />
+- <strong>Document 1 (Cat/Feline)</strong> and <strong>Document 2 (Feline/Rug)</strong> share the token <code>"feline"</code>, resulting in a similarity score of $0.34$.<br />
+- <strong>Document 3 (Dog/Garden)</strong> shares no vocabulary with Document 1 or Document 2, resulting in a similarity score of $0.00$ and $0.05$ respectively.<br />
+- <strong>Production Takeaway</strong>: The heatmap illustrates the orthogonal limit of sparse models. Even though <code>"cat"</code> and <code>"feline"</code> are semantically related, they are treated as completely independent dimensions. This demonstrates why keyword search algorithms (like TF-IDF/BM25) require exact string matches to retrieve documents, highlighting the need for dense semantic retrieval (like SBERT) for conceptual matching.</p>
 <p>Cosine similarity measures the angular orientation between two normalized vectors, ignoring magnitude differences:</p>
 <p>$$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$</p>
 <p>For our normalized vectors:<br />
@@ -602,8 +612,8 @@ Since the vectors are pre-normalized, the cosine similarity is simply the dot pr
 <li><strong>TF-IDF Retrieval</strong>: Ranks documents by summing the TF-IDF weights of query terms.</li>
 <li><strong>Okapi BM25 Retrieval</strong>: A robust retrieval algorithm that scales Term Frequency non-linearly and normalizes by document length:<br />
    $$\text{Score}(D, Q) = \sum_{i=1}^n \text{IDF}(q_i) \cdot \frac{\text{TF}(q_i, D) \cdot (k_1 + 1)}{\text{TF}(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}$$<br />
-   - <strong>$k_1MATHPLACEHOLDER14ENDMATH (typically $1.2\text{--}2.0$): Controls term frequency saturation. As Term Frequency increases, the score approaches an asymptote, preventing a single term from dominating.<br />
-   - </strong>$bMATHPLACEHOLDER15ENDMATH (typically $0.75$): Controls document length normalization. It penalizes long documents containing query terms simply due to length.</li>
+   - <strong>$k_1$ parameter</strong> (typically $1.2\text{--}2.0$): Controls term frequency saturation. As Term Frequency increases, the score approaches an asymptote, preventing a single term from dominating.<br />
+   - <strong>$b$ parameter</strong> (typically $0.75$): Controls document length normalization. It penalizes long documents containing query terms simply due to length.</li>
 </ol>
 <hr />
 <div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: Sparse (BM25) vs. Dense Retrieval**
@@ -634,7 +644,7 @@ Since the vectors are pre-normalized, the cosine similarity is simply the dot pr
 <li>Memory-constrained text classification pipelines using feature hashing.</li>
 <li><strong>Follow-up questions interviewers ask</strong></li>
 <li><em>How does BM25 prevent document length bias?</em> (Long documents are penalized via the $b \cdot (|D|/\text{avgdl})$ term in the denominator. This reduces the score if query terms appear in long, noisy texts).</li>
-<li>*Why does the sign hash function $\xi(w)MATHPLACEHOLDER16ENDMATH (By randomly assigning $+1$ or $-1$ to each word, collisions cancel each other out on average, preventing systematic inflation of collision indices).</li>
+<li><em>Why does the sign hash function $\xi(w)$ prevent collision degradation in Feature Hashing?</em> (By randomly assigning $+1$ or $-1$ to each word, collisions cancel each other out on average, preventing systematic inflation of collision indices).</li>
 </ul>
     </div>
 
@@ -685,6 +695,11 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="4-perplexity-ppl-intuition">4. Perplexity (PPL) Intuition</h2>
 <p><img alt="Perplexity Decay" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/perplexity_decay.png" /></p>
+<h4 id="plot-explanation-intuition-perplexity-vs-n-gram-context-order">Plot Explanation &amp; Intuition: Perplexity vs. N-gram Context Order</h4>
+<p>This chart visualizes the decay of test-set perplexity as we increase the n-gram context order from Unigram to 4-gram.<br />
+- <strong>Unigram</strong> models have the highest perplexity ($\approx 180$) because they evaluate token probabilities independently of context, representing a high average branching factor.<br />
+- <strong>Bigram and Trigram</strong> models significantly reduce perplexity (dropping to $45$ and $18$ respectively) by incorporating preceding word history, restricting the likely set of next tokens.<br />
+- <strong>Production Takeaway</strong>: While higher-order models (like 4-grams) yield lower perplexity and better generation quality, storing their count tables scales exponentially as $O(|V|^N)$. This visualization illustrates the accuracy-memory trade-off: engineers must prune n-gram count tables or limit context size to balance memory consumption and perplexity.</p>
 <p>Perplexity evaluates language model performance on a test sequence.</p>
 <h3 id="conceptual-formulation">Conceptual Formulation</h3>
 <p>$$\text{PPL} = e^{\text{Cross-Entropy Loss}}$$</p>
@@ -693,7 +708,7 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 - <strong>PPL = 100</strong>: The model is choosing among 100 equally likely words (indicating high uncertainty and poor prediction).</p>
 <hr />
 <div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;">**Production Insight: N-gram Memory Scaling Limits**
- Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A trigram model ($N=3$) with a vocabulary $|V| = 100,000$ requires storing up to $10^{15}$ count entries, which crashes standard lookup databases. In production search auto-completes, prune n-gram hash tables by filtering entries with count frequency $< 5$, keeping memory usage minimal.</div></div>
+ Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A trigram model ($N=3$) with a vocabulary $|V| = 100,000$ requires storing up to $10^{15}$ count entries, which crashes standard lookup databases. In production search auto-completes, prune n-gram hash tables by filtering entries with count frequency $&lt; 5$, keeping memory usage minimal.</div></div>
 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
@@ -748,6 +763,11 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 </ul>
 <h3 id="spatial-analogy-visualization">Spatial Analogy Visualization</h3>
 <p><img alt="Word Embedding Analogy Projection" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/embedding_analogy_projection.png" /></p>
+<h4 id="plot-explanation-intuition-embedding-analogy-projection">Plot Explanation &amp; Intuition: Embedding Analogy Projection</h4>
+<p>This plot projects word embedding vectors onto a 2D coordinate space to demonstrate semantic properties like analogies:<br />
+- <strong>Gender Offset (Horizontal Blue Vector)</strong>: The direction and distance from <code>"woman"</code> to <code>"man"</code> matches the vector from <code>"queen"</code> to <code>"king"</code>. This indicates the model has learned the abstract concept of gender as a consistent spatial translation vector.<br />
+- <strong>Royalty Offset (Vertical Green Vector)</strong>: The transition from <code>"man"</code> to <code>"king"</code> is parallel to the transition from <code>"woman"</code> to <code>"queen"</code>, capturing the concept of royalty.<br />
+- <strong>Production Takeaway</strong>: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.</p>
 <div class="codehilite"><pre><span></span><code><span class="n">Vector</span><span class="w"> </span><span class="n">Dimension</span><span class="w"> </span><span class="n">y</span>
 <span class="w">      </span><span class="err">▲</span>
 <span class="w">      </span><span class="err">│</span><span class="w">       </span><span class="o">[</span><span class="n">queen</span><span class="o">]</span><span class="w"> </span>
@@ -826,14 +846,19 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
 <hr />
 <h2 id="1-rnns-and-the-intuition-of-vanishing-gradients">1. RNNs and the Intuition of Vanishing Gradients</h2>
 <p><img alt="Gradient Flow Comparison" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/gradient_flow_comparison.png" /></p>
+<h4 id="plot-explanation-intuition-gradient-flow-decay-comparison">Plot Explanation &amp; Intuition: Gradient Flow Decay Comparison</h4>
+<p>This chart visualizes the gradient norm ratio during backpropagation over 30 sequence steps:<br />
+- <strong>Standard RNN (Red Line)</strong>: The gradient decay curves show exponential decay towards $0$ as the number of backpropagation steps increases. This is caused by repeatedly multiplying the recurrent weight matrix $W_{hh}$ (multiplicative decay), making the network unable to learn long-range context dependencies.<br />
+- <strong>LSTM (Green Line)</strong>: The gradient norm ratio remains constant near $1.0$. This is enabled by the LSTM's <strong>Constant Error Carousel (CEC)</strong>, which routes updates via linear addition, preventing exponential gradient decay.<br />
+- <strong>Production Takeaway</strong>: This visualization demonstrates why standard RNNs are unsuitable for sequences longer than 10-15 tokens. To process longer sentences, engineers must use gated architectures (LSTM/GRU) or self-attention to maintain stable gradient flow.</p>
 <p>A standard Recurrent Neural Network (RNN) processes tokens sequentially, updating a hidden state vector $h_t$ at each step:</p>
 <p>$$h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$</p>
 <h3 id="why-gradients-vanish-or-explode">Why Gradients Vanish or Explode</h3>
 <p>During training, the model calculates the gradient of the loss at time step $T$ with respect to parameters at time step $t$. This requires backpropagating the error through all intermediate steps. </p>
 <p>$$\frac{\partial h_T}{\partial h_t} = \prod_{k=t+1}^T \frac{\partial h_k}{\partial h_{k-1}} \propto (W_{hh})^{T-t}$$</p>
 <ul>
-<li><strong>Vanishing Gradient</strong>: If the weights in $W_{hh}$ are small (specifically, if its largest eigenvalue is $< 1$), multiplying this matrix repeatedly over a long time gap $T-t$ causes the gradient to shrink exponentially to $0$. The model becomes unable to learn dependencies from early tokens.</li>
-<li><strong>Exploding Gradient</strong>: If the weights in $W_{hh}$ are large (largest eigenvalue $> 1$), multiplying this matrix repeatedly causes the gradient to grow exponentially, leading to weight divergence and training instability.</li>
+<li><strong>Vanishing Gradient</strong>: If the weights in $W_{hh}$ are small (specifically, if its largest eigenvalue is $&lt; 1$), multiplying this matrix repeatedly over a long time gap $T-t$ causes the gradient to shrink exponentially to $0$. The model becomes unable to learn dependencies from early tokens.</li>
+<li><strong>Exploding Gradient</strong>: If the weights in $W_{hh}$ are large (largest eigenvalue $&gt; 1$), multiplying this matrix repeatedly causes the gradient to grow exponentially, leading to weight divergence and training instability.</li>
 </ul>
 <hr />
 <h2 id="2-lstm-gating-mechanics-and-the-constant-error-carousel">2. LSTM Gating Mechanics and the Constant Error Carousel</h2>
@@ -859,11 +884,11 @@ Smoothing reallocates probability mass from frequent n-grams to unseen sequences
   $$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$<br />
 - <strong>Output Gate</strong> ($o_t$): Controls what information from the cell state to output to the hidden state $h_t$.</p>
 <h3 id="the-constant-error-carousel-cec-intuition">The Constant Error Carousel (CEC) Intuition</h3>
-<p>Because the cell state update uses <strong>addition ($+MATHPLACEHOLDER9ENDMATH instead of multiplication ($*$), the derivative of $C_t$ with respect to $C_{t-1}$ contains the linear term $f_t$:<br />
+<p>Because the cell state update uses <strong>addition ($+$)</strong> instead of multiplication ($*$), the derivative of $C_t$ with respect to $C_{t-1}$ contains the linear term $f_t$:<br />
 $$\frac{\partial C_t}{\partial C_{t-1}} \approx f_t$$<br />
 If the forget gate is open ($f_t \approx 1$), the gradient of $C_T$ with respect to $C_t$ remains near $1$:<br />
 $$\frac{\partial C_T}{\partial C_t} = \prod_{k=t+1}^T f_k \approx 1$$<br />
-This allows the gradient to flow backward through time indefinitely without exponential decay, creating the </strong>Constant Error Carousel**.</p>
+This allows the gradient to flow backward through time indefinitely without exponential decay, creating the <strong>Constant Error Carousel</strong>.</p>
 <hr />
 <h2 id="3-gru-variations">3. GRU Variations</h2>
 <p>The Gated Recurrent Unit (GRU) simplifies the LSTM by merging the cell state and hidden state, and combining the input and forget gates into a single update gate $z_t$, reducing training parameter counts.</p>
@@ -879,7 +904,7 @@ This allows the gradient to flow backward through time indefinitely without expo
 <p>Seq2Seq models use an Encoder network to compress a variable-length source sequence into a single context vector, which a Decoder network then unpacks into a target sequence.<br />
 - <strong>Teacher Forcing</strong>: During training, the decoder receives the ground-truth target tokens as input instead of its own previous predictions, stabilizing early training.<br />
 - <strong>Greedy Search</strong>: The model outputs the most likely token at each step:<br />
-  $$y_t = \arg\max P(y \mid y_{<t})$$<br />
+  $$y_t = \arg\max P(y \mid y_{&lt;t})$$<br />
 <em>Limitation</em>: Cannot backtrack; an early error propagates through the rest of the generation.<br />
 - <strong>Beam Search</strong>: Keeps a running set of the $B$ most likely hypothesis sequences (beams). At each step, it expands all beams and retains the top $B$ paths with the highest cumulative log probability.</p>
 <hr />
@@ -927,7 +952,7 @@ This allows the gradient to flow backward through time indefinitely without expo
 <h2 id="1-the-seq2seq-encoder-bottleneck">1. The Seq2Seq Encoder Bottleneck</h2>
 <p>In classical sequence-to-sequence (Seq2Seq) models, the encoder compresses the entire source sentence into a single, fixed-size context vector:<br />
 $$\mathbf{c} = \mathbf{h}_L$$</p>
-<p>This introduces the <strong>encoder bottleneck</strong>: the context vector must store all information from the source sentence, regardless of sequence length. If the sequence length $L$ is long (e.g. $>30$ tokens), the fixed hidden state cannot store the entire context, causing translation quality to decay.</p>
+<p>This introduces the <strong>encoder bottleneck</strong>: the context vector must store all information from the source sentence, regardless of sequence length. If the sequence length $L$ is long (e.g. $&gt;30$ tokens), the fixed hidden state cannot store the entire context, causing translation quality to decay.</p>
 <hr />
 <h2 id="2-attention-intuition-bahdanau-vs-luong">2. Attention Intuition: Bahdanau vs. Luong</h2>
 <p>Attention solves this bottleneck by letting the decoder view all intermediate encoder hidden states $\mathbf{h}_i$ at each decoding step. The decoder dynamically weighs the significance of each encoder hidden state:<br />
@@ -939,12 +964,17 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$</p>
 <hr />
 <h2 id="3-query-key-and-value-intuition">3. Query, Key, and Value Intuition</h2>
 <p><img alt="Attention Matrix Heatmap" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/attention_matrix_heatmap.png" /></p>
+<h4 id="plot-explanation-intuition-attention-alignment-matrix-heatmap">Plot Explanation &amp; Intuition: Attention Alignment Matrix Heatmap</h4>
+<p>This heatmap visualizes the self-attention alignment weights computed between query words and key words:<br />
+- <strong>Semantic Mapping</strong>: The query word <code>"feline"</code> aligns strongly with the key word <code>"cat"</code> ($0.90$ alignment score), while <code>"sat"</code> aligns with <code>"sat"</code> ($0.95$).<br />
+- <strong>Alignment Matrix</strong>: The values are soft probability distributions across the keys, summing to $1.0$ along each query row.<br />
+- <strong>Production Takeaway</strong>: The heatmap demonstrates the concept of dynamic alignment. Unlike recurrent hidden states that compress all history into a single vector, self-attention maps query-key relationships directly, allowing the model to focus on related terms across long sequence gaps.</p>
 <p>Attention models map query vectors against key-value pairs:</p>
 <p>$$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$$</p>
 <ul>
-<li>**Query ($Q$)**: The current token search vector (representing what information the model is looking for).</li>
-<li>**Key ($K$)**: The indexing labels of all available tokens (representing what characteristics each token offers).</li>
-<li>**Value ($V$)**: The actual content vectors of the tokens (representing the information that is retrieved).</li>
+<li><strong>Query ($Q$)</strong>: The current token search vector (representing what information the model is looking for).</li>
+<li><strong>Key ($K$)</strong>: The indexing labels of all available tokens (representing what characteristics each token offers).</li>
+<li><strong>Value ($V$)</strong>: The actual content vectors of the tokens (representing the information that is retrieved).</li>
 </ul>
 <h3 id="the-e-commerce-search-analogy">The E-commerce Search Analogy</h3>
 <p>When you search for <code>"running shoes"</code> on Amazon:<br />
@@ -952,13 +982,13 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$</p>
 - The database matches this query against product tags and titles (<strong>Keys</strong>).<br />
 - The search engine returns the actual product descriptions and images (<strong>Values</strong>) associated with the highest-scoring matches.</p>
 <hr />
-<h2 id="4-why-attention-scales-the-mathplaceholder12endmath-factor">4. Why Attention Scales: The $1/\sqrt{d_k}$ Factor</h2>
+<h2 id="4-why-attention-scales-the-mathplaceholder14endmath-factor">4. Why Attention Scales: The $1/\sqrt{d_k}$ Factor</h2>
 <p>Scaled dot-product attention scales query-key dot products by $\frac{1}{\sqrt{d_k}}$, where $d_k$ is key dimension size.</p>
 <ul>
 <li><strong>Why is this necessary?</strong><br />
   As the key dimension $d_k$ grows large, the dot product values grow in magnitude. This leads to large absolute inputs to the Softmax function.</li>
 <li><strong>Softmax Saturation</strong>:<br />
-  When Softmax receives very large inputs, its output distribution concentrates (assigning a probability near $1$ to the largest item and near $0$ to the rest). In these flat regions, the gradient of the Softmax function is extremely small, causing **vanishing gradients** during training.</li>
+  When Softmax receives very large inputs, its output distribution concentrates (assigning a probability near $1$ to the largest item and near $0$ to the rest). In these flat regions, the gradient of the Softmax function is extremely small, causing <strong>vanishing gradients</strong> during training.</li>
 <li><strong>The Fix</strong>:<br />
   Dividing the dot product by the standard deviation $\sqrt{d_k}$ scales the input variance to $1$. This keeps the inputs in a range where Softmax remains sensitive to weight updates.</li>
 </ul>
@@ -1095,6 +1125,11 @@ Candidate:
 <hr />
 <h2 id="2-monitoring-production-drift-data-vs-concept-drift">2. Monitoring Production Drift: Data vs. Concept Drift</h2>
 <p><img alt="Data Drift Distributions" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/data_drift_distributions.png" /></p>
+<h4 id="plot-explanation-intuition-data-drift-distribution-divergence">Plot Explanation &amp; Intuition: Data Drift Distribution Divergence</h4>
+<p>This chart illustrates the probability density curves of training data vs. production data projected onto a lexical feature space:<br />
+- <strong>Covariate Shift</strong>: The training distribution $P(X_{\text{train}})$ (blue curve) is centered at $0$, representing clean, formal vocabulary. The production distribution $P(X_{\text{prod}})$ (orange curve) is shifted to the right, representing informal text, emojis, and slang.<br />
+- <strong>Divergence</strong>: The overlap between curves represents regions where the baseline model remains accurate. The non-overlapping shifted region represents drifted inputs that will trigger low-confidence predictions or out-of-vocabulary errors.<br />
+- <strong>Production Takeaway</strong>: This visualization demonstrates the importance of monitoring data drift. When the distance between distributions (measured using metrics like Population Stability Index or Wasserstein Distance) exceeds a threshold, it signals that the pipeline must trigger a retraining loop with updated production data to prevent model decay.</p>
 <p>Once deployed, models experience performance decay due to environmental changes:</p>
 <table>
 <thead>
@@ -1283,7 +1318,7 @@ Candidate:
 <hr />
 <h2 id="question-6-why-did-modern-nlp-move-from-word-tokenization-to-subword-tokenization">Question 6: Why did modern NLP move from word tokenization to subword tokenization?</h2>
 <h3 id="short-interview-answer-3060-seconds_5">Short Interview Answer (30–60 seconds)</h3>
-<p>Word-level tokenization struggles with vocabulary explosion ($|V| > 1,000,000$) and high OOV rates. Subword tokenization represents text using a smaller vocabulary of root prefixes and suffixes, allowing models to process new or misspelled words without crashing or generating <code>&lt;unk&gt;</code> tokens.</p>
+<p>Word-level tokenization struggles with vocabulary explosion ($|V| &gt; 1,000,000$) and high OOV rates. Subword tokenization represents text using a smaller vocabulary of root prefixes and suffixes, allowing models to process new or misspelled words without crashing or generating <code>&lt;unk&gt;</code> tokens.</p>
 <h3 id="key-interview-points_5">Key Interview Points</h3>
 <ul>
 <li>Vocabulary size limits</li>
@@ -1605,7 +1640,7 @@ If the largest eigenvalue of $W_{hh}$ is less than 1, multiplying this matrix re
 <ul>
 <li>Backpropagation through time (BPTT)</li>
 <li>Jacobian chain product</li>
-<li>Spectral radius $\rho(W_{hh}) < 1$</li>
+<li>Spectral radius $\rho(W_{hh}) &lt; 1$</li>
 </ul>
 <h3 id="production-perspective-trade-offs_20">Production Perspective &amp; Trade-offs</h3>
 <p>Vanishing gradients prevent standard RNNs from learning long-range dependencies, requiring the use of LSTMs or GRUs.</p>
@@ -1948,7 +1983,7 @@ This linear update allows the error gradient to propagate back through time dire
 <h3 id="production-perspective-trade-offs_36">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Low Latency</strong>: Suggestion lookups must run in &lt;10ms. Store the prefix trie in memory (e.g. using Redis), caching frequent suggestions.</li>
-<li><strong>Storage</strong>: Prune n-grams with count frequencies $< 5$ to compress trie memory size.</li>
+<li><strong>Storage</strong>: Prune n-grams with count frequencies $&lt; 5$ to compress trie memory size.</li>
 </ul>
 <h3 id="follow-up-questions_36">Follow-up Questions</h3>
 <ul>
@@ -2117,7 +2152,7 @@ This linear update allows the error gradient to propagate back through time dire
 <h2 id="question-45-explain-greedy-decoding-versus-beam-search">Question 45: Explain greedy decoding versus beam search.</h2>
 <h3 id="short-interview-answer-3060-seconds_44">Short Interview Answer (30–60 seconds)</h3>
 <ul>
-<li><strong>Greedy Search</strong>: Selects the single most likely token at each step ($y_t = \arg\max P(y \mid y_{<t})$). It is computationally fast ($O(L)$) but cannot backtrack.</li>
+<li><strong>Greedy Search</strong>: Selects the single most likely token at each step ($y_t = \arg\max P(y \mid y_{&lt;t})$). It is computationally fast ($O(L)$) but cannot backtrack.</li>
 <li><strong>Beam Search</strong>: Explores multiple paths ($O(L \cdot B)$), keeping a running set of the $B$ most likely sequences. It improves generation quality at the cost of higher latency and memory usage.</li>
 </ul>
 <h3 id="key-interview-points_37">Key Interview Points</h3>
@@ -2127,7 +2162,7 @@ This linear update allows the error gradient to propagate back through time dire
 <li>Latency trade-offs</li>
 </ul>
 <h3 id="production-perspective-trade-offs_44">Production Perspective &amp; Trade-offs</h3>
-<p>In production, large beam sizes (e.g. $B > 10$) increase latency and memory usage. A beam size of $2\text{--}5$ is typically preferred to balance speed and quality.</p>
+<p>In production, large beam sizes (e.g. $B &gt; 10$) increase latency and memory usage. A beam size of $2\text{--}5$ is typically preferred to balance speed and quality.</p>
 <h3 id="follow-up-questions_44">Follow-up Questions</h3>
 <ul>
 <li><strong>Follow-up</strong>: <em>Why apply length normalization in beam search?</em> -&gt; Without normalization, beam search favors shorter generations because multiplying probabilities yields smaller values as sequence length increases.</li>
@@ -2237,7 +2272,7 @@ This linear update allows the error gradient to propagate back through time dire
 <p>While self-attention enables fast, parallel training, its quadratic memory cost ($O(L^2)$) makes serving long sequences resource-intensive.</p>
 <h3 id="follow-up-questions_49">Follow-up Questions</h3>
 <ul>
-<li><strong>Follow-up</strong>: <em>At what sequence length L does self-attention compute cost exceed RNNs?</em> -&gt; When sequence length $L$ exceeds the hidden dimension $d$ ($L > d$), self-attention becomes more computationally expensive than RNNs.</li>
+<li><strong>Follow-up</strong>: <em>At what sequence length L does self-attention compute cost exceed RNNs?</em> -&gt; When sequence length $L$ exceeds the hidden dimension $d$ ($L &gt; d$), self-attention becomes more computationally expensive than RNNs.</li>
 </ul>
 <h3 id="common-mistakes_49">Common Mistakes</h3>
 <ul>

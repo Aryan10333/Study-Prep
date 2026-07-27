@@ -63,6 +63,12 @@ Let's calculate the TF-IDF vectors for a 2-document corpus:
 
 ![Cosine Similarity Heatmap](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/tfidf_similarity_heatmap.png)
 
+#### Plot Explanation & Intuition: TF-IDF Cosine Similarity Heatmap
+This heatmap visualizes the cosine similarity matrix computed across three documents:
+- **Document 1 (Cat/Feline)** and **Document 2 (Feline/Rug)** share the token `"feline"`, resulting in a similarity score of $0.34$.
+- **Document 3 (Dog/Garden)** shares no vocabulary with Document 1 or Document 2, resulting in a similarity score of $0.00$ and $0.05$ respectively.
+- **Production Takeaway**: The heatmap illustrates the orthogonal limit of sparse models. Even though `"cat"` and `"feline"` are semantically related, they are treated as completely independent dimensions. This demonstrates why keyword search algorithms (like TF-IDF/BM25) require exact string matches to retrieve documents, highlighting the need for dense semantic retrieval (like SBERT) for conceptual matching.
+
 Cosine similarity measures the angular orientation between two normalized vectors, ignoring magnitude differences:
 
 $$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$

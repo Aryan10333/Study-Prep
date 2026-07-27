@@ -26,6 +26,12 @@ Distributional Hypothesis      Prediction Objective             Hidden Layer    
 
 ![Word Embedding Analogy Projection](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/embedding_analogy_projection.png)
 
+#### Plot Explanation & Intuition: Embedding Analogy Projection
+This plot projects word embedding vectors onto a 2D coordinate space to demonstrate semantic properties like analogies:
+- **Gender Offset (Horizontal Blue Vector)**: The direction and distance from `"woman"` to `"man"` matches the vector from `"queen"` to `"king"`. This indicates the model has learned the abstract concept of gender as a consistent spatial translation vector.
+- **Royalty Offset (Vertical Green Vector)**: The transition from `"man"` to `"king"` is parallel to the transition from `"woman"` to `"queen"`, capturing the concept of royalty.
+- **Production Takeaway**: This spatial layout shows that dense embeddings translate semantic relationships into geometric relationships, allowing downstream neural layers to exploit semantic analogies using simple vector additions and subtractions.
+
 ```
 Vector Dimension y
       ▲

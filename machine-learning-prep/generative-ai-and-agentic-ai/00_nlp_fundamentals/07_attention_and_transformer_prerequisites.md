@@ -27,6 +27,12 @@ $$\mathbf{c}_t = \sum_{i=1}^L \alpha_{t,i} \mathbf{h}_i$$
 
 ![Attention Matrix Heatmap](file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/attention_matrix_heatmap.png)
 
+#### Plot Explanation & Intuition: Attention Alignment Matrix Heatmap
+This heatmap visualizes the self-attention alignment weights computed between query words and key words:
+- **Semantic Mapping**: The query word `"feline"` aligns strongly with the key word `"cat"` ($0.90$ alignment score), while `"sat"` aligns with `"sat"` ($0.95$).
+- **Alignment Matrix**: The values are soft probability distributions across the keys, summing to $1.0$ along each query row.
+- **Production Takeaway**: The heatmap demonstrates the concept of dynamic alignment. Unlike recurrent hidden states that compress all history into a single vector, self-attention maps query-key relationships directly, allowing the model to focus on related terms across long sequence gaps.
+
 Attention models map query vectors against key-value pairs:
 
 $$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$$
