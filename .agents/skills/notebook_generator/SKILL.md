@@ -16,8 +16,8 @@ To avoid empty placeholders or unexecuted notebook states, all companion noteboo
 1. **Use `nbformat`**: Construct a new notebook JSON structure programmatically using schema v4 components (`nbf.v4`).
 2. **Inject Markdown Explanations**: Interleave markdown explanation cells detailing equations, setups, and matrix parameters.
 3. **Inject PyTorch/NumPy Executable Cells**: Add code blocks containing matrices and vectors that exactly match the hand calculations in the study guide.
-4. **Diverse Real-World Datasets & Practical Examples**: Avoid generic placeholders, simple mock inputs, or print statements with trivial dummy values. All notebooks must implement diverse, real-world practical datasets and execution pipelines (e.g., pulling datasets from Hugging Face via `datasets.load_dataset` like SQuAD, AG News, MS MARCO, `knkarthick/dialogsum`, or `openai/openai_humaneval`, scraping live documentation pages, or modeling actual production log schemas like financial records, support tickets, and asynchronous throughput queues).
-5. **Save Draft**: Save the unexecuted notebook to disk.
+4. **Save Draft**: Save the unexecuted notebook to disk.
+5. **Diverse Real-World Datasets & Practical Examples**: Notebooks must avoid static toy mocks or trivial mathematical abstractions. They must load and process diverse, real-world data (such as financial logs, IT ticket logs, web pages, or files from Hugging Face/scraping) to address practical engineering problems (e.g. parent-child chunking, BM25/Vector RRF hybrid merging, Pydantic entity extraction, conversational memory indexing, state graph routing, and multi-agent developer-reviewer loops) which mirror senior AI engineer production tasks.
 
 ---
 
