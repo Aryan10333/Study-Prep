@@ -27,10 +27,11 @@ After generating the draft, the script must execute the notebook in place:
 1. **Local Kernel**: Use `nbconvert.preprocessors.ExecutePreprocessor` to run the cells in sequence.
 2. **Virtual Environment**: Execute using the local python executable:
    `d:\Study\Prep\.venv\Scripts\python.exe`
-3. **Matplotlib Agg Backend Gotcha**: When generating plots or executing notebooks headlessly, Matplotlib will attempt to use the Tkinter (`_backend_tk.py`) GUI backend by default, throwing Tcl/Tk errors. Ensure that `import matplotlib; matplotlib.use('Agg')` is called **prior** to importing `matplotlib.pyplot` in any pipeline script or notebook cell.
-4. **Multi-Cell Structuring**: Do not write all notebook code inside a single large cell. Split execution pipelines logically into 3 to 4 sequential code cells (e.g. Data Ingestion $\rightarrow$ Processing $\rightarrow$ Modeling $\rightarrow$ Evaluation) to allow interactive step-by-step runs.
-5. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
-6. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
+3. **One-by-One Sequential Execution Loop**: Never batch compile or execute multiple notebooks in a single bulk run. Always programmatically define, generate, and execute **one notebook at a time sequentially**. Inspect its printed cell outputs, confirm numerical metrics, and write/align the markdown cell explanations before proceeding to generate and execute the next notebook.
+4. **Matplotlib Agg Backend Gotcha**: When generating plots or executing notebooks headlessly, Matplotlib will attempt to use the Tkinter (`_backend_tk.py`) GUI backend by default, throwing Tcl/Tk errors. Ensure that `import matplotlib; matplotlib.use('Agg')` is called **prior** to importing `matplotlib.pyplot` in any pipeline script or notebook cell.
+5. **Multi-Cell Structuring**: Do not write all notebook code inside a single large cell. Split execution pipelines logically into 3 to 4 sequential code cells (e.g. Data Ingestion $\rightarrow$ Processing $\rightarrow$ Modeling $\rightarrow$ Evaluation) to allow interactive step-by-step runs.
+6. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
+7. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
    - `GEMINI_API_KEY` (for Google GenAI models)
    - `GROQ_API_KEY` (for Groq model endpoints)
    - `HF_TOKEN` (for Hugging Face Hub downloads/uploads)
@@ -39,7 +40,7 @@ After generating the draft, the script must execute the notebook in place:
    - `SERPER_API_KEY` (for Google search queries via Serper)
    - `TAVILY_API_KEY` (for Tavily search API)
    - `GITHUB_TOKEN` (for GitHub API integrations)
-7. **Save Executed State**: Save the final notebook with cell outputs populated.
+8. **Save Executed State**: Save the final notebook with cell outputs populated.
 
 ---
 
@@ -47,6 +48,7 @@ After generating the draft, the script must execute the notebook in place:
 
 **Rule**: Every code execution cell inside a companion Jupyter Notebook must be immediately followed by a markdown cell explaining the printed outputs.
 
+- Read cell outputs in detail, and write a thorough explanation of why the values are correct.
 - Detail the resulting tensor shapes, gradients, loss outputs, or probability distributions.
 - Explain why these numbers are correct.
 - Cross-reference printed logs with the corresponding math study guide to ensure **100% numerical consistency** (matching values, similarity scores, and classification distribution metrics to 4 decimal places).
@@ -57,3 +59,5 @@ After generating the draft, the script must execute the notebook in place:
 - Ensure all cells are executed and output logs are preserved.
 - Double-check that no empty brackets (`In [ ]`) exist in the final notebook.
 - Verify that every code cell is paired with a corresponding explanation block below it.
+- **No PDF Recompilation on Notebook Changes**: Modifying or generating companion notebooks does *not* affect the text study chapters. Do NOT trigger or run the master HTML/PDF compilation scripts (e.g. `compile_rag.py`, `compile_agents.py`) after notebook changes, as it has no effect on the resulting PDF guides.
+
