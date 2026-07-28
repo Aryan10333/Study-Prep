@@ -16,38 +16,41 @@
     <style>
         @page {
             size: A4;
-            margin: 18mm 15mm 18mm 15mm;
+            margin: 20mm 18mm 20mm 18mm;
         }
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            font-size: 13px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.62;
             color: #1e293b;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
         }
         h1 {
-            font-size: 22px;
+            font-size: 24px;
             color: #0f172a;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
-            margin-top: 24px;
-            margin-bottom: 14px;
+            margin-top: 30px;
+            margin-bottom: 16px;
+            page-break-after: avoid;
         }
         h2 {
-            font-size: 17px;
+            font-size: 19px;
             color: #1e40af;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 24px;
+            margin-bottom: 12px;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 4px;
+            page-break-after: avoid;
         }
         h3 {
-            font-size: 15px;
+            font-size: 16px;
             color: #0369a1;
-            margin-top: 16px;
-            margin-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            page-break-after: avoid;
         }
         
         a {
@@ -60,26 +63,38 @@
         
         p, li {
             color: #334155;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         code {
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
             background-color: #f1f5f9;
             color: #0f172a;
-            padding: 2px 5px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
         }
         
-        /* Table Styling with Strict Cell Boundaries */
+        img {
+            max-width: 90% !important;
+            height: auto !important;
+            display: block;
+            margin: 24px auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            page-break-inside: avoid;
+        }
+        
+        /* Table Styling with Strict Cell Boundaries & wrapping */
         table {
             width: 100% !important;
             border-collapse: collapse !important;
-            margin: 16px 0 !important;
-            font-size: 11.5px !important;
+            margin: 20px 0 !important;
+            font-size: 13px !important;
             border: 1.5px solid #64748b !important;
             page-break-inside: auto;
+            table-layout: auto !important;
+            max-width: 100% !important;
         }
         tr {
             page-break-inside: avoid;
@@ -90,19 +105,21 @@
             color: #f8fafc !important;
             font-weight: 700 !important;
             border: 1.5px solid #475569 !important;
-            padding: 8px 10px !important;
+            padding: 10px 12px !important;
             text-align: left !important;
         }
         td {
             border: 1px solid #cbd5e1 !important;
-            padding: 7px 10px !important;
+            padding: 9px 12px !important;
             text-align: left !important;
             vertical-align: top !important;
+            word-wrap: break-word !important;
+            word-break: break-all !important;
         }
         tr:nth-child(even) td {
             background-color: #f8fafc !important;
         }
-
+        
         /* Code Syntax Highlighting Styling & Transparency */
         pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -201,14 +218,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             background-color: transparent !important;
             color: #f8fafc !important;
         }
-
+        
         .codehilite {
             background-color: #0f172a !important;
             border-radius: 6px !important;
-            padding: 12px 14px !important;
-            margin: 14px 0 !important;
-            overflow-x: auto !important;
+            padding: 14px 16px !important;
+            margin: 16px 0 !important;
             border: 1px solid #334155 !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
         }
         .codehilite pre {
             background-color: transparent !important;
@@ -216,22 +234,24 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             padding: 0 !important;
             margin: 0 !important;
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
-            font-size: 11px !important;
-            line-height: 1.45 !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
             white-space: pre-wrap !important;
+            word-wrap: break-word !important;
             word-break: break-word !important;
+            max-width: 100% !important;
         }
-
+        
         blockquote {
             border-left: 4px solid #3b82f6;
             background-color: #eff6ff;
-            margin: 12px 0;
-            padding: 8px 14px;
+            margin: 16px 0;
+            padding: 10px 16px;
             color: #1e40af;
             border-radius: 0 4px 4px 0;
         }
         .katex-display {
-            margin: 14px 0 !important;
+            margin: 16px 0 !important;
             overflow-x: auto;
             overflow-y: hidden;
         }
@@ -247,33 +267,33 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         MACHINE LEARNING & GENAI INTERVIEW PREPARATION
     </div>
     <h1 style="font-size: 30px; color: #0f172a; margin-bottom: 12px; line-height: 1.25; border: none; padding: 0;">
-        Part 5: AI Agents & Protocols: Reasoning, Memory, MCP, Orchestration, and Secure Execution
+        Part 5: AI Agents and Protocols
     </h1>
     <h2 style="font-size: 18px; color: #3b82f6; font-weight: 500; margin-bottom: 40px; border: none;">
-        Comprehensive Production & Mathematical Study Guide
+        Multi-Agent Orchestration, Memory Systems, Tool Calling, and MCP Protocols Study Guide
     </h2>
     <hr style="border: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); width: 35%; margin: 30px auto; border-radius: 2px;" />
     
     <div style="margin-top: 60px; font-size: 13px; color: #475569; line-height: 1.8;">
-        <p><b>Target Persona:</b> Senior AI Engineer / Applied AI Engineer (~3 YOE)</p>
-        <p><b>Core Modules:</b> Agent Fundamentals, Observe-Think-Act, Reasoning paradigms (CoT, ToT, Reflexion), Memory Taxonomies, Model Context Protocol (MCP) Specification, Multi-Agent swarm handoffs, State Graph Machines (Pregel Model), Trajectory evaluation (GAIA/SWE-bench), Production resilience (Backoff, circuit breakers), Security sandboxing, 40 Q&As</p>
-        <p><b>Includes:</b> Tree-of-Thoughts cumulative value traces, context window summarization buffers math, exponential backoff calculations with random jitter, local stdio MCP Client/Server integration, 40 High-Frequency Q&As</p>
+        <p><b>Target Persona:</b> Senior AI Engineer / Agent Systems Architect (~3 YOE)</p>
+        <p><b>Core Modules:</b> Agent Fundamentals, Reasoning & Planning, Memory Systems, Tool Calling & MCP, Multi-Agent Patterns, Orchestration Frameworks, Evaluation, Production Systems, Failures, and High-Frequency Questions.</p>
+        <p><b>Includes:</b> ReAct Loop traces, sliding-window and summarization memory traces, structured output extraction schema validations, LangGraph workflow tickets routing state mappings, cooperative code review loops, and async throughput queues.</p>
     </div>
 </div>
 
 <div class="toc-page" style="page-break-after: always; padding-top: 20px;">
     <h1 style="color: #0f172a; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">Table of Contents</h1>
     <ul style="list-style-type: none; padding-left: 0; margin-top: 20px;">
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#agent-fundamentals" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 01: Agent Fundamentals</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#reasoning-planning-strategies" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 02: Reasoning & Planning Strategies</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#memory-systems-state-persistence" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 03: Memory Systems & State Persistence</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#tool-calling-model-context-protocol-mcp" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 04: Tool Calling & Model Context Protocol (MCP)</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#multi-agent-systems-coordination" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 05: Multi-Agent Systems & Coordination</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#agent-orchestration-frameworks" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 06: Agent Orchestration & Frameworks</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#agent-evaluation-benchmarking" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 07: Agent Evaluation & Benchmarking</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#production-agent-infrastructure" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 08: Production Agent Infrastructure</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#best-practices-failure-modes-decision-frameworks" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 09: Best Practices, Failure Modes & Decision Frameworks</a></li>
-        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#ai-agents-model-context-protocol-mcp-high-frequency-question-bank" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 10: AI Agents & Model Context Protocol (MCP): High-Frequency Question Bank</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-01-agent-fundamentals" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 01: Agent Fundamentals</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-02-reasoning-and-planning" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 02: Reasoning and Planning</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-03-memory-systems" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 03: Memory Systems</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-04-tool-calling-and-mcp" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 04: Tool Calling and Model Context Protocol (MCP)</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-05-multi-agent-systems" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 05: Multi-Agent Systems</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-06-agent-orchestration-and-frameworks" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 06: Agent Orchestration and Frameworks</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-07-agent-evaluation" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 07: Agent Evaluation</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-08-production-agents" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 08: Production Agents</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-09-best-practices-and-common-failures" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 09: Best Practices and Common Failures</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-10-ai-agents-high-frequency-interview-question-bank" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 10: AI Agents High-Frequency Interview Question Bank</a></li>
     </ul>
 </div>
 
@@ -569,7 +589,7 @@ $$\text{Score}(P) = \prod_{i=1}^d V(s_i)$$</p>
 </ul>
 </li>
 <li><strong>Step 3: Branch Exploration (Depth 2)</strong></li>
-<li>We expand $s_1$ (since $0.80 > 0.40$). Generator outputs two child branches:<ul>
+<li>We expand $s_1$ (since $0.80 &gt; 0.40$). Generator outputs two child branches:<ul>
 <li>Thought $a_{1.1}$: "Cancel common denominator variables" (State $s_{1.1}$)</li>
 <li>Thought $a_{1.2}$: "Multiply denominator terms across equality" (State $s_{1.2}$)</li>
 </ul>
@@ -700,7 +720,7 @@ User Query ──► Supervisor ┼──► Coder Agent
 <li><strong>Agent response</strong>: $200\text{ tokens}$</li>
 <li><strong>Current Token Count ($C_1$)</strong>:<br />
   $$C_1 = P_{\text{sys}} + \text{Input}_1 + \text{Response}_1 = 300 + 150 + 200 = 650\text{ tokens}$$<br />
-  Status: $650 < 850$ (No action required).</li>
+  Status: $650 &lt; 850$ (No action required).</li>
 </ul>
 <h4 id="step-2-second-interaction">Step 2: Second Interaction</h4>
 <ul>
@@ -708,7 +728,7 @@ User Query ──► Supervisor ┼──► Coder Agent
 <li><strong>Agent response</strong>: $300\text{ tokens}$</li>
 <li><strong>Current Token Count ($C_2$)</strong>:<br />
   $$C_2 = C_1 + \text{Input}_2 + \text{Response}_2 = 650 + 200 + 300 = 1,150\text{ tokens}$$<br />
-  Status: $1,150 > 850$ (Threshold exceeded! Trigger summarization loop).</li>
+  Status: $1,150 &gt; 850$ (Threshold exceeded! Trigger summarization loop).</li>
 </ul>
 <h4 id="step-3-summarization-compression">Step 3: Summarization Compression</h4>
 <ul>
@@ -1689,7 +1709,7 @@ where $\text{jitter} \sim \text{Uniform}(0, \text{max\_jitter})$. Jitter is crit
 <h2 id="1-fundamentals-reasoning-loops">1. Fundamentals &amp; Reasoning Loops</h2>
 <h3 id="1-workflow-vs-agent-vs-chatbot">1. Workflow vs. Agent vs. Chatbot</h3>
 <p><strong>What are the core architectural boundaries separating a deterministic workflow DAG, an autonomous AI agent, and a conversational chatbot? When is an agent the <em>wrong</em> choice?</strong><br />
-- <strong>Short Answer</strong>: Workflows are deterministic DAGs where execution paths are static. Chatbots are conversational wrappers returning single-turn text completions. Agents are dynamic state machines that determine their own execution paths and tool parameter bindings at runtime based on environment observations. An agent is the wrong choice when task predictability must be $100\%$, response latency must be sub-second ($<100\text{ ms}$), or budget constraints cannot tolerate multi-turn token accumulation.<br />
+- <strong>Short Answer</strong>: Workflows are deterministic DAGs where execution paths are static. Chatbots are conversational wrappers returning single-turn text completions. Agents are dynamic state machines that determine their own execution paths and tool parameter bindings at runtime based on environment observations. An agent is the wrong choice when task predictability must be $100\%$, response latency must be sub-second ($&lt;100\text{ ms}$), or budget constraints cannot tolerate multi-turn token accumulation.<br />
 - <strong>Key Interview Points</strong>: Predictability of state transitions, execution branching control, latency profiles, cost constraints.<br />
 - <strong>Technical Intuition</strong>: A workflow is modeled as a Directed Acyclic Graph (DAG) $G = (V, E)$ where the edges $E$ are fixed compile-time branches. An agent is modeled as a cyclic state graph where the active edge $e_t$ is determined dynamically at runtime by a model policy $\pi(s_t) \rightarrow a_t$.<br />
 - <strong>Production Perspective</strong>: Don't over-engineer simple tasks. If a process can be represented as a predictable flowchart, implement it as a static DAG code workflow (e.g. using standard python code or Airflow).<br />
@@ -1738,7 +1758,7 @@ where $\text{jitter} \sim \text{Uniform}(0, \text{max\_jitter})$. Jitter is crit
 <p><strong>When an agent's interaction trajectory approaches context window limits, what strategies (e.g., token-budget sliding windows, recursive summarization buffers, semantic memory offloading) preserve critical plan history?</strong><br />
 - <strong>Short Answer</strong>: Prune the context window by running a token-budget sliding window (discarding oldest messages), utilizing a recursive summarization buffer (summarizing old steps to compress token counts), or offloading historical interactions into a Vector DB as semantic memory, retrieving them only when highly relevant.<br />
 - <strong>Key Interview Points</strong>: Token budgeting, recursive summarization, semantic vector retrieval of history.<br />
-- <strong>Technical Intuition</strong>: Let context window capacity be $C_{\text{limit}}$. If current tokens $C > 0.85 \times C_{\text{limit}}$, apply a compression function $g(\text{history}) \rightarrow \text{summary}$ that reduces token volume:<br />
+- <strong>Technical Intuition</strong>: Let context window capacity be $C_{\text{limit}}$. If current tokens $C &gt; 0.85 \times C_{\text{limit}}$, apply a compression function $g(\text{history}) \rightarrow \text{summary}$ that reduces token volume:<br />
   $$\text{Tokens}(g(\text{history})) \ll \text{Tokens}(\text{history})$$<br />
 - <strong>Production Perspective</strong>: Always use a dual memory model: keep a sliding window of the last 3-5 raw messages for instant conversational coherence, and summarize everything before that into a running recap buffer.<br />
 - <strong>Follow-up</strong>: <em>What is memory retrieval decay?</em> (Querying vector memories with a recency weight decay factor $\lambda^{\Delta t}$ to prioritize newer events).</p>
@@ -1969,7 +1989,7 @@ where $\text{jitter} \sim \text{Uniform}(0, \text{max\_jitter})$. Jitter is crit
 - <strong>Short Answer</strong>: Implement a wrapper middleware in the host application that tracks token usage per request using local counters. For rate-limiting, use a Token Bucket algorithm (e.g. in Redis) to rate-limit user requests, and queue agent tasks to prevent overloading external model API limits.<br />
 - <strong>Key Interview Points</strong>: Rate-limiting algorithms, Redis integration, token budget tracking.<br />
 - <strong>Technical Intuition</strong>: Let token count for session $i$ be $K_i$. Before calling the LLM, the orchestrator checks:<br />
-  $$\text{Tokens}_{\text{used}} + \text{Tokens}_{\text{estimated}} < \text{Budget}_{\text{limit}}$$<br />
+  $$\text{Tokens}_{\text{used}} + \text{Tokens}_{\text{estimated}} &lt; \text{Budget}_{\text{limit}}$$<br />
   If false, it aborts execution to prevent cost overrun.<br />
 - <strong>Production Perspective</strong>: Always configure rate limiters at the user level to prevent malicious users from draining your API budgets.<br />
 - <strong>Follow-up</strong>: <em>What is the thundering herd problem?</em> (When multiple queued jobs retry simultaneously, overloading backend databases).</p>
@@ -2044,13 +2064,13 @@ where $\text{jitter} \sim \text{Uniform}(0, \text{max\_jitter})$. Jitter is crit
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Max Latency Allowed</strong></td>
-<td style="text-align: left;">Sub-second ($<150\text{ ms}$).</td>
+<td style="text-align: left;">Sub-second ($&lt;150\text{ ms}$).</td>
 <td style="text-align: left;">Low-Medium ($1\text{--}3\text{ seconds}$).</td>
 <td style="text-align: left;">High ($5\text{--}30\text{ seconds}$ per task run).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Budget Limit per Run</strong></td>
-<td style="text-align: left;">Negligible ($<\$0.0001$). | Low ($&lt;\$0.001$).</td>
+<td style="text-align: left;">Negligible ($&lt;\$0.0001$). | Low ($&lt;\$0.001$).</td>
 <td style="text-align: left;">High (\$0.05 to \$2.00 per loop execution).</td>
 <td style="text-align: left;"></td>
 </tr>
