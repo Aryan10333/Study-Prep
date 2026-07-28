@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LLM Inference & Optimization Master Study Guide</title>
+    <!-- Load KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ]
+            });"></script>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 18mm 20mm 18mm;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.62;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 24px;
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 6px;
+            margin-top: 30px;
+            margin-bottom: 16px;
+            page-break-after: avoid;
+        }
+        h2 {
+            font-size: 19px;
+            color: #1e40af;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+            page-break-after: avoid;
+        }
+        h3 {
+            font-size: 16px;
+            color: #0369a1;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            page-break-after: avoid;
+        }
+        
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        p, li {
+            color: #334155;
+            margin-bottom: 10px;
+        }
+        
+        code {
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        img {
+            max-width: 90% !important;
+            height: auto !important;
+            display: block;
+            margin: 24px auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            page-break-inside: avoid;
+        }
+        
+        /* Table Styling with Strict Cell Boundaries & wrapping */
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 20px 0 !important;
+            font-size: 13px !important;
+            border: 1.5px solid #64748b !important;
+            page-break-inside: auto;
+            table-layout: auto !important;
+            max-width: 100% !important;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        th {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 700 !important;
+            border: 1.5px solid #475569 !important;
+            padding: 10px 12px !important;
+            text-align: left !important;
+        }
+        td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 9px 12px !important;
+            text-align: left !important;
+            vertical-align: top !important;
+            word-wrap: break-word !important;
+            word-break: break-all !important;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+        }
+        
+        /* Code Syntax Highlighting Styling & Transparency */
+        pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #49483e }
+.codehilite { background: #272822; color: #F8F8F2 }
+.codehilite .c { color: #959077 } /* Comment */
+.codehilite .err { color: #ED007E; background-color: #1E0010 } /* Error */
+.codehilite .esc { color: #F8F8F2 } /* Escape */
+.codehilite .g { color: #F8F8F2 } /* Generic */
+.codehilite .k { color: #66D9EF } /* Keyword */
+.codehilite .l { color: #AE81FF } /* Literal */
+.codehilite .n { color: #F8F8F2 } /* Name */
+.codehilite .o { color: #FF4689 } /* Operator */
+.codehilite .x { color: #F8F8F2 } /* Other */
+.codehilite .p { color: #F8F8F2 } /* Punctuation */
+.codehilite .ch { color: #959077 } /* Comment.Hashbang */
+.codehilite .cm { color: #959077 } /* Comment.Multiline */
+.codehilite .cp { color: #959077 } /* Comment.Preproc */
+.codehilite .cpf { color: #959077 } /* Comment.PreprocFile */
+.codehilite .c1 { color: #959077 } /* Comment.Single */
+.codehilite .cs { color: #959077 } /* Comment.Special */
+.codehilite .gd { color: #FF4689 } /* Generic.Deleted */
+.codehilite .ge { color: #F8F8F2; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #F8F8F2; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F8F8F2 } /* Generic.Error */
+.codehilite .gh { color: #F8F8F2 } /* Generic.Heading */
+.codehilite .gi { color: #A6E22E } /* Generic.Inserted */
+.codehilite .go { color: #66D9EF } /* Generic.Output */
+.codehilite .gp { color: #FF4689; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { color: #F8F8F2; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #959077 } /* Generic.Subheading */
+.codehilite .gt { color: #F8F8F2 } /* Generic.Traceback */
+.codehilite .kc { color: #66D9EF } /* Keyword.Constant */
+.codehilite .kd { color: #66D9EF } /* Keyword.Declaration */
+.codehilite .kn { color: #FF4689 } /* Keyword.Namespace */
+.codehilite .kp { color: #66D9EF } /* Keyword.Pseudo */
+.codehilite .kr { color: #66D9EF } /* Keyword.Reserved */
+.codehilite .kt { color: #66D9EF } /* Keyword.Type */
+.codehilite .ld { color: #E6DB74 } /* Literal.Date */
+.codehilite .m { color: #AE81FF } /* Literal.Number */
+.codehilite .s { color: #E6DB74 } /* Literal.String */
+.codehilite .na { color: #A6E22E } /* Name.Attribute */
+.codehilite .nb { color: #F8F8F2 } /* Name.Builtin */
+.codehilite .nc { color: #A6E22E } /* Name.Class */
+.codehilite .no { color: #66D9EF } /* Name.Constant */
+.codehilite .nd { color: #A6E22E } /* Name.Decorator */
+.codehilite .ni { color: #F8F8F2 } /* Name.Entity */
+.codehilite .ne { color: #A6E22E } /* Name.Exception */
+.codehilite .nf { color: #A6E22E } /* Name.Function */
+.codehilite .nl { color: #F8F8F2 } /* Name.Label */
+.codehilite .nn { color: #F8F8F2 } /* Name.Namespace */
+.codehilite .nx { color: #A6E22E } /* Name.Other */
+.codehilite .py { color: #F8F8F2 } /* Name.Property */
+.codehilite .nt { color: #FF4689 } /* Name.Tag */
+.codehilite .nv { color: #F8F8F2 } /* Name.Variable */
+.codehilite .ow { color: #FF4689 } /* Operator.Word */
+.codehilite .pm { color: #F8F8F2 } /* Punctuation.Marker */
+.codehilite .w { color: #F8F8F2 } /* Text.Whitespace */
+.codehilite .mb { color: #AE81FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #AE81FF } /* Literal.Number.Float */
+.codehilite .mh { color: #AE81FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #AE81FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #AE81FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #E6DB74 } /* Literal.String.Affix */
+.codehilite .sb { color: #E6DB74 } /* Literal.String.Backtick */
+.codehilite .sc { color: #E6DB74 } /* Literal.String.Char */
+.codehilite .dl { color: #E6DB74 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #E6DB74 } /* Literal.String.Doc */
+.codehilite .s2 { color: #E6DB74 } /* Literal.String.Double */
+.codehilite .se { color: #AE81FF } /* Literal.String.Escape */
+.codehilite .sh { color: #E6DB74 } /* Literal.String.Heredoc */
+.codehilite .si { color: #E6DB74 } /* Literal.String.Interpol */
+.codehilite .sx { color: #E6DB74 } /* Literal.String.Other */
+.codehilite .sr { color: #E6DB74 } /* Literal.String.Regex */
+.codehilite .s1 { color: #E6DB74 } /* Literal.String.Single */
+.codehilite .ss { color: #E6DB74 } /* Literal.String.Symbol */
+.codehilite .bp { color: #F8F8F2 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #A6E22E } /* Name.Function.Magic */
+.codehilite .vc { color: #F8F8F2 } /* Name.Variable.Class */
+.codehilite .vg { color: #F8F8F2 } /* Name.Variable.Global */
+.codehilite .vi { color: #F8F8F2 } /* Name.Variable.Instance */
+.codehilite .vm { color: #F8F8F2 } /* Name.Variable.Magic */
+.codehilite .il { color: #AE81FF } /* Literal.Number.Integer.Long */
+        
+        /* Prevent white background artifacts and dark text inside code blocks */
+        .codehilite, 
+        .codehilite pre, 
+        .codehilite code, 
+        .codehilite span,
+        .codehilite div,
+        .codehilite pre span,
+        .codehilite pre code {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+        }
+        
+        .codehilite {
+            background-color: #0f172a !important;
+            border-radius: 6px !important;
+            padding: 14px 16px !important;
+            margin: 16px 0 !important;
+            border: 1px solid #334155 !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+        .codehilite pre {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+            max-width: 100% !important;
+        }
+        
+        blockquote {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            margin: 16px 0;
+            padding: 10px 16px;
+            color: #1e40af;
+            border-radius: 0 4px 4px 0;
+        }
+        .katex-display {
+            margin: 16px 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .module-container {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cover-page" style="text-align: center; padding-top: 140px; page-break-after: always;">
+    <div style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; margin-bottom: 20px;">
+        MACHINE LEARNING & GENAI INTERVIEW PREPARATION
+    </div>
+    <h1 style="font-size: 30px; color: #0f172a; margin-bottom: 12px; line-height: 1.25; border: none; padding: 0;">
+        Part 7: LLM Inference & Optimization
+    </h1>
+    <h2 style="font-size: 18px; color: #3b82f6; font-weight: 500; margin-bottom: 40px; border: none;">
+        Decoding Mechanics, KV Cache Engineering, Model Quantization, Speculative Verification, Serving Systems, and Incident Debugging Study Guide
+    </h2>
+    <hr style="border: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); width: 35%; margin: 30px auto; border-radius: 2px;" />
+    
+    <div style="margin-top: 60px; font-size: 13px; color: #475569; line-height: 1.8;">
+        <p><b>Target Persona:</b> Senior AI Engineer / LLM Systems Architect (~3 YOE)</p>
+        <p><b>Core Modules:</b> Inference Fundamentals, Decoding & Sampling, KV Cache Optimization, Model Quantization (GPTQ/AWQ/SmoothQuant), Iteration-Level Continuous Batching, Speculative Decoding, Serving Engine Stacks, Production Gateway Resilience, Performance Telemetry, and Dynamic Troubleshooting.</p>
+        <p><b>Includes:</b> Mathematical proof of speculative rejection sampling lossless properties, arithmetic intensity Roofline ridge-point calculations, asymmetric quantization zero-points derivations, GQA compression VRAM estimations, Radix tree prefix caches matching steps, and p99 latency SLA incident checklists.</p>
+    </div>
+</div>
+
+<div class="toc-page" style="page-break-after: always; padding-top: 20px;">
+    <h1 style="color: #0f172a; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">Table of Contents</h1>
+    <ul style="list-style-type: none; padding-left: 0; margin-top: 20px;">
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-01-inference-fundamentals" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 01: Inference Fundamentals</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-02-decoding-and-sampling" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 02: Decoding and Sampling</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-03-kv-cache-and-attention-optimization" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 03: KV Cache and Attention Optimization</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-04-quantization-and-model-optimization" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 04: Quantization and Model Optimization</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-05-batching-and-serving" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 05: Batching and Serving</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-06-speculative-and-accelerated-decoding" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 06: Speculative and Accelerated Decoding</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-07-inference-engines" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 07: Inference Engines</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-08-production-deployment" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 08: Production Deployment</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#module-09-performance-monitoring-and-debugging" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 09: Performance Monitoring and Debugging</a></li>
+        <li style="margin-bottom: 12px; font-size: 14px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;"><a href="#llm-inference-optimization-high-frequency-question-bank" style="text-decoration: none; color: #2563eb; font-weight: 600;">Module 10: LLM Inference &amp; Optimization High-Frequency Question Bank</a></li>
+    </ul>
+</div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="01-inference-fundamentals-prefill-decode-and-roofline-mechanics">01. Inference Fundamentals: Prefill, Decode, and Roofline Mechanics</h1>
+<p>Autoregressive Large Language Model (LLM) serving presents a unique hardware and systems engineering challenge. Unlike traditional deep learning models where training and inference share similar compute-bound profiles, LLM inference changes bottlenecks dynamically between its execution phases. Understanding these bottlenecks is critical for optimizing throughput, satisfying latency Service Level Agreements (SLAs), and designing high-scale serving infrastructure.</p>
+<hr />
+<h2 id="1-training-vs-inference-bottlenecks">1. Training vs. Inference Bottlenecks</h2>
+<p>An LLM's life cycle is split into two compute paradigms: training (which is compute-bound) and autoregressive inference (which is memory-bandwidth-bound during token generation).</p>
+<h3 id="training-phase-compute-bound">Training Phase (Compute-Bound)</h3>
+<p>During pre-training or fine-tuning, the model processes large batches of sequences simultaneously. The training step utilizes the <em>causal mask</em> to calculate self-attention across all tokens in a sequence concurrently:<br />
+- We compute projections and attention scores for all sequence positions at once.<br />
+- Weights are loaded into SRAM once and reused to compute activations for thousands of tokens in parallel.<br />
+- The GPU Tensor Cores are kept highly saturated, making training efficiency scale with the hardware's peak FLOP/s capacity.</p>
+<h3 id="inference-phase-autoregressive-decode-is-memory-bandwidth-bound">Inference Phase (Autoregressive Decode is Memory-Bandwidth-Bound)</h3>
+<p>Autoregressive inference generates text token-by-token. To predict token $t$, the model must process all previous tokens $1, \dots, t-1$.<br />
+- Generating each new token requires loading the entire model's weights (gigabytes of parameters) from High Bandwidth Memory (HBM) to GPU SRAM.<br />
+- The GPU performs only a single token's matrix-vector multiplication (GEMV) before discarding the weights or loading the next layer.<br />
+- Because memory read speeds (HBM bandwidth) are orders of magnitude slower than arithmetic processing speeds, the GPU Tensor Cores sit idle waiting for weights, making token decoding bound by memory bandwidth.</p>
+<hr />
+<h2 id="2-the-roofline-model-arithmetic-intensity">2. The Roofline Model &amp; Arithmetic Intensity</h2>
+<p>The <strong>Roofline Model</strong> maps a system's execution performance limits against its <strong>Arithmetic Intensity</strong> ($I$), which represents the ratio of arithmetic work (FLOPs) performed per byte of data transferred:</p>
+<p>$$I = \frac{\text{Work (FLOPs)}}{\text{Memory Traffic (Bytes)}}$$</p>
+<p>Hardware performance is bounded by two physical constraints:<br />
+1. <strong>Peak Compute Performance</strong> ($P_{\text{peak}}$): The maximum floating-point operations the processor can run per second (FLOP/s).<br />
+2. <strong>Peak Memory Bandwidth</strong> ($B_{\text{peak}}$): The maximum rate at which the processor can read or write data to memory (Bytes/sec).</p>
+<p>The attainable performance ($P$) is modeled as:</p>
+<p>$$P = \min\left(P_{\text{peak}}, I \cdot B_{\text{peak}}\right)$$</p>
+<p>The transition point where the bottleneck shifts from memory-bound to compute-bound is the <strong>Hardware Ridge Point</strong> ($I_{\text{ridge}}$):</p>
+<p>$$I_{\text{ridge}} = \frac{P_{\text{peak}}}{B_{\text{peak}}}$$</p>
+<h3 id="step-by-step-hand-calculation-on-a-1b-parameter-model">Step-by-Step Hand Calculation on a 1B Parameter Model</h3>
+<p>Let's compute the arithmetic intensity for an LLM layer with $P = 1 \times 10^9$ (1 Billion) parameters executing on an NVIDIA A100 GPU (SXM4, 80GB VRAM) in FP16 precision:<br />
+- <strong>NVIDIA A100 SXM4 peak FP16/BF16 compute</strong> ($P_{\text{peak}}$): $312 \text{ TFLOP/s} = 312 \times 10^{12} \text{ FLOP/s}$.<br />
+- <strong>NVIDIA A100 SXM4 peak memory bandwidth</strong> ($B_{\text{peak}}$): $2.0 \text{ TB/s} = 2.0 \times 10^{12} \text{ Bytes/s}$.<br />
+- <strong>Hardware Ridge Point</strong> ($I_{\text{ridge}}$):<br />
+  $$I_{\text{ridge}} = \frac{312 \times 10^{12}}{2.0 \times 10^{12}} = 156 \text{ FLOP/s per Byte}$$<br />
+  - If a kernel's arithmetic intensity $I &lt; 156$, it is <strong>memory-bandwidth-bound</strong>.<br />
+  - If $I &gt; 156$, it is <strong>compute-bound</strong>.</p>
+<h4 id="scenario-a-prefill-phase-batch-size-mathplaceholder26endmath-prompt-length-mathplaceholder27endmath-tokens">Scenario A: Prefill Phase (Batch Size $b=1$, Prompt Length $N=1024$ tokens)</h4>
+<p>During prefill, the model processes all 1024 prompt tokens in parallel.<br />
+1. <strong>FLOPs Estimation</strong>: A forward pass requires approximately $2 \times P$ operations per token:<br />
+   $$\text{FLOPs} = 2 \times (1 \times 10^9) \times 1024 = 2.048 \times 10^{12} \text{ FLOPs} = 2.048 \text{ TFLOPs}$$<br />
+2. <strong>Memory Traffic Estimation</strong>: We load the model weights in FP16 ($2 \text{ bytes per parameter}$):<br />
+   $$\text{Bytes} = P \times 2 = 1 \times 10^9 \times 2 = 2.0 \times 10^9 \text{ Bytes} = 2 \text{ GB}$$<br />
+3. <strong>Arithmetic Intensity ($I_{\text{prefill}}$)</strong>:<br />
+   $$I_{\text{prefill}} = \frac{2.048 \times 10^{12} \text{ FLOPs}}{2.0 \times 10^9 \text{ Bytes}} = 1024 \text{ FLOP/s per Byte}$$<br />
+4. <strong>Attainable Performance</strong>: Since $1024 &gt; 156$ (well past the ridge point), the prefill phase is <strong>compute-bound</strong>.</p>
+<h4 id="scenario-b-decode-phase-batch-size-mathplaceholder32endmath-generating-mathplaceholder33endmath-new-token">Scenario B: Decode Phase (Batch Size $b=1$, generating $N=1$ new token)</h4>
+<p>During decoding, we process exactly 1 token at a time.<br />
+1. <strong>FLOPs Estimation</strong>:<br />
+   $$\text{FLOPs} = 2 \times (1 \times 10^9) \times 1 = 2 \times 10^9 \text{ FLOPs} = 2 \text{ GFLOPs}$$<br />
+2. <strong>Memory Traffic Estimation</strong>: We must load the entire 2 GB model weights to calculate the output for this single token:<br />
+   $$\text{Bytes} = P \times 2 = 2.0 \times 10^9 \text{ Bytes} = 2 \text{ GB}$$<br />
+3. <strong>Arithmetic Intensity ($I_{\text{decode}}$)</strong>:<br />
+   $$I_{\text{decode}} = \frac{2 \times 10^9 \text{ FLOPs}}{2.0 \times 10^9 \text{ Bytes}} = 1.0 \text{ FLOP/s per Byte}$$<br />
+4. <strong>Attainable Performance</strong>: Since $1.0 \ll 156$, the decode phase is <strong>memory-bandwidth-bound</strong>. The attainable performance is capped at:<br />
+   $$P_{\text{decode}} = 1.0 \times (2.0 \times 10^{12} \text{ Bytes/s}) = 2.0 \text{ TFLOP/s}$$<br />
+<em>Only $0.64\%$ ($2 / 312$) of the A100 GPU's raw compute capability is utilized!</em></p>
+<hr />
+<h2 id="3-two-phase-inference-lifecycle">3. Two-Phase Inference Lifecycle</h2>
+<p>LLM serving engines split generation into two sequential processing phases:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; gap: 20px; font-family: &#39;Segoe UI&#39;, sans-serif; margin: 20px 0;&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- Prefill Phase Card --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #3b82f6; border-radius: 8px; background-color: #f8fafc; padding: 16px; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.05);&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; align-items: center; gap: 10px; margin-bottom: 8px;&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase;&quot;</span><span class="p">&gt;</span>Phase 1<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0; font-size: 16px; color: #1e3a8a;&quot;</span><span class="p">&gt;</span>Prefill Phase (Prompt Processing)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0; font-size: 13px; color: #334155; line-height: 1.5;&quot;</span><span class="p">&gt;</span>
+      Processes all prompt tokens simultaneously in a single forward pass. Computes and saves the initial key-value (KV) states into the KV Cache. Highly parallelized, maximizing tensor core utilization. Bounded by <span class="p">&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>Compute (FLOP/s)<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;</span>.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Arrow --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;text-align: center; color: #64748b; font-size: 20px; font-weight: bold;&quot;</span><span class="p">&gt;</span>↓<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Decode Phase Card --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #10b981; border-radius: 8px; background-color: #f8fafc; padding: 16px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.05);&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; align-items: center; gap: 10px; margin-bottom: 8px;&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase;&quot;</span><span class="p">&gt;</span>Phase 2<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0; font-size: 16px; color: #065f46;&quot;</span><span class="p">&gt;</span>Decode Phase (Token Generation)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0; font-size: 13px; color: #334155; line-height: 1.5;&quot;</span><span class="p">&gt;</span>
+      Generates tokens one-by-one autoregressively. Each step takes the single newly generated token, reads the prior KV Cache tokens from VRAM, performs a matrix-vector product, and appends the new token&#39;s key-value states to the cache. Bounded by <span class="p">&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>Memory Bandwidth (GB/s)<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;</span>.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-prefill-decode-pd-disaggregation">4. Prefill-Decode (PD) Disaggregation</h2>
+<h3 id="the-problem">The Problem</h3>
+<p>When prefill and decode phases run on the same GPU instance, they compete for execution slots. <br />
+- A compute-heavy prefill request arriving in the queue can block ongoing decode requests. This is called <strong>Head-of-Line Blocking</strong>.<br />
+- Because prefill and decode require different optimal batch sizes (prefill benefits from small batches to minimize latency; decode benefits from large batches to saturate memory bandwidth), running them on the same GPU compromises execution efficiency.</p>
+<h3 id="the-solution-pd-disaggregation">The Solution: PD Disaggregation</h3>
+<p><strong>PD Disaggregation</strong> decouples the physical hardware nodes assigned to these phases:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; justify-content: space-between; align-items: stretch; gap: 20px; font-family: &#39;Segoe UI&#39;, sans-serif; margin: 24px 0;&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- Prefill Node Pool --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;flex: 1; border: 1.5px solid #2563eb; border-radius: 8px; background-color: #f1f5f9; padding: 16px; text-align: center;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-weight: 700; color: #1e3a8a; font-size: 14px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;&quot;</span><span class="p">&gt;</span>Prefill Nodes (GPUs)<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 8px;&quot;</span><span class="p">&gt;</span>Compute-optimized batching<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #dbeafe; color: #1e40af; font-size: 12px; padding: 6px; border-radius: 4px; font-weight: 600; margin-top: 4px; border: 1px dashed #93c5fd;&quot;</span><span class="p">&gt;</span>High Tensor Core Saturation<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Network Interconnect (Arrow Bridge) --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; justify-content: center; align-items: center; width: 120px; text-align: center;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>KV Cache Transfer<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;width: 100%; height: 6px; background: linear-gradient(90deg, #2563eb, #10b981); border-radius: 3px;&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 10px; color: #94a3b8; margin-top: 4px; font-family: monospace;&quot;</span><span class="p">&gt;</span>RDMA / NVLink<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Decode Node Pool --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;flex: 1; border: 1.5px solid #10b981; border-radius: 8px; background-color: #f1f5f9; padding: 16px; text-align: center;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-weight: 700; color: #065f46; font-size: 14px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;&quot;</span><span class="p">&gt;</span>Decode Nodes (GPUs)<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 8px;&quot;</span><span class="p">&gt;</span>Memory-bandwidth optimized batching<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #d1fae5; color: #065f46; font-size: 12px; padding: 6px; border-radius: 4px; font-weight: 600; margin-top: 4px; border: 1px dashed #6ee7b7;&quot;</span><span class="p">&gt;</span>Max Memory Bandwidth Saturation<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<ol>
+<li><strong>Prefill Nodes</strong>: Process the prompt sequences and compute the initial KV states.</li>
+<li><strong>KV Cache Transfer</strong>: Send the generated KV states over a high-speed network (InfiniBand, RDMA, or NVLink) to the Decode nodes.</li>
+<li><strong>Decode Nodes</strong>: Append the states to memory and execute the low-intensity decode steps without blocking from new prompt arrivals.</li>
+</ol>
+<hr />
+<h2 id="5-core-latency-throughput-metrics">5. Core Latency &amp; Throughput Metrics</h2>
+<p>Production LLM hosting targets three metrics to satisfy client SLAs:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Definition</th>
+<th>Critical For</th>
+<th>Hard Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TTFT</strong><br>(Time to First Token)</td>
+<td>Time elapsed from sending a request to receiving the first generated token.</td>
+<td>Interactive Chat, Real-Time Interfaces.</td>
+<td>Bounded by prefill execution speed and request queue delays.</td>
+</tr>
+<tr>
+<td><strong>TPOT / ITL</strong><br>(Time Per Output Token)</td>
+<td>The average time interval between generating successive tokens.</td>
+<td>Reading comfort, downstream streaming consumers.</td>
+<td>Bounded by GPU HBM memory bandwidth.</td>
+</tr>
+<tr>
+<td><strong>TPS</strong><br>(Tokens Per Second)</td>
+<td>Total output tokens generated per second across all users ($TPS = \text{Batch Size} \times \frac{1}{\text{TPOT}}$).</td>
+<td>Offline batch processing pipelines (summarization, indexing).</td>
+<td>Bounded by peak scheduling efficiency and VRAM capacity.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="02-decoding-strategies-structured-generation-sampling-mechanics-and-constraints">02. Decoding Strategies &amp; Structured Generation: Sampling Mechanics and Constraints</h1>
+<p>An LLM outputs raw unbounded scores (logits) for every token in its vocabulary. The decoding strategy controls how these logits are processed to select the next token. Selecting the correct sampling parameters and constraints determines whether an LLM produces factual code, cohesive conversation, or structured JSON payloads.</p>
+<hr />
+<h2 id="1-deterministic-decoding">1. Deterministic Decoding</h2>
+<p>Deterministic strategies always select the token path with the highest probability, producing predictable, reproducible outputs.</p>
+<h3 id="greedy-decoding">Greedy Decoding</h3>
+<p>At each generation step $t$, greedy decoding selects the token index $x_t$ that maximizes the probability score:</p>
+<p>$$x_t = \arg\max_{i} P(\text{token}_i \mid S_{t-1})$$</p>
+<ul>
+<li><strong>Pros</strong>: Computationally trivial ($O(1)$ selection complexity). Highly effective for factual tasks (code, mathematics).</li>
+<li><strong>Cons</strong>: Susceptible to repetitive loops (getting stuck repeating phrases) and misses paths where a slightly lower-probability token leads to a much higher-probability sequence later.</li>
+</ul>
+<h3 id="beam-search">Beam Search</h3>
+<p>Instead of keeping only the single best token, Beam Search maintains a fixed number of candidate sequences (the <em>beam width</em> $B$). At each step, it expands all $B$ paths, computes their cumulative log-probabilities, and keeps the top $B$ sequences:</p>
+<p>$$\text{Score}(X_{1:t}) = \sum_{\tau=1}^{t} \log P(x_\tau \mid X_{1:\tau-1})$$</p>
+<p>To prevent favoring shorter paths, a <strong>Length Penalty</strong> ($L_p$) is applied:</p>
+<p>$$\text{Score}_{\text{normalized}}(X_{1:t}) = \frac{\sum_{\tau=1}^{t} \log P(x_\tau \mid X_{1:\tau-1})}{\left(\frac{5 + t}{6}\right)^{\alpha}}$$</p>
+<p>where $\alpha$ is the length penalty coefficient (typically $0.5$ to $1.0$).<br />
+- <strong>VRAM Footprint</strong>: Keeping $B$ active states requires caching $B$ times more KV Cache memory, making Beam Search memory-prohibitive for high-concurrency online serving.</p>
+<hr />
+<h2 id="2-stochastic-sampling-temperature-math">2. Stochastic Sampling &amp; Temperature Math</h2>
+<p>Stochastic decoding introduces randomness by sampling from the probability distribution.</p>
+<h3 id="temperature-scaling">Temperature Scaling</h3>
+<p>Before applying the Softmax function to convert raw logits $z_i$ into probabilities $P_i$, logits are divided by a temperature parameter $T \in (0, \infty)$:</p>
+<p>$$P_i = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}$$</p>
+<h4 id="step-by-step-hand-calculation-on-a-3-token-vocabulary">Step-by-Step Hand Calculation on a 3-Token Vocabulary</h4>
+<p>Let our raw logit vector be $z = [2.0, 1.0, 0.0]$ for vocabulary tokens $[\text{"cat"}, \text{"dog"}, \text{"fish"}]$.</p>
+<h5 id="1-reference-temperature-mathplaceholder23endmath">1. Reference Temperature ($T = 1.0$)</h5>
+<ul>
+<li>Scale logits: $z / 1.0 = [2.0, 1.0, 0.0]$</li>
+<li>Exponentiate: $e^{2.0} \approx 7.389$, $e^{1.0} \approx 2.718$, $e^{0.0} = 1.0$</li>
+<li>Sum of Exponents: $7.389 + 2.718 + 1.0 = 11.107$</li>
+<li>Probabilities:</li>
+<li>$P(\text{"cat"}) = 7.389 / 11.107 \approx 0.665$</li>
+<li>$P(\text{"dog"}) = 2.718 / 11.107 \approx 0.245$</li>
+<li>$P(\text{"fish"}) = 1.0 / 11.107 \approx 0.090$</li>
+</ul>
+<h5 id="2-low-temperature-mathplaceholder32endmath-sharpening-the-distribution">2. Low Temperature ($T = 0.5$ - Sharpening the distribution)</h5>
+<ul>
+<li>Scale logits: $z / 0.5 = [4.0, 2.0, 0.0]$</li>
+<li>Exponentiate: $e^{4.0} \approx 54.598$, $e^{2.0} \approx 7.389$, $e^{0.0} = 1.0$</li>
+<li>Sum of Exponents: $54.598 + 7.389 + 1.0 = 62.987$</li>
+<li>Probabilities:</li>
+<li>$P(\text{"cat"}) = 54.598 / 62.987 \approx 0.867$</li>
+<li>$P(\text{"dog"}) = 7.389 / 62.987 \approx 0.117$</li>
+<li>$P(\text{"fish"}) = 1.0 / 62.987 \approx 0.016$</li>
+<li><em>Effect: The probability of the top token increases from $66.5\%$ to $86.7\%$. As $T \to 0$, sampling converges to greedy decoding.</em></li>
+</ul>
+<h5 id="3-high-temperature-mathplaceholder44endmath-flattening-the-distribution">3. High Temperature ($T = 2.0$ - Flattening the distribution)</h5>
+<ul>
+<li>Scale logits: $z / 2.0 = [1.0, 0.5, 0.0]$</li>
+<li>Exponentiate: $e^{1.0} \approx 2.718$, $e^{0.5} \approx 1.649$, $e^{0.0} = 1.0$</li>
+<li>Sum of Exponents: $2.718 + 1.649 + 1.0 = 5.367$</li>
+<li>Probabilities:</li>
+<li>$P(\text{"cat"}) = 2.718 / 5.367 \approx 0.506$</li>
+<li>$P(\text{"dog"}) = 1.649 / 5.367 \approx 0.307$</li>
+<li>$P(\text{"fish"}) = 1.0 / 5.367 \approx 0.186$</li>
+<li><em>Effect: The probability distribution becomes flatter and more uniform. As $T \to \infty$, sampling approaches a uniform random distribution.</em></li>
+</ul>
+<hr />
+<h2 id="3-top-k-top-p-and-min-p-truncations">3. Top-K, Top-p, and Min-p Truncations</h2>
+<p>To prevent sampling highly improbable "garbage" tokens (the tail of the distribution), we truncate the vocabulary candidate list before sampling.</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Truncation Logic</th>
+<th>Mathematical Formulation</th>
+<th>Failure Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Top-K</strong></td>
+<td>Keeps only the $K$ tokens with the highest individual logits.</td>
+<td>$|V_{\text{candidate}}| = K$</td>
+<td>If the distribution is flat, it cuts off viable tokens. If it is sharp, it forces the inclusion of bad tail tokens.</td>
+</tr>
+<tr>
+<td><strong>Top-p</strong><br>(Nucleus)</td>
+<td>Sorts tokens in descending order and keeps the smallest subset whose cumulative probability exceeds threshold $p$.</td>
+<td>$\sum_{i \in V_{\text{candidate}}} P_i \ge p$</td>
+<td>In highly confident settings, it still includes tail tokens if the top token is just below $p$.</td>
+</tr>
+<tr>
+<td><strong>Min-p</strong></td>
+<td>Truncates tokens whose probability is below a dynamic threshold relative to the top token's probability $p_{\text{max}}$.</td>
+<td>$P_i &lt; p_{\text{max}} \times p_{\text{threshold}}$</td>
+<td>Bypasses standard static cutoff issues, keeping only high-confidence candidates dynamically.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-repetition-penalties">4. Repetition Penalties</h2>
+<p>To prevent semantic loops, logits are modified based on token presence in the history prompt $H$:<br />
+- <strong>Frequency Penalty</strong>: Penalizes tokens based on how many times they have already appeared in the output history.<br />
+- <strong>Presence Penalty</strong>: Applies a constant penalty to any token that has appeared at least once in the history.<br />
+- <strong>Repetition Penalty (Llama Style)</strong>: Multiplies logits directly:<br />
+  $$z_i = \begin{cases} z_i / \theta & \text{if } z_i \ge 0 \\ z_i \cdot \theta & \text{if } z_i &lt; 0 \end{cases}$$<br />
+  where $\theta &gt; 1.0$ reduces the logit score of active tokens.</p>
+<hr />
+<h2 id="5-constrained-decoding-structured-generation">5. Constrained Decoding &amp; Structured Generation</h2>
+<p>Generating structured formats like JSON or SQL requires restricting token selection at each step to match a target schema.</p>
+<h3 id="regex-cfg-logit-masking">Regex &amp; CFG Logit Masking</h3>
+<p>During decoding, standard engines (such as <strong>Outlines</strong> or <strong>XGrammar</strong>) build a finite state machine (FSM) or pushdown automaton from the target regex/grammar.<br />
+1. At step $t$, the FSM determines the set of all vocabulary token strings that are valid next transitions.<br />
+2. The engine creates a binary logit mask $M$, setting the score of invalid tokens to $-\infty$:<br />
+   $$z_i = z_i + M_i, \quad M_i = \begin{cases} 0 & \text{valid} \\ -\infty & \text{invalid} \end{cases}$$<br />
+3. Softmaxing ensures that invalid tokens have exactly $0\%$ probability of being sampled.</p>
+<h3 id="mitigating-parser-overhead">Mitigating Parser Overhead</h3>
+<p>Historically, calculating the logit mask at each step introduced significant CPU latency. <strong>XGrammar</strong> resolves this by pre-computing state transition trees in C++ and caching token masks, allowing grammar-constrained serving to run at near-native speeds without hurting TPOT.</p>
+<hr />
+<h2 id="6-decoding-strategy-decision-matrix">6. Decoding Strategy Decision Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Task Domain</th>
+<th>Optimal Temperature</th>
+<th>Truncation parameters</th>
+<th>Penalties</th>
+<th>Strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Code / Math</strong></td>
+<td>$0.0$ (Greedy)</td>
+<td>N/A</td>
+<td>None</td>
+<td>Greedy Decoding</td>
+</tr>
+<tr>
+<td><strong>JSON Extraction</strong></td>
+<td>$0.0$</td>
+<td>N/A</td>
+<td>None</td>
+<td>Outlines Grammar constraint</td>
+</tr>
+<tr>
+<td><strong>Conversational Chat</strong></td>
+<td>$0.7$</td>
+<td>Top-p = $0.90$ or Min-p = $0.05$</td>
+<td>Repetition = $1.05$</td>
+<td>Stochastic Sampling</td>
+</tr>
+<tr>
+<td><strong>Creative Writing</strong></td>
+<td>$1.2$</td>
+<td>Min-p = $0.10$</td>
+<td>Presence = $0.10$</td>
+<td>High Temp Stochastic</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="03-kv-cache-attention-mechanics-memory-bottlenecks-and-virtualization">03. KV Cache &amp; Attention Mechanics: Memory Bottlenecks and Virtualization</h1>
+<p>Autoregressive transformer inference requires storing the Key ($K$) and Value ($V$) state projections of all past context tokens. This mechanism—the <strong>KV Cache</strong>—saves the system from recomputing self-attention over historical tokens at every single generation step, converting a quadratic time complexity $O(N^2)$ attention pass into an efficient $O(1)$ query projection. However, caching historical states shifts the primary system bottleneck from processing computation directly to managing VRAM memory footprints.</p>
+<hr />
+<h2 id="1-the-kv-cache-bottleneck">1. The KV Cache Bottleneck</h2>
+<p>In a standard Multi-Head Attention (MHA) block, when generating token $t$, the query vector $q_t$ must be multiplied by keys from all previous tokens:</p>
+<p>$$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_{\text{head}}}}\right) V$$</p>
+<p>Without caching, to generate token $t$, we would have to project the key and value vectors for all past $t-1$ tokens from scratch. This would require $O(t^2)$ projection operations over the sequence.<br />
+By caching past key and value vectors in memory, at step $t$ we only calculate $q_t, k_t, v_t$ for the single new token, load the historical keys $K_{1:t-1}$ and values $V_{1:t-1}$ from VRAM, perform attention, and write the new $k_t, v_t$ to the cache.<br />
+While this reduces FLOPs, it creates a massive VRAM footprint that scales linearly with sequence length ($l$) and batch size ($b$).</p>
+<hr />
+<h2 id="2-exact-kv-cache-memory-formula">2. Exact KV Cache Memory Formula</h2>
+<p>The exact VRAM footprint (in Bytes) required to store the KV Cache across an entire LLM inference pass is given by:</p>
+<p>$$\text{VRAM}_{\text{KV}} = 2 \times b \times l \times s \times n_{\text{heads}} \times d_{\text{head}} \times \text{bytes\_per\_element}$$</p>
+<p>Where:<br />
+- $b$: Batch size.<br />
+- $l$: Sequence context length (in tokens).<br />
+- $s$: Number of layers in the model.<br />
+- $n_{\text{heads}}$: Number of key-value attention heads per layer (varies based on attention architecture).<br />
+- $d_{\text{head}}$: Dimensionality of each attention head.<br />
+- $\text{bytes\_per\_element}$: Data format size ($2 \text{ bytes}$ for FP16/BF16, $1 \text{ byte}$ for FP8/INT8).<br />
+- The leading factor of $2$ accounts for storing <em>both</em> Key ($K$) and Value ($V$) tensors.</p>
+<h3 id="step-by-step-hand-calculations-for-llama-3-models">Step-by-Step Hand Calculations for Llama-3 Models</h3>
+<p>Let's calculate the required VRAM for Llama-3 8B and Llama-3 70B models at batch size $b=16$ using FP16 precision ($\text{bytes\_per\_element} = 2$) across varying context windows.</p>
+<h4 id="specifications-table">Specifications Table</h4>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Layers ($s$)</th>
+<th>KV Heads ($n_{\text{heads}}$)</th>
+<th>Head Dim ($d_{\text{head}}$)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Llama-3 8B</strong></td>
+<td>$32$</td>
+<td>$8$ (Grouped-Query Attention)</td>
+<td>$128$</td>
+</tr>
+<tr>
+<td><strong>Llama-3 70B</strong></td>
+<td>$80$</td>
+<td>$8$ (Grouped-Query Attention)</td>
+<td>$128$</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="1-llama-3-8b-at-mathplaceholder48endmath">1. Llama-3 8B (at $b=16$)</h4>
+<h5 id="case-a-context-length-mathplaceholder49endmath-mathplaceholder50endmath-tokens">Case A: Context Length $l = 32\text{k}$ ($32,768$ tokens)</h5>
+<ul>
+<li>Formula substitution:<br />
+  $$\text{VRAM}_{\text{KV}} = 2 \times 16 \times 32768 \times 32 \times 8 \times 128 \times 2 \text{ bytes}$$</li>
+<li>Calculate step-by-step:</li>
+<li>$2 \times 16 \times 32768 = 1,048,576$ (tokens across batch)</li>
+<li>$1,048,576 \times 32 = 33,554,432$ (layer-tokens)</li>
+<li>$33,554,432 \times 8 = 268,435,456$ (active heads)</li>
+<li>$268,435,456 \times 128 = 34,359,738,368$ (elements)</li>
+<li>$34,359,738,368 \times 2 \text{ bytes} = 68,719,476,736 \text{ bytes}$</li>
+<li>Convert to GiB:<br />
+  $$\text{GiB} = \frac{68,719,476,736}{1024^3} = 64.00 \text{ GiB}$$</li>
+</ul>
+<h5 id="case-b-context-length-mathplaceholder56endmath-mathplaceholder57endmath-tokens">Case B: Context Length $l = 128\text{k}$ ($131,072$ tokens)</h5>
+<ul>
+<li>Calculate:<br />
+  $$\text{VRAM}_{\text{KV}} = 2 \times 16 \times 131072 \times 32 \times 8 \times 128 \times 2 = 274,877,906,944 \text{ bytes}$$</li>
+<li>Convert to GiB:<br />
+  $$\text{GiB} = \frac{274,877,906,944}{1024^3} = 256.00 \text{ GiB}$$</li>
+</ul>
+<hr />
+<h4 id="2-llama-3-70b-at-mathplaceholder58endmath">2. Llama-3 70B (at $b=16$)</h4>
+<h5 id="case-a-context-length-mathplaceholder59endmath-mathplaceholder60endmath-tokens">Case A: Context Length $l = 32\text{k}$ ($32,768$ tokens)</h5>
+<ul>
+<li>Formula substitution:<br />
+  $$\text{VRAM}_{\text{KV}} = 2 \times 16 \times 32768 \times 80 \times 8 \times 128 \times 2 \text{ bytes}$$</li>
+<li>Calculate step-by-step:</li>
+<li>$2 \times 16 \times 32768 = 1,048,576$ (tokens across batch)</li>
+<li>$1,048,576 \times 80 = 83,886,080$ (layer-tokens)</li>
+<li>$83,886,080 \times 8 = 671,088,640$ (active heads)</li>
+<li>$671,088,640 \times 128 = 85,899,345,920$ (elements)</li>
+<li>$85,899,345,920 \times 2 \text{ bytes} = 171,798,691,840 \text{ bytes}$</li>
+<li>Convert to GiB:<br />
+  $$\text{GiB} = \frac{171,798,691,840}{1024^3} = 160.00 \text{ GiB}$$</li>
+</ul>
+<h5 id="case-b-context-length-mathplaceholder66endmath-mathplaceholder67endmath-tokens">Case B: Context Length $l = 128\text{k}$ ($131,072$ tokens)</h5>
+<ul>
+<li>Calculate:<br />
+  $$\text{VRAM}_{\text{KV}} = 2 \times 16 \times 131072 \times 80 \times 8 \times 128 \times 2 = 687,194,767,360 \text{ bytes}$$</li>
+<li>Convert to GiB:<br />
+  $$\text{GiB} = \frac{687,194,767,360}{1024^3} = 640.00 \text{ GiB}$$</li>
+</ul>
+<hr />
+<h2 id="3-attention-variants-for-memory-reduction">3. Attention Variants for Memory Reduction</h2>
+<p>To mitigate the VRAM demand of the KV Cache, modern LLM architectures adjust the ratio of query heads to KV heads:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; gap: 16px; font-family: &#39;Segoe UI&#39;, sans-serif; margin: 20px 0;&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- MHA --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; background-color: #f8fafc;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 0 6px 0; color: #0f172a; font-size: 14px;&quot;</span><span class="p">&gt;</span>1. Multi-Head Attention (MHA)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>Each Query head has a dedicated Key and Value head.<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-family: monospace; font-size: 11px; color: #e11d48; font-weight: bold;&quot;</span><span class="p">&gt;</span>KV Heads : Query Heads = 1 : 1<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- MQA --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; background-color: #f8fafc;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 0 6px 0; color: #0f172a; font-size: 14px;&quot;</span><span class="p">&gt;</span>2. Multi-Query Attention (MQA)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>All Query heads share a single Key and Value head. Reduces KV Cache VRAM footprint significantly but degrades capability.<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-family: monospace; font-size: 11px; color: #e11d48; font-weight: bold;&quot;</span><span class="p">&gt;</span>KV Heads : Query Heads = 1 : H<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- GQA --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; background-color: #f8fafc;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 0 6px 0; color: #0f172a; font-size: 14px;&quot;</span><span class="p">&gt;</span>3. Grouped-Query Attention (GQA)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>Query heads are grouped; each group shares a single Key and Value head. Combines the speed of MQA with the capacity of MHA.<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-family: monospace; font-size: 11px; color: #e11d48; font-weight: bold;&quot;</span><span class="p">&gt;</span>KV Heads : Query Heads = 1 : G (Typically 1 : 8 or 1 : 4)<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<ul>
+<li><strong>VRAM Saving</strong>: If a model uses a Grouped-Query Attention ratio of $8:1$ (e.g. Llama-3), its KV Cache VRAM footprint is reduced by <strong>8x</strong> compared to standard MHA.</li>
+</ul>
+<hr />
+<h2 id="4-pagedattention-virtual-memory-management">4. PagedAttention &amp; Virtual Memory Management</h2>
+<h3 id="the-problem-memory-fragmentation">The Problem: Memory Fragmentation</h3>
+<p>Traditional serving systems allocated KV Cache memory for each request as a contiguous chunk of VRAM sized to the <em>maximum</em> possible sequence length (e.g. $4096$ tokens). <br />
+- <strong>Internal Fragmentation</strong>: If a request terminated early after generating 10 tokens, the remaining pre-allocated memory blocks remained reserved and unused.<br />
+- <strong>External Fragmentation</strong>: Memory allocations of varying sizes created gaps of un-allocatable space, leading to CUDA Out-Of-Memory errors despite having free memory bytes.<br />
+This wasted up to <strong>$60\% - 80\%$</strong> of available GPU memory.</p>
+<h3 id="the-solution-pagedattention-vllm">The Solution: PagedAttention (vLLM)</h3>
+<p>PagedAttention borrows the concept of virtual memory and paging from operating systems:<br />
+1. <strong>Physical Blocks</strong>: The GPU's VRAM is divided into non-contiguous physical blocks of a fixed size (e.g. $16$ tokens).<br />
+2. <strong>Logical Blocks</strong>: The serving engine maps a request's logical sequence of tokens to these physical blocks.<br />
+3. <strong>Block Table</strong>: A dynamic lookup table tracks which logical blocks map to which physical memory blocks.<br />
+4. <strong>On-Demand Allocation</strong>: As new tokens are generated, the engine allocates new blocks dynamically. Blocks do not need to be contiguous in VRAM, eliminating fragmentation and allowing VRAM utilization to approach <strong>$96\%$</strong>.</p>
+<hr />
+<h2 id="5-prefix-caching-vs-sglang-radixattention">5. Prefix Caching vs. SGLang RadixAttention</h2>
+<p>For multi-turn conversations, agent execution steps, and RAG applications, successive queries share identical system prompts or reference documents. Caching these shared prefixes prevents recomputing their KV states.</p>
+<h3 id="vllm-block-level-hash-caching">vLLM Block-level Hash Caching</h3>
+<p>vLLM implements Automatic Prefix Caching (APC) by computing a cryptographic hash of the token IDs inside a block. If a new request's starting blocks match the hash of cached blocks, the engine reuses the physical blocks directly.<br />
+- <strong>Limitation</strong>: The prefix matching is rigid and block-grained. It cannot handle dynamic, arbitrary prefix paths or branching chats efficiently.</p>
+<h3 id="sglang-radixattention">SGLang RadixAttention</h3>
+<p>SGLang models the KV Cache as a dynamic <strong>Radix Tree</strong> data structure:<br />
+- Prompt prefixes (e.g. System Prompt, Document Context, Chat Turn 1) are stored as nodes in a tree.<br />
+- When a new request arrives, SGLang traverses the tree to find the longest matching prefix path.<br />
+- The matching KV cache is reused, and the new execution branches off as a child node.<br />
+- If the GPU memory fills up, SGLang uses a Least Recently Used (LRU) eviction policy to evict child leaves while keeping the common root prefixes cached.<br />
+This accelerates TTFT in agent loops by <strong>$2\times - 5\times$</strong> compared to standard block hashing.</p>
+<hr />
+<h2 id="6-flashattention-hardware-acceleration">6. FlashAttention Hardware Acceleration</h2>
+<p>FlashAttention (1, 2, and 3) optimizes attention compute speed, but it is important to understand its hardware limits:<br />
+- <strong>How it works</strong>: Standard attention writes intermediate $Q K^T$ matrices to slow High Bandwidth Memory (HBM). FlashAttention uses <em>tiling</em> and <em>online softmax</em> to load blocks of queries, keys, and values into fast GPU SRAM, perform computations, and write only the final outputs back to HBM.<br />
+- <strong>VRAM Impact</strong>: FlashAttention reduces the <strong>intermediate activation memory</strong> during the forward pass. However, it does <em>not</em> reduce the VRAM footprint of the stored KV Cache in VRAM. The stored key-value states must still occupy the exact VRAM size derived by the memory formula.</p>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="04-model-quantization-compression-precision-and-conversion-mechanics">04. Model Quantization &amp; Compression: Precision and Conversion Mechanics</h1>
+<p>LLM serving requires significant VRAM memory. To reduce costs and allow large models to run on standard hardware, we utilize <strong>Model Quantization</strong> to reduce the bit-width of weights and activations (e.g. from 16-bit floating point down to 8-bit or 4-bit integers), dramatically lowering VRAM usage and boosting memory-bound decoding speeds.</p>
+<hr />
+<h2 id="1-floating-point-formats-data-precision">1. Floating Point Formats &amp; Data Precision</h2>
+<p>Modern GPUs process numbers in several precision formats:<br />
+- <strong>FP32 (Single Precision)</strong>: 32 bits. 1 sign bit, 8 exponent bits (range), 23 fraction/mantissa bits (precision). Standard for training base calculations, but too memory-intensive for online serving.<br />
+- <strong>FP16 (Half Precision)</strong>: 16 bits. 1 sign, 5 exponent, 10 fraction. Standard model weights format.<br />
+- <strong>BF16 (Brain Floating Point)</strong>: 16 bits. 1 sign, 8 exponent, 7 fraction. Matches FP32's dynamic range but with reduced numerical precision. Prevents underflow/overflow during fine-tuning.<br />
+- <strong>FP8 (8-Bit Float)</strong>: Used in NVIDIA Hopper Tensor Cores:<br />
+  - <strong>E4M3</strong>: 1 sign, 4 exponent, 3 mantissa. Maximizes precision; preferred for activation layers during forward inference steps.<br />
+  - <strong>E5M2</strong>: 1 sign, 5 exponent, 2 mantissa. Matches FP16's dynamic range; preferred for weight storage and gradients.</p>
+<hr />
+<h2 id="2-quantization-mechanics-symmetric-vs-asymmetric">2. Quantization Mechanics: Symmetric vs. Asymmetric</h2>
+<p>Quantization maps a continuous range of real-world values $r \in [\min(X), \max(X)]$ to a discrete integer grid $q \in [q_{\text{min}}, q_{\text{max}}]$ (such as $[-128, 127]$ for signed INT8).</p>
+<h3 id="symmetric-quantization">Symmetric Quantization</h3>
+<p>Maps the real range symmetrically around zero ($z = 0$).<br />
+- <strong>Scale Factor ($s$)</strong>:<br />
+  $$s = \frac{\max(|X|)}{q_{\text{max}}}$$<br />
+- <strong>Quantization</strong>:<br />
+  $$q = \text{clip}\left(\text{round}\left(\frac{X}{s}\right), q_{\text{min}}, q_{\text{max}}\right)$$<br />
+- <strong>De-quantization</strong>:<br />
+  $$r \approx s \cdot q$$</p>
+<h3 id="asymmetric-quantization">Asymmetric Quantization</h3>
+<p>Maps the real minimum and maximum values exactly to the integer minimum and maximum boundaries, offset by a <strong>Zero-Point</strong> ($z$).<br />
+- <strong>Scale Factor ($s$)</strong>:<br />
+  $$s = \frac{\max(X) - \min(X)}{q_{\text{max}} - q_{\text{min}}}$$<br />
+- <strong>Zero-Point ($z$)</strong>:<br />
+  $$z = \text{round}\left(\frac{-\min(X)}{s}\right) + q_{\text{min}}$$<br />
+- <strong>Quantization</strong>:<br />
+  $$q = \text{clip}\left(\text{round}\left(\frac{X}{s}\right) + z, q_{\text{min}}, q_{\text{max}}\right)$$<br />
+- <strong>De-quantization</strong>:<br />
+  $$r \approx s \cdot (q - z)$$</p>
+<hr />
+<h3 id="step-by-step-hand-calculation-asymmetric-int8-quantization">Step-by-Step Hand Calculation: Asymmetric INT8 Quantization</h3>
+<p>Let our real-valued activation vector be:</p>
+<p>$$X = [-1.5, 0.5, 2.0]$$</p>
+<p>We want to quantize $X$ to signed INT8, where $q_{\text{min}} = -128$ and $q_{\text{max}} = 127$.</p>
+<h4 id="step-1-identify-bounds">Step 1: Identify bounds</h4>
+<ul>
+<li>$\min(X) = -1.5$</li>
+<li>$\max(X) = 2.0$</li>
+</ul>
+<h4 id="step-2-compute-scale-mathplaceholder27endmath">Step 2: Compute Scale ($s$)</h4>
+<p>$$s = \frac{\max(X) - \min(X)}{q_{\text{max}} - q_{\text{min}}} = \frac{2.0 - (-1.5)}{127 - (-128)} = \frac{3.5}{255} \approx 0.0137255$$</p>
+<h4 id="step-3-compute-zero-point-mathplaceholder28endmath">Step 3: Compute Zero-Point ($z$)</h4>
+<p>$$z = \text{round}\left(\frac{-(-1.5)}{0.0137255}\right) + (-128) = \text{round}(109.28) - 128 = 109 - 128 = -19$$</p>
+<h4 id="step-4-quantize-values-mathplaceholder29endmath">Step 4: Quantize values $q = \text{round}(X / s) + z$</h4>
+<ol>
+<li><strong>For $X_1 = -1.5$</strong>:<br />
+   $$q_1 = \text{round}\left(\frac{-1.5}{0.0137255}\right) - 19 = \text{round}(-109.28) - 19 = -109 - 19 = -128$$</li>
+<li><strong>For $X_2 = 0.5$</strong>:<br />
+   $$q_2 = \text{round}\left(\frac{0.5}{0.0137255}\right) - 19 = \text{round}(36.43) - 19 = 36 - 19 = 17$$</li>
+<li><strong>For $X_3 = 2.0$</strong>:<br />
+   $$q_3 = \text{round}\left(\frac{2.0}{0.0137255}\right) - 19 = \text{round}(145.71) - 19 = 146 - 19 = 127$$</li>
+</ol>
+<p>Quantized vector: $q = [-128, 17, 127]$</p>
+<h4 id="step-5-de-quantize-values-mathplaceholder34endmath">Step 5: De-quantize values $r \approx s \cdot (q - z)$</h4>
+<ol>
+<li>$r_1 \approx 0.0137255 \times (-128 - (-19)) = 0.0137255 \times (-109) = -1.496 \approx -1.5$</li>
+<li>$r_2 \approx 0.0137255 \times (17 - (-19)) = 0.0137255 \times 36 = 0.494 \approx 0.5$</li>
+<li>$r_3 \approx 0.0137255 \times (127 - (-19)) = 0.0137255 \times 146 = 2.004 \approx 2.0$</li>
+</ol>
+<hr />
+<h2 id="3-post-training-quantization-ptq-paradigms">3. Post-Training Quantization (PTQ) Paradigms</h2>
+<p>PTQ converts pre-trained models without retraining. We categorize PTQ methods by whether they target weights only or weight-activations.</p>
+<h3 id="weight-only-quantization">Weight-Only Quantization</h3>
+<p>Quantizes weights to 4-bit, keeping activations in 16-bit. Weights are de-quantized to FP16 in SRAM before execution.<br />
+- <strong>GPTQ</strong>: Uses a second-order optimization method. It updates remaining weights to compensate for the error introduced by quantizing a specific column weight, using the inverse Hessian matrix.<br />
+- <strong>AWQ (Activation-aware Weight Quantization)</strong>: Observes that not all weights are equally important. Only 1% of weights (those corresponding to features with high activation magnitude) are salient. AWQ protects these channels from quantization error by applying a scaling factor rather than running expensive optimization passes.</p>
+<h3 id="weight-activation-quantization">Weight-Activation Quantization</h3>
+<p>Quantizes both weights and activations to INT8, allowing the model to utilize integer compute engines (INT8 Tensor Cores) directly.<br />
+- <strong>SmoothQuant</strong>: Emergent outlier features in activations (spikes up to 100x larger than median values) make activations difficult to quantize to INT8. SmoothQuant mathematically migrates this quantization difficulty from the activations ($X$) to the weights ($W$) by applying a scaling factor $s$:<br />
+  $$Y = (X \cdot \text{diag}(s)^{-1}) \cdot (\text{diag}(s) \cdot W)$$</p>
+<hr />
+<h2 id="4-k-quantization-gguf-llamacpp">4. K-Quantization &amp; GGUF (llama.cpp)</h2>
+<p>For edge servers and CPU execution, <code>llama.cpp</code> uses <strong>Block-wise Quantization</strong> formats (GGUF):<br />
+- Instead of scaling the entire layer, GGUF groups parameters into small blocks (e.g. 32 or 256 weights).<br />
+- Each block has a local scale factor and zero-point. This local grouping prevents outliers from degrading accuracy, allowing models like Llama-3 8B to run in 4-bit on standard laptops with minimal Perplexity loss.</p>
+<hr />
+<h2 id="5-accuracy-vs-vram-trade-off-matrix">5. Accuracy vs. VRAM Trade-Off Matrix</h2>
+<p>The table below summarizes the trade-offs of quantizing a Llama-3 8B model:</p>
+<table>
+<thead>
+<tr>
+<th>Precision Format</th>
+<th>Weights VRAM</th>
+<th>Perplexity Degradation</th>
+<th>Optimal Hardware</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BF16 / FP16</strong></td>
+<td>$16 \text{ GB}$</td>
+<td>Baseline ($0.0$ change)</td>
+<td>All GPUs</td>
+</tr>
+<tr>
+<td><strong>FP8 (E4M3/E5M2)</strong></td>
+<td>$8 \text{ GB}$</td>
+<td>Negligible ($&lt; 0.02$)</td>
+<td>H100, B200</td>
+</tr>
+<tr>
+<td><strong>INT8 (SmoothQuant)</strong></td>
+<td>$8 \text{ GB}$</td>
+<td>Low ($&lt; 0.05$)</td>
+<td>A100, T4, L4</td>
+</tr>
+<tr>
+<td><strong>INT4 (AWQ)</strong></td>
+<td>$4 \text{ GB}$</td>
+<td>Minor ($&lt; 0.15$)</td>
+<td>Latency-bound GPUs</td>
+</tr>
+<tr>
+<td><strong>INT4 (GPTQ)</strong></td>
+<td>$4 \text{ GB}$</td>
+<td>Minor ($&lt; 0.18$)</td>
+<td>Batch-bound GPUs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="05-batching-scheduling-serving-iteration-scheduling-and-parallelism">05. Batching, Scheduling &amp; Serving: Iteration Scheduling and Parallelism</h1>
+<p>LLM hosting engines must manage multiple concurrent client requests. Because generating tokens autoregressively is a memory-bound process, serving requests sequentially results in low GPU utility. To maximize throughput and satisfy strict Service Level Agreements (SLAs), engines use advanced batching schedulers and multi-GPU tensor scaling.</p>
+<hr />
+<h2 id="1-batching-evolution">1. Batching Evolution</h2>
+<p>Batching multiple requests together allows the GPU to share loaded model weights across multiple input tokens, increasing arithmetic intensity and Tensor Core utilization.</p>
+<h3 id="static-batching">Static Batching</h3>
+<p>In static batching, requests are batched together and padded with dummy tokens to match the length of the longest request in the batch:<br />
+- <strong>Wasted FLOPs</strong>: The GPU executes computation on padding tokens, consuming memory and cycles.<br />
+- <strong>Wasted VRAM</strong>: Padding tokens consume block allocations in the KV Cache.<br />
+- <strong>Easiest Finish Bottleneck</strong>: The batch cannot release resources until the longest request completes, keeping shorter requests locked.</p>
+<h3 id="dynamic-batching">Dynamic Batching</h3>
+<p>Dynamic batching groups incoming requests into batches when they enter a queue buffer within a fixed time window. While it improves alignment, it still suffers from padding issues and head-of-line blocking under varying sequence lengths.</p>
+<h3 id="continuous-batching-iteration-level-scheduling">Continuous Batching (Iteration-level Scheduling)</h3>
+<p>Continuous batching operates at the iteration level rather than the sequence level:<br />
+1. The batch is stepped token-by-token.<br />
+2. At the end of a single decoding iteration, the scheduler inspects the queue.<br />
+3. Completed requests (those that hit <code>[EOS]</code> or max tokens) are immediately evicted from the active batch.<br />
+4. New requests (waiting in the queue) are inserted into the vacant slots.<br />
+This eliminates padding overheads, boosting throughput by <strong>$2\times - 4\times$</strong> compared to static batching.</p>
+<hr />
+<h2 id="2-request-scheduling-algorithms">2. Request Scheduling Algorithms</h2>
+<p>Schedulers manage the allocation of physical blocks for the KV Cache:<br />
+- <strong>First-Come-First-Served (FCFS)</strong>: Default queue. Requests are processed in order of arrival. Can lead to preemption if KV Cache memory fills up.<br />
+- <strong>Chunked Prefill</strong>: Long prompt prefills require high compute time, which stalls ongoing decode requests and causes Inter-Token Latency (ITL) spikes. Chunked prefill splits a long prefill prompt into chunks (e.g. 512 tokens). It schedules one chunk of prefill alongside active decode requests in a single batch iteration, stabilizing ITL.</p>
+<hr />
+<h2 id="3-multi-gpu-parallelism-strategies">3. Multi-GPU Parallelism Strategies</h2>
+<p>When a model is too large to fit in the VRAM of a single GPU, or when we need to distribute the memory footprint, we apply parallelism:</p>
+<h3 id="tensor-parallelism-tp-megatron-lm">Tensor Parallelism (TP - Megatron-LM)</h3>
+<p>Splits individual weight matrices across multiple GPUs within a single node. This requires fast GPU-to-GPU communication (e.g. NVLink) because synchronization is required at every layer.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; gap: 20px; font-family: &#39;Segoe UI&#39;, sans-serif; margin: 24px 0;&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- Column Parallel --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #3b82f6; border-radius: 8px; background-color: #f8fafc; padding: 16px;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-weight: 700; color: #1e3a8a; font-size: 14px; margin-bottom: 8px; text-transform: uppercase;&quot;</span><span class="p">&gt;</span>1. Column-Parallel Linear Layer<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 13px; color: #334155; margin-bottom: 8px;&quot;</span><span class="p">&gt;</span>
+      Weights $W$ are split vertically: $W = [W_1 \mid W_2]$. Input $X$ is replicated on all GPUs.
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #f1f5f9; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #0f172a; border-left: 3px solid #3b82f6;&quot;</span><span class="p">&gt;</span>
+      GPU 1: Y1 = X * W1 <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+      GPU 2: Y2 = X * W2 <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+      Output: Y = Concatenate(Y1, Y2) [Requires All-Gather synchronization]
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Row Parallel --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #10b981; border-radius: 8px; background-color: #f8fafc; padding: 16px;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-weight: 700; color: #065f46; font-size: 14px; margin-bottom: 8px; text-transform: uppercase;&quot;</span><span class="p">&gt;</span>2. Row-Parallel Linear Layer<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 13px; color: #334155; margin-bottom: 8px;&quot;</span><span class="p">&gt;</span>
+      Weights $W$ are split horizontally: $W = [W_1^T, W_2^T]^T$. Input $X$ is split column-wise: $X = [X_1 \mid X_2]$.
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #f1f5f9; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #0f172a; border-left: 3px solid #10b981;&quot;</span><span class="p">&gt;</span>
+      GPU 1: Y1 = X1 * W1 <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+      GPU 2: Y2 = X2 * W2 <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+      Output: Y = Y1 + Y2 [Requires All-Reduce Sum synchronization]
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>In a standard Transformer block, we chain these layers:<br />
+- Attention input projections (Q, K, V) are Column-Parallel.<br />
+- Attention output projection (O) is Row-Parallel.<br />
+- MLP Gate/Up projections are Column-Parallel.<br />
+- MLP Down projection is Row-Parallel.<br />
+This arrangement allows us to execute the entire attention block with only one <code>All-Reduce</code> operation at the end of attention and one <code>All-Reduce</code> at the end of MLP, minimizing communication overhead.</p>
+<h3 id="pipeline-parallelism-pp">Pipeline Parallelism (PP)</h3>
+<p>Splits model layers across nodes (e.g. GPU 0 holds layers 1-10, GPU 1 holds 11-20).<br />
+- <strong>Communication</strong>: Communication is sequential, only passing activations at the boundaries of the pipeline stages.<br />
+- <strong>Pipeline Bubble</strong>: Idle wait times occur while nodes wait for activations from previous stages. This is mitigated by dividing batches into micro-batches (e.g., using 1F1B scheduling).</p>
+<h3 id="context-parallelism-cp">Context Parallelism (CP)</h3>
+<p>Splits the sequence length dimension of a long context input across GPUs. Each GPU processes a chunk of the tokens and computes local attention queries, keys, and values, exchanging attention metrics via ring-attention rings. Useful for sequences exceeding 100k tokens.</p>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="06-speculative-accelerated-decoding-parallel-verification-and-draft-models">06. Speculative &amp; Accelerated Decoding: Parallel Verification and Draft Models</h1>
+<p>Autoregressive token generation requires loading a model's entire weights from high-bandwidth memory (HBM) to GPU SRAM for every single token produced. Speculative decoding bypasses this memory bottleneck by generating multiple candidate tokens using a computationally cheap draft mechanism and verifying them in parallel during a single forward pass of the main target model.</p>
+<hr />
+<h2 id="1-speculative-decoding-theory">1. Speculative Decoding Theory</h2>
+<p>Speculative decoding relies on two models:<br />
+1. <strong>Draft Model ($q$)</strong>: A small, fast model (e.g. Llama 1B) that generates tokens quickly.<br />
+2. <strong>Target Model ($p$)</strong>: A large, accurate model (e.g. Llama 70B) whose outputs we want to match.</p>
+<p>At each speculative step:<br />
+1. The draft model runs autoregressively for $\gamma$ steps to generate a draft sequence:<br />
+   $$X_{\text{draft}} = (x_1, x_2, \dots, x_\gamma)$$<br />
+2. The target model evaluates the entire block of draft tokens in a single parallel forward pass, computing the target probabilities for each position:<br />
+   $$P_{\text{target}} = (p_1, p_2, \dots, p_{\gamma+1})$$<br />
+3. The engine uses <strong>rejection sampling</strong> to verify each draft token sequentially.</p>
+<hr />
+<h2 id="2-lossless-distribution-preservation-proof">2. Lossless Distribution Preservation Proof</h2>
+<p>We must prove that the rejection sampling protocol produces outputs that strictly match the target model's probability distribution $p(x)$, ensuring no quality degradation.</p>
+<h3 id="rejection-sampling-protocol">Rejection Sampling Protocol</h3>
+<p>For candidate token $x^*$ proposed by draft model distribution $q(x)$ at step $t$:<br />
+1. We accept $x^*$ with probability:<br />
+   $$\text{P}(\text{accept}) = \min\left(1, \frac{p(x^*)}{q(x^*)}\right)$$<br />
+   If accepted, we set $x_t = x^*$ and move to the next position.<br />
+2. If rejected, we evict the remaining draft tokens and sample $x_t$ from the normalized difference distribution:<br />
+   $$p'(x) = \frac{\max(0, p(x) - q(x))}{\sum_y \max(0, p(y) - q(y))}$$</p>
+<h3 id="proof">Proof</h3>
+<p>Let $x_{\text{selected}}$ be the token selected by the protocol. The probability of selecting a specific token $x$ is the sum of the probability of proposing and accepting it, plus the probability of rejecting the draft token and selecting $x$ from the fallback distribution $p'(x)$:</p>
+<p>$$\text{P}(x_{\text{selected}} = x) = q(x) \cdot \min\left(1, \frac{p(x)}{q(x)}\right) + P(\text{reject}) \cdot p'(x)$$</p>
+<p>Let's define the total rejection mass $M$:</p>
+<p>$$M = \sum_y \max(0, p(y) - q(y))$$</p>
+<p>Because $\sum_y q(y) = 1$ and $\sum_y p(y) = 1$, we can show that the sum of negative differences equals the sum of positive differences:</p>
+<p>$$\sum_y \max(0, q(y) - p(y)) = \sum_y \max(0, p(y) - q(y)) = M$$</p>
+<p>The probability of rejection is:</p>
+<p>$$\text{P}(\text{reject}) = 1 - \sum_y \min(q(y), p(y)) = \sum_y (q(y) - \min(q(y), p(y))) = \sum_y \max(0, q(y) - p(y)) = M$$</p>
+<p>Now, substitute $P(\text{reject}) = M$ and the definition of $p'(x)$ back into the selection equation:</p>
+<p>$$\text{P}(x_{\text{selected}} = x) = \min(q(x), p(x)) + M \cdot \left(\frac{\max(0, p(x) - q(x))}{M}\right)$$</p>
+<p>$$\text{P}(x_{\text{selected}} = x) = \min(q(x), p(x)) + \max(0, p(x) - q(x))$$</p>
+<p>We evaluate this equation for two possible cases:</p>
+<h4 id="case-1-mathplaceholder34endmath">Case 1: $p(x) \ge q(x)$</h4>
+<ul>
+<li>Here, $\min(q(x), p(x)) = q(x)$ and $\max(0, p(x) - q(x)) = p(x) - q(x)$.</li>
+<li>Substituting these values:<br />
+  $$\text{P}(x_{\text{selected}} = x) = q(x) + p(x) - q(x) = p(x)$$</li>
+</ul>
+<h4 id="case-2-mathplaceholder37endmath">Case 2: $p(x) &lt; q(x)$</h4>
+<ul>
+<li>Here, $\min(q(x), p(x)) = p(x)$ and $\max(0, p(x) - q(x)) = 0$.</li>
+<li>Substituting these values:<br />
+  $$\text{P}(x_{\text{selected}} = x) = p(x) + 0 = p(x)$$</li>
+</ul>
+<p>In both cases, the probability of selecting token $x$ is exactly $p(x)$, matching the target model's output distribution. $\blacksquare$</p>
+<hr />
+<h2 id="3-modern-speculative-architectures">3. Modern Speculative Architectures</h2>
+<p>Modern engines use advanced draft mechanisms to bypass tokenizer mismatches and dual-model VRAM overheads:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; gap: 16px; font-family: &#39;Segoe UI&#39;, sans-serif; margin: 20px 0;&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- EAGLE --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #3b82f6; border-radius: 6px; padding: 12px; background-color: #f8fafc;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 0 6px 0; color: #1e3a8a; font-size: 14px;&quot;</span><span class="p">&gt;</span>1. EAGLE-2 / EAGLE-3 (Feature Speculation)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>
+      Instead of tokens, EAGLE drafts hidden feature vectors at the target model&#39;s second-to-last layer. It processes candidates using a dynamic tree structures and parallel tree attention.
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Medusa --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #10b981; border-radius: 6px; padding: 12px; background-color: #f8fafc;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 0 6px 0; color: #065f46; font-size: 14px;&quot;</span><span class="p">&gt;</span>2. Medusa (Multi-Head Prediction)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>
+      Appends multiple linear prediction heads to the target model&#39;s output layer. Head $k$ predicts the token $t+k$ concurrently, verifying candidates using a pre-computed validation tree mask.
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- Prompt Lookup --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;border: 1px solid #f59e0b; border-radius: 6px; padding: 12px; background-color: #f8fafc;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h4</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 0 6px 0; color: #92400e; font-size: 14px;&quot;</span><span class="p">&gt;</span>3. Prompt-Lookup Speculation (Zero-VRAM / Zero-Train)<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 12px; color: #475569; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>
+      Scans prompt history for repeating N-grams. If the current sequence matches a past N-gram sequence, the engine drafts the trailing tokens directly from context history, requiring no helper draft models.
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-expected-tokens-speedup-math">4. Expected Tokens &amp; Speedup Math</h2>
+<p>The effectiveness of speculative decoding is governed by the <strong>Average Acceptance Rate</strong> ($\alpha \in [0, 1]$), representing the probability that a draft token is accepted by the target model.</p>
+<p>If the draft length is $\gamma$, the expected number of tokens generated per target forward pass is:</p>
+<p>$$E[\text{tokens}] = \frac{1 - \alpha^{\gamma+1}}{1 - \alpha}$$</p>
+<ul>
+<li>If $\alpha = 0.8$ and $\gamma = 5$:<br />
+  $$E[\text{tokens}] = \frac{1 - 0.8^6}{1 - 0.8} = \frac{1 - 0.262144}{0.2} = 3.689 \text{ tokens per forward pass}$$</li>
+<li>If $\alpha = 0.5$ and $\gamma = 5$:<br />
+  $$E[\text{tokens}] = \frac{1 - 0.5^6}{1 - 0.5} = \frac{1 - 0.015625}{0.5} = 1.968 \text{ tokens per forward pass}$$</li>
+</ul>
+<p>As $\alpha$ drops, the speedup factor decreases. If the draft model overhead exceeds the gains from multi-token parallel verification, speculative decoding can run slower than raw autoregressive decoding.</p>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="07-inference-engines-framework-architectures-and-capabilities">07. Inference Engines: Framework Architectures and Capabilities</h1>
+<p>Deploying LLMs in production requires selecting the appropriate inference serving framework. Serving engines manage memory allocation, request scheduling, batching execution, and hardware kernel mapping. Each stack targets specific hardware constraints and operational SLAs.</p>
+<hr />
+<h2 id="1-deep-dive-architecture-breakdown">1. Deep-Dive Architecture Breakdown</h2>
+<h3 id="vllm">vLLM</h3>
+<p>vLLM is an open-source, high-throughput LLM serving engine. It introduced <strong>PagedAttention</strong> to eliminate VRAM memory fragmentation.<br />
+- <strong>Core Features</strong>: Logical/physical block KV Cache manager, continuous batching scheduler, block hash prefix caching, ray-based tensor parallelism, and broad model coverage.<br />
+- <strong>Optimal Environment</strong>: Multi-GPU cluster serving (A100/H100/L4) for generic APIs with high concurrency.</p>
+<h3 id="sglang-structured-generation-language">SGLang (Structured Generation Language)</h3>
+<p>SGLang focuses on optimizing fast execution for complex prompting, structured generation (JSON/schema), and multi-agent workflows.<br />
+- <strong>Core Features</strong>: <strong>RadixAttention</strong> prefix caching (radix tree representation), <strong>XGrammar</strong> compiled structured decoding masks, and high-performance pipeline parallelism for Mixture-of-Experts (MoE) architectures (e.g. Mixtral/DeepSeek).<br />
+- <strong>Optimal Environment</strong>: Multi-turn agent loops, structured extraction pipelines, and models with massive system prompts.</p>
+<h3 id="tensorrt-llm">TensorRT-LLM</h3>
+<p>NVIDIA's proprietary, high-performance compiler and engine stack for LLM serving.<br />
+- <strong>Core Features</strong>: Ahead-of-time (AOT) CUDA graph compilation, custom NVIDIA Tensor Core kernels, highly optimized FP8 execution, and in-flight batching.<br />
+- <strong>Trade-Off</strong>: Requires a separate compilation step to build engine binaries (<code>trtllm-build</code>), leading to high compilation times and strict hardware binding (the compiled engine only runs on the exact GPU model used for compilation).<br />
+- <strong>Optimal Environment</strong>: High-volume, enterprise single-model serving on NVIDIA Hopper (H100/H200) clusters where minimizing TPOT is the primary constraint.</p>
+<h3 id="llamacpp-ollama">llama.cpp &amp; Ollama</h3>
+<p>A C++ implementation of transformer architectures optimized for local consumer hardware.<br />
+- <strong>Core Features</strong>: Block-wise quantization formats (GGUF), CPU/GPU heterogeneous memory-mapped execution, Metal API support (Apple Silicon), and zero external dependencies.<br />
+- <strong>Optimal Environment</strong>: Edge serving, developer local test setups, and CPU-only cloud instances.</p>
+<h3 id="text-generation-inference-tgi">Text Generation Inference (TGI)</h3>
+<p>Created by Hugging Face, TGI was one of the early production-grade engines. While it introduced key features like continuous batching and streaming tokens, it has transitioned to maintenance mode as open-source frameworks like vLLM and SGLang have overtaken its performance.</p>
+<hr />
+<h2 id="2-comprehensive-engine-comparison-matrix">2. Comprehensive Engine Comparison Matrix</h2>
+<p>The table below compares serving engines across operational dimensions:</p>
+<table>
+<thead>
+<tr>
+<th>Feature Dimension</th>
+<th>vLLM</th>
+<th>SGLang</th>
+<th>TensorRT-LLM</th>
+<th>llama.cpp / Ollama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Primary Bottleneck</strong></td>
+<td>Memory Bandwidth</td>
+<td>Scheduling Overheads</td>
+<td>Network Bandwidth</td>
+<td>Hardware Access Rate</td>
+</tr>
+<tr>
+<td><strong>Prefix Caching</strong></td>
+<td>Block-Level Hashing</td>
+<td>Radix Tree (RadixAttention)</td>
+<td>None (Static)</td>
+<td>Local context caching</td>
+</tr>
+<tr>
+<td><strong>Structured Output</strong></td>
+<td>RegEx/JSON Outlines</td>
+<td>Compiled XGrammar</td>
+<td>Simple JSON Schema</td>
+<td>Token-level constraints</td>
+</tr>
+<tr>
+<td><strong>Quantization Support</strong></td>
+<td>FP8, AWQ, GPTQ, INT8</td>
+<td>FP8, AWQ, GPTQ, INT8</td>
+<td>FP8, INT8/INT4 (SmoothQuant)</td>
+<td>GGUF (K-Quant)</td>
+</tr>
+<tr>
+<td><strong>Compilation Overhead</strong></td>
+<td>Zero (JIT Python/C++)</td>
+<td>Zero (JIT C++)</td>
+<td>High (Pre-compile required)</td>
+<td>Zero (Direct binary run)</td>
+</tr>
+<tr>
+<td><strong>Multi-GPU TP/PP</strong></td>
+<td>Native (Ray)</td>
+<td>Native (Pytorch/Ray)</td>
+<td>Custom MPI/NCCL</td>
+<td>CPU/GPU load splits</td>
+</tr>
+<tr>
+<td><strong>Preferred Hardware</strong></td>
+<td>H100, A100, L4</td>
+<td>H100, A100, L4</td>
+<td>H100, H200</td>
+<td>Apple Silicon, CPUs, Edge</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="08-production-deployment-architecture-routing-and-scalability">08. Production Deployment: Architecture, Routing, and Scalability</h1>
+<p>Deploying LLMs at scale requires wraping inference engines within enterprise-grade deployment topologies. Serving platforms must manage rate limits, coordinate failover strategies, partition hardware resources across multiple tenants, and roll out model updates without causing system downtime or violating latency SLAs.</p>
+<hr />
+<h2 id="1-enterprise-serving-topologies">1. Enterprise Serving Topologies</h2>
+<p>Production workloads are split into two execution topologies:</p>
+<h3 id="online-real-time-serving">Online Real-Time Serving</h3>
+<ul>
+<li><strong>Workload</strong>: Dynamic, user-facing applications (chatbots, real-time typing assistance) requiring low latencies.</li>
+<li><strong>Protocol</strong>: Server-Sent Events (SSE) or WebSockets to stream generated tokens to the client as they are produced, minimizing perceived latency (TTFT).</li>
+<li><strong>Target SLA</strong>: Lower TTFT ($&lt;200\text{ ms}$) and comfortable TPOT ($&lt;30\text{ ms}$).</li>
+</ul>
+<h3 id="offline-batch-processing">Offline Batch Processing</h3>
+<ul>
+<li><strong>Workload</strong>: High-volume, non-interactive tasks (document classification, database summarization, embedding generation).</li>
+<li><strong>Protocol</strong>: REST batch APIs or background queues (e.g. Celery). Schedulers combine inputs into massive batches to maximize GPU memory throughput.</li>
+<li><strong>Target SLA</strong>: Tokens per Second (TPS) throughput, ignoring individual request latency.</li>
+</ul>
+<hr />
+<h2 id="2-gateway-router-provider-fallbacks">2. Gateway Router &amp; Provider Fallbacks</h2>
+<p>To ensure high availability, enterprise gateways abstract self-hosted engines (vLLM/SGLang clusters) and commercial APIs behind a unified API layer:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-family: &#39;Segoe UI&#39;, sans-serif; border: 1.5px solid #64748b; border-radius: 8px; background-color: #f8fafc; padding: 16px; margin: 20px 0;&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- Gateway Router Header --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;background-color: #1e293b; color: white; padding: 8px; border-radius: 4px; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; text-align: center; margin-bottom: 16px;&quot;</span><span class="p">&gt;</span>
+    Unified Gateway Router (API Gateway)
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; justify-content: space-between; align-items: stretch; gap: 12px; font-size: 11px;&quot;</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- Local Stack --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;flex: 1; border: 1px solid #2563eb; background-color: #eff6ff; padding: 10px; border-radius: 6px; text-align: center;&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-weight: 700; color: #1e40af; margin-bottom: 6px; text-transform: uppercase;&quot;</span><span class="p">&gt;</span>Primary Route (Self-Hosted)<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;color: #1e3a8a; margin-bottom: 4px; font-weight: 600;&quot;</span><span class="p">&gt;</span>vLLM / SGLang Cluster<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;color: #64748b;&quot;</span><span class="p">&gt;</span>Lowest unit cost, secure data boundary<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- Switch Logic --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100px; text-align: center;&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 9px; font-weight: bold; color: #e11d48; margin-bottom: 4px;&quot;</span><span class="p">&gt;</span>If 429 / Timeout<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;width: 100%; height: 3px; background-color: #cbd5e1; position: relative;&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;position: absolute; right: 0; top: -3px; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #64748b;&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- Fallback Stack --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;flex: 1; border: 1px solid #10b981; background-color: #ecfdf5; padding: 10px; border-radius: 6px; text-align: center;&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-weight: 700; color: #065f46; margin-bottom: 6px; text-transform: uppercase;&quot;</span><span class="p">&gt;</span>Fallback Route (Commercial)<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;color: #047857; margin-bottom: 4px; font-weight: 600;&quot;</span><span class="p">&gt;</span>OpenAI / Gemini / Anthropic<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;color: #64748b;&quot;</span><span class="p">&gt;</span>High reliability, pay-per-token limits<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Failover Logic</strong>: If the self-hosted engine throws a 503 (overloaded) or 429 (rate limit), the router catches the exception and redirects the query to a fallback commercial endpoint.</li>
+<li><strong>Model Redirection</strong>: Queries can be routed dynamically based on prompt classification: complex reasoning prompts go to expensive target models, while simple classification queries go to smaller, quantized self-hosted models.</li>
+</ul>
+<hr />
+<h2 id="3-multi-tenant-resource-isolation">3. Multi-Tenant Resource Isolation</h2>
+<p>Sharing a single GPU cluster across multiple business units requires enforcing resource boundaries to prevent one tenant's queries from degrading the performance of others:<br />
+- <strong>Rate-Limiting Semaphores</strong>: Limit the number of concurrent active prefill and decode slots a single tenant can occupy.<br />
+- <strong>VRAM Cache Quota Allocations</strong>: Restrict the maximum KV Cache block allocations a single tenant's requests can hold in the active block table.<br />
+- <strong>Priority Queues</strong>: Place requests into prioritized tiers. Under heavy load, the scheduler evicts or preempts low-priority decoding iterations to allocate block capacity to high-priority requests.</p>
+<hr />
+<h2 id="4-bluegreen-and-canary-deployments">4. Blue/Green and Canary Deployments</h2>
+<p>Model updates require swapping weights on active GPU memories without dropping connections.</p>
+<h3 id="bluegreen-deployments">Blue/Green Deployments</h3>
+<p>Two identical hardware environments are maintained. The <strong>Blue</strong> cluster runs the active production model (e.g. Model V1). The <strong>Green</strong> cluster is updated with the new model (e.g. Model V2). <br />
+Once Green passes verification, the load balancer shifts traffic to the Green cluster, and Blue is decommissioned.<br />
+- <strong>Cons</strong>: Requires doubling the active GPU allocation during transition.</p>
+<h3 id="canary-deployments">Canary Deployments</h3>
+<p>Instead of an instant swap, a small fraction of production traffic (e.g. $5\%$) is routed to the new model instance.<br />
+- <strong>Shadow Traffic</strong>: Production requests are duplicated at the gateway. The duplicate request is processed by the new model in the background, comparing its outputs, latency, and error rates against production without returning its responses to the user.<br />
+- <strong>Regression Triggers</strong>: The gateway monitors output metrics (perplexity drift, TTFT spikes, guardrail violations). If any metric violates safety bounds, traffic is automatically routed back to the production instance.</p>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="09-performance-monitoring-profiling-debugging-production-incidents">09. Performance Monitoring, Profiling &amp; Debugging: Production Incidents</h1>
+<p>Running LLM serving clusters at scale requires continuously monitoring infrastructure telemetry and system metrics. Because LLM workloads dynamically transition between compute-bound and memory-bound phases, diagnosing production incidents—such as latency spikes, memory crashes, and poor hardware utilization—demands a structured debugging protocol.</p>
+<hr />
+<h2 id="1-operational-telemetry-metrics">1. Operational Telemetry Metrics</h2>
+<p>To maintain health and reliability, serving platforms monitor two categories of metrics:</p>
+<h3 id="latency-quality-metrics">Latency &amp; Quality Metrics</h3>
+<ul>
+<li><strong>TTFT (p50, p95, p99)</strong>: High p99 TTFT values indicate queue saturation or prefill scheduling bottlenecks.</li>
+<li><strong>TPOT / ITL (p50, p95, p99)</strong>: The inter-token generation speed. Steady TPOT values confirm stable memory reads.</li>
+<li><strong>End-to-End Latency</strong>: The total time from user submission to final response delivery.</li>
+<li><strong>Token Generation Ratio</strong>: The ratio of generated tokens to prompt tokens, which helps project workload evolution.</li>
+</ul>
+<h3 id="hardware-memory-metrics">Hardware &amp; Memory Metrics</h3>
+<ul>
+<li><strong>GPU HBM Memory Utilization</strong>: The fraction of High Bandwidth Memory occupied.</li>
+<li><strong>KV Cache Block Allocation / Hit Rate</strong>: The percentage of physical blocks allocated to cached sequences. A high hit rate indicates efficient prefix sharing.</li>
+<li><strong>Model FLOPs Utilization (MFU)</strong>: The ratio of attained execution FLOP/s to the GPU's peak theoretical FLOP/s.</li>
+<li><strong>CUDA Memory Fragmentation Ratio</strong>: The ratio of requested memory allocations to the largest contiguous free memory block.</li>
+</ul>
+<hr />
+<h2 id="2-debugging-real-world-production-incidents">2. Debugging Real-World Production Incidents</h2>
+<p>Below is a structured diagnostic guide for the three most common production LLM serving issues:</p>
+<h3 id="incident-a-cuda-out-of-memory-oom-errors-under-load">Incident A: CUDA Out of Memory (OOM) Errors under Load</h3>
+<h4 id="root-causes">Root Causes</h4>
+<ol>
+<li><strong>KV Cache Over-allocation</strong>: The scheduler allocates too many physical blocks relative to the maximum sequence length, leading to memory exhaustion under high concurrency.</li>
+<li><strong>Activation Spikes</strong>: Compute-heavy prefill operations for long prompts create massive intermediate activation matrices in SRAM/HBM.</li>
+<li><strong>Memory Leaks</strong>: Non-contiguous allocations fragment CUDA memory, preventing the engine from allocating space for new request blocks.</li>
+</ol>
+<h4 id="diagnostic-checklist">Diagnostic Checklist</h4>
+<ol>
+<li>Inspect the stack trace: Did the crash occur during the prefill phase or the decode phase?</li>
+<li>Check <code>max_model_len</code> and <code>gpu_memory_utilization</code> parameters in your configuration.</li>
+<li>Query <code>nvidia-smi</code> or PyTorch's <code>memory_allocated()</code> to trace active allocations.</li>
+<li>Set the vLLM parameter <code>max_num_seqs</code> to restrict the concurrent batch size.</li>
+</ol>
+<hr />
+<h3 id="incident-b-ttft-latency-spikes-eg-p99-ttft-10-seconds">Incident B: TTFT Latency Spikes (e.g. p99 TTFT &gt; 10 Seconds)</h3>
+<h4 id="root-causes_1">Root Causes</h4>
+<ol>
+<li><strong>Queue Saturation</strong>: A surge in request volume saturates the prefill queue, leaving incoming requests waiting for GPU scheduling slots.</li>
+<li><strong>Un-cached System Prompts</strong>: Multi-turn chats or RAG prompts with large context prefixes bypass the prefix cache, requiring the engine to recompute the entire prompt prefill.</li>
+<li><strong>Head-of-Line Blocking</strong>: Long prefill requests block active decoding steps.</li>
+</ol>
+<h4 id="diagnostic-checklist_1">Diagnostic Checklist</h4>
+<ol>
+<li>Inspect the scheduler queue status: Measure the wait time in the queue vs. the active compute time.</li>
+<li>Verify the prefix cache hit rate. If the hit rate is low, inspect why prompts are changing slightly (e.g., dynamic timestamps or user IDs in system messages).</li>
+<li>Enable <strong>Chunked Prefill</strong> to split long prompts and interleave prefill compute with active decode iterations.</li>
+</ol>
+<hr />
+<h3 id="incident-c-low-throughput-gpu-under-utilization-low-mfu">Incident C: Low Throughput &amp; GPU Under-utilization (Low MFU)</h3>
+<h4 id="root-causes_2">Root Causes</h4>
+<ol>
+<li><strong>Small Batch Sizes</strong>: Under low traffic volume, the engine cannot form large batches, forcing the GPU to execute memory-bandwidth-bound single-token decodes.</li>
+<li><strong>CPU-GPU Transfer Overheads</strong>: Repeatedly transferring data between host memory (RAM) and GPU VRAM stalls Tensor Core processing.</li>
+<li><strong>Un-batched Tool Calls</strong>: Synchronously waiting for external API queries halts the generation loop.</li>
+</ol>
+<h4 id="diagnostic-checklist_2">Diagnostic Checklist</h4>
+<ol>
+<li>Check the active batch size. If traffic is low, consider deploying smaller, quantized models to reduce serving costs.</li>
+<li>Use <strong>CUDA Graphs</strong> to record and execute sequences of GPU kernels, bypassing CPU-launch overheads.</li>
+<li>Ensure tool execution and routing are asynchronous.</li>
+</ol>
+<hr />
+<h2 id="3-profiling-tools">3. Profiling Tools</h2>
+<p>To diagnose deep performance bottlenecks, developers use profiling frameworks:<br />
+- <strong>PyTorch Profiler</strong>: Captures CPU/GPU execution trace files, identifying slow operators and memory allocation spikes.<br />
+- <strong>NVIDIA Nsight Systems (<code>nsys</code>)</strong>: A system-wide profiling tool that captures CUDA kernel execution timelines, NVLink communication overheads, and hardware stalls.<br />
+- <strong>Prometheus vLLM endpoints</strong>: vLLM exposes <code>/metrics</code> endpoints tracking current queue sizes, KV cache block hit rates, and iteration latencies, which can be visualized in Grafana dashboards.</p>
+<hr />
+<h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
+<ul>
+<li>What problem does this solve?</li>
+<li>Why was it introduced?</li>
+<li>What are its limitations?</li>
+<li>Computational Complexity (Time &amp; Memory)</li>
+<li>Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)</li>
+<li>Production Use Cases</li>
+<li>Follow-up questions interviewers ask</li>
+</ul>
+    </div>
+
+
+    <div class="module-container">
+        <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Inference & serving Master Curriculum</span>
+        </div>
+        <h1 id="llm-inference-optimization-high-frequency-question-bank">🎯 LLM Inference &amp; Optimization: High-Frequency Question Bank</h1>
+<blockquote>
+<p><strong>Target Role:</strong> AI Engineer / Applied AI Engineer / LLM Engineer (3+ Years Experience)<br />
+<strong>Scope:</strong> Two-phase execution, KV Cache VRAM math, PagedAttention, quantization mechanics, continuous batching, speculative tree decoding, vLLM/SGLang engines, PD disaggregation, and production incident debugging.</p>
+</blockquote>
+<hr />
+<h2 id="1-inference-fundamentals-8-questions">1. Inference Fundamentals (8 Questions)</h2>
+<h3 id="1-end-to-end-inference-pipeline">1. End-to-End Inference Pipeline</h3>
+<p><strong>Explain the complete LLM inference pipeline step-by-step: Prompt $\rightarrow$ Tokenization $\rightarrow$ Embedding $\rightarrow$ Prefill GEMM $\rightarrow$ Autoregressive Decode GEMV $\rightarrow$ Sampling $\rightarrow$ Detokenization.</strong><br />
+- <strong>Short Answer</strong>: The inference pipeline consists of processing the text input into discrete tokens, mapping them to embeddings, executing a parallel prefill phase (compute-bound matrix-matrix multiplication) to ingest the prompt and allocate the KV Cache, running sequential decode loops (memory-bandwidth-bound matrix-vector multiplication) to generate successive tokens, applying sampling logits transformations to select the next token, and detokenizing the resulting IDs back to human-readable characters.<br />
+- <strong>Key Interview Points</strong>: Prefill GEMM vs. Decode GEMV, KV Cache allocation, token-to-embedding mapping, and sampling constraints.<br />
+- <strong>Technical Intuition</strong>: Text is mapped to token IDs via BPE/SentencePiece. Embeddings convert these IDs to vector spaces $X \in \mathbb{R}^{B \times L \times d_{\text{model}}}$. Prefill calculates self-attention for all tokens in parallel using general matrix multiplication (GEMM) since the entire sequence is available. Decode computes queries, keys, and values for the new token, querying the cached KV tensors to compute single-token attention via matrix-vector products (GEMV).<br />
+- <strong>Production Perspective</strong>: Ensure detokenizers support streaming Server-Sent Events (SSE) so users receive tokens incrementally instead of waiting for the full output block.<br />
+- <strong>Follow-up</strong>: <em>What causes detokenization lag?</em> (Mainly buffering issues with multi-byte UTF-8 characters split across token boundaries).</p>
+<h3 id="2-prefill-phase-vs-decode-phase">2. Prefill Phase vs. Decode Phase</h3>
+<p><strong>What are the fundamental computational and execution differences between the Prefill (Prompt Processing) phase and the Decode (Token Generation) phase?</strong><br />
+- <strong>Short Answer</strong>: The Prefill phase processes all prompt tokens in parallel, saturating GPU Tensor Cores via compute-bound General Matrix Multiplications (GEMM). The Decode phase generates one token at a time sequentially, loading the entire model's weights and past KV caches for each step, which makes it memory-bandwidth-bound General Matrix-Vector Multiplication (GEMV).<br />
+- <strong>Key Interview Points</strong>: Compute-bound vs. memory-bandwidth-bound, GEMM vs. GEMV kernels, parallel input vs. sequential output.<br />
+- <strong>Technical Intuition</strong>: During prefill, the query, key, and value shapes are $[B, L_{\text{prompt}}, d_{\text{model}}]$. Since $L_{\text{prompt}} \gg 1$, matrix multiplications reuse model weights, yielding high arithmetic intensity. During decode, the query shape is $[B, 1, d_{\text{model}}]$, requiring the GPU to load the entire layer weights from HBM to SRAM to perform a single vector-matrix multiply.<br />
+- <strong>Production Perspective</strong>: Optimizing serving requires adjusting batching policies. Heavy prefill batches should be chunked to avoid halting active decode cycles.<br />
+- <strong>Follow-up</strong>: <em>Why does prefill have higher GPU power draw?</em> (Because Tensor Cores are active continuously, whereas decode leaves them mostly idle while waiting for memory transfers).</p>
+<h3 id="3-arithmetic-intensity-roofline-bottlenecks">3. Arithmetic Intensity &amp; Roofline Bottlenecks</h3>
+<p><strong>Define </strong>Arithmetic Intensity<strong> ($\text{FLOPs/Byte}$). Use the Roofline model to prove why the prefill phase is compute-bound ($\text{GEMM}$) while the decode phase is memory-bandwidth-bound ($\text{GEMV}$).</strong><br />
+- <strong>Short Answer</strong>: Arithmetic Intensity ($I$) is the ratio of FLOPs executed to memory bytes read/written. The Roofline Model states performance is bounded by $\min(P_{\text{peak}}, I \cdot B_{\text{peak}})$. For prefill, $I \approx L_{\text{prompt}}$, exceeding the hardware ridge point and making it compute-bound. For decode, $I \approx 1$ FLOP/Byte, which is well below the ridge point, making it memory-bandwidth-bound.<br />
+- <strong>Key Interview Points</strong>: Arithmetic Intensity formula, Roofline Model regions, Hardware Ridge Point calculation, GEMM vs. GEMV bounds.<br />
+- <strong>Technical Intuition</strong>: Given a model of size $P$ parameters:<br />
+  - Prefill ($N$ tokens): $\text{FLOPs} = 2PN$, $\text{Bytes} = 2P$ (weights) + cache writes. Thus, $I \approx N$. For $N=1024$ and FP16 weights, $I = 1024$ FLOPs/Byte.<br />
+  - Decode ($1$ token): $\text{FLOPs} = 2P$, $\text{Bytes} = 2P$ (weights) + cache reads. Thus, $I \approx 1$.<br />
+  Since an NVIDIA A100 has a ridge point of $\approx 156$ FLOPs/Byte, prefill ($I=1024 &gt; 156$) is compute-bound, while decode ($I=1 &lt; 156$) is memory-bandwidth-bound.<br />
+- <strong>Production Perspective</strong>: Increasing memory bandwidth (e.g. upgrading H100 to H200 with faster HBM3e) directly improves decode throughput, while compute upgrades improve prefill speeds.<br />
+- <strong>Follow-up</strong>: <em>How does quantization affect arithmetic intensity?</em> (Quantizing to INT8/INT4 halves or quarters the denominator, increasing $I$ and moving decode execution closer to the compute-bound boundary).</p>
+<h3 id="4-latency-throughput-metrics">4. Latency &amp; Throughput Metrics</h3>
+<p><strong>Define TTFT (Time To First Token), TPOT (Time Per Output Token / Inter-Token Latency), TPS (Tokens Per Second), and End-to-End Latency. When is each metric critical for user SLAs?</strong><br />
+- <strong>Short Answer</strong>:<br />
+  - <strong>TTFT</strong>: Delay until the first token is received. Critical for real-time user-facing chat.<br />
+  - <strong>TPOT (ITL)</strong>: Average time between successive tokens. Critical for reading comfort.<br />
+  - <strong>TPS</strong>: Total token generation throughput. Critical for background batch jobs.<br />
+  - <strong>End-to-End Latency</strong>: Total time for request completion. Critical for non-streaming programmatic API integration.<br />
+- <strong>Key Interview Points</strong>: Latency component definitions, client experience mappings, and throughput metrics.<br />
+- <strong>Technical Intuition</strong>: $\text{TTFT} = \text{Queue Delay} + \text{Prefill Latency}$. $\text{TPOT} = \text{Decode Iteration Latency}$. $\text{End-to-End Latency} = \text{TTFT} + (L_{\text{output}} - 1) \times \text{TPOT}$.<br />
+- <strong>Production Perspective</strong>: Trade-off batch sizes: larger batches increase throughput (TPS) but degrade latency (TTFT and TPOT).<br />
+- <strong>Follow-up</strong>: <em>Why do chat interfaces care more about TTFT than End-to-End latency?</em> (Because a low TTFT creates a responsive feel, hiding the total generation time).</p>
+<h3 id="5-prefill-decode-pd-disaggregation">5. Prefill-Decode (PD) Disaggregation</h3>
+<p><strong>What is Prefill-Decode Disaggregation, and why does splitting compute-bound prefill nodes from memory-bandwidth-bound decode nodes across NVLink/RDMA networks prevent head-of-line blocking?</strong><br />
+- <strong>Short Answer</strong>: PD Disaggregation separates physical GPUs into dedicated prefill workers and decode workers. This prevents compute-heavy prompt processing steps from blocking active, iteration-level decode streams in the serving queue, resolving head-of-line blocking and stabilizing inter-token latency (TPOT).<br />
+- <strong>Key Interview Points</strong>: Head-of-line blocking, GPU workload isolation, KV Cache transfer cost, NVLink/RDMA fabrics.<br />
+- <strong>Technical Intuition</strong>: In collocated execution, a new prefill request takes over GPU compute, stalling decode iterations of active sessions for several hundred milliseconds. By splitting them, prefill nodes calculate keys/values and transfer them via high-speed RDMA networks directly to the decode nodes' memory pool, ensuring decode nodes execute uninterrupted.<br />
+- <strong>Production Perspective</strong>: PD disaggregation is highly beneficial for long-context workloads (e.g. RAG, document analysis) where prefill tasks are extremely heavy.<br />
+- <strong>Follow-up</strong>: <em>What is the main bottleneck in PD disaggregation?</em> (The network latency of transferring massive KV cache tensors between nodes).</p>
+<h3 id="6-sequential-autoregressive-dependence">6. Sequential Autoregressive Dependence</h3>
+<p><strong>Why is autoregressive token generation inherently sequential, and why does this prevent standard intra-sequence parallelization during the decode phase?</strong><br />
+- <strong>Short Answer</strong>: Autoregressive decoding relies on the causal dependency where each output token is conditioned on all preceding tokens: $P(x_t \mid x_{1:t-1})$. Because token $x_t$ cannot be computed until the token ID of $x_{t-1}$ is selected and appended to the input sequence, we cannot parallelize the execution of sequential tokens within a single request.<br />
+- <strong>Key Interview Points</strong>: Causal attention, sequence dependency, sequential decoding loop.<br />
+- <strong>Technical Intuition</strong>: Self-attention requires computing the query vector of the current step against the keys of all previous steps. Because the query vector $q_t$ depends on the token embedding of $x_{t-1}$, the matrix operations for step $t$ cannot begin until step $t-1$ completes.<br />
+- <strong>Production Perspective</strong>: To maximize hardware utilization despite sequence sequentiality, we use batching to process different sequences in parallel.<br />
+- <strong>Follow-up</strong>: <em>Can we generate multiple tokens at once losslessly?</em> (Only via Speculative Decoding, which validates multiple draft tokens in parallel).</p>
+<h3 id="7-inference-vs-training-memory-footprints">7. Inference vs. Training Memory Footprints</h3>
+<p><strong>Why is LLM inference generally more memory-bandwidth-bound and VRAM-sensitive per generated token than LLM pre-training or fine-tuning?</strong><br />
+- <strong>Short Answer</strong>: During training, activation tensors are saved for backpropagation, and weights are reused across massive batches of tokens processed in parallel. During inference, we do not store gradients, but we must store the KV Cache for every concurrent request, which grows linearly with batch size and context length, making the VRAM footprint highly sensitive to dynamic traffic workloads.<br />
+- <strong>Key Interview Points</strong>: Activation storage, gradient caching, KV Cache footprint, weight reuse differences.<br />
+- <strong>Technical Intuition</strong>: Training uses $B \times L$ tokens per step, sharing weight overheads. Inference uses a batch size $B$ but processes only $1$ token per step, requiring the model to load all weights from HBM to SRAM for that single token's computation.<br />
+- <strong>Production Perspective</strong>: In training, we scale compute clusters to maximize FLOPs. In inference, we scale clusters primarily to accommodate the aggregate VRAM footprint of active KV Caches.<br />
+- <strong>Follow-up</strong>: <em>What is the activation memory footprint during prefill?</em> (It scales with the square of sequence length, which can trigger CUDA OOMs on extremely long prompts).</p>
+<h3 id="8-latency-breakdown-factors">8. Latency Breakdown Factors</h3>
+<p><strong>What hardware and algorithmic factors contribute most to TTFT spikes vs. TPOT slowdowns in production LLM clusters?</strong><br />
+- <strong>Short Answer</strong>: TTFT spikes are caused by queue wait times, long prompt lengths (prefill computation), and uncached system prompts. TPOT slowdowns are caused by HBM bandwidth limits, high active batch sizes (requiring large weight/KV cache memory reads), and inter-GPU communication latency in Tensor Parallel setups.<br />
+- <strong>Key Interview Points</strong>: Queue delays, HBM bandwidth constraints, tensor parallel comms (All-Reduce overheads), and prefix cache misses.<br />
+- <strong>Technical Intuition</strong>: $\text{TTFT} \propto \frac{\text{Prompt Length} \times \text{Layers}}{\text{Compute FLOP/s}} + \text{Queue Delay}$. $\text{TPOT} \propto \frac{\text{Model Weights} + \text{KV Cache Size}}{\text{HBM Bandwidth}} + \text{Communication Latency}$.<br />
+- <strong>Production Perspective</strong>: To stabilize TTFT, deploy prefix caching and chunked prefill. To stabilize TPOT, use GQA, quantization (FP8/INT4), and optimize TP communications.<br />
+- <strong>Follow-up</strong>: <em>How does TP width affect TPOT?</em> (Increasing TP width reduces compute time per GPU but increases All-Reduce communication overhead. Beyond a certain width, communication latency outweighs compute gains, slowing down TPOT).</p>
+<hr />
+<h2 id="2-decoding-sampling-8-questions">2. Decoding &amp; Sampling (8 Questions)</h2>
+<h3 id="9-deterministic-vs-stochastic-sampling">9. Deterministic vs. Stochastic Sampling</h3>
+<p><strong>Compare Greedy Decoding, Beam Search, Top-K, Top-p (Nucleus), and </strong>Min-p<strong> sampling across output quality, diversity, and computational overhead.</strong><br />
+- <strong>Short Answer</strong>: Greedy decoding and Beam Search are deterministic; they produce high-factuality, low-diversity outputs. Beam Search has high memory overhead due to maintaining $B$ active KV caches. Top-K, Top-p, and Min-p are stochastic; they introduce creativity. Top-K uses a static cutoff count, Top-p dynamically adjusts the cutoff based on cumulative probability, and Min-p dynamically filters based on probability relative to the top token.<br />
+- <strong>Key Interview Points</strong>: Deterministic vs. stochastic, beam search memory footprint, static vs. dynamic truncation thresholds.<br />
+- <strong>Technical Intuition</strong>:<br />
+  - Greedy: $x_t = \arg\max P(x)$.<br />
+  - Beam Search: Tracks $B$ paths, maximizing $\sum \log P(x)$.<br />
+  - Top-K: Sorts vocabulary, samples from top $K$ candidates.<br />
+  - Top-p: Samples from smallest set $V$ where $\sum_{i \in V} P_i \ge p$.<br />
+  - Min-p: Samples from tokens where $P_i \ge P_{\text{max}} \times p_{\text{min\_threshold}}$.<br />
+- <strong>Production Perspective</strong>: Min-p is preferred for production chatbots because it maintains quality under high temperatures while preserving creative vocabulary options.<br />
+- <strong>Follow-up</strong>: <em>Why is Beam Search avoided in chat servers?</em> (Because it requires duplicating the KV cache $B$ times for each concurrent request, exhausting VRAM).</p>
+<h3 id="10-temperature-scaling-mechanics">10. Temperature Scaling Mechanics</h3>
+<p><strong>Mathematically explain how Temperature ($T$) modifies the raw logit vector before the Softmax transformation ($P_i = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}$). What happens as $T \to 0$ and $T \to \infty$?</strong><br />
+- <strong>Short Answer</strong>: Temperature acts as a scaling divisor for the raw logits $z_i$. When $T \to 0$, the logit differences are amplified, making the distribution highly peaky and converging to deterministic greedy selection. When $T \to \infty$, the logit values converge to 0, making the exponentiated terms approach 1, which results in a uniform random distribution.<br />
+- <strong>Key Interview Points</strong>: Logit scaling, Softmax exponentiation, entropy changes.<br />
+- <strong>Technical Intuition</strong>: Given logits $z = [2.0, 1.0, 0.0]$:<br />
+  - At $T=1.0$: $P \approx [0.665, 0.245, 0.090]$.<br />
+  - At $T=0.5$ (low temp): scaled $z/T = [4.0, 2.0, 0.0] \implies P \approx [0.867, 0.117, 0.016]$ (higher confidence).<br />
+  - At $T=2.0$ (high temp): scaled $z/T = [1.0, 0.5, 0.0] \implies P \approx [0.506, 0.307, 0.186]$ (flatter).<br />
+- <strong>Production Perspective</strong>: Set $T=0.0$ (or greedy) for code generation, JSON parsing, and mathematical calculations. Use $T=0.7 - 0.9$ for creative text generation.<br />
+- <strong>Follow-up</strong>: <em>Does temperature change the ranking of tokens?</em> (No, because the division by $T &gt; 0$ is a monotonic transformation. It only alters their relative probabilities).</p>
+<h3 id="11-top-k-vs-top-p-vs-min-p-truncation">11. Top-K vs. Top-p vs. Min-p Truncation</h3>
+<p><strong>Contrast static Top-K, cumulative Top-p, and dynamic confidence-relative </strong>Min-p<strong> truncation ($p_{\text{threshold}} = p_{\text{max}} \times \text{scale}$). Why is Min-p superior at preserving output coherence under high temperatures?</strong><br />
+- <strong>Short Answer</strong>: Top-K keeps a fixed number of tokens, ignoring the shape of the distribution. Top-p keeps a dynamic number of tokens based on cumulative probability, which can include low-probability tail tokens if the top token is weak. Min-p filters out tokens whose probability falls below a threshold relative to the top token's probability. This prevents low-confidence tail tokens from being sampled when the top token is highly confident, maintaining coherence under high temperatures.<br />
+- <strong>Key Interview Points</strong>: Fixed cutoffs vs. dynamic distributions, tail token suppression, dynamic confidence scaling.<br />
+- <strong>Technical Intuition</strong>: In a highly confident setting where the top token has $p_{\text{max}} = 0.90$:<br />
+  - Min-p (with scale $0.05$) sets the threshold to $0.045$. Any token with probability $&lt; 4.5\%$ is pruned.<br />
+  - Top-p (with threshold $0.95$) might still include tokens down to $0.1\%$ to fill the remaining $5\%$ cumulative probability.<br />
+  This makes Min-p more effective at pruning low-quality tail tokens.<br />
+- <strong>Production Perspective</strong>: Deploying Min-p allows using higher temperatures (e.g. $T=1.2$) for creative variety without suffering from grammar collapse or gibberish.<br />
+- <strong>Follow-up</strong>: <em>Can Top-K and Top-p be combined?</em> (Yes, traditionally models apply Top-K first, then Top-p, then Temperature. Min-p replaces Top-p).</p>
+<h3 id="12-application-specific-sampling-parameters">12. Application-Specific Sampling Parameters</h3>
+<p><strong>How would you configure temperature, top-p/min-p, and penalties for: Factual QA / Code Generation, Conversational Chatbots, Creative Writing &amp; Brainstorming, and Structured JSON Data Extraction?</strong><br />
+- <strong>Short Answer</strong>:<br />
+  - <strong>Factual QA / Code</strong>: $T=0.0$ (Greedy), no truncation, no penalties.<br />
+  - <strong>Structured JSON</strong>: $T=0.0$ with grammar-guided constraints (Outlines).<br />
+  - <strong>Conversational Chat</strong>: $T=0.7$, Top-p = $0.90$ (or Min-p = $0.05$), Repetition Penalty = $1.05$.<br />
+  - <strong>Creative Writing</strong>: $T=1.1$, Min-p = $0.10$, Presence Penalty = $0.10$.<br />
+- <strong>Key Interview Points</strong>: Logit tuning, deterministic configurations, repetition penalty tuning.<br />
+- <strong>Technical Intuition</strong>: High factuality requires minimizing entropy (low temperature). Creative tasks require expanding the search space (high temperature, lower truncation thresholds). Repetition penalties prevent looping behaviors in open-ended generations.<br />
+- <strong>Production Perspective</strong>: Exposing these parameters via APIs allows clients to customize inference behavior per task domain.<br />
+- <strong>Follow-up</strong>: <em>Why do repetition penalties occasionally break JSON generation?</em> (Because they penalize repetitive structural characters like brackets and quotes, causing schema validation errors).</p>
+<h3 id="13-logit-penalties">13. Logit Penalties</h3>
+<p><strong>Explain the mathematical mechanics of Frequency Penalty, Presence Penalty, and Repetition Penalty during logit post-processing.</strong><br />
+- <strong>Short Answer</strong>: Frequency and Presence penalties reduce logits linearly based on token occurrences. Frequency penalty scales with the count of appearances, while Presence penalty applies a constant deduction if the token appears at least once. Repetition penalty divides the logit by a scaling factor if the logit is positive, or multiplies it if negative, reducing the probability of repeating tokens.<br />
+- <strong>Key Interview Points</strong>: Linear vs. multiplicative penalties, frequency-dependent scaling, token presence tracking.<br />
+- <strong>Technical Intuition</strong>:<br />
+  - Frequency / Presence Penalty:<br />
+    $$z_i = z_i - (\text{count}_i \times \alpha_{\text{frequency}} + \delta(\text{count}_i &gt; 0) \times \alpha_{\text{presence}})$$<br />
+  - Repetition Penalty ($\theta \ge 1.0$):<br />
+    $$z_i = \begin{cases} z_i / \theta & \text{if } z_i \ge 0 \\ z_i \cdot \theta & \text{if } z_i &lt; 0 \end{cases}$$<br />
+- <strong>Production Perspective</strong>: Keep penalties subtle (e.g. $1.02 - 1.08$). High values can distort vocabulary distributions, causing grammar collapse.<br />
+- <strong>Follow-up</strong>: <em>Do these penalties apply to prompt tokens?</em> (Typically they only apply to generated output tokens, but some engines support penalizing prompt tokens as well).</p>
+<h3 id="14-stop-sequences-token-termination">14. Stop Sequences &amp; Token Termination</h3>
+<p><strong>How are stop sequences monitored during streaming generation, and how do engines handle multi-token stop sequences across token boundaries?</strong><br />
+- <strong>Short Answer</strong>: Serving engines maintain a sliding buffer of recent output tokens. At each step, they check if the buffer suffix matches any configured stop sequence. If a stop sequence spans across multiple tokens, the engine buffers the potential match and delays sending the streaming response to the client until it confirmed a complete match or a mismatch.<br />
+- <strong>Key Interview Points</strong>: Sliding buffer validation, partial match buffering, streaming token delays.<br />
+- <strong>Technical Intuition</strong>: If the stop sequence is <code>"\nUser:"</code> and the model generates <code>"\n"</code>, then <code>"User"</code>, the engine buffers these tokens. If the next token is <code>":"</code>, the generation terminates and the buffered tokens are discarded. If the next token is <code>"agent"</code>, the engine flushes the buffered tokens (<code>"\nUser agent"</code>) to the stream.<br />
+- <strong>Production Perspective</strong>: Instruct client applications to handle partial stop sequence strings to avoid flickering in the user interface.<br />
+- <strong>Follow-up</strong>: <em>What happens if the model generates a stop sequence token but the engine misses it?</em> (The model continues generating text, causing prompt leaks or multi-turn sequence failures).</p>
+<h3 id="15-constrained-structured-decoding-overhead">15. Constrained &amp; Structured Decoding Overhead</h3>
+<p><strong>How do context-free grammars (CFGs) and regex state-masking (e.g., using Outlines or XGrammar) enforce strict JSON schemas during decoding without causing massive per-token latency penalties?</strong><br />
+- <strong>Short Answer</strong>: Constrained decoding compiles the target JSON schema or regex into a Finite State Machine (FSM). At each step, the FSM determines the valid next tokens, and the engine masks out invalid logits. To avoid per-token latency penalties, frameworks like XGrammar pre-compute token transition maps and cache them, keeping structured generation near native speeds.<br />
+- <strong>Key Interview Points</strong>: FSM token state transitions, logit masking ($P_i = -\infty$), transition map caching.<br />
+- <strong>Technical Intuition</strong>: The vocabulary is indexed by trie structures. When the FSM state requires a digit, the engine sets the logits of all non-digit tokens to $-\infty$. Doing this on the GPU via cached index lists keeps validation overhead under a few microseconds.<br />
+- <strong>Production Perspective</strong>: Structured generation guarantees that outputs are parseable, eliminating client-side retries and parsing crashes.<br />
+- <strong>Follow-up</strong>: <em>Can we enforce CFGs on closed APIs?</em> (Only via prompt engineering or schema parameters if supported. Logit masking requires direct access to the model's logits before sampling).</p>
+<h3 id="16-beam-search-memory-compute-footprint">16. Beam Search Memory &amp; Compute Footprint</h3>
+<p><strong>Why is Beam Search rarely used for online conversational LLM serving despite its utility in machine translation?</strong><br />
+- <strong>Short Answer</strong>: Beam Search maintains $B$ candidate sequences (beams) at each step. This requires keeping $B$ distinct KV Caches for a single request, multiplying memory usage by $B$. This memory footprint limits serving capacity and causes CUDA OOMs under high concurrency.<br />
+- <strong>Key Interview Points</strong>: KV Cache duplication, beam expansion complexity, memory overhead.<br />
+- <strong>Technical Intuition</strong>: For beam width $B=4$, the engine must store 4 key-value states for every token generated. During beam expansion, if paths split, the engine must copy and reorganize the KV cache blocks in VRAM, which creates high memory-copy overhead and slows down TPOT.<br />
+- <strong>Production Perspective</strong>: Use Beam Search only for offline batch translation or document generation where quality is critical and latency is not a bottleneck.<br />
+- <strong>Follow-up</strong>: <em>Does Beam Search improve conversational quality?</em> (No, it often leads to repetitive, generic responses in open-ended conversations compared to stochastic sampling).</p>
+<hr />
+<h2 id="8-production-deployment-monitoring-debugging-8-questions">8. Production Deployment, Monitoring &amp; Debugging (8 Questions)</h2>
+<h3 id="48-high-availability-serving-architecture">48. High-Availability Serving Architecture</h3>
+<p><strong>Design a production multi-region LLM serving infrastructure featuring dynamic model routing, semantic caching (GPTCache), blue-green model swaps, and zero-downtime failover.</strong><br />
+- <strong>Short Answer</strong>: A high-availability LLM infrastructure uses a global CDN load balancer routing to regional gateways. Regional gateways check incoming queries against a semantic cache (e.g., Redis + GPTCache) to instantly serve cached responses for redundant queries. For cache misses, requests are routed to local vLLM/SGLang engine nodes. If regional queues saturate or error rates spike, gateways automatically failover queries to standby regions or fallback third-party APIs. Model updates are managed via blue-green swaps where traffic is routed to the new cluster only after successful health checks.<br />
+- <strong>Key Interview Points</strong>: Global vs. regional gateways, semantic caching matching, multi-region failover latency, blue-green resource allocation.<br />
+- <strong>Technical Intuition</strong>: Semantic caches compute prompt embeddings and query a vector database: if cosine similarity $\ge 0.95$, the cached completion is returned. Model routers track regional GPU active cache block usage and queue backlogs. Zero-downtime failover redirects traffic to fallback zones when regional latencies cross SLA boundaries, protecting the user experience.<br />
+- <strong>Production Perspective</strong>: Keep connection timeouts short (e.g., &lt;500ms) on regional endpoints to ensure instant failover triggers under load spikes.<br />
+- <strong>Follow-up</strong>: <em>How do you synchronize prefix caches across nodes?</em> (You don't sync them dynamically; instead, route requests with identical prompt prefixes to the same GPU worker nodes to maximize local cache hits).</p>
+<h3 id="49-provider-abstraction-fallback-policies">49. Provider Abstraction &amp; Fallback Policies</h3>
+<p><strong>How do you build a resilient provider abstraction layer that dynamically routes queries between self-hosted models (vLLM/SGLang) and cloud APIs (OpenAI/Anthropic/Gemini) based on latency, cost, and rate limits?</strong><br />
+- <strong>Short Answer</strong>: Design a central gateway router middleware that wraps self-hosted and cloud LLM APIs behind a single unified interface. The router uses a priority-based routing policy: it routes queries to self-hosted vLLM clusters first to minimize token costs. If the self-hosted cluster returns 429 (rate limit), 503 (service unavailable), or if active latency monitoring detects TPOT crossing SLA limits, the router fails over to commercial cloud APIs dynamically.<br />
+- <strong>Key Interview Points</strong>: Resiliency middleware, unified schema parsing, rate-limit headers, cost-latency thresholding.<br />
+- <strong>Technical Intuition</strong>: The gateway tracks downstream worker health. It parses rate-limit headers (<code>x-ratelimit-remaining</code>) to preemptively avoid sending traffic to exhausted nodes. Fallback transitions are implemented using circuit breakers that pause routes to failing self-hosted clusters for a cooldown window.<br />
+- <strong>Production Perspective</strong>: Map self-hosted and third-party outputs to a unified Pydantic schema (e.g., using Instructor) to prevent parser failures during fallback events.<br />
+- <strong>Follow-up</strong>: <em>How do you minimize fallback latency?</em> (Parallelize requests by starting a standby fallback call if the primary self-hosted call does not return a token within a tight timeout window).</p>
+<h3 id="50-blue-green-canary-deployments">50. Blue-Green &amp; Canary Deployments</h3>
+<p><strong>How do you execute canary deployments for fine-tuned LLM service updates, and what automated regression checks (perplexity drift, output latency, guardrail pass rate) trigger rollback?</strong><br />
+- <strong>Short Answer</strong>: Deploy the new model (Green) alongside the production model (Blue) on a small subset of serving nodes (e.g., 5% traffic). Use shadow traffic to duplicate production prompts to the Green instances in the background. Automated monitors calculate Green's metrics: perplexity drift against calibration sets, TTFT/TPOT latency compliance, and guardrail pass rates. If any metric violates safety bounds, the gateway automatically rolls back traffic to the Blue instances.<br />
+- <strong>Key Interview Points</strong>: Shadow testing setups, metric evaluation pipelines, automatic rollback triggers.<br />
+- <strong>Technical Intuition</strong>: The gateway duplicates incoming payloads, executing inference on both models. Green's responses are analyzed but discarded, allowing the platform to verify performance under real-world traffic profiles without risking regression exposure to active users.<br />
+- <strong>Production Perspective</strong>: Canary testing is critical for LLMs because offline benchmark evaluations (like MMLU) often fail to capture subtle language drift or formatting regressions.<br />
+- <strong>Follow-up</strong>: <em>How do you measure perplexity dynamically?</em> (Perplexity requires calculating cross-entropy loss over logit values, which is only supported on self-hosted engines; for closed APIs, use LLM-as-a-judge consistency scoring).</p>
+<h3 id="51-production-health-telemetry-metrics">51. Production Health &amp; Telemetry Metrics</h3>
+<p><strong>What specific operational metrics (p50/p95/p99 TTFT, TPOT/ITL, GPU HBM utilization, KV cache block hit rate, CUDA memory fragmentation) do you monitor continuously?</strong><br />
+- <strong>Short Answer</strong>: We monitor p50/p95/p99 TTFT to evaluate prompt processing speeds and queue delays, TPOT/ITL to track output generation speeds, GPU HBM memory utilization to monitor overall capacity, KV Cache block hit rates to verify prefix caching reuse, and CUDA memory fragmentation ratios to identify potential memory exhaustion.<br />
+- <strong>Key Interview Points</strong>: Telemetry monitoring categories, latency distributions, memory usage indicators.<br />
+- <strong>Technical Intuition</strong>:<br />
+  - High TTFT indicates prefill queue congestion or cache misses.<br />
+  - Slow TPOT indicates HBM bandwidth bottlenecks or network overheads in Tensor Parallel clusters.<br />
+  - Dropping KV Cache hit rates indicates prompt template drift or cache thrashing.<br />
+  - CUDA fragmentation indicates non-contiguous memory allocations.<br />
+- <strong>Production Perspective</strong>: Configure Prometheus to scrape metrics directly from the serving engine (e.g., <code>/metrics</code> on vLLM) and compile them into Grafana dashboards.<br />
+- <strong>Follow-up</strong>: <em>What alert thresholds would you set for KV cache utilization?</em> (Trigger alerts when active block utilization exceeds 90% for sustained periods, indicating cache saturation and imminent preemption).</p>
+<h3 id="52-debugging-high-ttft-spikes">52. Debugging High TTFT Spikes</h3>
+<p><strong>Your monitoring system flags p99 TTFT spikes reaching 10 seconds while TPOT remains normal. Walk through your systematic diagnostic process (prefill queue backlogs, un-cached prompt prefixes, un-chunked prefills).</strong><br />
+- <strong>Short Answer</strong>: Identify the bottleneck by isolating the queue delay from the compute time:<br />
+  1. Check the queue size: if the queue is large, the spike is caused by prefill task backlogs.<br />
+  2. Check prefix cache hit rates: a sudden drop indicates that prompts are not matching cached prefixes, forcing the model to re-run full prefill compute passes.<br />
+  3. If the queue is small but prefill time is high, the cause is un-chunked prefills of massive prompts. Enable chunked prefill to interleave prompt processing and stabilize TTFT.<br />
+- <strong>Key Interview Points</strong>: Queue delay vs. compute delay, cache hit rate metrics, head-of-line blocking resolution.<br />
+- <strong>Technical Intuition</strong>: Because prefill is compute-bound, processing a 32k prompt can block the GPU for several seconds. If multiple long prompts arrive simultaneously, they block all decode slots, driving up TTFT.<br />
+- <strong>Production Perspective</strong>: Prevent prefill bottlenecks by enforcing prompt length limits at the gateway and standardizing system prompt formats to maximize Radix tree matches.<br />
+- <strong>Follow-up</strong>: <em>How do you identify prompt prefix mismatch causes?</em> (Inspect prompt templates: check if dynamic values like timestamps, user IDs, or random seeds are being injected into the system prefix).</p>
+<h3 id="53-debugging-gpu-out-of-memory-oom-errors">53. Debugging GPU Out-Of-Memory (OOM) Errors</h3>
+<p><strong>A production LLM worker crashes with a CUDA OOM error under load. How do you investigate whether the root cause was activation spikes, KV cache over-allocation, or CUDA memory fragmentation?</strong><br />
+- <strong>Short Answer</strong>: Analyze the crash trace and allocator state:<br />
+  1. If the crash occurs during prefill, the cause is an activation memory spike from an excessively long prompt.<br />
+  2. If it occurs during decode under high concurrency, the cause is KV cache over-allocation.<br />
+  3. If the allocator logs show free VRAM bytes but no contiguous block of the requested size can be allocated, the cause is CUDA memory fragmentation.<br />
+- <strong>Key Interview Points</strong>: OOM timing checks, configuration bounds, allocation fragmentation patterns.<br />
+- <strong>Technical Intuition</strong>:<br />
+  - Activation memory scales with sequence length and batch size ($O(L^2)$).<br />
+  - KV Cache VRAM is bound by the engine's <code>gpu_memory_utilization</code> configuration.<br />
+  - Fragmentation occurs when allocating and deallocating memory of varying sizes without contiguous mapping.<br />
+- <strong>Production Perspective</strong>: Set <code>gpu_memory_utilization</code> to 0.90 (leaving a 10% buffer for activations) and configure PyTorch's allocator split limits to reduce fragmentation.<br />
+- <strong>Follow-up</strong>: <em>How does PagedAttention prevent fragmentation?</em> (By virtualizing the KV cache memory space, allowing non-contiguous physical block allocations to act as a single logical sequence).</p>
+<h3 id="54-diagnosing-poor-gpu-utilization-low-mfu">54. Diagnosing Poor GPU Utilization (Low MFU)</h3>
+<p><strong>A GPU node shows 95% power consumption but Model FLOPs Utilization (MFU) is below 15%. What are the primary causes (small batch size, memory bandwidth saturation, CPU-GPU data transfer overhead)?</strong><br />
+- <strong>Short Answer</strong>: The primary cause is memory bandwidth saturation during the decode phase. Under low batch sizes, the GPU Tensor Cores sit idle while the system spends cycles loading model weights from HBM to SRAM for single tokens. Other causes include CPU-GPU synchronization stalls and un-batched tool execution delays.<br />
+- <strong>Key Interview Points</strong>: Memory-bandwidth bound idle states, low batch size compute limits, CPU-GPU data transfer bottlenecks.<br />
+- <strong>Technical Intuition</strong>: The GPU draws peak power because the memory buses are fully saturated reading parameters from HBM. However, because $I \approx 1$ FLOP/Byte during decode, the Tensor Cores execute very few operations, keeping MFU extremely low.<br />
+- <strong>Production Perspective</strong>: To raise MFU, increase batch sizes using continuous batching or implement speculative decoding to execute more FLOPs per memory read.<br />
+- <strong>Follow-up</strong>: <em>What is a typical MFU during prefill vs. decode?</em> (Prefill MFU can reach 40-50% due to compute parallelism, while decode MFU is often below 5% for small batches).</p>
+<h3 id="55-cost-optimization-framework">55. Cost Optimization Framework</h3>
+<p><strong>Walk through your exact strategy to reduce an enterprise LLM platform's monthly GPU cloud bill by 50% without dropping response quality or violating latency SLAs.</strong><br />
+- <strong>Short Answer</strong>: Implement a four-stage optimization pipeline:<br />
+  1. <strong>Quantization</strong>: Quantize model weights to FP8 or 4-bit AWQ, reducing model VRAM size and memory bandwidth pressure by 2x to 4x.<br />
+  2. <strong>Prefix Caching</strong>: Enable RadixAttention prefix caching to bypass prefill compute on repeated system prompts and RAG contexts.<br />
+  3. <strong>Continuous Batching</strong>: Use iteration-level scheduling to maximize throughput per GPU node.<br />
+  4. <strong>Auto-scaling</strong>: Set up horizontal auto-scaling to scale down GPU nodes during low-traffic hours.<br />
+- <strong>Key Interview Points</strong>: Quantization cost benefits, cache efficiency gains, batch serving density, dynamic scaling.<br />
+- <strong>Technical Intuition</strong>: Moving from FP16 to INT4 AWQ allows running large models on cheaper, memory-bound GPUs (e.g. A10G instead of A100) while maintaining accuracy, directly cutting cloud spend.<br />
+- <strong>Production Perspective</strong>: Pair prefix caching with continuous batching to maximize the capacity of existing nodes before scaling cluster sizes.<br />
+- <strong>Follow-up</strong>: <em>How does semantic caching fit in this cost framework?</em> (Reclaims 10% to 30% of query costs by returning cached text from a vector database for matching inputs, bypassing LLM compute entirely).</p>
+<hr />
+<h2 id="9-system-design-scenario-questions-5-questions">9. System Design &amp; Scenario Questions (5 Questions)</h2>
+<h3 id="56-design-chatgpt-scale-inference-service">56. Design ChatGPT-Scale Inference Service</h3>
+<p><strong>Design an inference platform capable of serving millions of concurrent active users with streaming SSE responses, prompt prefix caching, multi-tenant rate limits, and sub-second TTFT SLAs.</strong><br />
+- <strong>Short Answer</strong>: Design a multi-tier serving architecture:<br />
+  1. <strong>Gateway Tier</strong>: Handles rate-limiting (token bucket), routes users to regional endpoints, and executes semantic caching.<br />
+  2. <strong>Orchestrator Tier</strong>: Inspects prompt headers and routes requests to model workers holding matching RadixAttention prefixes.<br />
+  3. <strong>Worker Tier</strong>: Run vLLM or SGLang clusters configured with PagedAttention, continuous batching, and chunked prefills to maintain sub-second TTFT SLAs under heavy traffic.<br />
+- <strong>Key Interview Points</strong>: API gateway rate limiting, prefix-routing load balancing, continuous batching, and chunked prefill coordination.<br />
+- <strong>Technical Intuition</strong>: Directing prompts with identical system prefixes to the same worker node maximizes Radix tree cache matches. This reduces the prefill phase compute to a memory lookup, keeping p99 TTFT below target thresholds.<br />
+- <strong>Production Perspective</strong>: Expose telemetry metrics (Prometheus) on engines to monitor KV Cache usage and trigger horizontal auto-scaling before memory saturation.<br />
+- <strong>Follow-up</strong>: <em>How do you handle regional outages?</em> (The global load balancer automatically redirects traffic to healthy regions, while gateways apply fallback routing to alternative APIs).</p>
+<h3 id="57-design-multi-model-router-platform">57. Design Multi-Model Router Platform</h3>
+<p><strong>Design an enterprise AI gateway supporting 20+ fine-tuned models with varying latency SLAs (sub-100ms vs. batch) and cost constraints.</strong><br />
+- <strong>Short Answer</strong>: Build a gateway with a dynamic router and a shared model worker cluster:<br />
+  - <strong>Dynamic Router</strong>: Routes incoming prompts to regional nodes based on SLAs and costs.<br />
+  - <strong>Shared Cluster</strong>: Uses multi-LoRA serving (e.g., vLLM multi-LoRA) to serve 20+ fine-tuned models on a single GPU cluster. The base model is loaded in VRAM once, and custom LoRA adapters are dynamically loaded into memory on-demand.<br />
+- <strong>Key Interview Points</strong>: Multi-LoRA serving architectures, dynamic gateway routing parameters, cost-latency trade-offs.<br />
+- <strong>Technical Intuition</strong>: Standard serving requires loading one base model per GPU, which is memory-prohibitive for 20+ models. Multi-LoRA serving processes adapters as small parameter modifications, allowing the GPU to run multiple fine-tuned models concurrently.<br />
+- <strong>Production Perspective</strong>: Set routing thresholds: send low-latency queries to fine-tuned edge models, and high-complexity queries to base models with LoRA adapters.<br />
+- <strong>Follow-up</strong>: <em>What is the latency overhead of LoRA adapter swapping?</em> (Loading adapters from host RAM to GPU memory can introduce minor latency, which is mitigated by caching active adapters in VRAM).</p>
+<h3 id="58-gpu-memory-bottleneck-priority-checklist">58. GPU Memory Bottleneck Priority Checklist</h3>
+<p><strong>You have a single 24GB GPU and need to serve an 8B model at 32k context length. Walk through your prioritized sequence of optimizations (GQA, INT4/FP8 quantization, PagedAttention, sliding window) to fit the workload.</strong><br />
+- <strong>Short Answer</strong>: Follow this sequence:<br />
+  1. <strong>Weight Quantization</strong>: Quantize weights to 4-bit AWQ. This reduces weight footprint from 16GB to 4GB, freeing up 12GB.<br />
+  2. <strong>PagedAttention</strong>: Reclaim fragmented memory blocks, maximizing active cache space.<br />
+  3. <strong>Grouped-Query Attention (GQA)</strong>: Ensure GQA is enabled (standard on Llama-3 8B), reducing KV Cache VRAM size by 8x.<br />
+  4. <strong>Sliding Window / Context Trimming</strong>: Apply context window limits if sequence length exceeds VRAM capacity under load.<br />
+- <strong>Key Interview Points</strong>: Quantization savings, PagedAttention memory mapping, GQA reduction ratios, context limits.<br />
+- <strong>Technical Intuition</strong>:<br />
+  - Weights: FP16 = 16GB, INT4 = 4GB (saving 12GB).<br />
+  - KV Cache at 32k context ($b=1$, Llama-3 8B GQA):<br />
+    $$\text{VRAM}_{\text{KV}} = 2 \times 1 \times 32768 \times 32 \times 8 \times 128 \times 2 \approx 4 \text{ GB}$$<br />
+  - The model (4GB) and KV cache (4GB) easily fit within the 24GB VRAM, leaving a 16GB buffer for activation spikes and batch concurrency.<br />
+- <strong>Production Perspective</strong>: Prioritize optimizations that maintain output quality (quantization, PagedAttention) before applying destructive window limits.<br />
+- <strong>Follow-up</strong>: <em>Can we run this setup without quantization?</em> (No, because FP16 weights (16GB) and 32k context cache (4GB) would consume 20GB, leaving insufficient memory for activations and batch concurrency).</p>
+<h3 id="59-optimizing-a-70b-latency-sla-violation">59. Optimizing a 70B Latency SLA Violation</h3>
+<p><strong>A 70B model fails its p95 TPOT SLA (requires 50 tokens/sec, achieves 20 tokens/sec). How do you optimize the system (tensor parallelism, AWQ/FP8 quantization, speculative decoding, continuous batching) before downgrading to an 8B model?</strong><br />
+- <strong>Short Answer</strong>: Apply these optimizations systematically:<br />
+  1. <strong>Quantization</strong>: Quantize the model to FP8 or INT4 (AWQ). This reduces weight data transfer sizes by 2x-4x, accelerating memory reads.<br />
+  2. <strong>Tensor Parallelism (TP)</strong>: Scale the TP width (e.g. from TP=2 to TP=4 or TP=8) across NVLink nodes to distribute compute and memory bandwidth loads.<br />
+  3. <strong>Speculative Decoding</strong>: Implement a fast draft model (e.g. Llama-3 8B) or Prompt-Lookup to validate multiple candidate tokens in parallel, bypassing decode bandwidth limits.<br />
+  4. <strong>Continuous Batching</strong>: Maximize batch utilization to raise average throughput.<br />
+- <strong>Key Interview Points</strong>: Quantization speedups, TP width scaling, speculative decoding acceleration.<br />
+- <strong>Technical Intuition</strong>:<br />
+  - Quantizing to INT4 AWQ cuts model read traffic from 140GB/token to 35GB/token, directly increasing TPOT throughput.<br />
+  - Scaling TP width to 4 nodes reduces weights loaded per node, raising memory-read speeds.<br />
+  - Speculative decoding generates multiple tokens per target step, bypassing the sequential generation limit.<br />
+- <strong>Production Perspective</strong>: Evaluate the cost-latency tradeoff of scaling TP nodes before deciding to downgrade to a smaller model.<br />
+- <strong>Follow-up</strong>: <em>Does TP scaling always decrease TPOT?</em> (No, if the network interconnect is slow, the All-Reduce communication overhead can exceed compute savings, slowing down TPOT).</p>
+<h3 id="60-fair-inference-benchmarking-methodology">60. Fair Inference Benchmarking Methodology</h3>
+<p><strong>How do you design a fair, reproducible benchmarking methodology to evaluate two competing inference engines (e.g., vLLM vs. SGLang) on real-world multi-turn conversational traces?</strong><br />
+- <strong>Short Answer</strong>: Design a benchmarking framework that replays real-world traffic profiles:<br />
+  - <strong>Dataset</strong>: Use a representative dataset of multi-turn conversational traces (e.g. ShareGPT).<br />
+  - <strong>Traffic Profile</strong>: Replay requests using a Poisson process to simulate realistic arrival intervals.<br />
+  - <strong>Metrics</strong>: Measure TTFT, TPOT, and overall TPS.<br />
+  - <strong>Controls</strong>: Ensure both engines run on identical hardware, using identical weights, quantization parameters, and temperature configurations.<br />
+- <strong>Key Interview Points</strong>: Poisson request distribution, representative test traces, latency/throughput metrics, control variables.<br />
+- <strong>Technical Intuition</strong>: Replaying requests with realistic prompt-to-response length distributions is critical because prefill-to-decode ratios determine scheduler efficiency. Static mock sequences (e.g. 512 in, 512 out) fail to test prefix cache evictions or continuous batching scheduler performance under dynamic loads.<br />
+- <strong>Production Perspective</strong>: Run benchmarks under varying levels of concurrency to identify the saturation point where engines begin preemption or fail to meet SLAs.<br />
+- <strong>Follow-up</strong>: <em>Why is the Poisson process preferred for arrival times?</em> (Because it models independent, random request arrivals, which matches the behavior of real-world user traffic).</p>
+    </div>
+
+
+</body>
+</html>
