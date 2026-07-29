@@ -101,10 +101,35 @@ As $\alpha$ drops, the speedup factor decreases. If the draft model overhead exc
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It bypasses the memory bandwidth bottleneck of autoregressive decoding by utilizing a computationally cheap draft mechanism to generate multiple candidate tokens, which are verified in parallel during a single forward pass of the target model.
+
+#### Why was it introduced?
+Interactive generation requires loading a massive model's weights from HBM to GPU SRAM for every single token generated. By validating a block of draft tokens in parallel, the target model reuses its loaded weights over multiple candidate tokens, increasing arithmetic intensity and throughput.
+
+#### What are its limitations?
+- **VRAM Allocation Overhead**: Storing both the draft and target models in memory limits the VRAM footprint available for concurrent client KV Caches.
+- **Draft Alignment Dependence**: If the draft model's output semantic distribution differs heavily from the target model ($\alpha < 0.5$), verification steps will frequently fail, leading to wasted compute and slowdowns.
+
+#### Computational Complexity (Time & Memory)
+- **Speculative Generation Step**:
+  - *Time Complexity*: $O(\gamma \cdot P_{\text{draft}} + P_{\text{target}})$ operations per speculative step (where $\gamma$ is the draft sequence length).
+  - *Memory Complexity*: $O(\text{VRAM}_{\text{draft}} + \text{VRAM}_{\text{target}})$ to hold both parameters in VRAM.
+
+#### Component Variable Denotation Legend
+- $\alpha$: Average draft acceptance rate (probability target accepts draft proposal).
+- $\gamma$: Lookahead draft sequence length (number of speculative proposal steps).
+- $P_{\text{draft}}, P_{\text{target}}$: Parameter counts of draft and target models, respectively.
+- $q(x)$: Token distribution proposed by the draft model.
+- $p(x)$: True token distribution calculated by the target model.
+
+#### Production Use Cases
+- **Consumer Hardware Serving**: Accelerating large local models (e.g. Llama-3 70B) on laptops by speculating with small, fast draft heads (Medusa).
+- **Interactive Coding Assistants**: Utilizing Prompt-Lookup heuristics to copy repeating N-grams from prompt history, achieving speedups with zero VRAM and zero training cost.
+
+#### Follow-up questions interviewers ask
+1. *Explain how rejection sampling in speculative decoding guarantees mathematical losslessness.*
+   - **Answer**: Rejection sampling scales draft token acceptance by the probability density ratio $\alpha = \min\left(1, \frac{p(x^*)}{q(x^*)}\right)$. If a draft token is rejected, we throw away subsequent candidates and select a fallback token from the difference distribution $p'(x) = \frac{\max(0, p(x) - q(x))}{\sum_y \max(0, p(y) - q(y))}$. Mathematically, this combination of acceptance and fallback probabilities collapses to exactly $p(x)$, ensuring the generated sequence is distributionally identical to a raw target model pass.
+2. *Under what deployment conditions does Speculative Decoding degrade serving performance?*
+   - **Answer**: When serving high-concurrency request workloads (high active batch sizes). At high batch sizes, the target model's decode execution transitions from memory-bandwidth-bound to compute-bound because the GPU Tensor Cores are fully saturated by parallel batch matrices. Under these conditions, the extra computational FLOPs required to run the draft model and verify paths add latency, making speculative serving slower than raw continuous batch serving.

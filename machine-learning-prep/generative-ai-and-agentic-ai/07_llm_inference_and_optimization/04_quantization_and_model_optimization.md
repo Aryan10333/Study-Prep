@@ -125,10 +125,37 @@ The table below summarizes the trade-offs of quantizing a Llama-3 8B model:
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It reduces the precision bit-width of model parameters and activations (from FP16 to FP8/INT8/INT4), shrinking the memory size of weights and KV Cache tensors to save VRAM and accelerate memory-bound decode latency.
+
+#### Why was it introduced?
+Deploying massive models in production requires multiple enterprise GPUs (e.g. A100s/H100s) purely to accommodate weight parameters, leading to high capital expenditures. Quantizing parameters down to 4-bit cuts server costs by 4x, allowing 70B models to run on single nodes and 8B models on consumer laptops.
+
+#### What are its limitations?
+- **Perplexity Loss**: Lower precision introduces mathematical rounding noise, which can degrade the model's accuracy on reasoning, mathematics, or code generation tasks.
+- **Dequantization Latency**: On memory-bandwidth-bound GPUs, dynamically dequantizing INT4 weights back to FP16 in SRAM at runtime can add CPU/kernel latency, reducing theoretical throughput gains.
+
+#### Computational Complexity (Time & Memory)
+- **Quantized Matrix Multiplication**:
+  - *Time Complexity*: $O(M \cdot N \cdot K)$ operations per layer, but executing integer matrix multiplies (e.g. W8A8 via SmoothQuant) runs faster on dedicated GPU Tensor Cores.
+  - *Memory Complexity*: Weight parameter VRAM footprints scale down linearly by the compression factor: $\text{VRAM}_{\text{quant}} = P \cdot \frac{\text{bits}}{8}$ Bytes.
+
+#### Component Variable Denotation Legend
+- $P$: Model parameter count (number of weights).
+- $\text{bits}$: Precision bit-width ($16$ for FP16, $8$ for FP8/INT8, $4$ for INT4).
+- $s$: Scale factor (real-valued multiplier).
+- $z$: Zero-point integer offset (for asymmetric mapping).
+- $q$: Quantized integer representation.
+- $r$: Reconstructed real float value.
+- $q_{\text{min}}, q_{\text{max}}$: Minimum and maximum bounds of the integer grid.
+
+#### Production Use Cases
+- **Local Edge Hosting (llama.cpp / GGUF)**: Running LLMs on consumer devices (macBooks, laptops) using 4-bit block-wise quantization.
+- **High-Throughput Serving (vLLM / AWQ)**: Scaling batch sizes on server clusters by deploying AWQ INT4 weights to save KV cache space.
+
+#### Follow-up questions interviewers ask
+1. *Why are activations much harder to quantize to INT8 than weights in LLMs?*
+   - **Answer**: Weights have relatively static, uniform distributions that easily map to integer ranges. Activations, however, suffer from "emergent outliers" (certain channels spike to values 100x larger than median values). Quantizing these activations directly squashes normal features, degrading performance. SmoothQuant resolves this by mathematically migrating the quantization difficulty from activations to weights.
+2. *Contrast Post-Training Quantization (PTQ) with Quantization-Aware Training (QAT).*
+   - **Answer**: PTQ quantizes a pre-trained model directly without retraining, using a small calibration dataset to estimate scale and zero-point parameters. It is fast and cheap but can cause perplexity drops on lower bit-widths ($<4$ bits). QAT simulates quantization rounding errors during model training using straight-through estimators. It is compute-expensive (requires training loops) but preserves accuracy.

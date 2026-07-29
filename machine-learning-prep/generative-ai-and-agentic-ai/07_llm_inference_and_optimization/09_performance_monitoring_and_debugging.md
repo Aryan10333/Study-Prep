@@ -79,10 +79,35 @@ To diagnose deep performance bottlenecks, developers use profiling frameworks:
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It tracks serving telemetry (latency percentiles, cache hits, memory occupancy) to detect performance regressions and implements systemic debugging procedures to resolve production crashes like Out-Of-Memory (OOM) errors.
+
+#### Why was it introduced?
+In LLM serving, silent failures (such as memory leaks, high p99 tails, and cache degradation) are common. Monitoring dashboards and profiling pipelines allow site reliability engineers to trace bottlenecks to specific layers or communication protocols.
+
+#### What are its limitations?
+- **Telemetry Overhead**: Lightweight loggers can introduce disk I/O bottlenecks; heavy GPU profiling tools (e.g. PyTorch Profiler, Nsight) introduce significant runtime latency overhead and cannot be run continuously on live production traffic.
+- **Alert Fatigue**: Fluctuating query distributions can trigger false positive alerts if static thresholds are configured on latency metrics.
+
+#### Computational Complexity (Time & Memory)
+- **Telemetry Processing**:
+  - *Time Complexity*: $O(1)$ metric aggregation overhead.
+  - *Memory Complexity*: $O(\text{Metrics Buffer})$ tiny memory footprint.
+
+#### Component Variable Denotation Legend
+- $M_{\text{used}}$: Active GPU memory utilization (in GB).
+- $L_{\text{tail}}$: 99th percentile customer response tail latency.
+- $R_{\text{cache}}$: Prefix cache block hit ratio.
+- $T_{\text{tft}}, T_{\text{pot}}$: Time-To-First-Token and Time-Per-Output-Token.
+- $\text{MFU}$: Model FLOPs Utilization (ratio of actual FLOPs achieved to hardware peak FLOPs).
+
+#### Production Use Cases
+- **Real-Time API Alerts**: Monitoring p99 TTFT and page cache hit ratios in Datadog to identify capacity constraints.
+- **Incident Diagnostics**: Analyzing Nsight timelines to trace a p99 latency spike to Tensor Parallel All-Reduce bottlenecks across slow switches.
+
+#### Follow-up questions interviewers ask
+1. *How do you distinguish a software-level memory leak from normal KV Cache fragmentation in a serving cluster?*
+   - **Answer**: Monitor the physical block allocations over a steady request workload. Under normal virtual memory management (PagedAttention), the number of free physical blocks fluctuates but returns to its baseline when requests finish. If the free block pool continuously decreases while the active request concurrency remains flat, physical blocks are failing to be evicted, confirming a software-level memory leak.
+2. *A container logs a CUDA Out-Of-Memory (OOM) error during the prefill phase. How do you diagnose and resolve this?*
+   - **Answer**: CUDA OOMs during prefill occur because the intermediate activation tensors (which scale quadratically with sequence length $L^2$) exceed the remaining VRAM not occupied by model weights. To resolve this: (1) Reduce the active batch size or enforce a maximum request token limit, (2) enable Chunked Prefill to split heavy inputs into smaller blocks, or (3) configure the serving engine to reserve a larger VRAM buffer for activations by lowering `gpu_memory_utilization` in configs.

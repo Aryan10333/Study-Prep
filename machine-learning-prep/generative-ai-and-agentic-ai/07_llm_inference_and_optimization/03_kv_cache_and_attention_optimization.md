@@ -172,10 +172,36 @@ FlashAttention (1, 2, and 3) optimizes attention compute speed, but it is import
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It prevents redundant query-key-value projections of historical tokens during autoregressive decoding, converting the self-attention calculation from a quadratic time pass ($O(t^2)$) to a single-step vector projection ($O(1)$) and a cache lookup.
+
+#### Why was it introduced?
+Autoregressive language models must reference all past token context to compute causal self-attention. Without caching, the attention computation overhead would explode quadratically, making long-context interactive generations completely impractical.
+
+#### What are its limitations?
+- **Massive VRAM Consumption**: Storing cached key-value states uses gigabytes of GPU memory, capping the concurrent serving batch size.
+- **Fragmentation Waste**: Static pre-allocation schemes allocate memory blocks to the maximum sequence length, wasting up to 60%-80% of VRAM on padding or early completions.
+
+#### Computational Complexity (Time & Memory)
+- **Causal Attention with KV Cache**:
+  - *Time Complexity*: $O(b \cdot L \cdot d)$ attention scores dot-product operations per decoding step (linear scaling with sequence length).
+  - *Memory Complexity*: $O(b \cdot L \cdot s \cdot n_{\text{heads\_kv}} \cdot d_{\text{head}})$ to store the KV Cache in VRAM.
+
+#### Component Variable Denotation Legend
+- $b$: Serving batch size.
+- $L$: Total active sequence context length (in tokens).
+- $s$: Number of Transformer layers.
+- $n_{\text{heads\_kv}}$: Key-Value attention heads per layer.
+- $d_{\text{head}}$: Dimensionality of each attention head.
+- $\text{VRAM}_{\text{KV}}$: Dynamic VRAM space occupied by key-value caches (in Bytes).
+
+#### Production Use Cases
+- **Multi-Turn Chatbots**: Utilizing SGLang's RadixAttention prefix caching to store conversational history, bypassing prefill computation on system prompts.
+- **High-Throughput Enterprise APIs**: vLLM serving frameworks deploying PagedAttention block structures to scale concurrency batches.
+
+#### Follow-up questions interviewers ask
+1. *Does FlashAttention help reduce the VRAM footprint of the stored KV Cache in production serving?*
+   - **Answer**: No. FlashAttention optimizes intermediate activation memory (like the temporary $Q K^T$ matrix) during attention computation loops inside GPU SRAM, but it has no impact on the stored KV Cache. The key-value states must still occupy the VRAM size determined by the sizing formula.
+2. *Explain the mathematical difference between Multi-Head Attention (MHA), Multi-Query Attention (MQA), and Grouped-Query Attention (GQA).*
+   - **Answer**: MHA has a dedicated key and value head for each query head ($H:H$). MQA has all query heads share a single key and value head ($1:H$). GQA groups query heads (e.g. groups of 8) and has each group share a single key and value head ($G:H$). GQA reduces the VRAM size of the KV Cache by the grouping factor (e.g., 8x reduction over MHA) while preserving representational capacity.

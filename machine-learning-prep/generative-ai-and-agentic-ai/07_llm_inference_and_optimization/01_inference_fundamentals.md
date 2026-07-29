@@ -176,10 +176,40 @@ Production LLM hosting targets three metrics to satisfy client SLAs:
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It decouples the end-to-end LLM inference workflow into a high-parallelism prefill phase and a sequential, token-by-token decoding loop. This separation highlights the distinction between compute-bound matrix processing and memory-bandwidth-bound matrix-vector operations, laying the groundwork for latency optimizations.
+
+#### Why was it introduced?
+As models scaled from millions to billions of parameters, naive sequential rendering became too slow for user interfaces. Formulating prefill and decode stages enabled systems architects to isolate bottlenecks (FLOPs limits vs. HBM bus throughput) and design specialized scheduling, memory cache managers, and hardware kernels.
+
+#### What are its limitations?
+- **Low Compute Occupancy during Decode**: Because decode is memory-bound, GPU Tensor Cores sit idle up to 85%-90% of the time, leading to low execution occupancy.
+- **Head-of-Line Blocking**: Long prompt prefill processing can stall active decoding streams in a shared execution queue.
+
+#### Computational Complexity (Time & Memory)
+- **Prefill (Prompt Processing)**:
+  - *Time Complexity*: $O(L_{\text{prompt}}^2 \cdot d + L_{\text{prompt}} \cdot d^2)$ operations per attention layer.
+  - *Memory Complexity*: $O(b \cdot L_{\text{prompt}}^2 + b \cdot L_{\text{prompt}} \cdot d)$ space for intermediate attention score activations.
+- **Decode (Token Generation)**:
+  - *Time Complexity*: $O(b \cdot L_{\text{output}} \cdot d^2)$ operations per attention layer (for query projections and output feed-forwards).
+  - *Memory Complexity*: $O(b \cdot d)$ per generation step.
+
+#### Component Variable Denotation Legend
+- $b$: Batch size (number of concurrent client queries).
+- $L$: Sequence token length (where $L = L_{\text{prompt}} + L_{\text{output}}$).
+- $d$: Hidden model dimension ($d = n_{\text{heads}} \times d_{\text{head}}$).
+- $s$: Number of attention layers.
+- $P$: Model parameter count (in billions).
+- $B_{\text{peak}}$: Peak GPU memory bus bandwidth (in Bytes/sec).
+- $P_{\text{peak}}$: Peak GPU floating-point compute capacity (in FLOPs/sec).
+
+#### Production Use Cases
+- **Low-Latency Streaming API Gateways**: Optimizing TTFT and TPOT to meet strict customer Service Level Agreements (SLAs).
+- **Batch Processing Systems**: Maximizing overall model throughput (tokens/sec) for offline document categorization or database summaries.
+
+#### Follow-up questions interviewers ask
+1. *Why does the prefill phase transition from compute-bound to memory-bound when sequence lengths exceed a certain threshold?*
+   - **Answer**: Attention matrix size scales quadratically ($O(L^2)$). As $L$ becomes extremely large, loading massive query-key-value attention score metrics from HBM to SRAM dominates execution time, shifting the bottleneck to memory bandwidth.
+2. *Describe the quantitative trade-off between collocated serving vs. Prefill-Decode (PD) Disaggregated Serving.*
+   - **Answer**: Collocated serving has zero inter-node communication latency but suffers from p99 tail latency spikes due to prefill tasks blocking decodes. PD disaggregation stabilizes decode latencies (lowering p99 TPOT by up to 50%) but introduces KV cache transport latency across networks (RDMA/InfiniBand) between prefill and decode nodes.

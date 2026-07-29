@@ -133,10 +133,37 @@ Historically, calculating the logit mask at each step introduced significant CPU
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It translates raw model logit vectors into stable natural language outputs, controlling text diversity and factuality through truncation (Top-K/Top-P/Min-P) and scaling (Temperature) methods.
+
+#### Why was it introduced?
+Raw autoregressive generation without sampling (or using only greedy selection) suffers from repetitive loops, generic phrasing, and hallucinations. Sampling parameters allow clients to control the tradeoff between factual accuracy (low temperature, low Top-P) and creative variation (high temperature, Min-P).
+
+#### What are its limitations?
+- **Top-K Rigidity**: Crops out vocabulary dynamically based on rank, which can discard viable synonyms in flat probability distributions.
+- **Top-p Tail Inclusion**: Accumulates high numbers of low-probability garbage tokens when the top token has low confidence.
+- **CPU Transition Delay**: Grammar verification engines historically added significant serialization overhead.
+
+#### Computational Complexity (Time & Memory)
+- **Logit Transformation & Sampling**:
+  - *Time Complexity*: $O(|V| \log |V|)$ operations per step to sort vocabulary logits (for Top-K or Top-P). Optimized by GPU top-$k$ sorting algorithms.
+  - *Memory Complexity*: $O(|V|)$ space to store vocabulary logits and masks.
+
+#### Component Variable Denotation Legend
+- $|V|$: Vocabulary size (number of valid tokens in tokenizer).
+- $T$: Temperature scaling divisor.
+- $K$: Top-K cutoff rank.
+- $p$: Top-p cumulative probability threshold.
+- $p_{\text{scale}}$: Min-p scaling factor relative to top probability.
+- $\theta$: Repetition penalty scaling factor.
+
+#### Production Use Cases
+- **Structured Database Connectors**: Schema-guided generation enforcing strict JSON formats for API payloads.
+- **Creative Drafting Assistants**: High-temperature sampling tuned with Min-P to preserve linguistic variety without breaking coherence.
+
+#### Follow-up questions interviewers ask
+1. *Why is Min-P preferred over Top-P for high-temperature open-ended writing?*
+   - **Answer**: In high-temperature states, Top-P still collects tokens until the cumulative sum hits $p$ (e.g. 0.9), forcing the inclusion of long-tail garbage tokens when the model is uncertain. Min-P sets a cutoff *relative* to the top token's probability. If the top token has a low probability, the cutoff scales down, keeping a wide selection of reasonable tokens; if the top token is highly confident, it cuts off early, preventing random selections.
+2. *How does speculative decoding handle temperature and sampler verification?*
+   - **Answer**: Speculative decoding verification must execute identical sampler transformations on the target model. If temperature $T > 0$, the rejection sampler uses the probability ratios $\frac{p(x^*)}{q(x^*)}$ of the generated tokens to stochastically accept draft blocks, preserving the stochastic output distribution losslessly.

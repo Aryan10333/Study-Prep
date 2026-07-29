@@ -49,10 +49,37 @@ The table below compares serving engines across operational dimensions:
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It compiles and orchestrates complex scheduling algorithms (continuous batching), memory managers (PagedAttention, RadixAttention), and kernel abstractions into a high-performance serving system (vLLM, SGLang, TensorRT-LLM, llama.cpp).
+
+#### Why was it introduced?
+Deploying vanilla PyTorch model checkpoints with standard Hugging Face pipelines yields very low throughput and high latencies. Serving engines bridge this gap by replacing Python loops with highly optimized C++/CUDA kernels, stabilizing SLAs.
+
+#### What are its limitations?
+- **Platform Incompatibility**: Specialized engines like TensorRT-LLM are locked into NVIDIA hardware.
+- **Complexity Overhead**: High software abstractions make custom modifications or unsupported model architectures difficult to implement.
+
+#### Computational Complexity (Time & Memory)
+- **Engine Serving Loops**:
+  - *Time Complexity*: $O(1)$ request orchestration latency. Dynamic memory page allocation lookups are $O(1)$ through pre-allocated block tables.
+  - *Memory Complexity*: $O(b \cdot L \cdot s \cdot d)$ KV cache space managed inside virtual blocks.
+
+#### Component Variable Denotation Legend
+- $b$: Concurrent serving batch size.
+- $L$: Sequence token context length.
+- $s$: Attention layers count.
+- $d$: Hidden model dimension.
+- $R_{\text{ps}}$: Input request arrival rate (requests/sec).
+- $T_{\text{tft}}$: Time-To-First-Token.
+- $T_{\text{pot}}$: Time-Per-Output-Token.
+
+#### Production Use Cases
+- **Enterprise SaaS Serving (vLLM / SGLang)**: Hosting OpenAI-compatible REST API gateways to serve web apps.
+- **Edge Deployment (llama.cpp)**: Deploying LLMs locally on consumer hardware (Apple Silicon, edge servers).
+
+#### Follow-up questions interviewers ask
+1. *When should you deploy TensorRT-LLM instead of vLLM in an enterprise architecture?*
+   - **Answer**: Choose TensorRT-LLM when you need maximum raw throughput on fixed model architectures (like Llama-3) and have the engineering budget to compile customized engines using TensorRT. Choose vLLM when you require fast developer iteration, support for arbitrary open-source models out of the box, and clean integration with Python ecosystem web frameworks.
+2. *Describe the performance advantage of SGLang's RadixAttention prefix cache over vLLM's block-level prefix cache.*
+   - **Answer**: vLLM uses block-level cryptographic hashing, which requires exact matches of token sequences within fixed-size logical block boundaries. If a chat prompt branches slightly, block alignment fails. SGLang uses a dynamic Radix Tree structure to map arbitrary context prefixes as nodes. When queries arrive, SGLang traverses the tree to find the longest matching prefix path, reusing cache blocks across branching tree structures dynamically and reducing TTFT.

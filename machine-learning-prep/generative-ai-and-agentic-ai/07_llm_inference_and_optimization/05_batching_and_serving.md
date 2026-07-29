@@ -98,10 +98,36 @@ Splits the sequence length dimension of a long context input across GPUs. Each G
 ---
 
 ### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+
+#### What problem does this solve?
+It allows multiple requests to be processed simultaneously on a single GPU (through continuous batching and dynamic scheduling) and scales models across multiple nodes (through tensor, pipeline, and context parallelism) when they exceed a single GPU's VRAM constraints.
+
+#### Why was it introduced?
+Single-request LLM decoding runs at low GPU utilization due to memory bandwidth limits. Batching concurrent requests increases arithmetic intensity, making better use of GPU cores. Multi-GPU parallelism splits massive parameters that cannot fit in a single GPU's memory pool.
+
+#### What are its limitations?
+- **High Concurrency Latency Spikes**: Large active batch sizes increase queue wait times, degrading time-to-first-token (TTFT) and time-per-output-token (TPOT).
+- **Communication Bottlenecks**: Tensor Parallelism relies heavily on high-speed NVLink interconnects; scaling TP beyond 8 GPUs across network switches causes severe latency slowdowns due to All-Reduce delays.
+
+#### Computational Complexity (Time & Memory)
+- **Continuous Batching & Scheduling**:
+  - *Time Complexity*: $O(b \cdot L \cdot d^2)$ operations per iteration (where $b$ is the dynamic active batch size).
+  - *Memory Complexity*: KV cache allocations scale as $O(b \cdot L_{\text{max}} \cdot s \cdot d)$ without virtualization, and $O(b \cdot L_{\text{active}} \cdot s \cdot d)$ with virtual page block mapping.
+
+#### Component Variable Denotation Legend
+- $b$: Concurrent serving batch size.
+- $L$: Sequence token length.
+- $d$: Hidden model dimension.
+- $s$: Transformer layer depth.
+- $TP_{\text{width}}$: Tensor Parallel partition factor.
+- $PP_{\text{width}}$: Pipeline Parallel stage count.
+
+#### Production Use Cases
+- **Enterprise Conversational Gateways**: Utilizing continuous iteration scheduling to serve thousands of concurrent chat queries.
+- **Large Model Scale-out**: Deploying Llama-3 405B over a cluster of 8xH100 nodes utilizing a combination of Tensor Parallelism ($TP=8$) and Pipeline Parallelism ($PP=8$).
+
+#### Follow-up questions interviewers ask
+1. *How does Chunked Prefill prevent Inter-Token Latency (ITL) spikes for active decoding requests?*
+   - **Answer**: Prefill tasks require heavy matrix-matrix computations, which take longer to execute on GPUs. When collocated in a single serving queue, a new request's prefill phase blocks the decoding iteration steps of all other active requests, causing an ITL spike. Chunked Prefill splits the new prompt's prefill tokens into smaller chunks (e.g. 512 tokens) and schedules one chunk alongside active decodes, keeping iterations fast and stabilizing ITL.
+2. *Describe the pipeline bubble in Pipeline Parallelism, and explain how the 1F1B (One Forward, One Backward) scheduler mitigates it.*
+   - **Answer**: The pipeline bubble refers to the idle time GPUs spend waiting for activation results from preceding stages or gradients from succeeding stages. In naive scheduling, the entire batch is processed forward, then backward, leaving GPUs idle. The 1F1B scheduler divides the batch into micro-batches. Once a stage finishes the forward pass for a micro-batch, it immediately schedules its backward pass before starting the next forward pass, keeping GPUs continuously occupied and reducing the bubble footprint.
