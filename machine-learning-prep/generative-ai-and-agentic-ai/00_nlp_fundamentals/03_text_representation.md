@@ -124,17 +124,17 @@ Retrieval systems query document collections using three primary paradigms:
 - **What are its limitations?**
   Sparse vectors fail to capture semantic relationships (synonyms like `"cat"` and `"feline"` remain orthogonal).
 - **Computational Complexity (Time & Memory)**
-  - **TF-IDF Vectorization Time**: $O(N \cdot L)$ where $N$ is document count and $L$ is sequence length.
-  - **Feature Hashing Lookup Time**: $O(1)$ index lookup.
+    - **TF-IDF Vectorization Time**: $O(N \cdot L)$ where $N$ is document count and $L$ is sequence length.
+    - **Feature Hashing Lookup Time**: $O(1)$ index lookup.
 - **Component Variable Denotation Legend**
-  - $N$: Total document count.
-  - $L$: Document token sequence length.
-  - $B$: Number of feature hash buckets.
-  - $k_1$: BM25 term frequency saturation scaling parameter.
-  - $b$: BM25 document length normalization parameter.
+    - $N$: Total document count.
+    - $L$: Document token sequence length.
+    - $B$: Number of feature hash buckets.
+    - $k_1$: BM25 term frequency saturation scaling parameter.
+    - $b$: BM25 document length normalization parameter.
 - **Production Use Cases**
-  - High-speed text retrieval index systems (Elasticsearch, BM25).
-  - Memory-constrained text classification pipelines using feature hashing.
+    - High-speed text retrieval index systems (Elasticsearch, BM25).
+    - Memory-constrained text classification pipelines using feature hashing.
 - **Follow-up questions interviewers ask**
-  - *How does BM25 prevent document length bias?* (Long documents are penalized via the $b \cdot (|D|/\text{avgdl})$ term in the denominator. This reduces the score if query terms appear in long, noisy texts).
-  - *Why does the sign hash function $\xi(w)$ prevent collision degradation in Feature Hashing?* (By randomly assigning $+1$ or $-1$ to each word, collisions cancel each other out on average, preventing systematic inflation of collision indices).
+    - *How does BM25 prevent document length bias?* (Long documents are penalized via the $b \cdot (|D|/\text{avgdl})$ term in the denominator. This reduces the score if query terms appear in long, noisy texts).
+    - *Why does the sign hash function $\xi(w)$ prevent collision degradation in Feature Hashing?* (By randomly assigning $+1$ or $-1$ to each word, collisions cancel each other out on average, preventing systematic inflation of collision indices).

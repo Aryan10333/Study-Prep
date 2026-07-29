@@ -53,6 +53,8 @@ def generate_all_plots():
                 xticklabels=doc_labels, yticklabels=doc_labels, cbar=True, 
                 vmin=0, vmax=1, linewidths=1.0, linecolor='#e2e8f0',
                 annot_kws={"size": 11, "weight": "bold", "color": "#0f172a"}, ax=ax)
+    ax.set_xticklabels(doc_labels, rotation=15, ha='right')
+    ax.set_yticklabels(doc_labels, rotation=0)
     ax.set_title('Sparse Document Cosine Similarity Matrix', fontsize=12, fontweight='bold', pad=15)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'tfidf_similarity_heatmap.png'), dpi=300)

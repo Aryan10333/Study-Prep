@@ -100,19 +100,19 @@ $$\text{PPL} = e^{\text{Cross-Entropy Loss}}$$
 - **Why was it introduced?**
   Introduced to score token sequences based on natural language frequencies.
 - **What are its limitations?**
-  - **Memory Bottleneck**: Parameter count scales exponentially as $O(|V|^N)$ as the n-gram context order $N$ increases.
-  - **Zero-Probability Defect**: Fails to generate probabilities for unseen sequences without smoothing.
+    - **Memory Bottleneck**: Parameter count scales exponentially as $O(|V|^N)$ as the n-gram context order $N$ increases.
+    - **Zero-Probability Defect**: Fails to generate probabilities for unseen sequences without smoothing.
 - **Computational Complexity (Time & Memory)**
-  - **Inference Time**: $O(1)$ constant time lookup if using precomputed n-gram tables.
-  - **Storage Memory**: $O(|V|^N)$ space.
+    - **Inference Time**: $O(1)$ constant time lookup if using precomputed n-gram tables.
+    - **Storage Memory**: $O(|V|^N)$ space.
 - **Component Variable Denotation Legend**
-  - $m$: Token count of the evaluation sequence.
-  - $|V|$: Vocabulary token size.
-  - $N_c$: Number of unique n-grams appearing exactly $c$ times.
-  - $\lambda_i$: Interpolation coefficients.
+    - $m$: Token count of the evaluation sequence.
+    - $|V|$: Vocabulary token size.
+    - $N_c$: Number of unique n-grams appearing exactly $c$ times.
+    - $\lambda_i$: Interpolation coefficients.
 - **Production Use Cases**
-  - Text auto-complete query routing systems.
-  - Basic speech recognition transcript decoding.
+    - Text auto-complete query routing systems.
+    - Basic speech recognition transcript decoding.
 - **Follow-up questions interviewers ask**
-  - *Why does Perplexity decrease as you increase N in an N-gram model?* (Higher-order models capture more local context, reducing uncertainty at each step, which lowers cross-entropy loss and perplexity).
-  - *How do you choose lambda interpolation parameters?* (By optimizing the coefficients using expectation-maximization or grid search on a held-out validation dataset).
+    - *Why does Perplexity decrease as you increase N in an N-gram model?* (Higher-order models capture more local context, reducing uncertainty at each step, which lowers cross-entropy loss and perplexity).
+    - *How do you choose lambda interpolation parameters?* (By optimizing the coefficients using expectation-maximization or grid search on a held-out validation dataset).

@@ -105,16 +105,41 @@ Before vectorization, classical pipelines reduce morphological variations of wor
 
 ---
 
-## 3. Regular Expressions and Unicode Normalization
+## 3. Classical Text Preprocessing Pipeline Steps
+
+Before applying modeling or vectorization layers, classical NLP pipelines clean, split, and normalize raw inputs. The primary preprocessing steps and techniques include:
+
+### 1. Tokenization (Sentence and Word Level)
+Tokenization splits a continuous character stream into semantic blocks:
+- **Sentence Tokenization (Segmentation)**: Divides a text block into individual sentences (e.g. using NLTK's `sent_tokenize` or spaCy, which handle punctuation ambiguities like `"Dr. Smith bought an apple."`).
+- **Word Tokenization**: Divides sentences into words. Standard word tokenizers handle contraction splittings (e.g. splitting `"don't"` into `["do", "n't"]` or `["dont"]` depending on the grammar template).
+
+### 2. Case Normalization
+Case normalization maps all characters to lowercase.
+- *Production Trade-offs*: Reduces the vocabulary search space (merging `"Apple"`, `"APPLE"`, and `"apple"` into a single index). However, it degrades performance for Named Entity Recognition (NER), Sentiment Analysis, and POS Tagging because it discards critical structural cues (e.g. distinguishing `"Apple"` the company from `"apple"` the fruit).
+
+### 3. Stopword Removal
+Stopwords are high-frequency, low-semantic-value words (e.g. `"is"`, `"the"`, `"at"`, `"which"`).
+- *Production Trade-offs*: Essential for sparse retrieval indices (TF-IDF, BM25) and classical classifiers (Naïve Bayes, SVM) to reduce dimensionality and speed up database query searches.
+- *Negative Trade-offs*: **Do NOT use stopword removal for sequence models (RNNs, LSTMs, Transformers)**. Removing stopwords destroys syntactic sequence context, positional relationships, and grammatical structure, degrading model outputs.
+
+### 4. Noise Cleaning & Text Normalization
+- **HTML/Markdown Stripping**: Removing raw markup tags (e.g. using `BeautifulSoup` or regex patterns like `r"<[^>]*>"`).
+- **Contraction Expansion**: Expanding abbreviations and contractions (e.g., mapping `"I've"` to `"I have"`) to align token usage across documents.
+- **Emoji Handling**: Stripping emojis or converting them into descriptive word tokens (e.g. mapping `😊` to `"[happy_face]"`) to preserve sentiment in user reviews.
+
+---
+
+## 4. Regular Expressions and Unicode Normalization
 
 Uncleaned raw strings contain encoding anomalies and noise that must be filtered out:
 
 - **Common Regex Cleanups**:
-  - URL removal: `re.sub(r"https?://\S+", "", text)`
-  - Punctuation removal: `re.sub(r"[^\w\s]", "", text)`
+    - URL removal: `re.sub(r"https?://\S+", "", text)`
+    - Punctuation removal: `re.sub(r"[^\w\s]", "", text)`
 - **Unicode Normalization**: Ensures consistent character representations. For example, the accented character `é` can be represented as:
-  - **NFC (Composition)**: Single code point `\u00e9`.
-  - **NFD (Decomposition)**: Decomposed into base `e` (`\u0065`) and combining accent character `´` (`\u0301`).
+    - **NFC (Composition)**: Single code point `\u00e9`.
+    - **NFD (Decomposition)**: Decomposed into base `e` (`\u0065`) and combining accent character `´` (`\u0301`).
 
 ---
 
@@ -133,15 +158,15 @@ Uncleaned raw strings contain encoding anomalies and noise that must be filtered
 - **What are its limitations?**
   Extreme preprocessing (e.g. discarding casing and punctuation) discards semantic context (such as sentiment cues, code syntax symbols, or structural boundaries).
 - **Computational Complexity (Time & Memory)**
-  - **BPE Encoding Time**: $O(L \cdot \log |V|)$ where $L$ is sequence length.
-  - **Lemmatization Time**: $O(N \cdot D)$ where $N$ is word count and $D$ represents dictionary search depth.
+    - **BPE Encoding Time**: $O(L \cdot \log |V|)$ where $L$ is sequence length.
+    - **Lemmatization Time**: $O(N \cdot D)$ where $N$ is word count and $D$ represents dictionary search depth.
 - **Component Variable Denotation Legend**
-  - $L$: Sequence token length.
-  - $|V|$: Target vocabulary size.
-  - $D$: Dictionary lookup size.
+    - $L$: Sequence token length.
+    - $|V|$: Target vocabulary size.
+    - $D$: Dictionary lookup size.
 - **Production Use Cases**
-  - Subword tokenization pipelines in multilingual LLMs.
-  - Normalizing raw user queries (e.g. casing and Unicode accents) before search indexing.
+    - Subword tokenization pipelines in multilingual LLMs.
+    - Normalizing raw user queries (e.g. casing and Unicode accents) before search indexing.
 - **Follow-up questions interviewers ask**
-  - *How does BPE handle a word with unknown characters during inference?* (Characters not seen during training are mapped to character-level bytes or fallback tokens using a byte-fallback vocabulary, preventing `<unk>` errors).
-  - *Why should you avoid lowercase normalization for Named Entity Recognition (NER)?* (Named entities like `"Apple"` (company) depend heavily on capitalization to differentiate them from `"apple"` (fruit)).
+    - *How does BPE handle a word with unknown characters during inference?* (Characters not seen during training are mapped to character-level bytes or fallback tokens using a byte-fallback vocabulary, preventing `<unk>` errors).
+    - *Why should you avoid lowercase normalization for Named Entity Recognition (NER)?* (Named entities like `"Apple"` (company) depend heavily on capitalization to differentiate them from `"apple"` (fruit)).

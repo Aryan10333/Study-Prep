@@ -73,15 +73,15 @@ BERTScore aligns each candidate token to its most semantically similar reference
 - **What are its limitations?**
   BLEU/ROUGE fail to capture semantic meaning; embedding models (BERTScore) introduce computational overhead and depend on the quality of the underlying encoder.
 - **Computational Complexity (Time & Memory)**
-  - **BLEU Evaluation Time**: $O(L_{\text{cand}} \cdot L_{\text{ref}})$ string search.
-  - **BERTScore Evaluation Time**: $O(L_{\text{cand}} \cdot L_{\text{ref}} \cdot d)$ plus the forward pass latency of the encoder network.
+    - **BLEU Evaluation Time**: $O(L_{\text{cand}} \cdot L_{\text{ref}})$ string search.
+    - **BERTScore Evaluation Time**: $O(L_{\text{cand}} \cdot L_{\text{ref}} \cdot d)$ plus the forward pass latency of the encoder network.
 - **Component Variable Denotation Legend**
-  - $c$: Candidate token sequence length.
-  - $r$: Reference token sequence length.
-  - $d$: Contextual embedding dimension size.
+    - $c$: Candidate token sequence length.
+    - $r$: Reference token sequence length.
+    - $d$: Contextual embedding dimension size.
 - **Production Use Cases**
-  - Continuous Integration (CI) regression testing for translation pipelines.
-  - Semantic similarity evaluations in question-answering systems.
+    - Continuous Integration (CI) regression testing for translation pipelines.
+    - Semantic similarity evaluations in question-answering systems.
 - **Follow-up questions interviewers ask**
-  - *Why does BLEU use a brevity penalty?* (Without a brevity penalty, a candidate model could output a single high-confidence word like `"the"` and receive a perfect precision score of $1.0$).
-  - *How does BERTScore handle spelling variations?* (Contextual embeddings capture semantic similarities, allowing misspelled or related words to match based on their surrounding contexts).
+    - *Why does BLEU use a brevity penalty?* (Without a brevity penalty, a candidate model could output a single high-confidence word like `"the"` and receive a perfect precision score of $1.0$).
+    - *How does BERTScore handle spelling variations?* (Contextual embeddings capture semantic similarities, allowing misspelled or related words to match based on their surrounding contexts).

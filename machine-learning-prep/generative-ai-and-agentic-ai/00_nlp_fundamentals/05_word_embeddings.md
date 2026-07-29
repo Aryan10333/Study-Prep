@@ -136,15 +136,45 @@ Word embeddings translate semantic similarity into spatial proximity. The learni
 
 ## 2. Word2Vec: CBOW vs. Skip-gram
 
-Word2Vec uses local context window predictions to train embedding vectors:
+Word2Vec is a computationally efficient 3-layer neural network architecture (Input, Projection/Hidden, Output) with no activation functions in the hidden layer (it acts as a linear projection). Once trained, the input projection matrix $\mathbf{W}_{\text{in}} \in \mathbb{R}^{|V| \times d}$ is saved as the final word embedding lookup table, and the output layer is discarded.
 
-- **Continuous Bag-of-Words (CBOW)**: Predicts a target word $w_t$ given context words. Context vectors are averaged, making CBOW faster to train but less sensitive to rare words.
-- **Skip-gram**: Predicts context words given a target word $w_t$. Skip-gram runs multiple predictions per target word, making it slower to train but yielding better representations for rare tokens.
+### 1. Continuous Bag-of-Words (CBOW)
+- **Concept**: Predicts a missing target word $w_t$ given its surrounding context words in a window $C$.
+- **Mechanism**: The input context words are one-hot encoded $\mathbf{x} \in \mathbb{R}^{|V|}$ and projected using the input weight matrix $\mathbf{W}_{\text{in}}$. The model averages these vectors to construct a single hidden state $\mathbf{h} \in \mathbb{R}^d$:
+  $$\mathbf{h} = \frac{1}{2C} \sum_{j=-C, j \neq 0}^{C} \mathbf{W}_{\text{in}}^T \mathbf{x}_{t+j}$$
+  This averaged vector is multiplied by the output weight matrix $\mathbf{W}_{\text{out}}$ to compute logits over the vocabulary, predicting the target word.
+- **Production Trade-offs**: Averaging context vectors smooths out spatial relationships and runs faster, making CBOW ideal for capturing general topic patterns on very large corpora.
+
+### 2. Skip-gram
+- **Concept**: Predicts the surrounding context words in a window $C$ given a single target word $w_t$.
+- **Mechanism**: A single target word $w_t$ is one-hot encoded $\mathbf{x}_t$, projected via $\mathbf{W}_{\text{in}}$ to a hidden state $\mathbf{h} = \mathbf{W}_{\text{in}}^T \mathbf{x}_t \in \mathbb{R}^d$. This vector is multiplied by $\mathbf{W}_{\text{out}}$ to calculate logits and softmax probabilities separately for each of the $2C$ context positions:
+  $$P(w_{t+j} | w_t) = \text{Softmax}(\mathbf{W}_{\text{out}}^T \mathbf{h})$$
+- **Production Trade-offs**: Because each target-context pair is treated as a separate training instance, it does not average out representations. This makes it slower to train but significantly better at representing rare words.
+
+---
 
 ### Negative Sampling Optimization (SGNS)
-To avoid calculating Softmax over the entire vocabulary, Negative Sampling converts the task into binary logistic regression. It updates the target word and a few ($K$) randomly selected "negative" words:
-- Negative samples are drawn from a noise distribution $P_n(w)$ raised to the $3/4$ power, which increases the probability of sampling rare words:
-  $$P_n(w) \propto U(w)^{0.75}$$
+
+#### The Softmax Denominator Bottleneck
+Standard training using a final Softmax layer requires calculating:
+$$P(w_{\text{context}} | w_{\text{target}}) = \frac{\exp(\mathbf{v}'_{w_{\text{context}}} \cdot \mathbf{v}_{w_{\text{target}}})}{\sum_{w_i \in V} \exp(\mathbf{v}'_{w_i} \cdot \mathbf{v}_{w_{\text{target}}})}$$
+Computing the sum in the denominator requires executing a dot product between the target vector and the output vectors of all $|V|$ words in the vocabulary. For large vocabularies ($|V| \ge 100,000$), calculating this sum during backpropagation is extremely slow ($O(|V|)$ cost per training step).
+
+#### Binary Logistic Regression Optimization
+Negative Sampling (SGNS) replaces the multi-class classification task with a set of binary classification tasks. Instead of predicting a word's multi-class label, the model uses logistic regression to distinguish whether a target-context pair $(w_t, w_c)$ came from the real training corpus (positive sample) or random noise (negative samples):
+$$\mathcal{L}_{\text{SGNS}} = -\log \sigma(\mathbf{v}'_{w_O} \cdot \mathbf{v}_{w_I}) - \sum_{i=1}^K \log \sigma(-\mathbf{v}'_{w_i} \cdot \mathbf{v}_{w_I})$$
+For each target word $w_I$, we update its weights against:
+- The true context word $w_O$ (maximizing their similarity).
+- $K$ randomly selected "negative" noise words $w_i$ (minimizing their similarity).
+This reduces the computational cost from $O(|V|)$ to $O(K)$, where $K$ is typically small (e.g. $5\text{--}20$ for small corpora, or $2\text{--}5$ for large ones), speeding up training by orders of magnitude.
+
+#### Rationale Behind the $3/4$ Power Noise Distribution
+Negative words are drawn from a modified unigram distribution:
+$$P_n(w) \propto U(w)^{0.75}$$
+If we sample purely by raw frequency $U(w)$, we will constantly select stopwords like `"the"`, `"a"`, `"and"`, which provides no useful gradient signal. Raising the frequency to the $0.75$ power dampens the relative frequency of highly common words while boosting the sampling probability of rare words. For example:
+- A rare word with a probability of $0.00001$ gets a boosted probability of $0.00001^{0.75} \approx 0.00018$ ($18\times$ boost!).
+- A stopword with a probability of $0.09$ gets $0.09^{0.75} \approx 0.16$ (only a $1.7\times$ boost).
+This ensures the model updates rare words frequently during training.
 
 ---
 
@@ -154,8 +184,8 @@ Alternative models address Word2Vec's limitations:
 
 - **GloVe (Global Vectors)**: Factorizes the global word co-occurrence matrix directly rather than scanning local windows, balancing local context and global statistics.
 - **FastText (Subword N-grams for OOV)**: Represents each word as a bag of character n-grams.
-  - *Example*: For word `"supercomputing"` and $n=3$, character n-grams include: `<su`, `sup`, `upe`, `per`, `...`, `ing>`.
-  - *OOV Resolution*: If `"supercomputing"` was not seen during training, FastText can still generate its embedding vector by summing the vectors of its constituent character n-grams, whereas Word2Vec and GloVe return a generic `<unk>` token.
+    - *Example*: For word `"supercomputing"` and $n=3$, character n-grams include: `<su`, `sup`, `upe`, `per`, `...`, `ing>`.
+    - *OOV Resolution*: If `"supercomputing"` was not seen during training, FastText can still generate its embedding vector by summing the vectors of its constituent character n-grams, whereas Word2Vec and GloVe return a generic `<unk>` token.
 
 ---
 
@@ -174,16 +204,16 @@ Alternative models address Word2Vec's limitations:
 - **What are its limitations?**
   Static embeddings assign a single vector to each word, failing to handle polysemy (e.g. `"bank"` in `"river bank"` vs. `"money bank"`).
 - **Computational Complexity (Time & Memory)**
-  - **Inference Lookup Time**: $O(1)$ constant time lookup.
-  - **Training Time**: Skip-gram with negative sampling scales as $O(K \cdot N \cdot C)$ where $C$ is corpus size.
+    - **Inference Lookup Time**: $O(1)$ constant time lookup.
+    - **Training Time**: Skip-gram with negative sampling scales as $O(K \cdot N \cdot C)$ where $C$ is corpus size.
 - **Component Variable Denotation Legend**
-  - $|V|$: Vocabulary size.
-  - $d$: Vector dimension size (typically $100\text{--}300$).
-  - $K$: Number of negative samples.
-  - $C$: Corpus token count.
+    - $|V|$: Vocabulary size.
+    - $d$: Vector dimension size (typically $100\text{--}300$).
+    - $K$: Number of negative samples.
+    - $C$: Corpus token count.
 - **Production Use Cases**
-  - High-speed semantic similarity searches.
-  - Initializing embedding layers in recurrent or classification neural networks.
+    - High-speed semantic similarity searches.
+    - Initializing embedding layers in recurrent or classification neural networks.
 - **Follow-up questions interviewers ask**
-  - *Why does CBOW train faster than Skip-gram?* (CBOW averages context embeddings into a single vector to predict one target, while Skip-gram runs multiple predictions per target word).
-  - *Why is the noise distribution raised to the 3/4 power in Negative Sampling?* (It increases the relative sampling probability of rare words, ensuring the model updates rare word vectors frequently).
+    - *Why does CBOW train faster than Skip-gram?* (CBOW averages context embeddings into a single vector to predict one target, while Skip-gram runs multiple predictions per target word).
+    - *Why is the noise distribution raised to the 3/4 power in Negative Sampling?* (It increases the relative sampling probability of rare words, ensuring the model updates rare word vectors frequently).

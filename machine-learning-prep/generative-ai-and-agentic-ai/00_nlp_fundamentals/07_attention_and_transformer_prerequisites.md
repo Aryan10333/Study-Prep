@@ -86,15 +86,15 @@ The shift from recurrent models to Transformers was driven by two key limitation
 - **What are its limitations?**
   - **Quadratic Compute Cost**: Self-attention requires computing all query-key pairs, scaling as $O(L^2)$ time and memory.
 - **Computational Complexity (Time & Memory)**
-  - **Self-Attention Time**: $O(L^2 \cdot d)$ where $L$ is sequence length.
-  - **VRAM Memory Footprint**: $O(L^2)$ matrix storage.
+    - **Self-Attention Time**: $O(L^2 \cdot d)$ where $L$ is sequence length.
+    - **VRAM Memory Footprint**: $O(L^2)$ matrix storage.
 - **Component Variable Denotation Legend**
-  - $L$: Token sequence length.
-  - $d_k$: Key vector dimension size.
-  - $d$: Hidden state vector dimension size.
+    - $L$: Token sequence length.
+    - $d_k$: Key vector dimension size.
+    - $d$: Hidden state vector dimension size.
 - **Production Use Cases**
-  - Text translation engines.
-  - Parallelized token sequence learning.
+    - Text translation engines.
+    - Parallelized token sequence learning.
 - **Follow-up questions interviewers ask**
-  - *Why is self-attention memory cost quadratic with sequence length?* (Because it computes an $L \times L$ attention matrix storing attention weights for every query-key pair).
-  - *How does positional encoding help attention capture order?* (Attention is permutation-invariant; it treats tokens as a bag of words. Positional encodings add positional vectors to word vectors, letting the model distinguish token positions).
+    - *Why is self-attention memory cost quadratic with sequence length?* (Because it computes an $L \times L$ attention matrix storing attention weights for every query-key pair).
+    - *How does positional encoding help attention capture order?* (Attention is permutation-invariant; it treats tokens as a bag of words. Positional encodings add positional vectors to word vectors, letting the model distinguish token positions).

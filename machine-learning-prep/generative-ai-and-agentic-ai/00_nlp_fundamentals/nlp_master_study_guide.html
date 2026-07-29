@@ -418,19 +418,27 @@ When deploying real-time classification models (e.g., streaming chat routing), s
   Introduced to handle lexical variations and spelling anomalies in human speech.</li>
 <li><strong>What are its limitations?</strong><br />
   Preprocessing steps (like lowercase conversions and punctuation removal) can discard semantic context, such as sentiment flags or code syntax indicators.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Time</strong>: Subword tokenization runs in $O(L)$ linear time, where $L$ is string length.</li>
 <li><strong>Memory</strong>: Embedding matrix footprint scales as $O(|V| \cdot d)$ where $|V|$ is vocabulary size and $d$ is embedding dimensionality.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Input sequence length.</li>
 <li>$|V|$: Vocabulary size.</li>
 <li>$d$: Embedding hidden dimension.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text categorization for customer service routing.</li>
 <li>Compressing inputs for multilingual translation models.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does word-level tokenization fail on specialized text?</em> (Medical and legal domains contain rare words that are mapped to <code>&lt;unk&gt;</code>, causing the model to lose key details).</li>
 <li><em>How does subword vocabulary size impact training memory?</em> (Larger vocabularies increase the size of the final projection layer, increasing GPU VRAM usage during backpropagation).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -532,15 +540,39 @@ This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatiz
 <li><em>Trade-off</em>: Slower and memory-intensive due to dictionary lookups and POS dependencies.</li>
 </ul>
 <hr />
-<h2 id="3-regular-expressions-and-unicode-normalization">3. Regular Expressions and Unicode Normalization</h2>
+<h2 id="3-classical-text-preprocessing-pipeline-steps">3. Classical Text Preprocessing Pipeline Steps</h2>
+<p>Before applying modeling or vectorization layers, classical NLP pipelines clean, split, and normalize raw inputs. The primary preprocessing steps and techniques include:</p>
+<h3 id="1-tokenization-sentence-and-word-level">1. Tokenization (Sentence and Word Level)</h3>
+<p>Tokenization splits a continuous character stream into semantic blocks:<br />
+- <strong>Sentence Tokenization (Segmentation)</strong>: Divides a text block into individual sentences (e.g. using NLTK's <code>sent_tokenize</code> or spaCy, which handle punctuation ambiguities like <code>"Dr. Smith bought an apple."</code>).<br />
+- <strong>Word Tokenization</strong>: Divides sentences into words. Standard word tokenizers handle contraction splittings (e.g. splitting <code>"don't"</code> into <code>["do", "n't"]</code> or <code>["dont"]</code> depending on the grammar template).</p>
+<h3 id="2-case-normalization">2. Case Normalization</h3>
+<p>Case normalization maps all characters to lowercase.<br />
+- <em>Production Trade-offs</em>: Reduces the vocabulary search space (merging <code>"Apple"</code>, <code>"APPLE"</code>, and <code>"apple"</code> into a single index). However, it degrades performance for Named Entity Recognition (NER), Sentiment Analysis, and POS Tagging because it discards critical structural cues (e.g. distinguishing <code>"Apple"</code> the company from <code>"apple"</code> the fruit).</p>
+<h3 id="3-stopword-removal">3. Stopword Removal</h3>
+<p>Stopwords are high-frequency, low-semantic-value words (e.g. <code>"is"</code>, <code>"the"</code>, <code>"at"</code>, <code>"which"</code>).<br />
+- <em>Production Trade-offs</em>: Essential for sparse retrieval indices (TF-IDF, BM25) and classical classifiers (Naïve Bayes, SVM) to reduce dimensionality and speed up database query searches.<br />
+- <em>Negative Trade-offs</em>: <strong>Do NOT use stopword removal for sequence models (RNNs, LSTMs, Transformers)</strong>. Removing stopwords destroys syntactic sequence context, positional relationships, and grammatical structure, degrading model outputs.</p>
+<h3 id="4-noise-cleaning-text-normalization">4. Noise Cleaning &amp; Text Normalization</h3>
+<ul>
+<li><strong>HTML/Markdown Stripping</strong>: Removing raw markup tags (e.g. using <code>BeautifulSoup</code> or regex patterns like <code>r"&lt;[^&gt;]*&gt;"</code>).</li>
+<li><strong>Contraction Expansion</strong>: Expanding abbreviations and contractions (e.g., mapping <code>"I've"</code> to <code>"I have"</code>) to align token usage across documents.</li>
+<li><strong>Emoji Handling</strong>: Stripping emojis or converting them into descriptive word tokens (e.g. mapping <code>😊</code> to <code>"[happy_face]"</code>) to preserve sentiment in user reviews.</li>
+</ul>
+<hr />
+<h2 id="4-regular-expressions-and-unicode-normalization">4. Regular Expressions and Unicode Normalization</h2>
 <p>Uncleaned raw strings contain encoding anomalies and noise that must be filtered out:</p>
 <ul>
-<li><strong>Common Regex Cleanups</strong>:</li>
+<li><strong>Common Regex Cleanups</strong>:<ul>
 <li>URL removal: <code>re.sub(r"https?://\S+", "", text)</code></li>
 <li>Punctuation removal: <code>re.sub(r"[^\w\s]", "", text)</code></li>
-<li><strong>Unicode Normalization</strong>: Ensures consistent character representations. For example, the accented character <code>é</code> can be represented as:</li>
+</ul>
+</li>
+<li><strong>Unicode Normalization</strong>: Ensures consistent character representations. For example, the accented character <code>é</code> can be represented as:<ul>
 <li><strong>NFC (Composition)</strong>: Single code point <code>\u00e9</code>.</li>
 <li><strong>NFD (Decomposition)</strong>: Decomposed into base <code>e</code> (<code>\u0065</code>) and combining accent character <code>´</code> (<code>\u0301</code>).</li>
+</ul>
+</li>
 </ul>
 <hr />
 <div style="border-left: 4px solid #7c3aed; background-color: #f5f3ff; color: #5b21b6; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>⚡ IMPORTANT:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Unicode Vocabulary Alignment</strong><br />
@@ -555,19 +587,27 @@ Always apply NFC normalization (e.g. <code>unicodedata.normalize('NFC', text)</c
   Introduced to prevent out-of-vocabulary (OOV) errors and compress vocabulary matrices for efficient training.</li>
 <li><strong>What are its limitations?</strong><br />
   Extreme preprocessing (e.g. discarding casing and punctuation) discards semantic context (such as sentiment cues, code syntax symbols, or structural boundaries).</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>BPE Encoding Time</strong>: $O(L \cdot \log |V|)$ where $L$ is sequence length.</li>
 <li><strong>Lemmatization Time</strong>: $O(N \cdot D)$ where $N$ is word count and $D$ represents dictionary search depth.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Sequence token length.</li>
 <li>$|V|$: Target vocabulary size.</li>
 <li>$D$: Dictionary lookup size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Subword tokenization pipelines in multilingual LLMs.</li>
 <li>Normalizing raw user queries (e.g. casing and Unicode accents) before search indexing.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>How does BPE handle a word with unknown characters during inference?</em> (Characters not seen during training are mapped to character-level bytes or fallback tokens using a byte-fallback vocabulary, preventing <code>&lt;unk&gt;</code> errors).</li>
 <li><em>Why should you avoid lowercase normalization for Named Entity Recognition (NER)?</em> (Named entities like <code>"Apple"</code> (company) depend heavily on capitalization to differentiate them from <code>"apple"</code> (fruit)).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -677,21 +717,29 @@ Since the vectors are pre-normalized, the cosine similarity is simply the dot pr
   Introduced to score term significance relative to corpus frequencies, avoiding term density bias in documents.</li>
 <li><strong>What are its limitations?</strong><br />
   Sparse vectors fail to capture semantic relationships (synonyms like <code>"cat"</code> and <code>"feline"</code> remain orthogonal).</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>TF-IDF Vectorization Time</strong>: $O(N \cdot L)$ where $N$ is document count and $L$ is sequence length.</li>
 <li><strong>Feature Hashing Lookup Time</strong>: $O(1)$ index lookup.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$N$: Total document count.</li>
 <li>$L$: Document token sequence length.</li>
 <li>$B$: Number of feature hash buckets.</li>
 <li>$k_1$: BM25 term frequency saturation scaling parameter.</li>
 <li>$b$: BM25 document length normalization parameter.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>High-speed text retrieval index systems (Elasticsearch, BM25).</li>
 <li>Memory-constrained text classification pipelines using feature hashing.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>How does BM25 prevent document length bias?</em> (Long documents are penalized via the $b \cdot (|D|/\text{avgdl})$ term in the denominator. This reduces the score if query terms appear in long, noisy texts).</li>
 <li><em>Why does the sign hash function $\xi(w)$ prevent collision degradation in Feature Hashing?</em> (By randomly assigning $+1$ or $-1$ to each word, collisions cancel each other out on average, preventing systematic inflation of collision indices).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -765,23 +813,33 @@ Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A 
   Estimates the probability distribution over text sequences, allowing models to generate coherent text.</li>
 <li><strong>Why was it introduced?</strong><br />
   Introduced to score token sequences based on natural language frequencies.</li>
-<li><strong>What are its limitations?</strong></li>
+<li><strong>What are its limitations?</strong><ul>
 <li><strong>Memory Bottleneck</strong>: Parameter count scales exponentially as $O(|V|^N)$ as the n-gram context order $N$ increases.</li>
 <li><strong>Zero-Probability Defect</strong>: Fails to generate probabilities for unseen sequences without smoothing.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+</ul>
+</li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Inference Time</strong>: $O(1)$ constant time lookup if using precomputed n-gram tables.</li>
 <li><strong>Storage Memory</strong>: $O(|V|^N)$ space.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$m$: Token count of the evaluation sequence.</li>
 <li>$|V|$: Vocabulary token size.</li>
 <li>$N_c$: Number of unique n-grams appearing exactly $c$ times.</li>
 <li>$\lambda_i$: Interpolation coefficients.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text auto-complete query routing systems.</li>
 <li>Basic speech recognition transcript decoding.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does Perplexity decrease as you increase N in an N-gram model?</em> (Higher-order models capture more local context, reducing uncertainty at each step, which lowers cross-entropy loss and perplexity).</li>
 <li><em>How do you choose lambda interpolation parameters?</em> (By optimizing the coefficients using expectation-maximization or grid search on a held-out validation dataset).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -919,23 +977,52 @@ This plot projects word embedding vectors onto a 2D coordinate space to demonstr
 
 <hr />
 <h2 id="2-word2vec-cbow-vs-skip-gram">2. Word2Vec: CBOW vs. Skip-gram</h2>
-<p>Word2Vec uses local context window predictions to train embedding vectors:</p>
+<p>Word2Vec is a computationally efficient 3-layer neural network architecture (Input, Projection/Hidden, Output) with no activation functions in the hidden layer (it acts as a linear projection). Once trained, the input projection matrix $\mathbf{W}_{\text{in}} \in \mathbb{R}^{|V| \times d}$ is saved as the final word embedding lookup table, and the output layer is discarded.</p>
+<h3 id="1-continuous-bag-of-words-cbow">1. Continuous Bag-of-Words (CBOW)</h3>
 <ul>
-<li><strong>Continuous Bag-of-Words (CBOW)</strong>: Predicts a target word $w_t$ given context words. Context vectors are averaged, making CBOW faster to train but less sensitive to rare words.</li>
-<li><strong>Skip-gram</strong>: Predicts context words given a target word $w_t$. Skip-gram runs multiple predictions per target word, making it slower to train but yielding better representations for rare tokens.</li>
+<li><strong>Concept</strong>: Predicts a missing target word $w_t$ given its surrounding context words in a window $C$.</li>
+<li><strong>Mechanism</strong>: The input context words are one-hot encoded $\mathbf{x} \in \mathbb{R}^{|V|}$ and projected using the input weight matrix $\mathbf{W}_{\text{in}}$. The model averages these vectors to construct a single hidden state $\mathbf{h} \in \mathbb{R}^d$:<br />
+  $$\mathbf{h} = \frac{1}{2C} \sum_{j=-C, j \neq 0}^{C} \mathbf{W}_{\text{in}}^T \mathbf{x}_{t+j}$$<br />
+  This averaged vector is multiplied by the output weight matrix $\mathbf{W}_{\text{out}}$ to compute logits over the vocabulary, predicting the target word.</li>
+<li><strong>Production Trade-offs</strong>: Averaging context vectors smooths out spatial relationships and runs faster, making CBOW ideal for capturing general topic patterns on very large corpora.</li>
 </ul>
+<h3 id="2-skip-gram">2. Skip-gram</h3>
+<ul>
+<li><strong>Concept</strong>: Predicts the surrounding context words in a window $C$ given a single target word $w_t$.</li>
+<li><strong>Mechanism</strong>: A single target word $w_t$ is one-hot encoded $\mathbf{x}_t$, projected via $\mathbf{W}_{\text{in}}$ to a hidden state $\mathbf{h} = \mathbf{W}_{\text{in}}^T \mathbf{x}_t \in \mathbb{R}^d$. This vector is multiplied by $\mathbf{W}_{\text{out}}$ to calculate logits and softmax probabilities separately for each of the $2C$ context positions:<br />
+  $$P(w_{t+j} | w_t) = \text{Softmax}(\mathbf{W}_{\text{out}}^T \mathbf{h})$$</li>
+<li><strong>Production Trade-offs</strong>: Because each target-context pair is treated as a separate training instance, it does not average out representations. This makes it slower to train but significantly better at representing rare words.</li>
+</ul>
+<hr />
 <h3 id="negative-sampling-optimization-sgns">Negative Sampling Optimization (SGNS)</h3>
-<p>To avoid calculating Softmax over the entire vocabulary, Negative Sampling converts the task into binary logistic regression. It updates the target word and a few ($K$) randomly selected "negative" words:<br />
-- Negative samples are drawn from a noise distribution $P_n(w)$ raised to the $3/4$ power, which increases the probability of sampling rare words:<br />
-  $$P_n(w) \propto U(w)^{0.75}$$</p>
+<h4 id="the-softmax-denominator-bottleneck">The Softmax Denominator Bottleneck</h4>
+<p>Standard training using a final Softmax layer requires calculating:<br />
+$$P(w_{\text{context}} | w_{\text{target}}) = \frac{\exp(\mathbf{v}'_{w_{\text{context}}} \cdot \mathbf{v}_{w_{\text{target}}})}{\sum_{w_i \in V} \exp(\mathbf{v}'_{w_i} \cdot \mathbf{v}_{w_{\text{target}}})}$$<br />
+Computing the sum in the denominator requires executing a dot product between the target vector and the output vectors of all $|V|$ words in the vocabulary. For large vocabularies ($|V| \ge 100,000$), calculating this sum during backpropagation is extremely slow ($O(|V|)$ cost per training step).</p>
+<h4 id="binary-logistic-regression-optimization">Binary Logistic Regression Optimization</h4>
+<p>Negative Sampling (SGNS) replaces the multi-class classification task with a set of binary classification tasks. Instead of predicting a word's multi-class label, the model uses logistic regression to distinguish whether a target-context pair $(w_t, w_c)$ came from the real training corpus (positive sample) or random noise (negative samples):<br />
+$$\mathcal{L}_{\text{SGNS}} = -\log \sigma(\mathbf{v}'_{w_O} \cdot \mathbf{v}_{w_I}) - \sum_{i=1}^K \log \sigma(-\mathbf{v}'_{w_i} \cdot \mathbf{v}_{w_I})$$<br />
+For each target word $w_I$, we update its weights against:<br />
+- The true context word $w_O$ (maximizing their similarity).<br />
+- $K$ randomly selected "negative" noise words $w_i$ (minimizing their similarity).<br />
+This reduces the computational cost from $O(|V|)$ to $O(K)$, where $K$ is typically small (e.g. $5\text{--}20$ for small corpora, or $2\text{--}5$ for large ones), speeding up training by orders of magnitude.</p>
+<h4 id="rationale-behind-the-mathplaceholder35endmath-power-noise-distribution">Rationale Behind the $3/4$ Power Noise Distribution</h4>
+<p>Negative words are drawn from a modified unigram distribution:<br />
+$$P_n(w) \propto U(w)^{0.75}$$<br />
+If we sample purely by raw frequency $U(w)$, we will constantly select stopwords like <code>"the"</code>, <code>"a"</code>, <code>"and"</code>, which provides no useful gradient signal. Raising the frequency to the $0.75$ power dampens the relative frequency of highly common words while boosting the sampling probability of rare words. For example:<br />
+- A rare word with a probability of $0.00001$ gets a boosted probability of $0.00001^{0.75} \approx 0.00018$ ($18\times$ boost!).<br />
+- A stopword with a probability of $0.09$ gets $0.09^{0.75} \approx 0.16$ (only a $1.7\times$ boost).<br />
+This ensures the model updates rare words frequently during training.</p>
 <hr />
 <h2 id="3-glove-and-fasttext">3. GloVe and FastText</h2>
 <p>Alternative models address Word2Vec's limitations:</p>
 <ul>
 <li><strong>GloVe (Global Vectors)</strong>: Factorizes the global word co-occurrence matrix directly rather than scanning local windows, balancing local context and global statistics.</li>
-<li><strong>FastText (Subword N-grams for OOV)</strong>: Represents each word as a bag of character n-grams.</li>
+<li><strong>FastText (Subword N-grams for OOV)</strong>: Represents each word as a bag of character n-grams.<ul>
 <li><em>Example</em>: For word <code>"supercomputing"</code> and $n=3$, character n-grams include: <code>&lt;su</code>, <code>sup</code>, <code>upe</code>, <code>per</code>, <code>...</code>, <code>ing&gt;</code>.</li>
 <li><em>OOV Resolution</em>: If <code>"supercomputing"</code> was not seen during training, FastText can still generate its embedding vector by summing the vectors of its constituent character n-grams, whereas Word2Vec and GloVe return a generic <code>&lt;unk&gt;</code> token.</li>
+</ul>
+</li>
 </ul>
 <hr />
 <div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Embedding Layer Memory Footprint</strong><br />
@@ -950,20 +1037,28 @@ Static embedding layers require significant VRAM. A vocabulary of size $|V| = 25
   Introduced to solve the high dimensionality and orthogonal constraints of sparse representations (One-Hot).</li>
 <li><strong>What are its limitations?</strong><br />
   Static embeddings assign a single vector to each word, failing to handle polysemy (e.g. <code>"bank"</code> in <code>"river bank"</code> vs. <code>"money bank"</code>).</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Inference Lookup Time</strong>: $O(1)$ constant time lookup.</li>
 <li><strong>Training Time</strong>: Skip-gram with negative sampling scales as $O(K \cdot N \cdot C)$ where $C$ is corpus size.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$|V|$: Vocabulary size.</li>
 <li>$d$: Vector dimension size (typically $100\text{--}300$).</li>
 <li>$K$: Number of negative samples.</li>
 <li>$C$: Corpus token count.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>High-speed semantic similarity searches.</li>
 <li>Initializing embedding layers in recurrent or classification neural networks.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does CBOW train faster than Skip-gram?</em> (CBOW averages context embeddings into a single vector to predict one target, while Skip-gram runs multiple predictions per target word).</li>
 <li><em>Why is the noise distribution raised to the 3/4 power in Negative Sampling?</em> (It increases the relative sampling probability of rare words, ensuring the model updates rare word vectors frequently).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1081,22 +1176,32 @@ To prevent exploding gradients in recurrent models, implement gradient clipping:
   Processes variable-length sequence data while retaining historical information across time steps.</li>
 <li><strong>Why was it introduced?</strong><br />
   Introduced because standard feedforward networks require fixed-sized inputs, making them unable to process sequences of arbitrary length.</li>
-<li><strong>What are its limitations?</strong></li>
+<li><strong>What are its limitations?</strong><ul>
 <li><strong>Sequential Bottleneck</strong>: Processing token $t$ requires computing states up to step $t-1$, preventing parallel execution.</li>
 <li><strong>Memory Footprint</strong>: BPTT requires storing intermediate hidden states for all steps, leading to high VRAM footprint.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+</ul>
+</li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Sequence processing Time</strong>: $O(L \cdot d^2)$ where $L$ is sequence length and $d$ is hidden dimension size.</li>
 <li><strong>Backpropagation Memory</strong>: $O(L \cdot d)$ per layer.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Sequence token length.</li>
 <li>$d$: Recurrent hidden state dimension.</li>
 <li>$B$: Beam search branch width parameter.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text translation pipelines.</li>
 <li>Named Entity Recognition sequence tagging.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why do we use log probabilities instead of raw probabilities in Beam Search?</em> (Multiplying small probabilities leads to numerical underflow; summing log probabilities keeps calculations numerically stable).</li>
 <li><em>How does Gradient Clipping prevent exploding gradients in RNNs?</em> (If the norm of the gradient exceeds a threshold $g_{\max}$, it is scaled down: $\mathbf{g} \leftarrow \mathbf{g} \cdot \frac{g_{\max}}{\|\mathbf{g}\|}$, preventing weight updates from causing network instability).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1170,19 +1275,27 @@ Self-attention requires computing alignment scores for all query-key pairs, scal
   Introduced to solve the encoder bottleneck in Seq2Seq models.</li>
 <li><strong>What are its limitations?</strong></li>
 <li><strong>Quadratic Compute Cost</strong>: Self-attention requires computing all query-key pairs, scaling as $O(L^2)$ time and memory.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Self-Attention Time</strong>: $O(L^2 \cdot d)$ where $L$ is sequence length.</li>
 <li><strong>VRAM Memory Footprint</strong>: $O(L^2)$ matrix storage.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Token sequence length.</li>
 <li>$d_k$: Key vector dimension size.</li>
 <li>$d$: Hidden state vector dimension size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text translation engines.</li>
 <li>Parallelized token sequence learning.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why is self-attention memory cost quadratic with sequence length?</em> (Because it computes an $L \times L$ attention matrix storing attention weights for every query-key pair).</li>
 <li><em>How does positional encoding help attention capture order?</em> (Attention is permutation-invariant; it treats tokens as a bag of words. Positional encodings add positional vectors to word vectors, letting the model distinguish token positions).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1318,19 +1431,27 @@ While automated metrics like BLEU or BERTScore are excellent for Continuous Inte
   Introduced to automate translation and summarization scoring, replacing expensive human evaluation loops.</li>
 <li><strong>What are its limitations?</strong><br />
   BLEU/ROUGE fail to capture semantic meaning; embedding models (BERTScore) introduce computational overhead and depend on the quality of the underlying encoder.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>BLEU Evaluation Time</strong>: $O(L_{\text{cand}} \cdot L_{\text{ref}})$ string search.</li>
 <li><strong>BERTScore Evaluation Time</strong>: $O(L_{\text{cand}} \cdot L_{\text{ref}} \cdot d)$ plus the forward pass latency of the encoder network.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$c$: Candidate token sequence length.</li>
 <li>$r$: Reference token sequence length.</li>
 <li>$d$: Contextual embedding dimension size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Continuous Integration (CI) regression testing for translation pipelines.</li>
 <li>Semantic similarity evaluations in question-answering systems.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does BLEU use a brevity penalty?</em> (Without a brevity penalty, a candidate model could output a single high-confidence word like <code>"the"</code> and receive a perfect precision score of $1.0$).</li>
 <li><em>How does BERTScore handle spelling variations?</em> (Contextual embeddings capture semantic similarities, allowing misspelled or related words to match based on their surrounding contexts).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1457,20 +1578,28 @@ When debugging a decaying production classifier:<br />
   Introduced to prevent performance decay due to domain shifts and data drift in live environments.</li>
 <li><strong>What are its limitations?</strong><br />
   Pruning and quantization can lead to degraded accuracy on edge cases.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Data Drift Detection Time</strong>: $O(N \cdot |V|)$ where $N$ is sample size and $|V|$ is vocabulary size.</li>
 <li><strong>Memory Footprint (int8 Quantized)</strong>: $25\%$ of the original float32 model footprint.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$X$: Input text features.</li>
 <li>$Y$: Output label targets.</li>
 <li>$N$: Audit sample window count.</li>
 <li>$|V|$: Vocabulary size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Monitoring customer service classifiers for vocabulary shift.</li>
 <li>Compressing models to run on edge devices.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>How do you identify Data Drift in production NLP?</em> (By comparing the token frequency distribution of live production data against the training dataset using statistical tests like Population Stability Index (PSI) or Wasserstein Distance).</li>
 <li><em>Why do vocabulary differences between training and serving environments crash tokenizers?</em> (If the serving environment maps token indices using a different dictionary than the training environment, the token indices will map to incorrect word vectors, leading to model degradation).</li>
+</ul>
+</li>
 </ul>
     </div>
 

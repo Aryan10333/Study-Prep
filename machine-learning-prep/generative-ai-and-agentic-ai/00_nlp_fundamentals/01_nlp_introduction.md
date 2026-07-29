@@ -104,15 +104,15 @@ The architecture of text systems transitioned through four distinct developmenta
 - **What are its limitations?**
   Preprocessing steps (like lowercase conversions and punctuation removal) can discard semantic context, such as sentiment flags or code syntax indicators.
 - **Computational Complexity (Time & Memory)**
-  - **Time**: Subword tokenization runs in $O(L)$ linear time, where $L$ is string length.
-  - **Memory**: Embedding matrix footprint scales as $O(|V| \cdot d)$ where $|V|$ is vocabulary size and $d$ is embedding dimensionality.
+    - **Time**: Subword tokenization runs in $O(L)$ linear time, where $L$ is string length.
+    - **Memory**: Embedding matrix footprint scales as $O(|V| \cdot d)$ where $|V|$ is vocabulary size and $d$ is embedding dimensionality.
 - **Component Variable Denotation Legend**
-  - $L$: Input sequence length.
-  - $|V|$: Vocabulary size.
-  - $d$: Embedding hidden dimension.
+    - $L$: Input sequence length.
+    - $|V|$: Vocabulary size.
+    - $d$: Embedding hidden dimension.
 - **Production Use Cases**
-  - Text categorization for customer service routing.
-  - Compressing inputs for multilingual translation models.
+    - Text categorization for customer service routing.
+    - Compressing inputs for multilingual translation models.
 - **Follow-up questions interviewers ask**
-  - *Why does word-level tokenization fail on specialized text?* (Medical and legal domains contain rare words that are mapped to `<unk>`, causing the model to lose key details).
-  - *How does subword vocabulary size impact training memory?* (Larger vocabularies increase the size of the final projection layer, increasing GPU VRAM usage during backpropagation).
+    - *Why does word-level tokenization fail on specialized text?* (Medical and legal domains contain rare words that are mapped to `<unk>`, causing the model to lose key details).
+    - *How does subword vocabulary size impact training memory?* (Larger vocabularies increase the size of the final projection layer, increasing GPU VRAM usage during backpropagation).

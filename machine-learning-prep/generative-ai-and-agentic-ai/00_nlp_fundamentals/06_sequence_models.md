@@ -138,18 +138,18 @@ Seq2Seq models use an Encoder network to compress a variable-length source seque
 - **Why was it introduced?**
   Introduced because standard feedforward networks require fixed-sized inputs, making them unable to process sequences of arbitrary length.
 - **What are its limitations?**
-  - **Sequential Bottleneck**: Processing token $t$ requires computing states up to step $t-1$, preventing parallel execution.
-  - **Memory Footprint**: BPTT requires storing intermediate hidden states for all steps, leading to high VRAM footprint.
+    - **Sequential Bottleneck**: Processing token $t$ requires computing states up to step $t-1$, preventing parallel execution.
+    - **Memory Footprint**: BPTT requires storing intermediate hidden states for all steps, leading to high VRAM footprint.
 - **Computational Complexity (Time & Memory)**
-  - **Sequence processing Time**: $O(L \cdot d^2)$ where $L$ is sequence length and $d$ is hidden dimension size.
-  - **Backpropagation Memory**: $O(L \cdot d)$ per layer.
+    - **Sequence processing Time**: $O(L \cdot d^2)$ where $L$ is sequence length and $d$ is hidden dimension size.
+    - **Backpropagation Memory**: $O(L \cdot d)$ per layer.
 - **Component Variable Denotation Legend**
-  - $L$: Sequence token length.
-  - $d$: Recurrent hidden state dimension.
-  - $B$: Beam search branch width parameter.
+    - $L$: Sequence token length.
+    - $d$: Recurrent hidden state dimension.
+    - $B$: Beam search branch width parameter.
 - **Production Use Cases**
-  - Text translation pipelines.
-  - Named Entity Recognition sequence tagging.
+    - Text translation pipelines.
+    - Named Entity Recognition sequence tagging.
 - **Follow-up questions interviewers ask**
-  - *Why do we use log probabilities instead of raw probabilities in Beam Search?* (Multiplying small probabilities leads to numerical underflow; summing log probabilities keeps calculations numerically stable).
-  - *How does Gradient Clipping prevent exploding gradients in RNNs?* (If the norm of the gradient exceeds a threshold $g_{\max}$, it is scaled down: $\mathbf{g} \leftarrow \mathbf{g} \cdot \frac{g_{\max}}{\|\mathbf{g}\|}$, preventing weight updates from causing network instability).
+    - *Why do we use log probabilities instead of raw probabilities in Beam Search?* (Multiplying small probabilities leads to numerical underflow; summing log probabilities keeps calculations numerically stable).
+    - *How does Gradient Clipping prevent exploding gradients in RNNs?* (If the norm of the gradient exceeds a threshold $g_{\max}$, it is scaled down: $\mathbf{g} \leftarrow \mathbf{g} \cdot \frac{g_{\max}}{\|\mathbf{g}\|}$, preventing weight updates from causing network instability).

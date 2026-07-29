@@ -113,16 +113,16 @@ Production maintenance requires a continuous monitoring and updating cycle to id
 - **What are its limitations?**
   Pruning and quantization can lead to degraded accuracy on edge cases.
 - **Computational Complexity (Time & Memory)**
-  - **Data Drift Detection Time**: $O(N \cdot |V|)$ where $N$ is sample size and $|V|$ is vocabulary size.
-  - **Memory Footprint (int8 Quantized)**: $25\%$ of the original float32 model footprint.
+    - **Data Drift Detection Time**: $O(N \cdot |V|)$ where $N$ is sample size and $|V|$ is vocabulary size.
+    - **Memory Footprint (int8 Quantized)**: $25\%$ of the original float32 model footprint.
 - **Component Variable Denotation Legend**
-  - $X$: Input text features.
-  - $Y$: Output label targets.
-  - $N$: Audit sample window count.
-  - $|V|$: Vocabulary size.
+    - $X$: Input text features.
+    - $Y$: Output label targets.
+    - $N$: Audit sample window count.
+    - $|V|$: Vocabulary size.
 - **Production Use Cases**
-  - Monitoring customer service classifiers for vocabulary shift.
-  - Compressing models to run on edge devices.
+    - Monitoring customer service classifiers for vocabulary shift.
+    - Compressing models to run on edge devices.
 - **Follow-up questions interviewers ask**
-  - *How do you identify Data Drift in production NLP?* (By comparing the token frequency distribution of live production data against the training dataset using statistical tests like Population Stability Index (PSI) or Wasserstein Distance).
-  - *Why do vocabulary differences between training and serving environments crash tokenizers?* (If the serving environment maps token indices using a different dictionary than the training environment, the token indices will map to incorrect word vectors, leading to model degradation).
+    - *How do you identify Data Drift in production NLP?* (By comparing the token frequency distribution of live production data against the training dataset using statistical tests like Population Stability Index (PSI) or Wasserstein Distance).
+    - *Why do vocabulary differences between training and serving environments crash tokenizers?* (If the serving environment maps token indices using a different dictionary than the training environment, the token indices will map to incorrect word vectors, leading to model degradation).
