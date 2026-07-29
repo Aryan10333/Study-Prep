@@ -19,9 +19,10 @@ Every study guide and technical topic must begin with a short, high-level concep
 
 All technical study guides must follow a strict **Practical Mathematics** progression to make equations intuitive:
 
-1. **State the Math Formula**: Express the mathematical formulation clearly using display math blocks.
-2. **Step-by-Step Hand Calculation**: Break down the calculation on a tiny sample space (e.g. sequence length $L=2$, dimensions $d=2$, vocabulary size $|V|=3$). Work out intermediate sums, products, and exponents manually.
-3. **Reference Code**: Write framework-agnostic Python/PyTorch code that computes and prints these values, showing exact consistency (to 4 decimal places) with the hand calculation.
+1. **Limit Complex Math**: Limit dense academic notation and formal algebraic proofs (e.g. proof of speculative rejection sampling lossless properties, multi-index matrix tiling subscripts). Replace them with clear conceptual descriptions, intuitive analogies (e.g. memory-bus bottleneck, coin-toss verification), and comparative tables highlighting pros, cons, and production trade-offs.
+2. **State the Essential Math Formula**: Express the mathematical formulation clearly using display math blocks (e.g. sizing/VRAM equations, quantization scaling, arithmetic intensity).
+3. **Step-by-Step Hand Calculation**: Break down the calculation on a tiny sample space (e.g. sequence length $L=2$, dimensions $d=2$, vocabulary size $|V|=3$). Work out intermediate sums, products, and exponents manually.
+4. **Reference Code**: Write framework-agnostic Python/PyTorch code that computes and prints these values, showing exact consistency (to 4 decimal places) with the hand calculation.
 
 ---
 
@@ -72,6 +73,8 @@ Every module study guide (`.md`) across any topic must conclude with the followi
 - Production Use Cases
 - Follow-up questions interviewers ask
 ```
+
+**CRITICAL**: Do not leave these items as empty placeholder bullet points. You must replace them with comprehensive, customized answers, math complexity parameters, variable legends, and typical follow-up questions tailored specifically to the module's technical topic.
 
 ---
 
