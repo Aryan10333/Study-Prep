@@ -19,54 +19,25 @@ At each speculative step:
 
 ---
 
-## 2. Lossless Distribution Preservation Proof
+## 2. Rejection Sampling: The Coin-Toss Intuition
 
-We must prove that the rejection sampling protocol produces outputs that strictly match the target model's probability distribution $p(x)$, ensuring no quality degradation.
+Speculative decoding is **mathematically lossless**, meaning the generated tokens are identical to what the large target model would have output on its own. It guarantees this by utilizing a corrected rejection sampling protocol.
 
-### Rejection Sampling Protocol
-For candidate token $x^*$ proposed by draft model distribution $q(x)$ at step $t$:
-1. We accept $x^*$ with probability:
-   $$\text{P}(\text{accept}) = \min\left(1, \frac{p(x^*)}{q(x^*)}\right)$$
-   If accepted, we set $x_t = x^*$ and move to the next position.
-2. If rejected, we evict the remaining draft tokens and sample $x_t$ from the normalized difference distribution:
+### The Verification Protocol
+For a candidate token $x^*$ proposed by the draft model distribution $q(x)$:
+1. **Acceptance Probability**: We accept $x^*$ with a probability scaled by the density ratio:
+   $$\alpha = \min\left(1, \frac{p(x^*)}{q(x^*)}\right)$$
+2. **Acceptance**: If accepted, we keep the token and check the next drafted token.
+3. **Rejection**: If rejected, we throw away all subsequent drafted tokens, and sample a replacement token from the normalized difference distribution:
    $$p'(x) = \frac{\max(0, p(x) - q(x))}{\sum_y \max(0, p(y) - q(y))}$$
 
-### Proof
-Let $x_{\text{selected}}$ be the token selected by the protocol. The probability of selecting a specific token $x$ is the sum of the probability of proposing and accepting it, plus the probability of rejecting the draft token and selecting $x$ from the fallback distribution $p'(x)$:
+### Why This Works (The Intuition)
+Think of verification as a biased coin-toss:
+- **Case A: Target model likes the token *more* ($p(x^*) \ge q(x^*)$)**: The ratio is $\ge 1.0$, so we accept it 100% of the time.
+- **Case B: Target model likes the token *less* ($p(x^*) < q(x^*)$)**: The ratio is $< 1.0$, so we flip a coin with an acceptance probability equal to that ratio.
+- **Fallback**: If the coin comes up tails (rejection), the target model selects a token from the difference distribution, which represents the tokens the target model preferred but the draft model under-sampled.
 
-$$\text{P}(x_{\text{selected}} = x) = q(x) \cdot \min\left(1, \frac{p(x)}{q(x)}\right) + P(\text{reject}) \cdot p'(x)$$
-
-Let's define the total rejection mass $M$:
-
-$$M = \sum_y \max(0, p(y) - q(y))$$
-
-Because $\sum_y q(y) = 1$ and $\sum_y p(y) = 1$, we can show that the sum of negative differences equals the sum of positive differences:
-
-$$\sum_y \max(0, q(y) - p(y)) = \sum_y \max(0, p(y) - q(y)) = M$$
-
-The probability of rejection is:
-
-$$\text{P}(\text{reject}) = 1 - \sum_y \min(q(y), p(y)) = \sum_y (q(y) - \min(q(y), p(y))) = \sum_y \max(0, q(y) - p(y)) = M$$
-
-Now, substitute $P(\text{reject}) = M$ and the definition of $p'(x)$ back into the selection equation:
-
-$$\text{P}(x_{\text{selected}} = x) = \min(q(x), p(x)) + M \cdot \left(\frac{\max(0, p(x) - q(x))}{M}\right)$$
-
-$$\text{P}(x_{\text{selected}} = x) = \min(q(x), p(x)) + \max(0, p(x) - q(x))$$
-
-We evaluate this equation for two possible cases:
-
-#### Case 1: $p(x) \ge q(x)$
-- Here, $\min(q(x), p(x)) = q(x)$ and $\max(0, p(x) - q(x)) = p(x) - q(x)$.
-- Substituting these values:
-  $$\text{P}(x_{\text{selected}} = x) = q(x) + p(x) - q(x) = p(x)$$
-
-#### Case 2: $p(x) < q(x)$
-- Here, $\min(q(x), p(x)) = p(x)$ and $\max(0, p(x) - q(x)) = 0$.
-- Substituting these values:
-  $$\text{P}(x_{\text{selected}} = x) = p(x) + 0 = p(x)$$
-
-In both cases, the probability of selecting token $x$ is exactly $p(x)$, matching the target model's output distribution. $\blacksquare$
+This dynamic correction guarantees that the final selection probability is exactly $p(x)$, aligning perfectly with the target model's original distribution while bypassing autoregressive compute latency.
 
 ---
 
@@ -101,6 +72,14 @@ Modern engines use advanced draft mechanisms to bypass tokenizer mismatches and 
   </div>
 </div>
 ```
+
+### Speculative Drafting Strategy Comparison
+
+| Strategy | Drafting Mechanism | Pros | Cons | Production Choice |
+|---|---|---|---|---|
+| **Draft Model** | Small auxiliary autoregressive model (e.g. 1B) runs ahead. | • Robust; handles general conversational structures well. | • Requires loading a second model in VRAM.<br>• Tokenizer alignment mismatches. | Standard baseline; ideal if helper model is small enough to fit in remaining memory. |
+| **Medusa / EAGLE** | Helper prediction heads or feature vectors inside the main model. | • Zero tokenizer issues.<br>• Minimal extra VRAM (no second model loaded). | • Requires custom training and alignment tuning for the heads. | Custom high-performance serving environments (e.g., enterprise APIs). |
+| **Prompt-Lookup** | Scans prompt/context history for repeating N-grams and copies them. | • **Zero VRAM & Zero Training**: Plug-and-play compatibility.<br>• Minimal latency overhead. | • Limited to highly repetitive text styles (e.g. code generation, repetitive system logs). | Excellent for code completion servers and document-retrieval RAG bots. |
 
 ---
 

@@ -116,6 +116,14 @@ To mitigate the VRAM demand of the KV Cache, modern LLM architectures adjust the
 </div>
 ```
 
+### Attention Variant Trade-offs
+
+| Variant | KV : Query Heads | Pros | Cons | Production Choice |
+|---|---|---|---|---|
+| **Multi-Head Attention (MHA)** | $1 : 1$ | • Maximum representational capacity (each query head has private KV context). | • Maximum VRAM footprint; severely limits batch sizes and sequence length. | Older baseline models (e.g., LLaMA-1, GPT-3). |
+| **Multi-Query Attention (MQA)** | $1 : H$ | • Minimal KV Cache VRAM footprint (up to 8x-32x footprint reduction). | • Degrades model capacity; performance drops on long, complex documents. | Used in specialized low-resource models (e.g., Falcon). |
+| **Grouped-Query Attention (GQA)** | $1 : G$ (e.g., $1 : 8$) | • Combines MHA's high quality with MQA's low memory consumption. | • Marginally more complex query-to-group mapping logic in code. | Standard for modern SOTA models (LLaMA-3, Mistral, Command-R). |
+
 - **VRAM Saving**: If a model uses a Grouped-Query Attention ratio of $8:1$ (e.g. Llama-3), its KV Cache VRAM footprint is reduced by **8x** compared to standard MHA.
 
 ---

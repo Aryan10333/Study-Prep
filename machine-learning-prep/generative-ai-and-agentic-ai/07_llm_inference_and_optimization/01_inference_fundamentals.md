@@ -40,6 +40,12 @@ The transition point where the bottleneck shifts from memory-bound to compute-bo
 
 $$I_{\text{ridge}} = \frac{P_{\text{peak}}}{B_{\text{peak}}}$$
 
+> [!TIP]
+> **The Memory Bus Analogy**: 
+> Think of the GPU as a massive assembly line (the Tensor Cores) and VRAM (HBM) as the parts warehouse. 
+> - **In Prefill (Compute-Bound)**: A single massive pallet of materials (the model weights) is loaded onto the assembly line, and the workers spend a long time processing thousands of tasks (tokens) in parallel. The workers are kept fully saturated—this is compute-bound.
+> - **In Decode (Memory-Bandwidth-Bound)**: The assembly line must load the entire blueprint catalogue (the whole model weights) from the warehouse just to stamp a single custom label (one new token), after which the catalog is discarded, and the next layer's catalog is loaded. The shipping trucks (memory bus) are bottlenecked, while the workers sit idle waiting for the next catalog—this is memory-bandwidth-bound.
+
 ### Step-by-Step Hand Calculation on a 1B Parameter Model
 
 Let's compute the arithmetic intensity for an LLM layer with $P = 1 \times 10^9$ (1 Billion) parameters executing on an NVIDIA A100 GPU (SXM4, 80GB VRAM) in FP16 precision:
@@ -147,6 +153,13 @@ When prefill and decode phases run on the same GPU instance, they compete for ex
 1. **Prefill Nodes**: Process the prompt sequences and compute the initial KV states.
 2. **KV Cache Transfer**: Send the generated KV states over a high-speed network (InfiniBand, RDMA, or NVLink) to the Decode nodes.
 3. **Decode Nodes**: Append the states to memory and execute the low-intensity decode steps without blocking from new prompt arrivals.
+
+### Serving Topology Trade-offs (Unified vs. PD Disaggregated)
+
+| Topology | Pros | Cons | Production Use Case |
+|---|---|---|---|
+| **Unified serving (Single GPU / Node)** | • Simple orchestration and zero network overhead.<br>• No need for expensive high-speed RDMA interconnects.<br>• Easy deployment on standard cloud instances. | • Heavy Head-of-Line blocking (a long prefill prompt pauses decodes).<br>• Poor GPU resource utilization due to mixed compute/memory bounds. | Low-to-medium volume deployments, personal assistants, or offline jobs. |
+| **PD Disaggregation (Split Pool serving)** | • Bypasses Head-of-Line blocking entirely.<br>• Allows compute-optimized nodes (H100) for prefill, and memory-bandwidth nodes (A100) for decode.<br>• Distinct queue batching policies. | • Heavy KV Cache transfer overhead across network.<br>• High infrastructure complexity and cost (requires RDMA/InfiniBand).<br>• Routing layer overhead. | High-scale LLM API providers (OpenAI, Anyscale) serving millions of concurrent requests. |
 
 ---
 

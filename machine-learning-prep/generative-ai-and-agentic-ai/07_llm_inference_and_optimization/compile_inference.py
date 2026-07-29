@@ -337,9 +337,156 @@ def compile_master_guide():
         html_out_path
     ]
     
-    print("Running Edge PDF compilation...")
+    print("Running Edge PDF compilation for Master Guide...")
     subprocess.run(cmd, capture_output=True, text=True)
     print(f"SUCCESS: Master PDF generated at: {pdf_out_path}")
+
+    # --- CHEATSHEET COMPILATION ---
+    cheatsheet_md_path = os.path.join(base_dir, "llm_inference_interview_cheatsheet.md")
+    cheatsheet_html_path = os.path.join(base_dir, "llm_inference_interview_cheatsheet.html")
+    cheatsheet_pdf_path = os.path.join(base_dir, "llm_inference_interview_cheatsheet.pdf")
+
+    if os.path.exists(cheatsheet_md_path):
+        print("Compiling Cheatsheet...")
+        with open(cheatsheet_md_path, "r", encoding="utf-8") as f:
+            cs_md = f.read()
+
+        # Protect math blocks
+        cs_math = []
+        def store_cs_math(m):
+            cs_math.append(m.group(0))
+            return f"MATHPLACEHOLDER{len(cs_math)-1}ENDMATH"
+
+        cs_md = re.sub(r'\$\$[\s\S]*?\$\$', store_cs_math, cs_md)
+        cs_md = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', store_cs_math, cs_md)
+
+        cs_html_body = markdown.markdown(cs_md, extensions=['fenced_code', 'tables', 'nl2br', 'sane_lists', 'codehilite'])
+
+        # Restore math
+        for idx, block in enumerate(cs_math):
+            escaped_block = block.replace('<', '&lt;').replace('>', '&gt;')
+            cs_html_body = cs_html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", escaped_block)
+
+        # Wrap in a clean 1-page template
+        cs_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LLM Inference & Serving Cheatsheet</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {{
+                delimiters: [
+                    {{left: '$$', right: '$$', display: true}},
+                    {{left: '$', right: '$', display: false}}
+                ]
+            }});"></script>
+    <style>
+        @page {{
+            size: A4;
+            margin: 10mm 12mm 10mm 12mm;
+        }}
+        body {{
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-size: 11.5px;
+            line-height: 1.4;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }}
+        h1 {{
+            font-size: 18px;
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 4px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+        }}
+        h2 {{
+            font-size: 13px;
+            color: #1e40af;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 2px;
+        }}
+        h3 {{
+            font-size: 12px;
+            color: #0369a1;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }}
+        p, li {{
+            margin-bottom: 4px;
+        }}
+        ul, ol {{
+            padding-left: 18px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }}
+        code {{
+            font-family: 'Consolas', monospace;
+            background-color: #f1f5f9;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10.5px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 10px;
+            border: 1px solid #64748b;
+        }}
+        th {{
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-weight: 700;
+            border: 1px solid #475569;
+            padding: 5px 6px;
+        }}
+        td {{
+            border: 1px solid #cbd5e1;
+            padding: 4px 6px;
+        }}
+        tr:nth-child(even) td {{
+            background-color: #f8fafc;
+        }}
+        hr {{
+            border: 0;
+            height: 1px;
+            background-color: #cbd5e1;
+            margin: 8px 0;
+        }}
+    </style>
+</head>
+<body>
+    {cs_html_body}
+</body>
+</html>
+"""
+        with open(cheatsheet_html_path, "w", encoding="utf-8") as f:
+            f.write(cs_html)
+        print(f"Created Cheatsheet HTML file at: {cheatsheet_html_path}")
+
+        cs_cmd = [
+            edge_path,
+            f"--user-data-dir={temp_user_data}_cs",
+            "--headless",
+            "--disable-gpu",
+            "--run-all-compositor-stages-before-draw",
+            "--virtual-time-budget=8000",
+            "--no-pdf-header-footer",
+            f"--print-to-pdf={cheatsheet_pdf_path}",
+            cheatsheet_html_path
+        ]
+        
+        print("Running Edge PDF compilation for Cheatsheet...")
+        subprocess.run(cs_cmd, capture_output=True, text=True)
+        print(f"SUCCESS: Cheatsheet PDF generated at: {cheatsheet_pdf_path}")
 
 if __name__ == "__main__":
     compile_master_guide()

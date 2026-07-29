@@ -328,6 +328,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>$$P = \min\left(P_{\text{peak}}, I \cdot B_{\text{peak}}\right)$$</p>
 <p>The transition point where the bottleneck shifts from memory-bound to compute-bound is the <strong>Hardware Ridge Point</strong> ($I_{\text{ridge}}$):</p>
 <p>$$I_{\text{ridge}} = \frac{P_{\text{peak}}}{B_{\text{peak}}}$$</p>
+<div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>The Memory Bus Analogy</strong>:<br />
+Think of the GPU as a massive assembly line (the Tensor Cores) and VRAM (HBM) as the parts warehouse.<br />
+- <strong>In Prefill (Compute-Bound)</strong>: A single massive pallet of materials (the model weights) is loaded onto the assembly line, and the workers spend a long time processing thousands of tasks (tokens) in parallel. The workers are kept fully saturated—this is compute-bound.<br />
+- <strong>In Decode (Memory-Bandwidth-Bound)</strong>: The assembly line must load the entire blueprint catalogue (the whole model weights) from the warehouse just to stamp a single custom label (one new token), after which the catalog is discarded, and the next layer's catalog is loaded. The shipping trucks (memory bus) are bottlenecked, while the workers sit idle waiting for the next catalog—this is memory-bandwidth-bound.</p></div></div>
+
 <h3 id="step-by-step-hand-calculation-on-a-1b-parameter-model">Step-by-Step Hand Calculation on a 1B Parameter Model</h3>
 <p>Let's compute the arithmetic intensity for an LLM layer with $P = 1 \times 10^9$ (1 Billion) parameters executing on an NVIDIA A100 GPU (SXM4, 80GB VRAM) in FP16 precision:<br />
 - <strong>NVIDIA A100 SXM4 peak FP16/BF16 compute</strong> ($P_{\text{peak}}$): $312 \text{ TFLOP/s} = 312 \times 10^{12} \text{ FLOP/s}$.<br />
@@ -424,6 +429,31 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li><strong>KV Cache Transfer</strong>: Send the generated KV states over a high-speed network (InfiniBand, RDMA, or NVLink) to the Decode nodes.</li>
 <li><strong>Decode Nodes</strong>: Append the states to memory and execute the low-intensity decode steps without blocking from new prompt arrivals.</li>
 </ol>
+<h3 id="serving-topology-trade-offs-unified-vs-pd-disaggregated">Serving Topology Trade-offs (Unified vs. PD Disaggregated)</h3>
+<table>
+<thead>
+<tr>
+<th>Topology</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Production Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unified serving (Single GPU / Node)</strong></td>
+<td>• Simple orchestration and zero network overhead.<br>• No need for expensive high-speed RDMA interconnects.<br>• Easy deployment on standard cloud instances.</td>
+<td>• Heavy Head-of-Line blocking (a long prefill prompt pauses decodes).<br>• Poor GPU resource utilization due to mixed compute/memory bounds.</td>
+<td>Low-to-medium volume deployments, personal assistants, or offline jobs.</td>
+</tr>
+<tr>
+<td><strong>PD Disaggregation (Split Pool serving)</strong></td>
+<td>• Bypasses Head-of-Line blocking entirely.<br>• Allows compute-optimized nodes (H100) for prefill, and memory-bandwidth nodes (A100) for decode.<br>• Distinct queue batching policies.</td>
+<td>• Heavy KV Cache transfer overhead across network.<br>• High infrastructure complexity and cost (requires RDMA/InfiniBand).<br>• Routing layer overhead.</td>
+<td>High-scale LLM API providers (OpenAI, Anyscale) serving millions of concurrent requests.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="5-core-latency-throughput-metrics">5. Core Latency &amp; Throughput Metrics</h2>
 <p>Production LLM hosting targets three metrics to satisfy client SLAs:</p>
@@ -481,11 +511,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <h2 id="1-deterministic-decoding">1. Deterministic Decoding</h2>
 <p>Deterministic strategies always select the token path with the highest probability, producing predictable, reproducible outputs.</p>
 <h3 id="greedy-decoding">Greedy Decoding</h3>
-<p>At each generation step $t$, greedy decoding selects the token index $x_t$ that maximizes the probability score:</p>
+<p>At each generation step $t$, greedy decoding selects the token index $x_t$ that has the highest individual probability score:</p>
 <p>$$x_t = \arg\max_{i} P(\text{token}_i \mid S_{t-1})$$</p>
 <ul>
-<li><strong>Pros</strong>: Computationally trivial ($O(1)$ selection complexity). Highly effective for factual tasks (code, mathematics).</li>
-<li><strong>Cons</strong>: Susceptible to repetitive loops (getting stuck repeating phrases) and misses paths where a slightly lower-probability token leads to a much higher-probability sequence later.</li>
+<li><strong>Intuition</strong>: "Short-sighted" decision making. It selects the immediately best-looking token, ignoring the downstream sequence impact.</li>
+<li><strong>Pros</strong>: </li>
+<li>Zero computational overhead (just an $O(1)$ argmax).</li>
+<li>Perfect for deterministic, factual tasks like mathematical calculations and code generation.</li>
+<li><strong>Cons</strong>: </li>
+<li>Frequently gets trapped in infinite repetitive loops (e.g., "and then and then and then...").</li>
+<li>Misses paths where selecting a lower-probability token now leads to a globally higher-probability sentence.</li>
 </ul>
 <h3 id="beam-search">Beam Search</h3>
 <p>Instead of keeping only the single best token, Beam Search maintains a fixed number of candidate sequences (the <em>beam width</em> $B$). At each step, it expands all $B$ paths, computes their cumulative log-probabilities, and keeps the top $B$ sequences:</p>
@@ -493,7 +528,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>To prevent favoring shorter paths, a <strong>Length Penalty</strong> ($L_p$) is applied:</p>
 <p>$$\text{Score}_{\text{normalized}}(X_{1:t}) = \frac{\sum_{\tau=1}^{t} \log P(x_\tau \mid X_{1:\tau-1})}{\left(\frac{5 + t}{6}\right)^{\alpha}}$$</p>
 <p>where $\alpha$ is the length penalty coefficient (typically $0.5$ to $1.0$).<br />
-- <strong>VRAM Footprint</strong>: Keeping $B$ active states requires caching $B$ times more KV Cache memory, making Beam Search memory-prohibitive for high-concurrency online serving.</p>
+- <strong>Intuition</strong>: Explores a broader search space, keeping alternative paths open to find a globally optimal sequence.<br />
+- <strong>Pros</strong>: <br />
+  - Highly effective for translation and summarization tasks where global output structure is critical.<br />
+- <strong>Cons</strong>: <br />
+  - <strong>Memory Killer (VRAM)</strong>: Keeping $B$ active sequence paths requires storing $B$ copies of the KV Cache for that request. This kills GPU concurrency, making Beam Search memory-prohibitive for high-throughput production gateways. It is rarely supported or enabled in high-concurrency engines like vLLM.</p>
 <hr />
 <h2 id="2-stochastic-sampling-temperature-math">2. Stochastic Sampling &amp; Temperature Math</h2>
 <p>Stochastic decoding introduces randomness by sampling from the probability distribution.</p>
@@ -543,7 +582,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <th>Strategy</th>
 <th>Truncation Logic</th>
 <th>Mathematical Formulation</th>
-<th>Failure Mode</th>
+<th>Pros &amp; Cons</th>
+<th>Production Insight</th>
 </tr>
 </thead>
 <tbody>
@@ -551,19 +591,22 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <td><strong>Top-K</strong></td>
 <td>Keeps only the $K$ tokens with the highest individual logits.</td>
 <td>$|V_{\text{candidate}}| = K$</td>
-<td>If the distribution is flat, it cuts off viable tokens. If it is sharp, it forces the inclusion of bad tail tokens.</td>
+<td>• <strong>Pros</strong>: Simple, low CPU sorting overhead.<br>• <strong>Cons</strong>: Rigid; includes garbage tail tokens when the distribution is sharp, or chops off valid candidates when flat.</td>
+<td>Older baseline; rarely used on its own in modern production gateways.</td>
 </tr>
 <tr>
 <td><strong>Top-p</strong><br>(Nucleus)</td>
-<td>Sorts tokens in descending order and keeps the smallest subset whose cumulative probability exceeds threshold $p$.</td>
+<td>Keeps the smallest subset of tokens whose cumulative probability exceeds $p$.</td>
 <td>$\sum_{i \in V_{\text{candidate}}} P_i \ge p$</td>
-<td>In highly confident settings, it still includes tail tokens if the top token is just below $p$.</td>
+<td>• <strong>Pros</strong>: Dynamic width adjusts to model confidence.<br>• <strong>Cons</strong>: If the top token has 98% probability, a $p=0.99$ threshold still forces the inclusion of garbage tail tokens.</td>
+<td>Current industry standard for conversational chat (e.g. OpenAI default values).</td>
 </tr>
 <tr>
 <td><strong>Min-p</strong></td>
-<td>Truncates tokens whose probability is below a dynamic threshold relative to the top token's probability $p_{\text{max}}$.</td>
+<td>Truncates tokens whose probability is below a fraction of the top token's probability $p_{\text{max}}$.</td>
 <td>$P_i &lt; p_{\text{max}} \times p_{\text{threshold}}$</td>
-<td>Bypasses standard static cutoff issues, keeping only high-confidence candidates dynamically.</td>
+<td>• <strong>Pros</strong>: Highly dynamic scaling; discards tail tokens in confident states but preserves choices in ambiguous states.<br>• <strong>Cons</strong>: Tuning $p_{\text{threshold}}$ requires intuition.</td>
+<td>Modern SOTA replacement for Top-p; yields cleaner, more robust generation outputs.</td>
 </tr>
 </tbody>
 </table>
@@ -766,6 +809,41 @@ While this reduces FLOPs, it creates a massive VRAM footprint that scales linear
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </code></pre></div>
 
+<h3 id="attention-variant-trade-offs">Attention Variant Trade-offs</h3>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>KV : Query Heads</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Production Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-Head Attention (MHA)</strong></td>
+<td>$1 : 1$</td>
+<td>• Maximum representational capacity (each query head has private KV context).</td>
+<td>• Maximum VRAM footprint; severely limits batch sizes and sequence length.</td>
+<td>Older baseline models (e.g., LLaMA-1, GPT-3).</td>
+</tr>
+<tr>
+<td><strong>Multi-Query Attention (MQA)</strong></td>
+<td>$1 : H$</td>
+<td>• Minimal KV Cache VRAM footprint (up to 8x-32x footprint reduction).</td>
+<td>• Degrades model capacity; performance drops on long, complex documents.</td>
+<td>Used in specialized low-resource models (e.g., Falcon).</td>
+</tr>
+<tr>
+<td><strong>Grouped-Query Attention (GQA)</strong></td>
+<td>$1 : G$ (e.g., $1 : 8$)</td>
+<td>• Combines MHA's high quality with MQA's low memory consumption.</td>
+<td>• Marginally more complex query-to-group mapping logic in code.</td>
+<td>Standard for modern SOTA models (LLaMA-3, Mistral, Command-R).</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li><strong>VRAM Saving</strong>: If a model uses a Grouped-Query Attention ratio of $8:1$ (e.g. Llama-3), its KV Cache VRAM footprint is reduced by <strong>8x</strong> compared to standard MHA.</li>
 </ul>
@@ -891,6 +969,41 @@ This accelerates TTFT in agent loops by <strong>$2\times - 5\times$</strong> com
 <p>Quantizes both weights and activations to INT8, allowing the model to utilize integer compute engines (INT8 Tensor Cores) directly.<br />
 - <strong>SmoothQuant</strong>: Emergent outlier features in activations (spikes up to 100x larger than median values) make activations difficult to quantize to INT8. SmoothQuant mathematically migrates this quantization difficulty from the activations ($X$) to the weights ($W$) by applying a scaling factor $s$:<br />
   $$Y = (X \cdot \text{diag}(s)^{-1}) \cdot (\text{diag}(s) \cdot W)$$</p>
+<h3 id="ptq-algorithm-comparison-matrix">PTQ Algorithm Comparison Matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Quantization Scope</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Production Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPTQ</strong></td>
+<td>Weight-only (INT4/INT3)</td>
+<td>• High quality compression at extreme bit-widths.</td>
+<td>• High calibration computation overhead (requires inverse Hessian solvers).</td>
+<td>Static weight-only deployment for memory reduction.</td>
+</tr>
+<tr>
+<td><strong>AWQ</strong></td>
+<td>Weight-only (INT4)</td>
+<td>• Preserves outlier weights dynamically; yields higher accuracy than GPTQ.<br>• Does not require complex Hessian approximations.</td>
+<td>• Relies on specialized de-quantization kernels in SRAM at execution time.</td>
+<td>Modern standard for INT4 serving on vLLM and SGLang.</td>
+</tr>
+<tr>
+<td><strong>SmoothQuant</strong></td>
+<td>Weight + Activation (W8A8)</td>
+<td>• Enables native INT8 GEMM on Tensor Cores, yielding compute speedups.</td>
+<td>• Higher perplexity degradation on very large models with massive activation outliers.</td>
+<td>Enterprise serving where both latency and throughput must scale.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="4-k-quantization-gguf-llamacpp">4. K-Quantization &amp; GGUF (llama.cpp)</h2>
 <p>For edge servers and CPU execution, <code>llama.cpp</code> uses <strong>Block-wise Quantization</strong> formats (GGUF):<br />
@@ -1029,6 +1142,41 @@ This arrangement allows us to execute the entire attention block with only one <
 - <strong>Pipeline Bubble</strong>: Idle wait times occur while nodes wait for activations from previous stages. This is mitigated by dividing batches into micro-batches (e.g., using 1F1B scheduling).</p>
 <h3 id="context-parallelism-cp">Context Parallelism (CP)</h3>
 <p>Splits the sequence length dimension of a long context input across GPUs. Each GPU processes a chunk of the tokens and computes local attention queries, keys, and values, exchanging attention metrics via ring-attention rings. Useful for sequences exceeding 100k tokens.</p>
+<h3 id="parallelism-strategy-comparison-matrix">Parallelism Strategy Comparison Matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Partition Dimension</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Production Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tensor Parallelism (TP)</strong></td>
+<td>Layer Weights (Columns/Rows)</td>
+<td>• Lowest latency; highly efficient weight reuse.<br>• Replicates execution states cleanly.</td>
+<td>• Requires ultra-fast interconnects (NVLink); typically limited to 8 GPUs within a single node.</td>
+<td>Scaling 70B class models within a single HGX node.</td>
+</tr>
+<tr>
+<td><strong>Pipeline Parallelism (PP)</strong></td>
+<td>Model Layers (Depth-wise)</td>
+<td>• Scales across multiple server boxes over standard networking.<br>• Low bandwidth demands.</td>
+<td>• Introduces pipeline bubbles (nodes waiting for boundary activations).<br>• High scheduling complexity (1F1B loops).</td>
+<td>Scaling 405B class models across multiple interconnected nodes.</td>
+</tr>
+<tr>
+<td><strong>Context Parallelism (CP)</strong></td>
+<td>Sequence Length (Tokens)</td>
+<td>• Enables processing of ultra-long contexts (128k+) that would overflow a single GPU's KV VRAM.</td>
+<td>• Requires complex ring-attention communications to calculate global softmax scores.</td>
+<td>Specialized long-context generation pipelines, stacked on top of TP/PP.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
@@ -1061,41 +1209,21 @@ This arrangement allows us to execute the entire attention block with only one <
    $$P_{\text{target}} = (p_1, p_2, \dots, p_{\gamma+1})$$<br />
 3. The engine uses <strong>rejection sampling</strong> to verify each draft token sequentially.</p>
 <hr />
-<h2 id="2-lossless-distribution-preservation-proof">2. Lossless Distribution Preservation Proof</h2>
-<p>We must prove that the rejection sampling protocol produces outputs that strictly match the target model's probability distribution $p(x)$, ensuring no quality degradation.</p>
-<h3 id="rejection-sampling-protocol">Rejection Sampling Protocol</h3>
-<p>For candidate token $x^*$ proposed by draft model distribution $q(x)$ at step $t$:<br />
-1. We accept $x^*$ with probability:<br />
-   $$\text{P}(\text{accept}) = \min\left(1, \frac{p(x^*)}{q(x^*)}\right)$$<br />
-   If accepted, we set $x_t = x^*$ and move to the next position.<br />
-2. If rejected, we evict the remaining draft tokens and sample $x_t$ from the normalized difference distribution:<br />
+<h2 id="2-rejection-sampling-the-coin-toss-intuition">2. Rejection Sampling: The Coin-Toss Intuition</h2>
+<p>Speculative decoding is <strong>mathematically lossless</strong>, meaning the generated tokens are identical to what the large target model would have output on its own. It guarantees this by utilizing a corrected rejection sampling protocol.</p>
+<h3 id="the-verification-protocol">The Verification Protocol</h3>
+<p>For a candidate token $x^*$ proposed by the draft model distribution $q(x)$:<br />
+1. <strong>Acceptance Probability</strong>: We accept $x^*$ with a probability scaled by the density ratio:<br />
+   $$\alpha = \min\left(1, \frac{p(x^*)}{q(x^*)}\right)$$<br />
+2. <strong>Acceptance</strong>: If accepted, we keep the token and check the next drafted token.<br />
+3. <strong>Rejection</strong>: If rejected, we throw away all subsequent drafted tokens, and sample a replacement token from the normalized difference distribution:<br />
    $$p'(x) = \frac{\max(0, p(x) - q(x))}{\sum_y \max(0, p(y) - q(y))}$$</p>
-<h3 id="proof">Proof</h3>
-<p>Let $x_{\text{selected}}$ be the token selected by the protocol. The probability of selecting a specific token $x$ is the sum of the probability of proposing and accepting it, plus the probability of rejecting the draft token and selecting $x$ from the fallback distribution $p'(x)$:</p>
-<p>$$\text{P}(x_{\text{selected}} = x) = q(x) \cdot \min\left(1, \frac{p(x)}{q(x)}\right) + P(\text{reject}) \cdot p'(x)$$</p>
-<p>Let's define the total rejection mass $M$:</p>
-<p>$$M = \sum_y \max(0, p(y) - q(y))$$</p>
-<p>Because $\sum_y q(y) = 1$ and $\sum_y p(y) = 1$, we can show that the sum of negative differences equals the sum of positive differences:</p>
-<p>$$\sum_y \max(0, q(y) - p(y)) = \sum_y \max(0, p(y) - q(y)) = M$$</p>
-<p>The probability of rejection is:</p>
-<p>$$\text{P}(\text{reject}) = 1 - \sum_y \min(q(y), p(y)) = \sum_y (q(y) - \min(q(y), p(y))) = \sum_y \max(0, q(y) - p(y)) = M$$</p>
-<p>Now, substitute $P(\text{reject}) = M$ and the definition of $p'(x)$ back into the selection equation:</p>
-<p>$$\text{P}(x_{\text{selected}} = x) = \min(q(x), p(x)) + M \cdot \left(\frac{\max(0, p(x) - q(x))}{M}\right)$$</p>
-<p>$$\text{P}(x_{\text{selected}} = x) = \min(q(x), p(x)) + \max(0, p(x) - q(x))$$</p>
-<p>We evaluate this equation for two possible cases:</p>
-<h4 id="case-1-mathplaceholder34endmath">Case 1: $p(x) \ge q(x)$</h4>
-<ul>
-<li>Here, $\min(q(x), p(x)) = q(x)$ and $\max(0, p(x) - q(x)) = p(x) - q(x)$.</li>
-<li>Substituting these values:<br />
-  $$\text{P}(x_{\text{selected}} = x) = q(x) + p(x) - q(x) = p(x)$$</li>
-</ul>
-<h4 id="case-2-mathplaceholder37endmath">Case 2: $p(x) &lt; q(x)$</h4>
-<ul>
-<li>Here, $\min(q(x), p(x)) = p(x)$ and $\max(0, p(x) - q(x)) = 0$.</li>
-<li>Substituting these values:<br />
-  $$\text{P}(x_{\text{selected}} = x) = p(x) + 0 = p(x)$$</li>
-</ul>
-<p>In both cases, the probability of selecting token $x$ is exactly $p(x)$, matching the target model's output distribution. $\blacksquare$</p>
+<h3 id="why-this-works-the-intuition">Why This Works (The Intuition)</h3>
+<p>Think of verification as a biased coin-toss:<br />
+- <strong>Case A: Target model likes the token <em>more</em> ($p(x^*) \ge q(x^*)$)</strong>: The ratio is $\ge 1.0$, so we accept it 100% of the time.<br />
+- <strong>Case B: Target model likes the token <em>less</em> ($p(x^*) &lt; q(x^*)$)</strong>: The ratio is $&lt; 1.0$, so we flip a coin with an acceptance probability equal to that ratio.<br />
+- <strong>Fallback</strong>: If the coin comes up tails (rejection), the target model selects a token from the difference distribution, which represents the tokens the target model preferred but the draft model under-sampled.</p>
+<p>This dynamic correction guarantees that the final selection probability is exactly $p(x)$, aligning perfectly with the target model's original distribution while bypassing autoregressive compute latency.</p>
 <hr />
 <h2 id="3-modern-speculative-architectures">3. Modern Speculative Architectures</h2>
 <p>Modern engines use advanced draft mechanisms to bypass tokenizer mismatches and dual-model VRAM overheads:</p>
@@ -1126,6 +1254,41 @@ This arrangement allows us to execute the entire attention block with only one <
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </code></pre></div>
 
+<h3 id="speculative-drafting-strategy-comparison">Speculative Drafting Strategy Comparison</h3>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Drafting Mechanism</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Production Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Draft Model</strong></td>
+<td>Small auxiliary autoregressive model (e.g. 1B) runs ahead.</td>
+<td>• Robust; handles general conversational structures well.</td>
+<td>• Requires loading a second model in VRAM.<br>• Tokenizer alignment mismatches.</td>
+<td>Standard baseline; ideal if helper model is small enough to fit in remaining memory.</td>
+</tr>
+<tr>
+<td><strong>Medusa / EAGLE</strong></td>
+<td>Helper prediction heads or feature vectors inside the main model.</td>
+<td>• Zero tokenizer issues.<br>• Minimal extra VRAM (no second model loaded).</td>
+<td>• Requires custom training and alignment tuning for the heads.</td>
+<td>Custom high-performance serving environments (e.g., enterprise APIs).</td>
+</tr>
+<tr>
+<td><strong>Prompt-Lookup</strong></td>
+<td>Scans prompt/context history for repeating N-grams and copies them.</td>
+<td>• <strong>Zero VRAM &amp; Zero Training</strong>: Plug-and-play compatibility.<br>• Minimal latency overhead.</td>
+<td>• Limited to highly repetitive text styles (e.g. code generation, repetitive system logs).</td>
+<td>Excellent for code completion servers and document-retrieval RAG bots.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="4-expected-tokens-speedup-math">4. Expected Tokens &amp; Speedup Math</h2>
 <p>The effectiveness of speculative decoding is governed by the <strong>Average Acceptance Rate</strong> ($\alpha \in [0, 1]$), representing the probability that a draft token is accepted by the target model.</p>

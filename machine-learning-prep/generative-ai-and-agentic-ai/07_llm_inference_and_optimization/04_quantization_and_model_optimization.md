@@ -92,6 +92,14 @@ Quantizes both weights and activations to INT8, allowing the model to utilize in
 - **SmoothQuant**: Emergent outlier features in activations (spikes up to 100x larger than median values) make activations difficult to quantize to INT8. SmoothQuant mathematically migrates this quantization difficulty from the activations ($X$) to the weights ($W$) by applying a scaling factor $s$:
   $$Y = (X \cdot \text{diag}(s)^{-1}) \cdot (\text{diag}(s) \cdot W)$$
 
+### PTQ Algorithm Comparison Matrix
+
+| Algorithm       | Quantization Scope         | Pros                                                                                                                             | Cons                                                                                   | Production Choice                                                |
+| -----------------| ----------------------------| ----------------------------------------------------------------------------------------------------------------------------------| ----------------------------------------------------------------------------------------| ------------------------------------------------------------------|
+| **GPTQ**        | Weight-only (INT4/INT3)    | • High quality compression at extreme bit-widths.                                                                                | • High calibration computation overhead (requires inverse Hessian solvers).            | Static weight-only deployment for memory reduction.              |
+| **AWQ**         | Weight-only (INT4)         | • Preserves outlier weights dynamically; yields higher accuracy than GPTQ.<br>• Does not require complex Hessian approximations. | • Relies on specialized de-quantization kernels in SRAM at execution time.             | Modern standard for INT4 serving on vLLM and SGLang.             |
+| **SmoothQuant** | Weight + Activation (W8A8) | • Enables native INT8 GEMM on Tensor Cores, yielding compute speedups.                                                           | • Higher perplexity degradation on very large models with massive activation outliers. | Enterprise serving where both latency and throughput must scale. |
+
 ---
 
 ## 4. K-Quantization & GGUF (llama.cpp)

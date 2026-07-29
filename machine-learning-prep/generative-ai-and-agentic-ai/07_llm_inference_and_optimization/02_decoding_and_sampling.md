@@ -9,12 +9,17 @@ An LLM outputs raw unbounded scores (logits) for every token in its vocabulary. 
 Deterministic strategies always select the token path with the highest probability, producing predictable, reproducible outputs.
 
 ### Greedy Decoding
-At each generation step $t$, greedy decoding selects the token index $x_t$ that maximizes the probability score:
+At each generation step $t$, greedy decoding selects the token index $x_t$ that has the highest individual probability score:
 
 $$x_t = \arg\max_{i} P(\text{token}_i \mid S_{t-1})$$
 
-- **Pros**: Computationally trivial ($O(1)$ selection complexity). Highly effective for factual tasks (code, mathematics).
-- **Cons**: Susceptible to repetitive loops (getting stuck repeating phrases) and misses paths where a slightly lower-probability token leads to a much higher-probability sequence later.
+- **Intuition**: "Short-sighted" decision making. It selects the immediately best-looking token, ignoring the downstream sequence impact.
+- **Pros**: 
+  - Zero computational overhead (just an $O(1)$ argmax).
+  - Perfect for deterministic, factual tasks like mathematical calculations and code generation.
+- **Cons**: 
+  - Frequently gets trapped in infinite repetitive loops (e.g., "and then and then and then...").
+  - Misses paths where selecting a lower-probability token now leads to a globally higher-probability sentence.
 
 ### Beam Search
 Instead of keeping only the single best token, Beam Search maintains a fixed number of candidate sequences (the *beam width* $B$). At each step, it expands all $B$ paths, computes their cumulative log-probabilities, and keeps the top $B$ sequences:
@@ -26,7 +31,11 @@ To prevent favoring shorter paths, a **Length Penalty** ($L_p$) is applied:
 $$\text{Score}_{\text{normalized}}(X_{1:t}) = \frac{\sum_{\tau=1}^{t} \log P(x_\tau \mid X_{1:\tau-1})}{\left(\frac{5 + t}{6}\right)^{\alpha}}$$
 
 where $\alpha$ is the length penalty coefficient (typically $0.5$ to $1.0$).
-- **VRAM Footprint**: Keeping $B$ active states requires caching $B$ times more KV Cache memory, making Beam Search memory-prohibitive for high-concurrency online serving.
+- **Intuition**: Explores a broader search space, keeping alternative paths open to find a globally optimal sequence.
+- **Pros**: 
+  - Highly effective for translation and summarization tasks where global output structure is critical.
+- **Cons**: 
+  - **Memory Killer (VRAM)**: Keeping $B$ active sequence paths requires storing $B$ copies of the KV Cache for that request. This kills GPU concurrency, making Beam Search memory-prohibitive for high-throughput production gateways. It is rarely supported or enabled in high-concurrency engines like vLLM.
 
 ---
 
@@ -77,11 +86,11 @@ Let our raw logit vector be $z = [2.0, 1.0, 0.0]$ for vocabulary tokens $[\text{
 
 To prevent sampling highly improbable "garbage" tokens (the tail of the distribution), we truncate the vocabulary candidate list before sampling.
 
-| Strategy | Truncation Logic | Mathematical Formulation | Failure Mode |
-|---|---|---|---|
-| **Top-K** | Keeps only the $K$ tokens with the highest individual logits. | $|V_{\text{candidate}}| = K$ | If the distribution is flat, it cuts off viable tokens. If it is sharp, it forces the inclusion of bad tail tokens. |
-| **Top-p**<br>(Nucleus) | Sorts tokens in descending order and keeps the smallest subset whose cumulative probability exceeds threshold $p$. | $\sum_{i \in V_{\text{candidate}}} P_i \ge p$ | In highly confident settings, it still includes tail tokens if the top token is just below $p$. |
-| **Min-p** | Truncates tokens whose probability is below a dynamic threshold relative to the top token's probability $p_{\text{max}}$. | $P_i < p_{\text{max}} \times p_{\text{threshold}}$ | Bypasses standard static cutoff issues, keeping only high-confidence candidates dynamically. |
+| Strategy | Truncation Logic | Mathematical Formulation | Pros & Cons | Production Insight |
+|---|---|---|---|---|
+| **Top-K** | Keeps only the $K$ tokens with the highest individual logits. | $|V_{\text{candidate}}| = K$ | • **Pros**: Simple, low CPU sorting overhead.<br>• **Cons**: Rigid; includes garbage tail tokens when the distribution is sharp, or chops off valid candidates when flat. | Older baseline; rarely used on its own in modern production gateways. |
+| **Top-p**<br>(Nucleus) | Keeps the smallest subset of tokens whose cumulative probability exceeds $p$. | $\sum_{i \in V_{\text{candidate}}} P_i \ge p$ | • **Pros**: Dynamic width adjusts to model confidence.<br>• **Cons**: If the top token has 98% probability, a $p=0.99$ threshold still forces the inclusion of garbage tail tokens. | Current industry standard for conversational chat (e.g. OpenAI default values). |
+| **Min-p** | Truncates tokens whose probability is below a fraction of the top token's probability $p_{\text{max}}$. | $P_i < p_{\text{max}} \times p_{\text{threshold}}$ | • **Pros**: Highly dynamic scaling; discards tail tokens in confident states but preserves choices in ambiguous states.<br>• **Cons**: Tuning $p_{\text{threshold}}$ requires intuition. | Modern SOTA replacement for Top-p; yields cleaner, more robust generation outputs. |
 
 ---
 

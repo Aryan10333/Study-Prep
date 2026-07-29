@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LLM Inference & Serving Cheatsheet</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ]
+            });"></script>
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm 12mm 10mm 12mm;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-size: 11.5px;
+            line-height: 1.4;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 18px;
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 4px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 13px;
+            color: #1e40af;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 2px;
+        }
+        h3 {
+            font-size: 12px;
+            color: #0369a1;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        p, li {
+            margin-bottom: 4px;
+        }
+        ul, ol {
+            padding-left: 18px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+        code {
+            font-family: 'Consolas', monospace;
+            background-color: #f1f5f9;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10.5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 10px;
+            border: 1px solid #64748b;
+        }
+        th {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-weight: 700;
+            border: 1px solid #475569;
+            padding: 5px 6px;
+        }
+        td {
+            border: 1px solid #cbd5e1;
+            padding: 4px 6px;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #cbd5e1;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>LLM Inference &amp; Serving: Quick-Revision Cheatsheet</h1>
+<h2>1. Core Inference &amp; Serving Bottlenecks</h2>
+<ul>
+<li><strong>Prefill vs. Decode</strong>: Prefill processes all input tokens in parallel. It is <strong>compute-bound</strong> (General Matrix-Matrix Multiply, <code>GEMM</code>), utilizing GPU Tensor Cores. Decode processes tokens sequentially one-by-one. It is <strong>memory-bandwidth-bound</strong> (General Matrix-Vector Multiply, <code>GEMV</code>), bottlenecked by HBM memory bus transfer speeds.</li>
+<li><strong>Arithmetic Intensity</strong>: $I = \frac{\text{FLOPs}}{\text{Memory Traffic (Bytes)}}$. Bounded by Roofline Model: $\text{Performance} = \min(P_{\text{peak}}, I \cdot B_{\text{peak}})$.</li>
+<li><strong>Prefill</strong>: $I \approx L_{\text{prompt}}$ (high weight reuse; compute-bound).</li>
+<li><strong>Decode</strong>: $I \approx 1$ FLOP/Byte (GPU loads entire model weights for a single token computation; memory-bound).</li>
+<li><strong>SLA Latency Metrics</strong>:</li>
+<li>$\text{TTFT} = \text{Queue Delay} + \text{Prefill Latency}$ (critical for user responsiveness).</li>
+<li>$\text{TPOT (ITL)} = \text{Decode Iteration Latency}$ (critical for reading comfort).</li>
+<li>$\text{End-to-End Latency} = \text{TTFT} + (L_{\text{output}} - 1) \times \text{TPOT}$.</li>
+<li>$\text{Throughput (TPS)} = \frac{\text{Total Output Tokens}}{\text{Execution Time}}$ (critical for offline batching).</li>
+</ul>
+<hr />
+<h2>2. KV Cache VRAM Footprint &amp; Optimization</h2>
+<ul>
+<li><strong>VRAM Sizing Formula</strong>:<br />
+  $$\text{VRAM}_{\text{KV}} = 2 \cdot b \cdot l \cdot s \cdot n_{\text{heads\_kv}} \cdot d_{\text{head}} \cdot \text{bytes\_per\_element}$$</li>
+<li>$b$: Batch size.</li>
+<li>$l$: Context length.</li>
+<li>$s$: Layers count.</li>
+<li>$n_{\text{heads\_kv}}$: KV Heads ($1$ for MQA, $G$ for GQA, $H$ for MHA).</li>
+<li>$d_{\text{head}}$: Head dimension (typically 128).</li>
+<li>$\text{bytes\_per\_element}$: 2 (FP16/BF16), 1 (FP8/INT8).</li>
+<li><strong>VRAM Reduction</strong>: Grouped-Query Attention (GQA) reduces KV heads by grouping queries (e.g. 8:1 ratio), shrinking KV cache size by <strong>8x</strong> compared to Multi-Head Attention (MHA).</li>
+<li><strong>Virtual Memory Virtualization</strong>:</li>
+<li><strong>PagedAttention</strong>: Divides KV Cache into non-contiguous physical blocks (e.g. 16 tokens), mapping logical requests via a block table to eliminate internal and external VRAM fragmentation (wasted VRAM drops from $\approx 60\%-80\%$ to $&lt; 4\%$).</li>
+<li><strong>RadixAttention</strong>: Caches KV states in a prefix Radix Tree. Reuses common prefixes (system prompts, static contexts) in multi-turn dialogues, dropping TTFT by $2\times - 5\times$.</li>
+</ul>
+<hr />
+<h2>3. Parallelism Scaling &amp; Quantization Matrix</h2>
+<h3>Multi-GPU Parallelism</h3>
+<ul>
+<li><strong>Tensor Parallelism (TP)</strong>: Splits layer weights (Column/Row linear layers) within a node. Lowest latency, but requires NVLink bandwidth due to All-Reduce syncs at every layer.</li>
+<li><strong>Pipeline Parallelism (PP)</strong>: Splits layers sequentially across nodes. Scale-friendly, but introduces pipeline idle bubbles (mitigated by 1F1B micro-batching).</li>
+<li><strong>Context Parallelism (CP)</strong>: Splits sequence length via ring-attention communication. Best for ultra-long context.</li>
+</ul>
+<h3>Quantization Trade-offs</h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Target</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Production Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPTQ</strong></td>
+<td>Weight-only (4-bit)</td>
+<td>• Dynamic inverse Hessian updates; high accuracy at low bit-widths.</td>
+<td>• Slow/complex calibration loop.</td>
+<td>Offline model storage.</td>
+</tr>
+<tr>
+<td><strong>AWQ</strong></td>
+<td>Weight-only (4-bit)</td>
+<td>• Protects 1% salient outlier channels dynamically.</td>
+<td>• Needs dynamic de-quantization kernels in SRAM.</td>
+<td>vLLM runtime default.</td>
+</tr>
+<tr>
+<td><strong>SmoothQuant</strong></td>
+<td>Weight + Activation (W8A8)</td>
+<td>• Migrates activation scaling outliers to weights, enabling native INT8 GEMM.</td>
+<td>• Slight perplexity drops on large models.</td>
+<td>High-concurrency enterprise APIs.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Concluding Q&amp;A &amp; Interview Checklists</h2>
+<ul>
+<li><strong>Speculative Verification Expected Speedup</strong>:<br />
+  $$E[\text{tokens}] = \frac{1 - \alpha^{\gamma+1}}{1 - \alpha}$$</li>
+<li>$\alpha$: Average draft acceptance rate.</li>
+<li>$\gamma$: Draft lookahead length.</li>
+<li><strong>Troubleshooting Production Incidents</strong>:<br />
+  1. <strong>High TTFT / Normal TPOT</strong>: High queue backlog or long input prefill processing. Fix: Enable Chunked Prefill and Prefix Caching.<br />
+  2. <strong>Normal TTFT / High TPOT</strong>: Memory bandwidth bottleneck, network serialization, or heavy Tensor Parallel All-Reduce comms. Fix: Quantize weights (AWQ) or scale TP nodes down (to avoid node-hop switches).<br />
+  3. <strong>CUDA OOM on Servings Initialization</strong>: Inefficient pre-allocated KV Cache page size. Fix: Adjust <code>gpu_memory_utilization</code> parameters in vLLM configs.</li>
+</ul>
+<h3>Legend:</h3>
+<ul>
+<li>$N, L, |V|, d, b, s$: Parameter count, Context tokens, Vocabulary size, Model dimension, Batch size, Layers.</li>
+</ul>
+</body>
+</html>

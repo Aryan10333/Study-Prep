@@ -87,6 +87,14 @@ Splits model layers across nodes (e.g. GPU 0 holds layers 1-10, GPU 1 holds 11-2
 ### Context Parallelism (CP)
 Splits the sequence length dimension of a long context input across GPUs. Each GPU processes a chunk of the tokens and computes local attention queries, keys, and values, exchanging attention metrics via ring-attention rings. Useful for sequences exceeding 100k tokens.
 
+### Parallelism Strategy Comparison Matrix
+
+| Strategy | Partition Dimension | Pros | Cons | Production Choice |
+|---|---|---|---|---|
+| **Tensor Parallelism (TP)** | Layer Weights (Columns/Rows) | • Lowest latency; highly efficient weight reuse.<br>• Replicates execution states cleanly. | • Requires ultra-fast interconnects (NVLink); typically limited to 8 GPUs within a single node. | Scaling 70B class models within a single HGX node. |
+| **Pipeline Parallelism (PP)** | Model Layers (Depth-wise) | • Scales across multiple server boxes over standard networking.<br>• Low bandwidth demands. | • Introduces pipeline bubbles (nodes waiting for boundary activations).<br>• High scheduling complexity (1F1B loops). | Scaling 405B class models across multiple interconnected nodes. |
+| **Context Parallelism (CP)** | Sequence Length (Tokens) | • Enables processing of ultra-long contexts (128k+) that would overflow a single GPU's KV VRAM. | • Requires complex ring-attention communications to calculate global softmax scores. | Specialized long-context generation pipelines, stacked on top of TP/PP. |
+
 ---
 
 ### Interview Questions & Production Trade-offs
