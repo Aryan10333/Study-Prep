@@ -44,9 +44,9 @@ During compilation, Markdown parsers can corrupt LaTeX syntax and code formats. 
    }
    ```
 
-## 3. Standard A4 Design System (from NLP Master Guide)
+## 3. Standard A4 Design System (from Master Guide)
 
-The compiled guide must use the standardized NLP master guide CSS and layout structure:
+The compiled guide must use the standardized master guide CSS and layout structure:
 - **Page Dimensions**: Enforce standard A4 size with explicit margins:
   ```css
   @page {
@@ -100,4 +100,19 @@ subprocess.run(cmd, capture_output=True, text=True)
 - Check that a Table of Contents page is compiled immediately following the cover page.
 - Check that page breaks occur cleanly before each new module container.
 - Ensure that KaTeX math renders correctly on the generated PDF pages.
+
+---
+
+## 6. Standard Directory & Assets Reorganization Layout
+
+To maintain a clean repository structure, folders must adhere to this standardized file layout:
+- **`modules/` (Source Files)**: Contains all source Markdown files (e.g., theory sections, Q&A banks, checklists, walkthrough logs, and roadmap task lists).
+- **`helpers/` (Scripts)**: Contains all executable scripts used for building notebooks, compiling documents, or generating plots.
+- **`notebooks/`**: Holds executed, output-populated companion Jupyter Notebooks.
+- **`plots/`**: Holds all generated graphical visualizations referenced in the markdown guides.
+- **Root Directory**: Exclusively holds compiled master deliverables:
+  - `*_master_study_guide.html` and `*_master_study_guide.pdf`
+  - `*_interview_cheatsheet.html` and `*_interview_cheatsheet.pdf`
+
+*Note: Ensure all paths within scripts are dynamically adjusted to read markdown from `modules/` and output HTML/PDF files to the root directory.*
 

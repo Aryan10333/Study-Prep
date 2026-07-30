@@ -19,10 +19,10 @@ Every study guide and technical topic must begin with a short, high-level concep
 
 All technical study guides must follow a strict **Practical Mathematics** progression to make equations intuitive:
 
-1. **Limit Complex Math**: Limit dense academic notation and formal algebraic proofs (e.g. proof of speculative rejection sampling lossless properties, multi-index matrix tiling subscripts). Replace them with clear conceptual descriptions, intuitive analogies (e.g. memory-bus bottleneck, coin-toss verification), and comparative tables highlighting pros, cons, and production trade-offs.
+1. **Limit Complex Math**: Limit dense academic notation and formal algebraic proofs (e.g., proof of speculative rejection sampling lossless properties, multi-index matrix tiling subscripts). Prune step-by-step calculus proofs (like multi-step partial derivative backpropagation chains or tedious matrix indexing algebra expansion) if they do not add direct value to conceptual interview situations. Replace them with clear conceptual descriptions, final structural mathematical equations, stability conditions (like eigenvalues or additive gradient flows), intuitive analogies, and comparative tables highlighting pros, cons, and production trade-offs.
 2. **State the Essential Math Formula**: Express the mathematical formulation clearly using display math blocks (e.g. sizing/VRAM equations, quantization scaling, arithmetic intensity).
 3. **Step-by-Step Hand Calculation**: Break down the calculation on a tiny sample space (e.g. sequence length $L=2$, dimensions $d=2$, vocabulary size $|V|=3$). Work out intermediate sums, products, and exponents manually.
-4. **Reference Code**: Write framework-agnostic Python/PyTorch code that computes and prints these values, showing exact consistency (to 4 decimal places) with the hand calculation.
+4. **Reference Code**: Write framework-agnostic Python/PyTorch code that computes and prints these values, showing exact consistency (to 4 decimal places) with the hand calculation. If intermediate hand-calculation rounding causes a slight numerical offset (e.g. `27.8600` vs. `27.8592`), explicitly document both the rounded hand-calculation result and the exact unrounded floating-point values computed by the code to maintain 100% transparency.
 
 ---
 
@@ -53,9 +53,9 @@ All technical study guides must follow a strict **Practical Mathematics** progre
 - Fenced code blocks must compile using Pygments syntax highlighting (`monokai` or dark slate).
 - Ensure styling overrides are present in target configurations to maintain transparent code block backgrounds and clean white text defaults, preventing dark-text-on-dark-background rendering errors.
 
-### Native HTML/CSS Diagrams (No Mermaid or ASCII blocks):
+### Premium HTML/CSS and Inline SVG Diagrams (No Mermaid or ASCII blocks):
 - Do not use raw text-based ASCII flowcharts or Mermaid code blocks in study guides, as they do not render reliably in PDF compilers and require external CDN loading.
-- Instead, construct diagrams using **pure inline HTML/CSS blocks** (using flexbox/grid containers, rounded borders, colored headers, and simple arrows). This guarantees that diagrams render instantly, print as vector-sharp shapes, and match the target A4 styles perfectly without external JavaScript.
+- Instead, construct diagrams using **pure inline HTML/CSS blocks** (using flexbox/grid containers, rounded borders, colored headers, and simple arrows) or **inline SVG markup** (defining paths, rects, text, and arrow markers). This guarantees that diagrams render instantly, print as vector-sharp shapes, and match the target A4 styles perfectly without external JavaScript.
 
 ---
 

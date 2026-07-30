@@ -266,22 +266,38 @@ Transformers scale training efficiently but require quadratic $O(L^2)$ memory du
 ## Question 13: Derive the TF-IDF equation and compute TF-IDF scores for a small corpus.
 
 ### Short Interview Answer (30–60 seconds)
-TF-IDF calculates a term's significance by multiplying Term Frequency (raw count in a document) and Inverse Document Frequency (penalizing terms common across the corpus):
-$$\text{TF-IDF} = \text{TF}(t, d) \times \log\left(\frac{1 + N}{1 + \text{DF}(t)}\right) + 1$$
+TF-IDF (Term Frequency-Inverse Document Frequency) measures a token's information density relative to a corpus. The mathematical formula is:
+$$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \text{IDF}(t, D)$$
+$$\text{IDF}(t, D) = \ln\left(\frac{1 + N}{1 + \text{DF}(t)}\right) + 1$$
+Where $\text{TF}(t, d)$ is the frequency of term $t$ in document $d$, $N$ is the total documents in corpus $D$, and $\text{DF}(t)$ is the document frequency of term $t$.
 
-### Technical Intuition & Complexity
-Consider Corpus:
+### Technical Intuition & Detailed Hand-Calculation
+Consider a micro-corpus of $N = 2$ documents:
 - $d_1$: `"cat mat"`
 - $d_2$: `"mat rug"`
-Let's compute TF-IDF for `"cat"` in $d_1$:
-- $N = 2$
-- $\text{DF}(\text{"cat"}) = 1 \rightarrow \text{IDF} = \log(3/2) + 1 \approx 0.405 + 1 = 1.405$
-- $\text{TF}(\text{"cat"}, d_1) = 1$
-- $\text{TF-IDF} = 1.405$.
+Vocabulary: `["cat", "mat", "rug"]` (vocabulary size $|V| = 3$).
+
+#### Step 1: Calculate Document Frequencies (DF) and Smooth IDF for each term:
+- **"cat"**: $\text{DF}(\text{"cat"}) = 1$ (appears only in $d_1$)
+  $$\text{IDF}(\text{"cat"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$
+- **"mat"**: $\text{DF}(\text{"mat"}) = 2$ (appears in $d_1$ and $d_2$)
+  $$\text{IDF}(\text{"mat"}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$
+- **"rug"**: $\text{DF}(\text{"rug"}) = 1$ (appears only in $d_2$)
+  $$\text{IDF}(\text{"rug"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$
+
+#### Step 2: Compute Raw TF-IDF Vector for $d_1$ (frequencies: $\text{TF}(\text{"cat"})=1$, $\text{TF}(\text{"mat"})=1$, $\text{TF}(\text{"rug"})=0$):
+- $\text{TF-IDF}(\text{"cat"}, d_1) = 1 \times 1.4055 = 1.4055$
+- $\text{TF-IDF}(\text{"mat"}, d_1) = 1 \times 1.0000 = 1.0000$
+- $\text{TF-IDF}(\text{"rug"}, d_1) = 0 \times 1.4055 = 0.0000$
+$$\mathbf{v}_{d_1} = [1.4055, \ 1.0000, \ 0.0000]^T$$
+
+#### Step 3: Apply $L_2$ Normalization to prevent document length bias:
+$$\|\mathbf{v}_{d_1}\|_2 = \sqrt{1.4055^2 + 1.0000^2 + 0.0^2} = \sqrt{1.9754 + 1.0000} = \sqrt{2.9754} \approx 1.7249$$
+$$\mathbf{v}_{d_1, \text{norm}} = \left[ \frac{1.4055}{1.7249}, \ \frac{1.0000}{1.7249}, \ 0.0 \right]^T \approx [0.8148, \ 0.5797, \ 0.0]^T$$
 
 ### Production Perspective & Trade-offs
-Applying $L_2$ normalization prevents document length bias:
-$$\mathbf{v}_{\text{norm}} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2}$$
+- **Length Normalization**: Essential because longer documents naturally repeat words, inflating TF scores. $L_2$ normalization maps vectors onto a unit hypersphere, allowing Cosine Similarity to measure angles rather than absolute vector lengths.
+- **Sparse Storage**: Large corpora yield $|V| > 100,000$, resulting in memory-heavy matrices. Production systems store representations in coordinate (COO) or compressed sparse row (CSR) formats to minimize storage overhead.
 
 ### Follow-up Questions
 - **Follow-up**: *How does a document frequency of 0 impact IDF?* -> Smooth IDF adds $1$ to both the numerator and denominator, preventing division-by-zero errors.
@@ -364,18 +380,33 @@ If the bigram `"sat on"` appears 10 times and `"sat"` appears 100 times, the MLE
 ## Question 17: Why is Laplace smoothing required? Compute smoothed probabilities for a simple example.
 
 ### Short Interview Answer (30–60 seconds)
-MLE assigns a probability of $0$ to unseen sequences. A single zero count makes the joint sequence probability collapse to $0$. Laplace smoothing reallocates probability mass by adding $1$ to all counts:
+In Maximum Likelihood Estimation (MLE), any word transition unseen in the training set receives a probability score of $0$. Due to the chain rule of probability, a single zero probability collapses the entire joint sequence probability to $0$. Laplace smoothing (add-one smoothing) solves this by adding $1$ to all counts, shifting probability mass from seen events to unseen events:
 $$P_{\text{Laplace}}(w_i \mid w_{i-1}) = \frac{C(w_{i-1}, w_i) + 1}{C(w_{i-1}) + |V|}$$
+Where $C(w_{i-1}, w_i)$ is the bigram count, $C(w_{i-1})$ is the unigram history count, and $|V|$ is the vocabulary size.
 
-### Technical Intuition & Complexity
-Given:
-- $C(\text{"the", "cat"}) = 0$
-- $C(\text{"the"}) = 10$
-- $|V| = 1000$
-$$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{0 + 1}{10 + 1000} = \frac{1}{1010} \approx 0.00099$$
+### Technical Intuition & Detailed Hand-Calculation
+Let's train a bigram language model on the micro-corpus:
+`"the cat sat on the mat"` (contains 6 tokens).
+Vocabulary: `["the", "cat", "sat", "on", "mat"]` (vocabulary size $|V| = 5$).
+
+#### Step 1: Track counts for unigrams and bigrams:
+- $C(\text{"the"}) = 2$
+- $C(\text{"the", "cat"}) = 1$
+- $C(\text{"the", "mat"}) = 1$
+- $C(\text{"the", "sat"}) = 0$ (unseen transition)
+
+#### Step 2: Compute smoothed transition probabilities:
+- **Seen transition** $P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"})$:
+  $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{C(\text{"the", "cat"}) + 1}{C(\text{"the"}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$
+- **Unseen transition** $P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"})$:
+  $$P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"}) = \frac{C(\text{"the", "sat"}) + 1}{C(\text{"the"}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$
+
+Notice that the sum of probabilities across all possible next tokens for the history `"the"` remains normalized:
+$$\sum_{w \in V} P(w \mid \text{"the"}) = \frac{2}{7} (\text{for "cat"}) + \frac{2}{7} (\text{for "mat"}) + \frac{1}{7} (\text{for "sat"}) + \frac{1}{7} (\text{for "on"}) + \frac{1}{7} (\text{for "the"}) = \frac{7}{7} = 1.0000$$
 
 ### Production Perspective & Trade-offs
-Laplace smoothing assigns too much probability mass to unseen words in large vocabularies, degrading model performance.
+- **The $|V|$ Bottleneck**: While Laplace smoothing ensures mathematical validity, adding $1$ to all unseen transitions allocates a massive amount of probability mass to the long tail of rare or unseen words in large vocabularies (e.g. $|V| = 50,000$), significantly degrading the probability of common, natural transitions.
+- **Production Solution**: Modern NLP systems rely on Absolute Discounting or Kneser-Ney smoothing, which discount a fixed value $d$ from seen counts and distribute it proportionally based on how likely a word is to complete unseen context (continuation probability).
 
 ### Follow-up Questions
 - **Follow-up**: *How does Kneser-Ney smoothing improve on Laplace?* -> Kneser-Ney uses absolute discounting and a continuation probability to estimate how likely a word is to complete an unseen context.
@@ -388,14 +419,38 @@ Laplace smoothing assigns too much probability mass to unseen words in large voc
 ## Question 18: What is Perplexity? Derive its mathematical formulation and explain its intuition.
 
 ### Short Interview Answer (30–60 seconds)
-Perplexity (PPL) is the exponentiated cross-entropy loss of a sequence, representing the average branching factor (uncertainty) of the model:
-$$\text{PPL}(W) = P(w_1, \dots, w_m)^{-\frac{1}{m}} = e^{\text{Cross-Entropy Loss}}$$
+Perplexity (PPL) measures how well a probability model predicts a sample. Intuitively, it represents the average branching factor—the number of equally likely words the model is choosing from at each step. Mathematically, it is the exponentiated cross-entropy loss of the sequence:
+$$\text{PPL}(W) = P(w_1, w_2, \dots, w_m)^{-\frac{1}{m}} = e^{\mathcal{L}_{\text{CE}}}$$
+Where $m$ is the sequence length, $P(w_1, \dots, w_m)$ is the sequence joint probability, and $\mathcal{L}_{\text{CE}}$ is the average cross-entropy loss per token.
 
-### Technical Intuition & Complexity
-A perplexity of $D$ means the model is choosing among $D$ equally likely words at each step. Lower perplexity indicates a more confident model.
+### Technical Intuition & Detailed Hand-Calculation
+Let's derive perplexity from cross-entropy and compute it for a tiny 3-token sequence:
+
+#### 1. Mathematical Derivation:
+The cross-entropy loss per token for a sequence $W$ of length $m$ is:
+$$\mathcal{L}_{\text{CE}} = -\frac{1}{m} \sum_{i=1}^m \ln P(w_i \mid w_{1:i-1}) = -\frac{1}{m} \ln P(w_1, \dots, w_m)$$
+Exponentiating both sides:
+$$e^{\mathcal{L}_{\text{CE}}} = e^{-\frac{1}{m} \ln P(W)} = \left( e^{\ln P(W)} \right)^{-\frac{1}{m}} = P(W)^{-\frac{1}{m}} = \text{PPL}(W)$$
+
+#### 2. Step-by-Step Hand-Calculation:
+Suppose our bigram model processes a test sequence $W = (w_1, w_2, w_3)$ with the following conditional probabilities:
+- $P(w_1) = 0.50$
+- $P(w_2 \mid w_1) = 0.20$
+- $P(w_3 \mid w_2) = 0.40$
+
+- **Step 1: Compute Joint Probability:**
+  $$P(W) = P(w_1) \times P(w_2 \mid w_1) \times P(w_3 \mid w_2) = 0.50 \times 0.20 \times 0.40 = 0.0400$$
+- **Step 2: Calculate Average Cross-Entropy Loss ($\mathcal{L}_{\text{CE}}$):**
+  $$\mathcal{L}_{\text{CE}} = -\frac{1}{3} \ln(0.0400) \approx -\frac{1}{3} \times (-3.2189) = 1.0730$$
+- **Step 3: Calculate Perplexity:**
+  $$\text{PPL}(W) = e^{1.0730} = 0.0400^{-\frac{1}{3}} = 25^{\frac{1}{3}} \approx 2.9240$$
+
+##### Findings & Interpretation:
+The perplexity of $2.9240$ means that at each token prediction step, the model was as confused as if it had to choose uniformly from $\approx 2.92$ candidate words. A lower perplexity indicates a more confident model.
 
 ### Production Perspective & Trade-offs
-PPL is useful for comparing models, but does not capture semantic correctness or logical consistency.
+- **Comparison Limits**: Perplexity can only be used to compare models that share the exact same tokenizer and vocabulary size. A model with a vocabulary size $|V|=1,000$ will inherently have a lower baseline perplexity than a model with $|V|=50,000$, even if the latter is semantically superior, because it is choosing from fewer alternatives.
+- **Out of Vocabulary (OOV)**: If a tokenizer fails to handle OOV tokens, a single unseen token can make $P(w_i) = 0$, causing PPL to explode to infinity, requiring clipping or smoothing.
 
 ### Follow-up Questions
 - **Follow-up**: *How does vocabulary size impact perplexity comparisons?* -> Models with smaller vocabularies inherently yield lower perplexity scores because they choose from fewer options.
@@ -431,14 +486,40 @@ Word2Vec trains static embeddings using local context predictions:
 ## Question 20: Why does Negative Sampling make Word2Vec training faster?
 
 ### Short Interview Answer (30–60 seconds)
-Standard Softmax requires calculating denominator normalization sums over the entire vocabulary $|V|$, which is computationally expensive. Negative Sampling converts this multi-class classification into binary logistic regression, updating only the target word and a few ($K$) randomly selected negative samples.
+Standard multiclass Softmax requires computing a normalization sum over the entire vocabulary $|V|$ (often $>100,000$ tokens) in the denominator for every single training step, which is computationally prohibitive. Skip-gram with Negative Sampling (SGNS) reformulates the task as a binary logistic regression game. For each target-context pair, the model optimizes a binary classifier to distinguish the true target-context pair from $K$ randomly drawn "noise" (negative) samples, reducing computing complexity from $O(|V|)$ to $O(K)$.
 
-### Technical Intuition & Complexity
-Instead of running $|V|$ vector updates (e.g. $100,000$), Negative Sampling only runs $K + 1$ vector updates (e.g. $5\text{--}20$), reducing training time from hours to minutes.
+The SGNS loss function is:
+$$\mathcal{L}_{\text{SGNS}} = -\ln \sigma(\mathbf{v}_w \cdot \mathbf{v}'_{w_c}) - \sum_{i=1}^K \ln \sigma(-\mathbf{v}_w \cdot \mathbf{v}'_{w_i})$$
+
+### Technical Intuition & Detailed Hand-Calculation
+Let's compute the negative sampling loss for a single step with a key target word and $K = 1$ negative sample:
+- Target word: `"cat"` (context embedding vector $\mathbf{v}_{\text{cat}} = [0.10, \ 0.80, \ -0.20]^T$)
+- Positive context word: `"sat"` (target embedding vector $\mathbf{v}'_{\text{sat}} = [0.20, \ 0.90, \ 0.10]^T$)
+- Negative noise word: `"refrigerator"` (target embedding vector $\mathbf{v}'_{\text{refrig}} = [-0.90, \ 0.10, \ 0.80]^T$)
+
+#### Step 1: Compute Dot Products:
+- Positive pair dot product:
+  $$\mathbf{v}_{\text{cat}} \cdot \mathbf{v}'_{\text{sat}} = (0.10 \times 0.20) + (0.80 \times 0.90) + (-0.20 \times 0.10) = 0.0200 + 0.7200 - 0.0200 = 0.7200$$
+- Negative pair dot product:
+  $$\mathbf{v}_{\text{cat}} \cdot \mathbf{v}'_{\text{refrig}} = (0.10 \times -0.90) + (0.80 \times 0.10) + (-0.20 \times 0.80) = -0.0900 + 0.0800 - 0.1600 = -0.1700$$
+
+#### Step 2: Compute Logistic Sigmoid Probabilities ($\sigma(x) = \frac{1}{1 + e^{-x}}$):
+- Positive pair probability:
+  $$\sigma(0.7200) = \frac{1}{1 + e^{-0.7200}} \approx \frac{1}{1 + 0.4868} = 0.6726$$
+- Negative pair probability (note the negative sign $-\mathbf{v} \cdot \mathbf{v}'$):
+  $$\sigma(-(-0.1700)) = \sigma(0.1700) = \frac{1}{1 + e^{-0.1700}} \approx \frac{1}{1 + 0.8437} = 0.5424$$
+
+#### Step 3: Calculate the SGNS Loss:
+$$\mathcal{L}_{\text{SGNS}} = -\ln(0.6726) - \ln(0.5424) \approx 0.3966 + 0.6117 = 1.0083$$
+
+##### Findings & Interpretation:
+The loss score is $1.0083$. During backpropagation, the gradients will adjust only the vectors for `"cat"`, `"sat"`, and `"refrigerator"`. The other $|V| - 3$ word vectors are completely untouched during this step, which is why it runs orders of magnitude faster.
 
 ### Production Perspective & Trade-offs
-- **Time Complexity**: Reduces softmax computation from $O(|V|)$ to $O(K)$.
-- **Noise Distribution**: Samples negatives using $P_n(w) \propto U(w)^{0.75}$ to boost the probability of sampling rare words.
+- **Time Complexity**: Reduces weight-update calculations from $O(|V|)$ to $O(K)$.
+- **Negative Sampling Distribution**: Negatives are sampled from a smoothed unigram distribution:
+  $$P_n(w) \propto U(w)^{0.75}$$
+  Raising unigram frequency $U(w)$ to the power of $0.75$ boosts the probability of sampling rare words (e.g. if $U(w_1) = 0.99$ and $U(w_2) = 0.01$, the ratio shifts from $99:1$ to $\approx 32:1$), preventing the model from over-optimizing on common stop words (like `"the"` or `"is"`).
 
 ### Follow-up Questions
 - **Follow-up**: *What is the optimal value for K?* -> Typically $5\text{--}20$ for small datasets, and $2\text{--}5$ for large corpora.
@@ -474,17 +555,30 @@ Vanishing gradients prevent standard RNNs from learning long-range dependencies,
 ## Question 22: Explain how LSTM's cell state mitigates the vanishing gradient problem.
 
 ### Short Interview Answer (30–60 seconds)
-The cell state update in LSTM uses linear addition rather than matrix multiplication:
-$$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$
-This linear update allows the error gradient to propagate back through time directly without exponential decay.
+Standard RNNs propagate gradients by multiplying the error vector repeatedly by the recurrent hidden-to-hidden weight matrix $\mathbf{W}_{hh}$ at each backpropagation step. This multiplicative chain leads to vanishing gradients if the eigenvalues of $\mathbf{W}_{hh}$ are less than $1$. In contrast, LSTMs propagate error gradients through an additive **Constant Error Carousel (CEC)** located in the cell state $\mathbf{C}_t$. The cell state update equation is linear:
+$$\mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t$$
+Since the update is additive, the derivative $\frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}}$ has a direct linear pathway (scaled by forget gate $\mathbf{f}_t$), bypassing recurrent weight matrix multiplication.
 
-### Key Interview Points
-- Constant Error Carousel (CEC)
-- Additive cell updates
-- Gated gradient routing
+### Technical Intuition & Detailed Derivation
+To see how LSTM mitigates vanishing gradients, let's derive the gradient pathway back from cell state $\mathbf{C}_t$ to $\mathbf{C}_{t-1}$:
+
+#### 1. Derive the Cell State Jacobian:
+The cell state update is:
+$$\mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t$$
+Differentiating $\mathbf{C}_t$ with respect to $\mathbf{C}_{t-1}$ yields:
+$$\frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}} = \mathbf{f}_t + \mathbf{C}_{t-1} \odot \frac{\partial \mathbf{f}_t}{\partial \mathbf{C}_{t-1}} + \tilde{\mathbf{C}}_t \odot \frac{\partial \mathbf{i}_t}{\partial \mathbf{C}_{t-1}} + \mathbf{i}_t \odot \frac{\partial \tilde{\mathbf{C}}_t}{\partial \mathbf{C}_{t-1}}$$
+
+#### 2. The CEC Shortcut:
+If we assume that the forget gate is fully open ($\mathbf{f}_t \approx \mathbf{1}$) and the hidden states are structured such that the gate derivatives (the latter three terms in the sum) are close to $0$:
+$$\frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}} \approx \mathbf{f}_t \approx \mathbf{1}$$
+
+#### 3. Propagating over $T-t$ steps:
+$$\frac{\partial \mathbf{C}_T}{\partial \mathbf{C}_t} = \prod_{k=t+1}^T \frac{\partial \mathbf{C}_k}{\partial \mathbf{C}_{k-1}} \approx \prod_{k=t+1}^T \mathbf{f}_k$$
+If $\mathbf{f}_k \approx 1$ (the forget gate remains open), the error gradient propagates back across arbitrarily long sequence lengths without decaying. This additive, gated shortcut is called the **Constant Error Carousel (CEC)**.
 
 ### Production Perspective & Trade-offs
-LSTMs maintain stable gradients over longer sequences but require more parameters and compute than standard RNNs.
+- **Forget Gate Calibration**: The forget gate $\mathbf{f}_t$ is crucial. If the model is not trained well and $\mathbf{f}_t \rightarrow 0$, gradients will vanish just as in standard RNNs.
+- **Compute Overhead**: The gating mechanism requires four separate linear layers per cell ($\mathbf{f}_t, \mathbf{i}_t, \mathbf{o}_t, \tilde{\mathbf{C}}_t$), quadrupling the parameter count and computational budget compared to standard RNNs. In high-throughput production settings, engineers often use GRUs (Gate Recurrent Units) which merge cell and hidden states to save 25% on parameter size.
 
 ### Follow-up Questions
 - **Follow-up**: *What happens if the forget gate is always 0?* -> The model discards all historical cell state information at each step, behaving like a standard feedforward network.
@@ -693,15 +787,38 @@ Using only BLEU/ROUGE can lead to deploying models that output grammatically cor
 ## Question 32: When would you prefer BERTScore over BLEU?
 
 ### Short Interview Answer (30–60 seconds)
-Prefer **BERTScore** when evaluating semantic similarity, paraphrasing, or translations that use synonyms instead of exact word matches. Prefer **BLEU** for standard, exact-match translations or domain-specific terminology checks.
+Prefer **BERTScore** when evaluating semantic similarity, paraphrasing, or tasks where synonyms (e.g. `"feline"` instead of `"cat"`) are acceptable, because exact-match n-gram metrics (BLEU, ROUGE) assign a score of $0$ to synonyms. Prefer **BLEU** or **ROUGE** for machine translation regression testing where exact vocabulary matches or speed are critical. BERTScore computes greedy cosine alignments over contextual embeddings from a pre-trained language model, capturing semantic shifts that overlap metrics miss.
 
-### Key Interview Points
-- Semantic alignment
-- Contextual similarities
-- Synonyms translation
+### Technical Intuition & Detailed Hand-Calculation
+Let's compute BERTScore greedy alignment scores for:
+- Candidate ($c$): `"A feline rested on the rug"` (Length $c = 6$)
+- Reference ($r$): `"The cat sat on the mat"` (Length $r = 6$)
+
+Suppose our contextual embedding model generates vectors for each token, and the maximum cosine similarity scores between candidate and reference tokens are:
+- `"A"` matches best with `"The"` (Similarity = $0.12$)
+- `"feline"` matches best with `"cat"` (Similarity = $0.88$)
+- `"rested"` matches best with `"sat"` (Similarity = $0.82$)
+- `"on"` matches best with `"on"` (Similarity = $0.95$)
+- `"the"` matches best with `"the"` (Similarity = $0.98$)
+- `"rug"` matches best with `"mat"` (Similarity = $0.85$)
+
+#### 1. Calculate BERTScore Recall ($R_{\text{BERT}}$):
+Aligns each reference token to the best matching candidate token, normalized by reference length:
+$$R_{\text{BERT}} = \frac{1}{|r|} \sum_{w_j \in r} \max_{w_i \in c} \mathbf{E}(w_i)^T \mathbf{E}(w_j) = \frac{0.12 + 0.88 + 0.82 + 0.95 + 0.98 + 0.85}{6} = \frac{4.60}{6} \approx 0.7667$$
+
+#### 2. Calculate BERTScore Precision ($P_{\text{BERT}}$):
+Aligns each candidate token to the best matching reference token, normalized by candidate length:
+$$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w_i)^T \mathbf{E}(w_j) = \frac{0.12 + 0.88 + 0.82 + 0.95 + 0.98 + 0.85}{6} = \frac{4.60}{6} \approx 0.7667$$
+
+#### 3. Calculate BERTScore F1 ($F_{\text{BERT}}$):
+$$F_{\text{BERT}} = 2 \times \frac{P_{\text{BERT}} \times R_{\text{BERT}}}{P_{\text{BERT}} + R_{\text{BERT}}} \approx 2 \times \frac{0.7667 \times 0.7667}{0.7667 + 0.7667} \approx 0.7667$$
+
+##### Findings & Interpretation:
+While BLEU-2 would penalize this candidate heavily due to lack of exact word matches (BLEU unigram overlap would fail on `"feline"` vs `"cat"` and `"rug"` vs `"mat"`), BERTScore detects the semantic equivalence of `"feline" \leftrightarrow "cat"` ($0.88$) and `"rug" \leftrightarrow "mat"` ($0.85$), yielding a high F1 score of $0.7667$, capturing synonym alignments.
 
 ### Production Perspective & Trade-offs
-BERTScore requires a forward pass of a transformer network to generate contextual embeddings, increasing evaluation latency and computational cost compared to BLEU.
+- **Inference Latency**: BLEU is a string overlap check running in $O(L_c \cdot L_r)$ on CPU (taking $<0.1\text{ms}$). BERTScore requires running a transformer encoder forward-pass on GPU to extract token embeddings, increasing computing cost and latency by orders of magnitude, making it expensive for real-time model evaluation APIs.
+- **Model Bias**: BERTScore scores depend on the underlying embedding model. A model biased against certain structures can skew evaluation scores, requiring careful selection of the encoder (e.g. RoBERTa-large).
 
 ### Follow-up Questions
 - **Follow-up**: *How does BERTScore calculate greedy alignments?* -> It computes cosine similarities between all candidate and reference token embeddings, matching each word to its highest scoring semantic counterpart.

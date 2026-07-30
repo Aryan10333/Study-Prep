@@ -170,6 +170,24 @@ def generate_all_plots():
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'data_drift_distributions.png'), dpi=300)
     plt.close()
+    
+    # 8. BLEU Brevity Penalty Decay
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=300)
+    ratio = np.linspace(0.05, 1.5, 200)
+    bp = np.where(ratio > 1.0, 1.0, np.exp(1.0 - 1.0/ratio))
+    ax.plot(ratio, bp, color='#ef4444', linewidth=2.5, label='Brevity Penalty (BP)')
+    ax.fill_between(ratio, bp, alpha=0.08, color='#ef4444')
+    ax.axvline(1.0, color='#64748b', linestyle='--', linewidth=1, label='c = r (Reference Length)')
+    
+    ax.set_xlabel('Length Ratio (c / r)', fontsize=10, fontweight='semibold')
+    ax.set_ylabel('Penalty Value (BP)', fontsize=10, fontweight='semibold')
+    ax.set_title('BLEU Brevity Penalty vs. Length Ratio', fontsize=12, fontweight='bold', pad=15)
+    ax.legend(fontsize=9, frameon=True, facecolor='#ffffff', edgecolor='#cbd5e1')
+    ax.set_ylim(-0.05, 1.05)
+    sns.despine()
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, 'bleu_brevity_penalty.png'), dpi=300)
+    plt.close()
 
 if __name__ == '__main__':
     generate_all_plots()

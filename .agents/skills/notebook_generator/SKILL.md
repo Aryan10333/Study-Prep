@@ -30,7 +30,10 @@ After generating the draft, the script must execute the notebook in place:
    `d:\Study\Prep\.venv\Scripts\python.exe`
 3. **One-by-One Sequential Execution Loop**: Never batch compile or execute multiple notebooks in a single bulk run. Always programmatically define, generate, and execute **one notebook at a time sequentially**. Inspect its printed cell outputs, confirm numerical metrics, and write/align the markdown cell explanations before proceeding to generate and execute the next notebook.
 4. **Matplotlib Agg Backend & Inline Plots**: When running the execution pipeline script headlessly, ensure that `import matplotlib; matplotlib.use('Agg')` is called in the builder script **prior** to running execution prep. Inside the notebook code cells themselves, do not call `plt.savefig()`. Instead, include `%matplotlib inline` at the top of the plotting cells and end the cell with `plt.show()` to ensure that drawn plots are serialized directly as inline base64 string outputs inside the `.ipynb` file.
-5. **Multi-Cell Structuring**: Do not write all notebook code inside a single large cell. Split execution pipelines logically into 3 to 4 sequential code cells (e.g. Data Ingestion $\rightarrow$ Processing $\rightarrow$ Modeling $\rightarrow$ Evaluation) to allow interactive step-by-step runs.
+5. **Multi-Cell Structuring & Sequence**: Never write large code pipelines in a single cell. Split code blocks logically (e.g., Data Loading -> Preprocessing -> Model Setup -> Execution -> Validation) and structure each section strictly using this three-part cell sequence:
+   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 1. Step Name`).
+   - **Code Cell (Implementation)**: Self-contained python code executing that specific step.
+   - **Markdown Cell (Output Explanation)**: Titled `### Output Analysis: ...` explaining the printed values and shapes immediately following the code cell.
 6. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
 7. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
    - `GEMINI_API_KEY` (for Google GenAI models)
@@ -52,7 +55,7 @@ After generating the draft, the script must execute the notebook in place:
 - Read cell outputs in detail, and write a thorough explanation of why the values are correct.
 - Detail the resulting tensor shapes, gradients, loss outputs, or probability distributions.
 - Explain why these numbers are correct.
-- Cross-reference printed logs with the corresponding math study guide to ensure **100% numerical consistency** (matching values, similarity scores, and classification distribution metrics to 4 decimal places).
+- Cross-reference printed logs with the corresponding math study guide to ensure **100% numerical consistency** (matching values, similarity scores, and classification distribution metrics to 4 decimal places). If there is a slight numerical shift due to rounding in intermediate hand-calculation steps (e.g. `27.8600` vs. `27.8592`), clarify this in the explanation cell so that the printed output and explanation align perfectly.
 
 ---
 

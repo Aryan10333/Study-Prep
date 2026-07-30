@@ -34,7 +34,7 @@ def compile_master_guide():
     modules_html = []
 
     for file_name in module_files:
-        full_path = os.path.join(base_dir, file_name)
+        full_path = os.path.join(base_dir, "modules", file_name)
         if not os.path.exists(full_path):
             print(f"ERROR: File not found: {full_path}")
             continue
@@ -340,5 +340,173 @@ def compile_master_guide():
     subprocess.run(cmd, capture_output=True, text=True)
     print(f"SUCCESS: Master PDF generated at: {pdf_out_path}")
 
+def compile_cheatsheet():
+    base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
+    md_path = os.path.join(base_dir, "modules", "nlp_interview_cheatsheet.md")
+    html_out_path = os.path.join(base_dir, "nlp_interview_cheatsheet.html")
+    pdf_out_path = os.path.join(base_dir, "nlp_interview_cheatsheet.pdf")
+    
+    if not os.path.exists(md_path):
+        print(f"ERROR: Cheatsheet markdown not found: {md_path}")
+        return
+        
+    with open(md_path, "r", encoding="utf-8") as f:
+        md_text = f.read()
+        
+    # Protect math blocks
+    math_blocks = []
+    def store_math(m):
+        math_blocks.append(m.group(0))
+        return f"MATHPLACEHOLDER{len(math_blocks)-1}ENDMATH"
+
+    md_text = re.sub(r'\$\$[\s\S]*?\$\$', store_math, md_text)
+    md_text = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', store_math, md_text)
+
+    # Convert to HTML
+    html_body = markdown.markdown(
+        md_text,
+        extensions=['fenced_code', 'tables', 'nl2br', 'sane_lists', 'codehilite']
+    )
+
+    # Restore math blocks with HTML escaping for brackets
+    for idx, block in enumerate(math_blocks):
+        escaped_block = block.replace('<', '&lt;').replace('>', '&gt;')
+        html_body = html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", escaped_block)
+        
+    # Styles for cheatsheet (clean, high density, fit-to-page margins)
+    full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NLP Fundamentals Interview Revision Cheatsheet</title>
+    <!-- Load KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body, {{
+                delimiters: [
+                    {{left: '$$', right: '$$', display: true}},
+                    {{left: '$', right: '$', display: false}}
+                ]
+            }});"></script>
+    <style>
+        @page {{
+            size: A4;
+            margin: 12mm 12mm 12mm 12mm;
+        }}
+        body {{
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }}
+        h1 {{
+            font-size: 18px;
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 4px;
+            margin-top: 10px;
+            margin-bottom: 12px;
+            page-break-after: avoid;
+        }}
+        h2 {{
+            font-size: 14px;
+            color: #1e40af;
+            margin-top: 14px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2px;
+            page-break-after: avoid;
+        }}
+        h3 {{
+            font-size: 12px;
+            color: #0369a1;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            page-break-after: avoid;
+        }}
+        p, li {{
+            color: #334155;
+            margin-bottom: 6px;
+        }}
+        code {{
+            font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 11.5px;
+        }}
+        table {{
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 10px 0 !important;
+            font-size: 11px !important;
+            border: 1.5px solid #64748b !important;
+            table-layout: auto !important;
+        }}
+        th {{
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 700 !important;
+            border: 1.5px solid #475569 !important;
+            padding: 6px 8px !important;
+        }}
+        td {{
+            border: 1px solid #cbd5e1 !important;
+            padding: 5px 8px !important;
+            vertical-align: top !important;
+        }}
+        tr:nth-child(even) td {{
+            background-color: #f8fafc !important;
+        }}
+        blockquote {{
+            border-left: 3px solid #3b82f6;
+            background-color: #eff6ff;
+            margin: 10px 0;
+            padding: 6px 12px;
+            color: #1e40af;
+            border-radius: 0 4px 4px 0;
+        }}
+        hr {{
+            border: 0;
+            height: 1px;
+            background: #cbd5e1;
+            margin: 15px 0;
+        }}
+    </style>
+</head>
+<body>
+    {html_body}
+</body>
+</html>
+"""
+    with open(html_out_path, "w", encoding="utf-8") as f:
+        f.write(full_html)
+    print(f"Created cheatsheet HTML file at: {html_out_path}")
+    
+    edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+    temp_user_data = os.path.join(os.environ.get("TEMP", r"C:\Windows\Temp"), "edge_pdf_dir_tmp_nlp_cheatsheet")
+    
+    cmd = [
+        edge_path,
+        f"--user-data-dir={temp_user_data}",
+        "--headless",
+        "--disable-gpu",
+        "--run-all-compositor-stages-before-draw",
+        "--virtual-time-budget=8000",
+        "--no-pdf-header-footer",
+        f"--print-to-pdf={pdf_out_path}",
+        html_out_path
+    ]
+    
+    print("Running Edge PDF cheatsheet compilation...")
+    subprocess.run(cmd, capture_output=True, text=True)
+    print(f"SUCCESS: Cheatsheet PDF generated at: {pdf_out_path}")
+
 if __name__ == "__main__":
     compile_master_guide()
+    compile_cheatsheet()
