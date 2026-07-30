@@ -54,13 +54,18 @@ The compiled guide must use the standardized master guide CSS and layout structu
       margin: 20mm 18mm 20mm 18mm;
   }
   ```
-- **Typography & Colors**:
+- **Typography & Color Hierarchy**:
   - Font: `'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif`
-  - Font Size: `15px` base text size with `1.62` line height (A4 standard legible size)
-  - Base Text Color: `#1e293b`
-  - Header 1 Color: `#0f172a` with a `#3b82f6` blue bottom border
-  - Header 2 Color: `#1e40af` with a `#e2e8f0` light grey bottom border
-  - Header 3 Color: `#0369a1`
+  - Font Size: Consistent `14.5px` base text size for `body`, `p`, and `li` elements with `1.6` line height to ensure reading uniformity.
+  - Base Text Color: Modern slate-grey `#334155`.
+  - Inline Code size: Set to `13.5px` (using `!important`) to prevent size mismatch with body text.
+  - Header 1 (`h1`): `22px` styled in `#0f172a` with a `#3b82f6` blue bottom border.
+  - Header 2 (`h2`): `18px` styled in Royal Blue `#2563eb` with a light grey `#e2e8f0` bottom border.
+  - Header 3 (`h3`): `15px` styled in Cyan-Teal `#0284c7`.
+- **Premium Custom Bullets**: Disable native list bullets globally on content lists (`list-style: none !important`). Use CSS `::before` pseudo-elements to render custom styled bullets:
+  - First-level lists: Royal blue bullet dots (`content: "•"` at `#3b82f6` with `font-size: 20px`).
+  - Second-level (nested) lists: Purple open circles (`content: "◦"` at `#8b5cf6` with `font-size: 16px`).
+  - Maintain absolute position layout on the bullet markers to prevent wrapping misalignment.
 - **Layout Scale Preservation**: To prevent headless PDF printers from scaling down document fonts (auto-zooming down to fit oversized elements), all images, tables, and code pre-containers must be constrained horizontally:
   - Code blocks: Use `max-width: 100% !important; overflow-x: hidden !important;` on the wrapper, and `white-space: pre-wrap !important; word-wrap: break-word !important; word-break: break-word !important; font-size: 12px !important;` on the inner `pre` container.
   - Tables: Use `width: 100% !important; max-width: 100% !important; table-layout: auto !important;` with `word-wrap: break-word !important;` on cells.
