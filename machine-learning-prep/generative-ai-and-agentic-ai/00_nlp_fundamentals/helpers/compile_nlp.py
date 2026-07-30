@@ -4,6 +4,35 @@ import markdown
 import subprocess
 from pygments.formatters import HtmlFormatter
 
+def preprocess_markdown(text):
+    # 1. Double the indentation of 2-space nested lists to 4-space for python-markdown
+    lines = text.split('\n')
+    new_lines = []
+    for line in lines:
+        m = re.match(r'^( +)([-*]|\d+\.) (.*)', line)
+        if m:
+            spaces, marker, content = m.groups()
+            if len(spaces) == 2:
+                line = '    ' + marker + ' ' + content
+        new_lines.append(line)
+    text = '\n'.join(new_lines)
+
+    # 2. Insert blank lines before list blocks if they are missing
+    lines = text.split('\n')
+    new_lines = []
+    for i, line in enumerate(lines):
+        if i > 0:
+            stripped = line.lstrip()
+            prev_stripped = lines[i-1].lstrip()
+            is_list_start = False
+            if stripped.startswith('- ') or stripped.startswith('* ') or re.match(r'^\d+\.\s', stripped):
+                is_list_start = True
+            if is_list_start:
+                if prev_stripped != "" and not prev_stripped.startswith('- ') and not prev_stripped.startswith('* ') and not re.match(r'^\d+\.\s', prev_stripped) and not prev_stripped.startswith('#') and not prev_stripped.startswith('>'):
+                    new_lines.append("")
+        new_lines.append(line)
+    return '\n'.join(new_lines)
+
 def compile_master_guide():
     base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
     html_out_path = os.path.join(base_dir, "nlp_master_study_guide.html")
@@ -41,6 +70,8 @@ def compile_master_guide():
 
         with open(full_path, "r", encoding="utf-8") as f:
             md_text = f.read()
+
+        md_text = preprocess_markdown(md_text)
 
         # Preprocess custom alert tags
         for alert, (border, bg, color, label) in alert_types.items():
@@ -150,6 +181,26 @@ def compile_master_guide():
             margin-bottom: 10px;
             page-break-after: avoid;
         }}
+        h4, h5, h6 {{
+            font-size: 14.5px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            margin-top: 18px !important;
+            margin-bottom: 8px !important;
+            page-break-after: avoid;
+        }}
+        
+        /* Hide scrollbars globally in PDF print */
+        ::-webkit-scrollbar {{
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+        }}
+        * {{
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }}
         
         a {{
             color: #2563eb;
@@ -164,6 +215,7 @@ def compile_master_guide():
             line-height: 1.6 !important;
             color: #334155;
             margin-bottom: 10px;
+            text-align: justify !important;
         }}
         
         /* Custom Bullet List and Ordered List Styling */
@@ -180,6 +232,7 @@ def compile_master_guide():
             font-size: 14.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
+            text-align: justify !important;
         }}
         .module-container ul li::before {{
             content: "•" !important;
@@ -213,6 +266,7 @@ def compile_master_guide():
             font-size: 14.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
+            text-align: justify !important;
         }}
         
         code {{
@@ -403,6 +457,8 @@ def compile_cheatsheet():
         
     with open(md_path, "r", encoding="utf-8") as f:
         md_text = f.read()
+
+    md_text = preprocess_markdown(md_text)
         
     # Protect math blocks
     math_blocks = []

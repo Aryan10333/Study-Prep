@@ -52,6 +52,26 @@
             margin-bottom: 10px;
             page-break-after: avoid;
         }
+        h4, h5, h6 {
+            font-size: 14.5px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            margin-top: 18px !important;
+            margin-bottom: 8px !important;
+            page-break-after: avoid;
+        }
+        
+        /* Hide scrollbars globally in PDF print */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+        }
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
         
         a {
             color: #2563eb;
@@ -66,6 +86,7 @@
             line-height: 1.6 !important;
             color: #334155;
             margin-bottom: 10px;
+            text-align: justify !important;
         }
         
         /* Custom Bullet List and Ordered List Styling */
@@ -82,6 +103,7 @@
             font-size: 14.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
+            text-align: justify !important;
         }
         .module-container ul li::before {
             content: "•" !important;
@@ -115,6 +137,7 @@
             font-size: 14.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
+            text-align: justify !important;
         }
         
         code {
@@ -358,18 +381,24 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <h2 id="1-the-standard-nlp-pipeline">1. The Standard NLP Pipeline</h2>
 <p>In production systems, processing raw text requires translating unstructured strings into structured numerical matrices.</p>
 <h3 id="why-clean-text-the-concept-of-noise">Why Clean Text? The Concept of "Noise"</h3>
-<p>Raw text ingested from the real world—such as web scrapes, PDF extractions, chat logs, or user forms—is often cluttered with characters that do not contribute to semantic meaning. In NLP, this irrelevant data is termed <strong>noise</strong>. Noise includes:<br />
-- <strong>Markup and Metadata:</strong> HTML tags (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>), Markdown syntax, and JSON wrappers that are formatting elements rather than human language.<br />
-- <strong>Network Identifiers:</strong> URLs (e.g., <code>https://example.com</code>), email addresses, and social media handles (<code>@username</code>) which are highly variable and bloat vocabulary dimensions without carrying syntactic or semantic meaning.<br />
-- <strong>Formatting Artifacts:</strong> Repeated whitespace, non-breaking space characters (like <code>&amp;nbsp;</code>), and control characters (such as tab <code>\t</code> and newline <code>\n</code>).</p>
+<p>Raw text ingested from the real world—such as web scrapes, PDF extractions, chat logs, or user forms—is often cluttered with characters that do not contribute to semantic meaning. In NLP, this irrelevant data is termed <strong>noise</strong>. Noise includes:</p>
+<ul>
+<li><strong>Markup and Metadata:</strong> HTML tags (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>), Markdown syntax, and JSON wrappers that are formatting elements rather than human language.</li>
+<li><strong>Network Identifiers:</strong> URLs (e.g., <code>https://example.com</code>), email addresses, and social media handles (<code>@username</code>) which are highly variable and bloat vocabulary dimensions without carrying syntactic or semantic meaning.</li>
+<li><strong>Formatting Artifacts:</strong> Repeated whitespace, non-breaking space characters (like <code>&amp;nbsp;</code>), and control characters (such as tab <code>\t</code> and newline <code>\n</code>).</li>
+</ul>
 <p>Cleaning text removes these elements before modeling, ensuring that neural models do not waste capacity learning representation weights for irrelevant formatting noise.</p>
 <h3 id="tokenization-fundamentals">Tokenization Fundamentals</h3>
-<p>Computers cannot process natural language text as continuous strings; they require discrete mathematical tokens. Tokenization is the process of breaking down a raw stream of characters into these distinct lexical chunks.<br />
-- <strong>Punctuation Boundaries:</strong> A simple split on whitespace fails on punctuation. For example, in <code>"awesome!"</code>, the tokenizer must isolate <code>"awesome"</code> from the exclamation mark <code>!</code>. If not, <code>"awesome!"</code> is treated as a completely separate vocabulary word from <code>"awesome"</code>, splitting the semantic signal.<br />
-- <strong>Clitics and Contractions:</strong> Complex words containing apostrophes (like <code>"don't"</code>, <code>"Seattle's"</code>, or <code>"I've"</code>) cannot be split purely on punctuation. Advanced word-level tokenizers use grammatical templates to split contractions into constituent semantic units (clitics):<br />
-  - <code>"don't"</code> $\rightarrow$ <code>["do", "n't"]</code> (mapping the action and its negation).<br />
-  - <code>"Seattle's"</code> $\rightarrow$ <code>["Seattle", "'s"]</code> (mapping the entity and the possessive clitic).<br />
-- <strong>Vocabulary Index Tables:</strong> Once words are isolated, the tokenizer maps each unique string token to an integer index using a lookup table (e.g., <code>{"Seattle": 42, "libraries": 856, ...}</code>). This dictionary forms the <strong>vocabulary</strong>, and its size is denoted as $|V|$. Words that fall outside this vocabulary are mapped to a special fallback index representing the Out-of-Vocabulary token, typically denoted as <code>&lt;unk&gt;</code>.</p>
+<p>Computers cannot process natural language text as continuous strings; they require discrete mathematical tokens. Tokenization is the process of breaking down a raw stream of characters into these distinct lexical chunks.</p>
+<ul>
+<li><strong>Punctuation Boundaries:</strong> A simple split on whitespace fails on punctuation. For example, in <code>"awesome!"</code>, the tokenizer must isolate <code>"awesome"</code> from the exclamation mark <code>!</code>. If not, <code>"awesome!"</code> is treated as a completely separate vocabulary word from <code>"awesome"</code>, splitting the semantic signal.</li>
+<li><strong>Clitics and Contractions:</strong> Complex words containing apostrophes (like <code>"don't"</code>, <code>"Seattle's"</code>, or <code>"I've"</code>) cannot be split purely on punctuation. Advanced word-level tokenizers use grammatical templates to split contractions into constituent semantic units (clitics):<ul>
+<li><code>"don't"</code> $\rightarrow$ <code>["do", "n't"]</code> (mapping the action and its negation).</li>
+<li><code>"Seattle's"</code> $\rightarrow$ <code>["Seattle", "'s"]</code> (mapping the entity and the possessive clitic).</li>
+</ul>
+</li>
+<li><strong>Vocabulary Index Tables:</strong> Once words are isolated, the tokenizer maps each unique string token to an integer index using a lookup table (e.g., <code>{"Seattle": 42, "libraries": 856, ...}</code>). This dictionary forms the <strong>vocabulary</strong>, and its size is denoted as $|V|$. Words that fall outside this vocabulary are mapped to a special fallback index representing the Out-of-Vocabulary token, typically denoted as <code>&lt;unk&gt;</code>.</li>
+</ul>
 <h3 id="walkthrough-of-a-sample-string-seattles-libraries-are-awesome">Walkthrough of a Sample String: <code>"Seattle's libraries are awesome! 🌟"</code></h3>
 <div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
   <!-- Step 1 -->
@@ -458,9 +487,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </tbody>
 </table>
 <h3 id="why-subword-tokenization-is-essential-for-llms-attention-scaling-bottleneck">Why Subword Tokenization is Essential for LLMs: Attention Scaling Bottleneck</h3>
-<p>To scale models to billions of parameters, vocabulary embedding tables must remain compact.<br />
-1. <strong>Word-level tokenizers</strong> result in massive lookup matrices ($|V| &gt; 1,000,000$), draining GPU memory (VRAM) with static weights before modeling even begins.<br />
-2. <strong>Character-level tokenizers</strong> keep the vocabulary minimal ($\approx 256$ tokens) but make sequence lengths $L$ extremely long. In transformer architectures, self-attention requires calculating similarity scores between every pair of tokens in a sequence. The attention matrix scales quadratically as $O(L^2)$ in time and space complexity. For example, a 500-word paragraph might decompose to 500 tokens in a word-level tokenizer, but over 2,500 tokens in character-level, causing a <strong>$25\times$ increase in attention matrix memory footprint</strong> ($2500^2$ vs $500^2$ weights). This VRAM bottleneck severely limits context window sizes.</p>
+<p>To scale models to billions of parameters, vocabulary embedding tables must remain compact.</p>
+<ol>
+<li><strong>Word-level tokenizers</strong> result in massive lookup matrices ($|V| &gt; 1,000,000$), draining GPU memory (VRAM) with static weights before modeling even begins.</li>
+<li><strong>Character-level tokenizers</strong> keep the vocabulary minimal ($\approx 256$ tokens) but make sequence lengths $L$ extremely long. In transformer architectures, self-attention requires calculating similarity scores between every pair of tokens in a sequence. The attention matrix scales quadratically as $O(L^2)$ in time and space complexity. For example, a 500-word paragraph might decompose to 500 tokens in a word-level tokenizer, but over 2,500 tokens in character-level, causing a <strong>$25\times$ increase in attention matrix memory footprint</strong> ($2500^2$ vs $500^2$ weights). This VRAM bottleneck severely limits context window sizes.</li>
+</ol>
 <p>Subword tokenization bridges this gap. By splitting words into common root combinations (e.g., <code>"unhappy"</code> $\rightarrow$ <code>["un", "happy"]</code>), the vocabulary remains small while unknown words are decomposed without causing out-of-vocabulary <code>&lt;unk&gt;</code> crashes, balancing sequence length and VRAM constraints.</p>
 <hr />
 <h2 id="3-the-evolutionary-shifts-in-nlp">3. The Evolutionary Shifts in NLP</h2>
@@ -478,25 +509,41 @@ When deploying real-time classification models (e.g., streaming chat routing), s
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Translates unstructured human text into standardized numerical formats for machine learning models.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to handle lexical variations and spelling anomalies in human speech.</li>
-<li><strong>What are its limitations?</strong><br />
-  Preprocessing steps (like lowercase conversions and punctuation removal) can discard semantic context, such as sentiment flags or code syntax indicators.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Translates unstructured human text into standardized numerical formats for machine learning models.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to handle lexical variations and spelling anomalies in human speech.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong><br />
+  Preprocessing steps (like lowercase conversions and punctuation removal) can discard semantic context, such as sentiment flags or code syntax indicators.</p>
+</li>
+<li>
+<p><strong>Computational Complexity (Time &amp; Memory)</strong></p>
+<ul>
 <li><strong>Time</strong>: Subword tokenization runs in $O(L)$ linear time, where $L$ is string length.</li>
 <li><strong>Memory</strong>: Embedding matrix footprint scales as $O(|V| \cdot d)$ where $|V|$ is vocabulary size and $d$ is embedding dimensionality.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Input sequence length.</li>
 <li>$|V|$: Vocabulary size.</li>
 <li>$d$: Embedding hidden dimension.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text categorization for customer service routing.</li>
 <li>Compressing inputs for multilingual translation models.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does word-level tokenization fail on specialized text?</em> (Medical and legal domains contain rare words that are mapped to <code>&lt;unk&gt;</code>, causing the model to lose key details).</li>
 <li><em>How does subword vocabulary size impact training memory?</em> (Larger vocabularies increase the size of the final projection layer, increasing GPU VRAM usage during backpropagation).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -509,47 +556,59 @@ When deploying real-time classification models (e.g., streaming chat routing), s
 <p>Preprocessing translates unstructured text strings into normalized token sequences. This module details classical cleaning methods, compares stemming vs. lemmatization, and explains the step-by-step mechanics of modern subword tokenization.</p>
 <hr />
 <h2 id="1-morphological-basics">1. Morphological Basics</h2>
-<p>Before analyzing text normalization algorithms, we must understand the structure of human words:<br />
-- <strong>Morpheme:</strong> The smallest grammatical unit in a language that carries semantic meaning. Morphemes are the building blocks of words. For example, the word <code>"unfriendly"</code> contains three morphemes: <code>"un-"</code> (prefix meaning "not"), <code>"friend"</code> (noun root), and <code>"-ly"</code> (suffix forming an adjective).<br />
-- <strong>Prefixes and Suffixes:</strong> Affixes attached to the beginning (prefix) or end (suffix) of a root word to modify its meaning or grammatical class.<br />
-- <strong>Inflectional Variations:</strong> Modifications of a word to express different grammatical categories, such as tense, case, voice, aspect, person, number, or gender. For example, <code>"study"</code>, <code>"studies"</code>, and <code>"studying"</code> are inflectional variations of the same root verb.<br />
-- <strong>Canonical Base Form (Lemma):</strong> The standard dictionary form of a word, stripped of inflectional affixes. The lemma for <code>"studies"</code>, <code>"studied"</code>, and <code>"studying"</code> is the base form <code>"study"</code>.</p>
+<p>Before analyzing text normalization algorithms, we must understand the structure of human words:</p>
+<ul>
+<li><strong>Morpheme:</strong> The smallest grammatical unit in a language that carries semantic meaning. Morphemes are the building blocks of words. For example, the word <code>"unfriendly"</code> contains three morphemes: <code>"un-"</code> (prefix meaning "not"), <code>"friend"</code> (noun root), and <code>"-ly"</code> (suffix forming an adjective).</li>
+<li><strong>Prefixes and Suffixes:</strong> Affixes attached to the beginning (prefix) or end (suffix) of a root word to modify its meaning or grammatical class.</li>
+<li><strong>Inflectional Variations:</strong> Modifications of a word to express different grammatical categories, such as tense, case, voice, aspect, person, number, or gender. For example, <code>"study"</code>, <code>"studies"</code>, and <code>"studying"</code> are inflectional variations of the same root verb.</li>
+<li><strong>Canonical Base Form (Lemma):</strong> The standard dictionary form of a word, stripped of inflectional affixes. The lemma for <code>"studies"</code>, <code>"studied"</code>, and <code>"studying"</code> is the base form <code>"study"</code>.</li>
+</ul>
 <hr />
 <h2 id="2-modern-subword-tokenization-algorithms">2. Modern Subword Tokenization Algorithms</h2>
 <p>Modern language models avoid word-level and character-level limitations by building subword vocabularies. The three primary subword algorithms differ in how they build and prune vocabularies:</p>
 <h3 id="1-byte-pair-encoding-bpe">1. Byte-Pair Encoding (BPE)</h3>
 <p>BPE (used in GPT models and LLaMA) builds its vocabulary from the bottom up, iteratively merging the most frequent adjacent character pairs.</p>
 <h4 id="step-by-step-hand-calculation-on-a-micro-corpus">Step-by-Step Hand Calculation on a Micro-Corpus:</h4>
-<p>Consider a tiny training corpus with token counts:<br />
-- <code>"h u g _"</code> (appears 10 times)<br />
-- <code>"p u g _"</code> (appears 5 times)<br />
-- <code>"h u g s _"</code> (appears 5 times)</p>
+<p>Consider a tiny training corpus with token counts:</p>
+<ul>
+<li><code>"h u g _"</code> (appears 10 times)</li>
+<li><code>"p u g _"</code> (appears 5 times)</li>
+<li><code>"h u g s _"</code> (appears 5 times)</li>
+</ul>
 <h5 id="1-initialize-vocabulary">1. Initialize Vocabulary:</h5>
 <p>Populate the vocabulary with the unique characters present in the corpus:<br />
 <code>Vocabulary = ["h", "u", "g", "p", "s", "_"]</code> (Vocabulary size $|V| = 6$)</p>
 <h5 id="2-iteration-1-find-and-merge-most-frequent-pair">2. Iteration 1 - Find and Merge Most Frequent Pair:</h5>
-<p>Count all adjacent token pairs in the corpus:<br />
-- <code>(h, u)</code>: appears in <code>"h u g _"</code> (10 times) + <code>"h u g s _"</code> (5 times) = $10 + 5 = 15$ times.<br />
-- <code>(u, g)</code>: appears in <code>"h u g _"</code> (10) + <code>"p u g _"</code> (5) + <code>"h u g s _"</code> (5) = $10 + 5 + 5 = 20$ times.<br />
-- <code>(g, _)</code>: appears in <code>"h u g _"</code> (10) + <code>"p u g _"</code> (5) = $10 + 5 = 15$ times.<br />
-- <code>(p, u)</code>: appears in <code>"p u g _"</code> = 5 times.<br />
-- <code>(g, s)</code>: appears in <code>"h u g s _"</code> = 5 times.<br />
-- <code>(s, _)</code>: appears in <code>"h u g s _"</code> = 5 times.</p>
-<p><strong>Selection:</strong> The most frequent pair is <code>(u, g)</code> with a count of 20.<br />
-- <strong>Merge:</strong> Merge them into a new token <code>ug</code>.<br />
-- <strong>Updated Corpus:</strong> <code>"h ug _"</code> (10), <code>"p ug _"</code> (5), <code>"h ug s _"</code> (5)<br />
-- <strong>Updated Vocabulary:</strong> <code>["h", "u", "g", "p", "s", "_", "ug"]</code> (Vocabulary size $|V| = 7$)</p>
+<p>Count all adjacent token pairs in the corpus:</p>
+<ul>
+<li><code>(h, u)</code>: appears in <code>"h u g _"</code> (10 times) + <code>"h u g s _"</code> (5 times) = $10 + 5 = 15$ times.</li>
+<li><code>(u, g)</code>: appears in <code>"h u g _"</code> (10) + <code>"p u g _"</code> (5) + <code>"h u g s _"</code> (5) = $10 + 5 + 5 = 20$ times.</li>
+<li><code>(g, _)</code>: appears in <code>"h u g _"</code> (10) + <code>"p u g _"</code> (5) = $10 + 5 = 15$ times.</li>
+<li><code>(p, u)</code>: appears in <code>"p u g _"</code> = 5 times.</li>
+<li><code>(g, s)</code>: appears in <code>"h u g s _"</code> = 5 times.</li>
+<li><code>(s, _)</code>: appears in <code>"h u g s _"</code> = 5 times.</li>
+</ul>
+<p><strong>Selection:</strong> The most frequent pair is <code>(u, g)</code> with a count of 20.</p>
+<ul>
+<li><strong>Merge:</strong> Merge them into a new token <code>ug</code>.</li>
+<li><strong>Updated Corpus:</strong> <code>"h ug _"</code> (10), <code>"p ug _"</code> (5), <code>"h ug s _"</code> (5)</li>
+<li><strong>Updated Vocabulary:</strong> <code>["h", "u", "g", "p", "s", "_", "ug"]</code> (Vocabulary size $|V| = 7$)</li>
+</ul>
 <h5 id="3-iteration-2-iterate">3. Iteration 2 - Iterate:</h5>
-<p>Count adjacent token pairs in the updated corpus:<br />
-- <code>(h, ug)</code>: appears in <code>"h ug _"</code> (10) + <code>"h ug s _"</code> (5) = 15 times.<br />
-- <code>(ug, _)</code>: appears in <code>"h ug _"</code> (10) + <code>"p ug _"</code> (5) = 15 times.<br />
-- <code>(p, ug)</code>: appears in <code>"p ug _"</code> = 5 times.<br />
-- <code>(ug, s)</code>: appears in <code>"h ug s _"</code> = 5 times.<br />
-- <code>(s, _)</code>: appears in <code>"h ug s _"</code> = 5 times.</p>
-<p><strong>Selection:</strong> There is a tie between <code>(h, ug)</code> and <code>(ug, _)</code>. We break ties systematically (e.g., character order or first occurrence). Let's merge <code>(h, ug)</code>.<br />
-- <strong>Merge:</strong> Merge them into a new token <code>hug</code>.<br />
-- <strong>Updated Corpus:</strong> <code>"hug _"</code> (10), <code>"p ug _"</code> (5), <code>"hug s _"</code> (5)<br />
-- <strong>Updated Vocabulary:</strong> <code>["h", "u", "g", "p", "s", "_", "ug", "hug"]</code> (Vocabulary size $|V| = 8$)</p>
+<p>Count adjacent token pairs in the updated corpus:</p>
+<ul>
+<li><code>(h, ug)</code>: appears in <code>"h ug _"</code> (10) + <code>"h ug s _"</code> (5) = 15 times.</li>
+<li><code>(ug, _)</code>: appears in <code>"h ug _"</code> (10) + <code>"p ug _"</code> (5) = 15 times.</li>
+<li><code>(p, ug)</code>: appears in <code>"p ug _"</code> = 5 times.</li>
+<li><code>(ug, s)</code>: appears in <code>"h ug s _"</code> = 5 times.</li>
+<li><code>(s, _)</code>: appears in <code>"h ug s _"</code> = 5 times.</li>
+</ul>
+<p><strong>Selection:</strong> There is a tie between <code>(h, ug)</code> and <code>(ug, _)</code>. We break ties systematically (e.g., character order or first occurrence). Let's merge <code>(h, ug)</code>.</p>
+<ul>
+<li><strong>Merge:</strong> Merge them into a new token <code>hug</code>.</li>
+<li><strong>Updated Corpus:</strong> <code>"hug _"</code> (10), <code>"p ug _"</code> (5), <code>"hug s _"</code> (5)</li>
+<li><strong>Updated Vocabulary:</strong> <code>["h", "u", "g", "p", "s", "_", "ug", "hug"]</code> (Vocabulary size $|V| = 8$)</li>
+</ul>
 <h5 id="findings-interpretation">Findings &amp; Interpretation:</h5>
 <p>BPE starts at the raw character level, ensuring $0\%$ out-of-vocabulary (OOV) errors because all base characters are in the vocabulary. By greedily merging the most frequent pairs, it builds common words (like <code>"hug"</code>) into single tokens. Unseen words at inference time (like <code>"pugs"</code>) are not mapped to <code>&lt;unk&gt;</code>; instead, they decompose cleanly to known subwords <code>["p", "ug", "s"]</code>, preserving the semantic roots.</p>
 <hr />
@@ -559,16 +618,22 @@ When deploying real-time classification models (e.g., streaming chat routing), s
 <p>To decide which pair to merge, WordPiece evaluates:</p>
 <p>$$\text{Score}(A, B) = \frac{\text{Count}(A, B)}{\text{Count}(A) \times \text{Count}(B)}$$</p>
 <h4 id="step-by-step-hand-calculation">Step-by-Step Hand Calculation:</h4>
-<p>Let's calculate and compare scores for two candidate pairs in a micro-corpus:<br />
-- Let the total corpus size be $N = 100$ words.<br />
-- <strong>Candidate Pair 1: <code>(h, u)</code></strong><br />
-  - Unigram counts: $\text{Count}(h) = 20$, $\text{Count}(u) = 30$<br />
-  - Co-occurrence count: $\text{Count}(h, u) = 15$<br />
-  - $$\text{Score}(h, u) = \frac{15}{20 \times 30} = \frac{15}{600} = 0.0250$$<br />
-- <strong>Candidate Pair 2: <code>(p, u)</code></strong><br />
-  - Unigram counts: $\text{Count}(p) = 5$, $\text{Count}(u) = 30$<br />
-  - Co-occurrence count: $\text{Count}(p, u) = 4$<br />
-  - $$\text{Score}(p, u) = \frac{4}{5 \times 30} = \frac{4}{150} \approx 0.0267$$</p>
+<p>Let's calculate and compare scores for two candidate pairs in a micro-corpus:</p>
+<ul>
+<li>Let the total corpus size be $N = 100$ words.</li>
+<li><strong>Candidate Pair 1: <code>(h, u)</code></strong><ul>
+<li>Unigram counts: $\text{Count}(h) = 20$, $\text{Count}(u) = 30$</li>
+<li>Co-occurrence count: $\text{Count}(h, u) = 15$</li>
+<li>$$\text{Score}(h, u) = \frac{15}{20 \times 30} = \frac{15}{600} = 0.0250$$</li>
+</ul>
+</li>
+<li><strong>Candidate Pair 2: <code>(p, u)</code></strong><ul>
+<li>Unigram counts: $\text{Count}(p) = 5$, $\text{Count}(u) = 30$</li>
+<li>Co-occurrence count: $\text{Count}(p, u) = 4$</li>
+<li>$$\text{Score}(p, u) = \frac{4}{5 \times 30} = \frac{4}{150} \approx 0.0267$$</li>
+</ul>
+</li>
+</ul>
 <h5 id="findings-interpretation_1">Findings &amp; Interpretation:</h5>
 <p>Even though the pair <code>(h, u)</code> co-occurs more times in absolute terms ($15$ vs $4$), WordPiece selects and merges <code>(p, u)</code> first because its score is higher ($0.0267 &gt; 0.0250$). </p>
 <p>The denominator $\text{Count}(A) \times \text{Count}(B)$ represents the expected probability of $A$ and $B$ appearing adjacent by pure chance. The scoring ratio measures the statistical correlation: how much more often do $A$ and $B$ appear together than independent chance would predict? This prevents WordPiece from merging common characters (like stopwords components) just because they are frequent, prioritizing tightly bound morpheme units.</p>
@@ -594,18 +659,24 @@ This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatiz
 
 <p>Before vectorization, classical pipelines reduce morphological variations of words to a common base form. The algorithms work as follows:</p>
 <h3 id="1-stemming-porter-stemmer">1. Stemming (Porter Stemmer)</h3>
-<p>Stemming is a rule-based heuristic that truncates the ends of words using a sequence of suffix-chopping rules. The Porter Stemmer runs sequentially through five phases:<br />
-- <strong>Step 1a Rules:</strong><br />
-  - <code>SSES</code> $\rightarrow$ <code>SS</code> (e.g., <code>caresses</code> $\rightarrow$ <code>caress</code>)<br />
-  - <code>IES</code> $\rightarrow$ <code>I</code> (e.g., <code>ponies</code> $\rightarrow$ <code>poni</code>)<br />
-  - <code>SS</code> $\rightarrow$ <code>SS</code> (e.g., <code>caress</code> $\rightarrow$ <code>caress</code>)<br />
-  - <code>S</code> $\rightarrow$ <code>Ø</code> (e.g., <code>cats</code> $\rightarrow$ <code>cat</code>)<br />
-- <strong>Step 1b Rules:</strong> Truncates plural verb endings like <code>-ed</code> or <code>-ing</code> (e.g., <code>walking</code> $\rightarrow$ <code>walk</code>, <code>plastered</code> $\rightarrow$ <code>plaster</code>).</p>
+<p>Stemming is a rule-based heuristic that truncates the ends of words using a sequence of suffix-chopping rules. The Porter Stemmer runs sequentially through five phases:</p>
+<ul>
+<li><strong>Step 1a Rules:</strong><ul>
+<li><code>SSES</code> $\rightarrow$ <code>SS</code> (e.g., <code>caresses</code> $\rightarrow$ <code>caress</code>)</li>
+<li><code>IES</code> $\rightarrow$ <code>I</code> (e.g., <code>ponies</code> $\rightarrow$ <code>poni</code>)</li>
+<li><code>SS</code> $\rightarrow$ <code>SS</code> (e.g., <code>caress</code> $\rightarrow$ <code>caress</code>)</li>
+<li><code>S</code> $\rightarrow$ <code>Ø</code> (e.g., <code>cats</code> $\rightarrow$ <code>cat</code>)</li>
+</ul>
+</li>
+<li><strong>Step 1b Rules:</strong> Truncates plural verb endings like <code>-ed</code> or <code>-ing</code> (e.g., <code>walking</code> $\rightarrow$ <code>walk</code>, <code>plastered</code> $\rightarrow$ <code>plaster</code>).</li>
+</ul>
 <p><em>Failure Mode:</em> Because it is rule-based and does not use a dictionary, it frequently causes <strong>over-stemming</strong> (chopping unrelated words to the same stem: <code>"organization"</code> and <code>"organs"</code> both map to <code>"organ"</code>) or <strong>under-stemming</strong> (failing to link related words: <code>"alumnus"</code> and <code>"alumni"</code> remain separate).</p>
 <h3 id="2-lemmatization-wordnet-lemmatizer">2. Lemmatization (WordNet Lemmatizer)</h3>
-<p>Lemmatization uses a lexicon (dictionary lookup database) and morphological analysis to resolve words to their canonical base forms. It is dependent on Part-of-Speech (POS) tagging:<br />
-- <strong>Without POS Tag:</strong> If you pass the word <code>"saw"</code>, the lemmatizer defaults to treating it as a noun, returning <code>"saw"</code>.<br />
-- <strong>With POS Tag (Verb):</strong> If you pass <code>"saw"</code> with a verb POS tag, the lemmatizer looks up the lexicon and resolves it correctly to its base lemma <code>"see"</code>.</p>
+<p>Lemmatization uses a lexicon (dictionary lookup database) and morphological analysis to resolve words to their canonical base forms. It is dependent on Part-of-Speech (POS) tagging:</p>
+<ul>
+<li><strong>Without POS Tag:</strong> If you pass the word <code>"saw"</code>, the lemmatizer defaults to treating it as a noun, returning <code>"saw"</code>.</li>
+<li><strong>With POS Tag (Verb):</strong> If you pass <code>"saw"</code> with a verb POS tag, the lemmatizer looks up the lexicon and resolves it correctly to its base lemma <code>"see"</code>.</li>
+</ul>
 <hr />
 <h3 id="python-code-demonstration-morphological-output-table">Python Code Demonstration &amp; Morphological Output Table</h3>
 <p>The following Python script demonstrates NLTK's <code>PorterStemmer</code> vs. <code>WordNetLemmatizer</code> on a set of morphological test cases:</p>
@@ -683,16 +754,22 @@ This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatiz
 <h2 id="4-classical-text-preprocessing-pipeline-steps">4. Classical Text Preprocessing Pipeline Steps</h2>
 <p>Before applying modeling or vectorization layers, classical NLP pipelines clean, split, and normalize raw inputs. The primary preprocessing steps and techniques include:</p>
 <h3 id="1-tokenization-sentence-and-word-level">1. Tokenization (Sentence and Word Level)</h3>
-<p>Tokenization splits a continuous character stream into semantic blocks:<br />
-- <strong>Sentence Tokenization (Segmentation):</strong> Divides a text block into individual sentences (e.g. using NLTK's <code>sent_tokenize</code> or spaCy, which handle punctuation ambiguities like <code>"Dr. Smith bought an apple."</code>).<br />
-- <strong>Word Tokenization:</strong> Divides sentences into words. Standard word tokenizers handle contraction splittings (e.g. splitting <code>"don't"</code> into <code>["do", "n't"]</code> or <code>["dont"]</code> depending on the grammar template).</p>
+<p>Tokenization splits a continuous character stream into semantic blocks:</p>
+<ul>
+<li><strong>Sentence Tokenization (Segmentation):</strong> Divides a text block into individual sentences (e.g. using NLTK's <code>sent_tokenize</code> or spaCy, which handle punctuation ambiguities like <code>"Dr. Smith bought an apple."</code>).</li>
+<li><strong>Word Tokenization:</strong> Divides sentences into words. Standard word tokenizers handle contraction splittings (e.g. splitting <code>"don't"</code> into <code>["do", "n't"]</code> or <code>["dont"]</code> depending on the grammar template).</li>
+</ul>
 <h3 id="2-case-normalization">2. Case Normalization</h3>
-<p>Case normalization maps all characters to lowercase.<br />
-- <em>Production Trade-offs:</em> Reduces the vocabulary search space (merging <code>"Apple"</code>, <code>"APPLE"</code>, and <code>"apple"</code> into a single index). However, it degrades performance for Named Entity Recognition (NER), Sentiment Analysis, and POS Tagging because it discards critical structural cues (e.g. distinguishing <code>"Apple"</code> the company from <code>"apple"</code> the fruit).</p>
+<p>Case normalization maps all characters to lowercase.</p>
+<ul>
+<li><em>Production Trade-offs:</em> Reduces the vocabulary search space (merging <code>"Apple"</code>, <code>"APPLE"</code>, and <code>"apple"</code> into a single index). However, it degrades performance for Named Entity Recognition (NER), Sentiment Analysis, and POS Tagging because it discards critical structural cues (e.g. distinguishing <code>"Apple"</code> the company from <code>"apple"</code> the fruit).</li>
+</ul>
 <h3 id="3-stopword-removal">3. Stopword Removal</h3>
-<p>Stopwords are high-frequency, low-semantic-value words (e.g. <code>"is"</code>, <code>"the"</code>, <code>"at"</code>, <code>"which"</code>).<br />
-- <em>Production Trade-offs:</em> Essential for sparse retrieval indices (TF-IDF, BM25) and classical classifiers (Naïve Bayes, SVM) to reduce dimensionality and speed up database query searches.<br />
-- <em>Negative Trade-offs:</em> <strong>Do NOT use stopword removal for sequence models (RNNs, LSTMs, Transformers)</strong>. Removing stopwords destroys syntactic sequence context, positional relationships, and grammatical structure, degrading model outputs.</p>
+<p>Stopwords are high-frequency, low-semantic-value words (e.g. <code>"is"</code>, <code>"the"</code>, <code>"at"</code>, <code>"which"</code>).</p>
+<ul>
+<li><em>Production Trade-offs:</em> Essential for sparse retrieval indices (TF-IDF, BM25) and classical classifiers (Naïve Bayes, SVM) to reduce dimensionality and speed up database query searches.</li>
+<li><em>Negative Trade-offs:</em> <strong>Do NOT use stopword removal for sequence models (RNNs, LSTMs, Transformers)</strong>. Removing stopwords destroys syntactic sequence context, positional relationships, and grammatical structure, degrading model outputs.</li>
+</ul>
 <h3 id="4-noise-cleaning-text-normalization">4. Noise Cleaning &amp; Text Normalization</h3>
 <ul>
 <li><strong>HTML/Markdown Stripping:</strong> Removing raw markup tags (e.g. using <code>BeautifulSoup</code> or regex patterns like <code>r"&lt;[^&gt;]*&gt;"</code>).</li>
@@ -701,13 +778,19 @@ This chart compares the execution latency of Porter Stemmer vs. WordNet Lemmatiz
 </ul>
 <hr />
 <h2 id="5-regular-expressions-and-unicode-normalization">5. Regular Expressions and Unicode Normalization</h2>
-<p>Uncleaned raw strings contain encoding anomalies and noise that must be filtered out:<br />
-- <strong>Common Regex Cleanups:</strong><br />
-  - URL removal: <code>re.sub(r"https?://\S+", "", text)</code><br />
-  - Punctuation removal: <code>re.sub(r"[^\w\s]", "", text)</code><br />
-- <strong>Unicode Normalization:</strong> Ensures consistent character representations. For example, the accented character <code>é</code> can be represented as:<br />
-  - <strong>NFC (Composition):</strong> Single code point <code>\u00e9</code>.<br />
-  - <strong>NFD (Decomposition):</strong> Decomposed into base <code>e</code> (<code>\u0065</code>) and combining accent character <code>´</code> (<code>\u0301</code>).</p>
+<p>Uncleaned raw strings contain encoding anomalies and noise that must be filtered out:</p>
+<ul>
+<li><strong>Common Regex Cleanups:</strong><ul>
+<li>URL removal: <code>re.sub(r"https?://\S+", "", text)</code></li>
+<li>Punctuation removal: <code>re.sub(r"[^\w\s]", "", text)</code></li>
+</ul>
+</li>
+<li><strong>Unicode Normalization:</strong> Ensures consistent character representations. For example, the accented character <code>é</code> can be represented as:<ul>
+<li><strong>NFC (Composition):</strong> Single code point <code>\u00e9</code>.</li>
+<li><strong>NFD (Decomposition):</strong> Decomposed into base <code>e</code> (<code>\u0065</code>) and combining accent character <code>´</code> (<code>\u0301</code>).</li>
+</ul>
+</li>
+</ul>
 <hr />
 <div style="border-left: 4px solid #7c3aed; background-color: #f5f3ff; color: #5b21b6; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>⚡ IMPORTANT:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Unicode Vocabulary Alignment</strong><br />
 Always apply NFC normalization (e.g. <code>unicodedata.normalize('NFC', text)</code>) during both training and inference. If user inputs use NFD encoding (decomposed characters) while the model was trained on NFC, the tokenizer will split the characters differently, mapping them to incorrect token indices and degrading predictions.</p></div></div>
@@ -715,25 +798,41 @@ Always apply NFC normalization (e.g. <code>unicodedata.normalize('NFC', text)</c
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Transforms raw, inconsistent character streams into normalized, uniform inputs, reducing vocabulary size and vocabulary sparsity.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to prevent out-of-vocabulary (OOV) errors and compress vocabulary matrices for efficient training.</li>
-<li><strong>What are its limitations?</strong><br />
-  Extreme preprocessing (e.g. discarding casing and punctuation) discards semantic context (such as sentiment cues, code syntax symbols, or structural boundaries).</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Transforms raw, inconsistent character streams into normalized, uniform inputs, reducing vocabulary size and vocabulary sparsity.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to prevent out-of-vocabulary (OOV) errors and compress vocabulary matrices for efficient training.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong><br />
+  Extreme preprocessing (e.g. discarding casing and punctuation) discards semantic context (such as sentiment cues, code syntax symbols, or structural boundaries).</p>
+</li>
+<li>
+<p><strong>Computational Complexity (Time &amp; Memory)</strong></p>
+<ul>
 <li><strong>BPE Encoding Time</strong>: $O(L \cdot \log |V|)$ where $L$ is sequence length.</li>
 <li><strong>Lemmatization Time</strong>: $O(N \cdot D)$ where $N$ is word count and $D$ represents dictionary search depth.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Sequence token length.</li>
 <li>$|V|$: Target vocabulary size.</li>
 <li>$D$: Dictionary lookup size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Subword tokenization pipelines in multilingual LLMs.</li>
 <li>Normalizing raw user queries (e.g. casing and Unicode accents) before search indexing.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>How does BPE handle a word with unknown characters during inference?</em> (Characters not seen during training are mapped to character-level bytes or fallback tokens using a byte-fallback vocabulary, preventing <code>&lt;unk&gt;</code> errors).</li>
 <li><em>Why should you avoid lowercase normalization for Named Entity Recognition (NER)?</em> (Named entities like <code>"Apple"</code> (company) depend heavily on capitalization to differentiate them from <code>"apple"</code> (fruit)).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -748,26 +847,36 @@ Always apply NFC normalization (e.g. <code>unicodedata.normalize('NFC', text)</c
 <h2 id="1-vector-spaces-sparse-representations">1. Vector Spaces &amp; Sparse Representations</h2>
 <p>In NLP, the Vector Space Model represents text documents as vectors in a high-dimensional continuous space.</p>
 <h3 id="document-term-matrix-dtm-from-first-principles">Document-Term Matrix (DTM) from First Principles</h3>
-<p>A Document-Term Matrix is a mathematical representation of a corpus where:<br />
-- <strong>Rows</strong> represent individual documents ($D_1, D_2, \dots, D_N$).<br />
-- <strong>Columns</strong> represent unique words in the vocabulary ($w_1, w_2, \dots, w_{|V|}$).<br />
-- <strong>Cell Value $X_{i,j}$</strong> represents the weight (e.g. raw count, frequency, or TF-IDF score) of word $w_j$ in document $D_i$.</p>
+<p>A Document-Term Matrix is a mathematical representation of a corpus where:</p>
+<ul>
+<li><strong>Rows</strong> represent individual documents ($D_1, D_2, \dots, D_N$).</li>
+<li><strong>Columns</strong> represent unique words in the vocabulary ($w_1, w_2, \dots, w_{|V|}$).</li>
+<li><strong>Cell Value $X_{i,j}$</strong> represents the weight (e.g. raw count, frequency, or TF-IDF score) of word $w_j$ in document $D_i$.</li>
+</ul>
 <p>The matrix shape is $N \times |V|$, where $N$ is the number of documents and $|V|$ is vocabulary size. Because any single document uses only a tiny fraction of the vocabulary, most cell values are 0, making this a <strong>sparse matrix</strong>.</p>
 <h3 id="vocabulary-building-indexing">Vocabulary Building &amp; Indexing</h3>
 <p>To build a vector representation, we construct a vocabulary lookup dictionary during training. Each unique word in the cleaned corpus is assigned a unique index dimension:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">vocab</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cat&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;feline&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;rug&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 </code></pre></div>
 
-<p>At inference time, a new text string is parsed using this dictionary:<br />
-- <code>"cat rug"</code> $\rightarrow$ Token counts: <code>{"cat": 1, "rug": 1}</code> $\rightarrow$ Mapped index vector: <code>[1, 0, 1]</code> (length $|V| = 3$).</p>
+<p>At inference time, a new text string is parsed using this dictionary:</p>
+<ul>
+<li><code>"cat rug"</code> $\rightarrow$ Token counts: <code>{"cat": 1, "rug": 1}</code> $\rightarrow$ Mapped index vector: <code>[1, 0, 1]</code> (length $|V| = 3$).</li>
+</ul>
 <h3 id="sparse-formats-one-hot-bag-of-words-and-n-grams">Sparse Formats: One-Hot, Bag of Words, and N-grams</h3>
 <ul>
-<li><strong>One-Hot Encoding:</strong> Represents each isolated word as a binary vector of size $|V|$ containing a single <code>1</code> at the word's index.</li>
+<li><strong>One-Hot Encoding:</strong> Represents each isolated word as a binary vector of size $|V|$ containing a single <code>1</code> at the word's index.<ul>
 <li><em>Bottleneck:</em> The vectors are orthogonal; the dot product between any two different words is 0, capturing zero semantic similarity (e.g., <code>"cat"</code> and <code>"feline"</code> are treated as unrelated as <code>"cat"</code> and <code>"microchip"</code>).</li>
-<li><strong>Bag of Words (BoW):</strong> Represents a document as a vector of word frequencies, ignoring sequence order.</li>
+</ul>
+</li>
+<li><strong>Bag of Words (BoW):</strong> Represents a document as a vector of word frequencies, ignoring sequence order.<ul>
 <li><em>Bottleneck:</em> Long documents contain higher counts purely due to their length, biasing classification and retrieval models.</li>
-<li><strong>N-grams:</strong> Preserves local word order by tracking contiguous sequences of $N$ tokens (e.g. <code>"not bad"</code> as a bigram).</li>
+</ul>
+</li>
+<li><strong>N-grams:</strong> Preserves local word order by tracking contiguous sequences of $N$ tokens (e.g. <code>"not bad"</code> as a bigram).<ul>
 <li><em>Bottleneck:</em> The dimensionality scales exponentially as $O(|V|^N)$ ($100,000^2 = 10^{10}$ columns for bigrams), leading to extreme data sparsity and memory exhaustion.</li>
+</ul>
+</li>
 </ul>
 <hr />
 <h2 id="2-vector-normalization-l2-norm-cosine-similarity">2. Vector Normalization: L2 Norm &amp; Cosine Similarity</h2>
@@ -780,12 +889,16 @@ $$\mathbf{v}_{\text{norm}} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2}$$<br />
 Geometrically, this projects all document vectors onto a <strong>unit hypersphere</strong> of radius 1. Under this projection, documents with identical word proportions but different lengths map to the exact same coordinate on the hypersphere, eliminating document length bias.</p>
 <h3 id="cosine-similarity-vs-euclidean-distance-length-bias">Cosine Similarity vs. Euclidean Distance Length Bias</h3>
 <ul>
-<li><strong>Euclidean Distance Length Bias:</strong> Euclidean distance measures the straight-line distance between vector coordinates:<br />
+<li>
+<p><strong>Euclidean Distance Length Bias:</strong> Euclidean distance measures the straight-line distance between vector coordinates:<br />
   $$d_{\text{Euclidean}}(\mathbf{a}, \mathbf{b}) = \sqrt{\sum (a_i - b_i)^2}$$<br />
-  If Document A is <code>"cat feline"</code> and Document B is <code>"cat feline"</code> repeated 100 times, their raw count vectors are $[1, 1, 0]$ and $[100, 100, 0]$. Even though they share the identical word distribution, their Euclidean distance is massive ($\approx 140$). This makes Euclidean distance unsuitable for variable-length texts.</li>
-<li><strong>Cosine Similarity:</strong> Measures the cosine of the angle $\theta$ between two vectors, ignoring magnitude:<br />
+  If Document A is <code>"cat feline"</code> and Document B is <code>"cat feline"</code> repeated 100 times, their raw count vectors are $[1, 1, 0]$ and $[100, 100, 0]$. Even though they share the identical word distribution, their Euclidean distance is massive ($\approx 140$). This makes Euclidean distance unsuitable for variable-length texts.</p>
+</li>
+<li>
+<p><strong>Cosine Similarity:</strong> Measures the cosine of the angle $\theta$ between two vectors, ignoring magnitude:<br />
   $$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \cos(\theta) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$<br />
-  Because the vectors are normalized, the angle $\theta = 0 \rightarrow \cos(0) = 1.0$, indicating perfect similarity regardless of word density.</li>
+  Because the vectors are normalized, the angle $\theta = 0 \rightarrow \cos(0) = 1.0$, indicating perfect similarity regardless of word density.</p>
+</li>
 </ul>
 <hr />
 <h2 id="3-tf-idf-derivation-and-step-by-step-hand-calculations">3. TF-IDF Derivation and Step-by-Step Hand-Calculations</h2>
@@ -794,15 +907,19 @@ Geometrically, this projects all document vectors onto a <strong>unit hyperspher
 <p>$$\text{TF}(t, d) = f_{t, d} \quad \text{(raw count of term } t \text{ in document } d\text{)}$$</p>
 <p>$$\text{IDF}(t, D) = \log \left(\frac{1 + N}{1 + \text{DF}(t)}\right) + 1$$</p>
 <p>$$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \text{IDF}(t, D)$$</p>
-<p>Where:<br />
-- $N = |D|$ is the total number of documents in corpus $D$.<br />
-- $\text{DF}(t)$ is the document frequency (number of documents containing term $t$).</p>
+<p>Where:</p>
+<ul>
+<li>$N = |D|$ is the total number of documents in corpus $D$.</li>
+<li>$\text{DF}(t)$ is the document frequency (number of documents containing term $t$).</li>
+</ul>
 <hr />
 <h3 id="step-by-step-hand-calculation-on-a-tiny-corpus">Step-by-Step Hand-Calculation on a Tiny Corpus</h3>
-<p>Let's calculate the TF-IDF vectors for a 2-document corpus:<br />
-- Document 1 ($d_1$): <code>"cat feline"</code><br />
-- Document 2 ($d_2$): <code>"feline rug"</code><br />
-- Query term set (Vocabulary): <code>["cat", "feline", "rug"]</code> ($N = 2$)</p>
+<p>Let's calculate the TF-IDF vectors for a 2-document corpus:</p>
+<ul>
+<li>Document 1 ($d_1$): <code>"cat feline"</code></li>
+<li>Document 2 ($d_2$): <code>"feline rug"</code></li>
+<li>Query term set (Vocabulary): <code>["cat", "feline", "rug"]</code> ($N = 2$)</li>
+</ul>
 <h4 id="1-calculate-document-frequency-df-and-idf">1. Calculate Document Frequency (DF) and IDF</h4>
 <ul>
 <li><code>"cat"</code>: $\text{DF} = 1 \rightarrow \text{IDF} = \log\left(\frac{1+2}{1+1}\right) + 1 = \log(1.5) + 1 \approx 0.4055 + 1 = 1.4055$</li>
@@ -811,17 +928,25 @@ Geometrically, this projects all document vectors onto a <strong>unit hyperspher
 </ul>
 <h4 id="2-compute-unnormalized-tf-idf-vectors">2. Compute Unnormalized TF-IDF Vectors</h4>
 <ul>
-<li><strong>Document 1 ($d_1$) counts</strong>: <code>{"cat": 1, "feline": 1, "rug": 0}</code><br />
-  $$\text{Vector}_{d_1} = [1 \times 1.4055, \ 1 \times 1.0, \ 0 \times 1.4055] = [1.4055, \ 1.0, \ 0.0]$$</li>
-<li><strong>Document 2 ($d_2$) counts</strong>: <code>{"cat": 0, "feline": 1, "rug": 1}</code><br />
-  $$\text{Vector}_{d_2} = [0 \times 1.4055, \ 1 \times 1.0, \ 1 \times 1.4055] = [0.0, \ 1.0, \ 1.4055]$$</li>
+<li>
+<p><strong>Document 1 ($d_1$) counts</strong>: <code>{"cat": 1, "feline": 1, "rug": 0}</code><br />
+  $$\text{Vector}_{d_1} = [1 \times 1.4055, \ 1 \times 1.0, \ 0 \times 1.4055] = [1.4055, \ 1.0, \ 0.0]$$</p>
+</li>
+<li>
+<p><strong>Document 2 ($d_2$) counts</strong>: <code>{"cat": 0, "feline": 1, "rug": 1}</code><br />
+  $$\text{Vector}_{d_2} = [0 \times 1.4055, \ 1 \times 1.0, \ 1 \times 1.4055] = [0.0, \ 1.0, \ 1.4055]$$</p>
+</li>
 </ul>
 <h4 id="3-apply-mathplaceholder54endmath-normalization-unit-length">3. Apply $L_2$ Normalization (Unit Length)</h4>
 <ul>
-<li>Norm for $d_1$: $\|\text{Vector}_{d_1}\|_2 = \sqrt{1.4055^2 + 1.0^2} = \sqrt{1.9754 + 1.0} \approx 1.7249$<br />
-  $$\mathbf{v}_{d_1} = \left[\frac{1.4055}{1.7249}, \ \frac{1.0}{1.7249}, \ 0.0\right] \approx [0.8148, \ 0.5800, \ 0.0]$$</li>
-<li>Norm for $d_2$: $\|\text{Vector}_{d_2}\|_2 \approx 1.7249$<br />
-  $$\mathbf{v}_{d_2} \approx [0.0, \ 0.5800, \ 0.8148]$$</li>
+<li>
+<p>Norm for $d_1$: $\|\text{Vector}_{d_1}\|_2 = \sqrt{1.4055^2 + 1.0^2} = \sqrt{1.9754 + 1.0} \approx 1.7249$<br />
+  $$\mathbf{v}_{d_1} = \left[\frac{1.4055}{1.7249}, \ \frac{1.0}{1.7249}, \ 0.0\right] \approx [0.8148, \ 0.5800, \ 0.0]$$</p>
+</li>
+<li>
+<p>Norm for $d_2$: $\|\text{Vector}_{d_2}\|_2 \approx 1.7249$<br />
+  $$\mathbf{v}_{d_2} \approx [0.0, \ 0.5800, \ 0.8148]$$</p>
+</li>
 </ul>
 <h4 id="4-cosine-similarity-calculation">4. Cosine Similarity Calculation</h4>
 <p>Since the vectors are pre-normalized, the cosine similarity is the dot product:<br />
@@ -861,37 +986,49 @@ $$\mathbf{v}_{d_1} \cdot \mathbf{v}_{d_2} = (0.8148 \times 0.0) + (0.5800 \times
 <p>Okapi BM25 is a robust classical retrieval algorithm that evaluates term significance by scaling Term Frequency non-linearly and normalizing for document length.</p>
 <h3 id="mathematical-formulation_1">Mathematical Formulation</h3>
 <p>$$\text{Score}(D, Q) = \sum_{i=1}^n \text{IDF}(q_i) \cdot \frac{\text{TF}(q_i, D) \cdot (k_1 + 1)}{\text{TF}(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}$$</p>
-<p>Where:<br />
-- $\text{TF}(q_i, D)$ is the frequency of query term $q_i$ in document $D$.<br />
-- $|D|$ is the length of document $D$ in tokens, and $\text{avgdl}$ is the average document length across the corpus.<br />
-- $k_1$ is the term frequency saturation scaling parameter (typically $1.2\text{--}2.0$).<br />
-- $b$ is the document length normalization scaling parameter (typically $0.75$).</p>
+<p>Where:</p>
+<ul>
+<li>$\text{TF}(q_i, D)$ is the frequency of query term $q_i$ in document $D$.</li>
+<li>$|D|$ is the length of document $D$ in tokens, and $\text{avgdl}$ is the average document length across the corpus.</li>
+<li>$k_1$ is the term frequency saturation scaling parameter (typically $1.2\text{--}2.0$).</li>
+<li>$b$ is the document length normalization scaling parameter (typically $0.75$).</li>
+</ul>
 <hr />
 <h3 id="step-by-step-hand-calculation">Step-by-Step Hand-Calculation:</h3>
-<p>Consider a corpus of two documents:<br />
-- Document 1 ($D_1$): <code>"cat feline"</code> ($|D_1| = 2$)<br />
-- Document 2 ($D_2$): <code>"feline rug garden cat"</code> ($|D_2| = 4$)<br />
-- Average document length: $\text{avgdl} = \frac{2 + 4}{2} = 3$<br />
-- Let the query be $Q = \{\text{"cat"}\}$.<br />
-- Let the computed IDF value for <code>"cat"</code> be $\text{IDF}(\text{"cat"}) = 1.40$.<br />
-- Hyperparameters: $k_1 = 1.2$, $b = 0.75$.</p>
+<p>Consider a corpus of two documents:</p>
+<ul>
+<li>Document 1 ($D_1$): <code>"cat feline"</code> ($|D_1| = 2$)</li>
+<li>Document 2 ($D_2$): <code>"feline rug garden cat"</code> ($|D_2| = 4$)</li>
+<li>Average document length: $\text{avgdl} = \frac{2 + 4}{2} = 3$</li>
+<li>Let the query be $Q = \{\text{"cat"}\}$.</li>
+<li>Let the computed IDF value for <code>"cat"</code> be $\text{IDF}(\text{"cat"}) = 1.40$.</li>
+<li>Hyperparameters: $k_1 = 1.2$, $b = 0.75$.</li>
+</ul>
 <h4 id="1-calculate-score-for-document-1-mathplaceholder79endmath">1. Calculate Score for Document 1 ($D_1$):</h4>
 <ul>
 <li>Term Frequency: $\text{TF}(\text{"cat"}, D_1) = 1$</li>
 <li>Length Ratio: $\frac{|D_1|}{\text{avgdl}} = \frac{2}{3} \approx 0.6667$</li>
-<li>Denominator Factor:<br />
-  $$d_{\text{factor}} = 1 + 1.2 \cdot \left(1 - 0.75 + 0.75 \cdot 0.6667\right) = 1 + 1.2 \cdot \left(0.25 + 0.50\right) = 1 + 1.2 \cdot 0.75 = 1 + 0.9 = 1.9$$</li>
-<li>Score:<br />
-  $$\text{Score}(D_1, Q) = 1.40 \cdot \frac{1 \cdot (1.2 + 1)}{1 + 1.9} = 1.40 \cdot \frac{2.2}{2.9} \approx 1.40 \cdot 0.7586 \approx 1.0620$$</li>
+<li>
+<p>Denominator Factor:<br />
+  $$d_{\text{factor}} = 1 + 1.2 \cdot \left(1 - 0.75 + 0.75 \cdot 0.6667\right) = 1 + 1.2 \cdot \left(0.25 + 0.50\right) = 1 + 1.2 \cdot 0.75 = 1 + 0.9 = 1.9$$</p>
+</li>
+<li>
+<p>Score:<br />
+  $$\text{Score}(D_1, Q) = 1.40 \cdot \frac{1 \cdot (1.2 + 1)}{1 + 1.9} = 1.40 \cdot \frac{2.2}{2.9} \approx 1.40 \cdot 0.7586 \approx 1.0620$$</p>
+</li>
 </ul>
 <h4 id="2-calculate-score-for-document-2-mathplaceholder82endmath">2. Calculate Score for Document 2 ($D_2$):</h4>
 <ul>
 <li>Term Frequency: $\text{TF}(\text{"cat"}, D_2) = 1$</li>
 <li>Length Ratio: $\frac{|D_2|}{\text{avgdl}} = \frac{4}{3} \approx 1.3333$</li>
-<li>Denominator Factor:<br />
-  $$d_{\text{factor}} = 1 + 1.2 \cdot \left(1 - 0.75 + 0.75 \cdot 1.3333\right) = 1 + 1.2 \cdot \left(0.25 + 1.0\right) = 1 + 1.2 \cdot 1.25 = 1 + 1.5 = 2.5$$</li>
-<li>Score:<br />
-  $$\text{Score}(D_2, Q) = 1.40 \cdot \frac{1 \cdot 2.2}{1 + 2.5} = 1.40 \cdot \frac{2.2}{3.5} \approx 1.40 \cdot 0.6286 \approx 0.8800$$</li>
+<li>
+<p>Denominator Factor:<br />
+  $$d_{\text{factor}} = 1 + 1.2 \cdot \left(1 - 0.75 + 0.75 \cdot 1.3333\right) = 1 + 1.2 \cdot \left(0.25 + 1.0\right) = 1 + 1.2 \cdot 1.25 = 1 + 1.5 = 2.5$$</p>
+</li>
+<li>
+<p>Score:<br />
+  $$\text{Score}(D_2, Q) = 1.40 \cdot \frac{1 \cdot 2.2}{1 + 2.5} = 1.40 \cdot \frac{2.2}{3.5} \approx 1.40 \cdot 0.6286 \approx 0.8800$$</p>
+</li>
 </ul>
 <h5 id="findings-interpretation_1">Findings &amp; Interpretation:</h5>
 <ul>
@@ -903,11 +1040,17 @@ $$\mathbf{v}_{d_1} \cdot \mathbf{v}_{d_2} = (0.8148 \times 0.0) + (0.5800 \times
 <h2 id="5-feature-hashing-the-hashing-trick">5. Feature Hashing (The Hashing Trick)</h2>
 <p>To avoid storing a large vocabulary dictionary in memory, production pipelines use Feature Hashing:</p>
 <ul>
-<li><strong>Mechanics:</strong> Maps raw words to a fixed array index size $B$ using a hash function:<br />
-  $$\text{Index} = h(w) \pmod B$$</li>
-<li><strong>Sign Hash:</strong> A second independent hash function $\xi(w) \in \{-1, +1\}$ scales token values to ensure expected collision errors average to zero:<br />
-  $$x_i = \sum_{w : h(w) \equiv i} \xi(w) \cdot \text{Count}(w)$$</li>
-<li><strong>Collision Example:</strong> If <code>"purchase"</code> and <code>"buy"</code> both hash to index 4, the sign hash might assign $+1$ to <code>"purchase"</code> and $-1$ to <code>"buy"</code>, canceling out collision bias on average.</li>
+<li>
+<p><strong>Mechanics:</strong> Maps raw words to a fixed array index size $B$ using a hash function:<br />
+  $$\text{Index} = h(w) \pmod B$$</p>
+</li>
+<li>
+<p><strong>Sign Hash:</strong> A second independent hash function $\xi(w) \in \{-1, +1\}$ scales token values to ensure expected collision errors average to zero:<br />
+  $$x_i = \sum_{w : h(w) \equiv i} \xi(w) \cdot \text{Count}(w)$$</p>
+</li>
+<li>
+<p><strong>Collision Example:</strong> If <code>"purchase"</code> and <code>"buy"</code> both hash to index 4, the sign hash might assign $+1$ to <code>"purchase"</code> and $-1$ to <code>"buy"</code>, canceling out collision bias on average.</p>
+</li>
 <li><strong>Advantages:</strong> Zero vocabulary lookup table storage footprint; constant $O(1)$ index lookup speed.</li>
 <li><strong>Collision Trade-offs:</strong> If $B$ is too small, collisions introduce noise, degrading classification accuracy.</li>
 </ul>
@@ -920,27 +1063,43 @@ $$\mathbf{v}_{d_1} \cdot \mathbf{v}_{d_2} = (0.8148 \times 0.0) + (0.5800 \times
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Translates text documents into numeric vectors to compute similarities and retrieve relevant records.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to score term significance relative to corpus frequencies, avoiding term density bias in documents.</li>
-<li><strong>What are its limitations?</strong><br />
-  Sparse vectors fail to capture semantic relationships (synonyms like <code>"cat"</code> and <code>"feline"</code> remain orthogonal).</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Translates text documents into numeric vectors to compute similarities and retrieve relevant records.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to score term significance relative to corpus frequencies, avoiding term density bias in documents.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong><br />
+  Sparse vectors fail to capture semantic relationships (synonyms like <code>"cat"</code> and <code>"feline"</code> remain orthogonal).</p>
+</li>
+<li>
+<p><strong>Computational Complexity (Time &amp; Memory)</strong></p>
+<ul>
 <li><strong>TF-IDF Vectorization Time</strong>: $O(N \cdot L)$ where $N$ is document count and $L$ is sequence length.</li>
 <li><strong>Feature Hashing Lookup Time</strong>: $O(1)$ index lookup.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$N$: Total document count.</li>
 <li>$L$: Document token sequence length.</li>
 <li>$B$: Number of feature hash buckets.</li>
 <li>$k_1$: BM25 term frequency saturation scaling parameter.</li>
 <li>$b$: BM25 document length normalization parameter.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>High-speed text retrieval index systems (Elasticsearch, BM25).</li>
 <li>Memory-constrained text classification pipelines using feature hashing.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>How does BM25 prevent document length bias?</em> (Long documents are penalized via the $b \cdot (|D|/\text{avgdl})$ term in the denominator. This reduces the score if query terms appear in long, noisy texts).</li>
 <li><em>Why does the sign hash function $\xi(w)$ prevent collision degradation in Feature Hashing?</em> (By randomly assigning $+1$ or $-1$ to each word, collisions cancel each other out on average, preventing systematic inflation of collision indices).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -968,13 +1127,21 @@ $$P(w_1, w_2, \dots, w_m) = P(w_1) P(w_2 \mid w_1) P(w_3 \mid w_1, w_2) \dots P(
 <hr />
 <h2 id="2-the-markov-assumption">2. The Markov Assumption</h2>
 <p>Calculating joint probabilities using the chain rule requires tracking long contexts. As the sequence length $m$ grows, the number of possible histories scales exponentially ($|V|^{m-1}$), which quickly becomes computationally intractable.</p>
-<p>The Markov assumption simplifies this by assuming the probability of a word depends only on the preceding $k$ words:<br />
-- <strong>Unigram Model</strong> ($k=0$): Assumes word occurrences are completely independent of context:<br />
-  $$P(w_i \mid w_1, \dots, w_{i-1}) \approx P(w_i)$$<br />
-- <strong>Bigram Model</strong> ($k=1$): Assumes word depends only on the immediate predecessor (first-order Markov chain):<br />
-  $$P(w_i \mid w_1, \dots, w_{i-1}) \approx P(w_i \mid w_{i-1})$$<br />
-- <strong>Trigram Model</strong> ($k=2$): Assumes word depends on the preceding two words (second-order Markov chain):<br />
+<p>The Markov assumption simplifies this by assuming the probability of a word depends only on the preceding $k$ words:</p>
+<ul>
+<li>
+<p><strong>Unigram Model</strong> ($k=0$): Assumes word occurrences are completely independent of context:<br />
+  $$P(w_i \mid w_1, \dots, w_{i-1}) \approx P(w_i)$$</p>
+</li>
+<li>
+<p><strong>Bigram Model</strong> ($k=1$): Assumes word depends only on the immediate predecessor (first-order Markov chain):<br />
+  $$P(w_i \mid w_1, \dots, w_{i-1}) \approx P(w_i \mid w_{i-1})$$</p>
+</li>
+<li>
+<p><strong>Trigram Model</strong> ($k=2$): Assumes word depends on the preceding two words (second-order Markov chain):<br />
   $$P(w_i \mid w_1, \dots, w_{i-1}) \approx P(w_i \mid w_{i-2}, w_{i-1})$$</p>
+</li>
+</ul>
 <hr />
 <h2 id="3-maximum-likelihood-estimation-smoothing">3. Maximum Likelihood Estimation &amp; Smoothing</h2>
 <p>MLE calculates probabilities by counting occurrences in a training corpus. For bigrams:</p>
@@ -986,36 +1153,48 @@ $$P(W) = \prod P(w_i \mid \dots) = 0$$<br />
 Smoothing reallocates probability mass from frequent n-grams to unseen sequences to resolve this defect.</p>
 <hr />
 <h3 id="step-by-step-hand-calculations-on-a-tiny-corpus">Step-by-Step Hand-Calculations on a Tiny Corpus:</h3>
-<p>Let's analyze a tiny corpus of two sentences:<br />
-- Sentence 1: <code>"cat sat"</code><br />
-- Sentence 2: <code>"sat cat"</code><br />
-- Unique Vocabulary: <code>["cat", "sat"]</code> ($|V| = 2$)<br />
-- Total token count: 4.<br />
-- Unigram counts: $C(\text{"cat"}) = 2$, $C(\text{"sat"}) = 2$.<br />
-- Bigram counts:<br />
-  - $C(\text{"cat", "sat"}) = 1$<br />
-  - $C(\text{"sat", "cat"}) = 1$<br />
-  - $C(\text{"cat", "cat"}) = 0$<br />
-  - $C(\text{"sat", "sat"}) = 0$</p>
+<p>Let's analyze a tiny corpus of two sentences:</p>
+<ul>
+<li>Sentence 1: <code>"cat sat"</code></li>
+<li>Sentence 2: <code>"sat cat"</code></li>
+<li>Unique Vocabulary: <code>["cat", "sat"]</code> ($|V| = 2$)</li>
+<li>Total token count: 4.</li>
+<li>Unigram counts: $C(\text{"cat"}) = 2$, $C(\text{"sat"}) = 2$.</li>
+<li>Bigram counts:<ul>
+<li>$C(\text{"cat", "sat"}) = 1$</li>
+<li>$C(\text{"sat", "cat"}) = 1$</li>
+<li>$C(\text{"cat", "cat"}) = 0$</li>
+<li>$C(\text{"sat", "sat"}) = 0$</li>
+</ul>
+</li>
+</ul>
 <h4 id="1-maximum-likelihood-estimation-mle">1. Maximum Likelihood Estimation (MLE)</h4>
-<p>Calculate the probability of sequence <code>"cat cat"</code> under MLE:<br />
-- $P_{\text{MLE}}(\text{"cat"} \mid \text{"cat"}) = \frac{C(\text{"cat", "cat"})}{C(\text{"cat"})} = \frac{0}{2} = 0.0$<br />
-- <strong>Result:</strong> $P_{\text{MLE}}(\text{"cat cat"}) = P(\text{"cat"}) \cdot P(\text{"cat"} \mid \text{"cat"}) = 0.5 \cdot 0 = 0.0$ (Zero-Probability Defect).</p>
+<p>Calculate the probability of sequence <code>"cat cat"</code> under MLE:</p>
+<ul>
+<li>$P_{\text{MLE}}(\text{"cat"} \mid \text{"cat"}) = \frac{C(\text{"cat", "cat"})}{C(\text{"cat"})} = \frac{0}{2} = 0.0$</li>
+<li><strong>Result:</strong> $P_{\text{MLE}}(\text{"cat cat"}) = P(\text{"cat"}) \cdot P(\text{"cat"} \mid \text{"cat"}) = 0.5 \cdot 0 = 0.0$ (Zero-Probability Defect).</li>
+</ul>
 <h4 id="2-laplace-add-one-smoothing">2. Laplace (Add-One) Smoothing</h4>
 <p>Laplace smoothing adds $1$ to all n-gram counts, inflating the denominator by vocabulary size $|V|$:<br />
 $$P_{\text{Laplace}}(w_i \mid w_{i-1}) = \frac{C(w_{i-1}, w_i) + 1}{C(w_{i-1}) + |V|}$$</p>
-<p>Let's compute the smoothed probabilities for the sequence <code>"cat cat"</code>:<br />
-- $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"cat"}) = \frac{C(\text{"cat", "cat"}) + 1}{C(\text{"cat"}) + |V|} = \frac{0 + 1}{2 + 2} = \frac{1}{4} = 0.2500$$<br />
-- $$P_{\text{Laplace}}(\text{"sat"} \mid \text{"cat"}) = \frac{C(\text{"cat", "sat"}) + 1}{C(\text{"cat"}) + |V|} = \frac{1 + 1}{2 + 2} = \frac{2}{4} = 0.5000$$</p>
+<p>Let's compute the smoothed probabilities for the sequence <code>"cat cat"</code>:</p>
+<ul>
+<li>$$P_{\text{Laplace}}(\text{"cat"} \mid \text{"cat"}) = \frac{C(\text{"cat", "cat"}) + 1}{C(\text{"cat"}) + |V|} = \frac{0 + 1}{2 + 2} = \frac{1}{4} = 0.2500$$</li>
+<li>$$P_{\text{Laplace}}(\text{"sat"} \mid \text{"cat"}) = \frac{C(\text{"cat", "sat"}) + 1}{C(\text{"cat"}) + |V|} = \frac{1 + 1}{2 + 2} = \frac{2}{4} = 0.5000$$</li>
+</ul>
 <h5 id="findings-interpretation">Findings &amp; Interpretation:</h5>
 <p>Laplace smoothing successfully prevents the transition probability from collapsing to 0, assigning a non-zero probability ($0.2500$) to the unseen bigram <code>"cat cat"</code>. It achieves this by shifting probability mass away from the observed transition <code>"cat sat"</code> (whose probability dropped from $1.0$ under MLE to $0.5$ under Laplace).</p>
 <h4 id="3-katz-backoff-interpolation-intuition">3. Katz Backoff &amp; Interpolation (Intuition)</h4>
 <ul>
-<li><strong>Katz Backoff:</strong> If the count of a higher-order n-gram is zero, we back off to lower-order models (e.g. bigram to unigram):<br />
-  $$P_{\text{Katz}}(w_i \mid w_{i-1}) = \alpha(w_{i-1}) P(w_i) \quad \text{if } C(w_{i-1}, w_i) = 0$$</li>
-<li><strong>Linear Interpolation:</strong> Combines scores across multiple n-gram orders:<br />
+<li>
+<p><strong>Katz Backoff:</strong> If the count of a higher-order n-gram is zero, we back off to lower-order models (e.g. bigram to unigram):<br />
+  $$P_{\text{Katz}}(w_i \mid w_{i-1}) = \alpha(w_{i-1}) P(w_i) \quad \text{if } C(w_{i-1}, w_i) = 0$$</p>
+</li>
+<li>
+<p><strong>Linear Interpolation:</strong> Combines scores across multiple n-gram orders:<br />
   $$P_{\text{Interp}}(w_i \mid w_{i-2}, w_{i-1}) = \lambda_1 P(w_i \mid w_{i-2}, w_{i-1}) + \lambda_2 P(w_i \mid w_{i-1}) + \lambda_3 P(w_i)$$<br />
-  Where $\sum \lambda_j = 1$.</li>
+  Where $\sum \lambda_j = 1$.</p>
+</li>
 </ul>
 <hr />
 <h2 id="4-perplexity-ppl-derivation-intuition">4. Perplexity (PPL) Derivation &amp; Intuition</h2>
@@ -1026,9 +1205,11 @@ $$H(P, Q) = -\frac{1}{m} \sum_{i=1}^m \log_2 P(w_i \mid w_1, \dots, w_{i-1})$$<b
 Perplexity (PPL) is defined as the exponentiated cross-entropy loss:<br />
 $$\text{PPL}(W) = 2^{H(P, Q)} = e^{-\frac{1}{m} \sum \ln P(w_i \mid \dots)} = \left( \prod_{i=1}^m P(w_i \mid w_1, \dots, w_{i-1}) \right)^{-\frac{1}{m}}$$</p>
 <h3 id="branching-factor-intuition">Branching Factor Intuition</h3>
-<p>Perplexity represents the <strong>average branching factor</strong> (the number of equally likely next words the model must choose from at each step).<br />
-- <strong>PPL = 10:</strong> The model is as confused as if it were choosing among 10 equally likely words (indicating high confidence and strong prediction).<br />
-- <strong>PPL = 100:</strong> The model has 100 equally likely choices (indicating high uncertainty).</p>
+<p>Perplexity represents the <strong>average branching factor</strong> (the number of equally likely next words the model must choose from at each step).</p>
+<ul>
+<li><strong>PPL = 10:</strong> The model is as confused as if it were choosing among 10 equally likely words (indicating high confidence and strong prediction).</li>
+<li><strong>PPL = 100:</strong> The model has 100 equally likely choices (indicating high uncertainty).</li>
+</ul>
 <hr />
 <h3 id="python-code-integration">Python Code Integration</h3>
 <p>The following Python code implements Laplace smoothing and perplexity calculations on our micro-corpus, verifying the hand-calculations:</p>
@@ -1079,27 +1260,43 @@ Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A 
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Estimates the probability distribution over text sequences, allowing models to generate coherent text.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to score token sequences based on natural language frequencies.</li>
-<li><strong>What are its limitations?</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Estimates the probability distribution over text sequences, allowing models to generate coherent text.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to score token sequences based on natural language frequencies.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong></p>
+<ul>
 <li><strong>Memory Bottleneck:</strong> Parameter count scales exponentially as $O(|V|^N)$ as the n-gram context order $N$ increases.</li>
 <li><strong>Zero-Probability Defect:</strong> Fails to generate probabilities for unseen sequences without smoothing.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+</ul>
+</li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Inference Time</strong>: $O(1)$ constant time lookup if using precomputed n-gram tables.</li>
 <li><strong>Storage Memory</strong>: $O(|V|^N)$ space.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$m$: Token count of the evaluation sequence.</li>
 <li>$|V|$: Vocabulary token size.</li>
 <li>$N$: N-gram context size.</li>
 <li>$\lambda_i$: Interpolation coefficients.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text auto-complete query routing systems.</li>
 <li>Basic speech recognition transcript decoding.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does Perplexity decrease as you increase N in an N-gram model?</em> (Higher-order models capture more local context, reducing uncertainty at each step, which lowers cross-entropy loss and perplexity).</li>
 <li><em>How do you choose lambda interpolation parameters?</em> (By optimizing the coefficients using expectation-maximization or grid search on a held-out validation dataset).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1224,40 +1421,58 @@ Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A 
 <p>$$P(w_O \mid w_I) = \frac{\exp(\mathbf{v}_{w_O}^{\prime T} \mathbf{v}_{w_I})}{\sum_{w=1}^{|V|} \exp(\mathbf{v}_{w}^{\prime T} \mathbf{v}_{w_I})}$$</p>
 <p>This scales as $O(|V|)$ per training step, creating a massive computational bottleneck for GPUs during backpropagation.</p>
 <h3 id="the-negative-sampling-solution-binary-game">The Negative Sampling Solution (Binary Game)</h3>
-<p>Instead of picking 1 correct word out of a million candidates (multi-class classification), Skip-Gram with Negative Sampling (SGNS) reframes the objective as a <strong>binary classification game</strong>:<br />
-1. <strong>The Positive Pair:</strong> The model is given a real adjacent pair from the corpus (e.g. <code>("cat", "sat")</code>) and is trained to output a high probability (close to 1).<br />
-2. <strong>The Negative Pairs:</strong> The model is given $K$ random noise pairs (e.g. <code>("cat", "democracy")</code>, <code>("cat", "refrigerator")</code>) and is trained to output a low probability (close to 0).</p>
+<p>Instead of picking 1 correct word out of a million candidates (multi-class classification), Skip-Gram with Negative Sampling (SGNS) reframes the objective as a <strong>binary classification game</strong>:</p>
+<ol>
+<li><strong>The Positive Pair:</strong> The model is given a real adjacent pair from the corpus (e.g. <code>("cat", "sat")</code>) and is trained to output a high probability (close to 1).</li>
+<li><strong>The Negative Pairs:</strong> The model is given $K$ random noise pairs (e.g. <code>("cat", "democracy")</code>, <code>("cat", "refrigerator")</code>) and is trained to output a low probability (close to 0).</li>
+</ol>
 <p>By training on $K$ negative samples instead of $|V|$ candidates, the computational complexity drops from $O(|V|)$ to $O(K)$, where $K$ is typically small ($5\text{--}20$).</p>
 <h4 id="sgns-loss-function">SGNS Loss Function:</h4>
 <p>$$\mathcal{L}_{\text{SGNS}} = -\log \sigma(\mathbf{v}_{w_O}^{\prime T} \mathbf{v}_{w_I}) - \sum_{i=1}^k \log \sigma(-\mathbf{v}_{w_i}^{\prime T} \mathbf{v}_{w_I})$$</p>
-<p>Where:<br />
-- $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the sigmoid activation function.<br />
-- $\mathbf{v}_{w_I}$ is the input representation vector of the target word.<br />
-- $\mathbf{v}_{w_O}^{\prime}$ is the output context vector of the positive word.<br />
-- $\mathbf{v}_{w_i}^{\prime}$ are the output context vectors of the $k$ negative samples.</p>
+<p>Where:</p>
+<ul>
+<li>$\sigma(z) = \frac{1}{1 + e^{-z}}$ is the sigmoid activation function.</li>
+<li>$\mathbf{v}_{w_I}$ is the input representation vector of the target word.</li>
+<li>$\mathbf{v}_{w_O}^{\prime}$ is the output context vector of the positive word.</li>
+<li>$\mathbf{v}_{w_i}^{\prime}$ are the output context vectors of the $k$ negative samples.</li>
+</ul>
 <hr />
 <h3 id="step-by-step-hand-calculation-of-sgns-loss">Step-by-Step Hand-Calculation of SGNS Loss:</h3>
-<p>Let's calculate the SGNS loss for $k=1$ negative sample using a 3-dimensional embedding space:<br />
-- Target input vector ($w_I$ = <code>"cat"</code>): $\mathbf{v}_{\text{cat}} = [0.1, \ 0.8, \ -0.2]^T$<br />
-- Positive context vector ($w_O$ = <code>"sat"</code>): $\mathbf{v}^{\prime}_{\text{sat}} = [0.2, \ 0.9, \ 0.1]^T$<br />
-- Negative context vector ($w_1$ = <code>"refrigerator"</code>): $\mathbf{v}^{\prime}_{\text{refrig}} = [-0.9, \ 0.1, \ 0.8]^T$</p>
+<p>Let's calculate the SGNS loss for $k=1$ negative sample using a 3-dimensional embedding space:</p>
+<ul>
+<li>Target input vector ($w_I$ = <code>"cat"</code>): $\mathbf{v}_{\text{cat}} = [0.1, \ 0.8, \ -0.2]^T$</li>
+<li>Positive context vector ($w_O$ = <code>"sat"</code>): $\mathbf{v}^{\prime}_{\text{sat}} = [0.2, \ 0.9, \ 0.1]^T$</li>
+<li>Negative context vector ($w_1$ = <code>"refrigerator"</code>): $\mathbf{v}^{\prime}_{\text{refrig}} = [-0.9, \ 0.1, \ 0.8]^T$</li>
+</ul>
 <h4 id="1-calculate-score-for-positive-pair">1. Calculate Score for Positive Pair:</h4>
 <ul>
-<li>Dot product:<br />
-  $$\mathbf{v}^{\prime T}_{\text{sat}} \mathbf{v}_{\text{cat}} = (0.2 \times 0.1) + (0.9 \times 0.8) + (0.1 \times -0.2) = 0.02 + 0.72 - 0.02 = 0.7200$$</li>
-<li>Sigmoid activation:<br />
-  $$\sigma(0.7200) = \frac{1}{1 + e^{-0.7200}} \approx 0.6726$$</li>
-<li>Positive loss component:<br />
-  $$-\log \sigma(0.7200) = -\log(0.6726) \approx 0.3966$$</li>
+<li>
+<p>Dot product:<br />
+  $$\mathbf{v}^{\prime T}_{\text{sat}} \mathbf{v}_{\text{cat}} = (0.2 \times 0.1) + (0.9 \times 0.8) + (0.1 \times -0.2) = 0.02 + 0.72 - 0.02 = 0.7200$$</p>
+</li>
+<li>
+<p>Sigmoid activation:<br />
+  $$\sigma(0.7200) = \frac{1}{1 + e^{-0.7200}} \approx 0.6726$$</p>
+</li>
+<li>
+<p>Positive loss component:<br />
+  $$-\log \sigma(0.7200) = -\log(0.6726) \approx 0.3966$$</p>
+</li>
 </ul>
 <h4 id="2-calculate-score-for-negative-pair">2. Calculate Score for Negative Pair:</h4>
 <ul>
-<li>Dot product:<br />
-  $$\mathbf{v}^{\prime T}_{\text{refrig}} \mathbf{v}_{\text{cat}} = (-0.9 \times 0.1) + (0.1 \times 0.8) + (0.8 \times -0.2) = -0.09 + 0.08 - 0.16 = -0.1700$$</li>
-<li>Negated Sigmoid activation:<br />
-  $$\sigma(-(-0.1700)) = \sigma(0.1700) = \frac{1}{1 + e^{-0.1700}} \approx 0.5424$$</li>
-<li>Negative loss component:<br />
-  $$-\log \sigma(0.1700) = -\log(0.5424) \approx 0.6117$$</li>
+<li>
+<p>Dot product:<br />
+  $$\mathbf{v}^{\prime T}_{\text{refrig}} \mathbf{v}_{\text{cat}} = (-0.9 \times 0.1) + (0.1 \times 0.8) + (0.8 \times -0.2) = -0.09 + 0.08 - 0.16 = -0.1700$$</p>
+</li>
+<li>
+<p>Negated Sigmoid activation:<br />
+  $$\sigma(-(-0.1700)) = \sigma(0.1700) = \frac{1}{1 + e^{-0.1700}} \approx 0.5424$$</p>
+</li>
+<li>
+<p>Negative loss component:<br />
+  $$-\log \sigma(0.1700) = -\log(0.5424) \approx 0.6117$$</p>
+</li>
 </ul>
 <h4 id="3-total-loss">3. Total Loss:</h4>
 <p>$$\mathcal{L}_{\text{SGNS}} = 0.3966 + 0.6117 = 1.0083$$</p>
@@ -1267,11 +1482,15 @@ Storing raw n-gram count tables in memory scales exponentially as $O(|V|^N)$. A 
 <h3 id="why-the-mathplaceholder51endmath-exponent-noise-distribution">Why the $3/4$ Exponent Noise Distribution?</h3>
 <p>The negative samples are drawn from a unigram probability distribution scaled by a $3/4$ exponent:</p>
 <p>$$P_n(w) = \frac{U(w)^{3/4}}{\sum_{j=1}^{|V|} U(j)^{3/4}}$$</p>
-<p>Where $U(w)$ is the raw unigram frequency of word $w$.<br />
-- <em>Intuition:</em> The $3/4$ exponent suppresses the probability of high-frequency stopwords (like <code>"the"</code> or <code>"of"</code>) and boosts the relative selection probability of rare words. For example, if word A has a unigram probability of $0.9$ and word B has $0.01$:<br />
-  - Ratio under unigram distribution: $\frac{0.9}{0.01} = 90$<br />
-  - Ratio under $3/4$ distribution: $\frac{0.9^{3/4}}{0.01^{3/4}} \approx \frac{0.924}{0.0316} \approx 29.2$<br />
-  This makes negative sampling significantly more active on rare words during training.</p>
+<p>Where $U(w)$ is the raw unigram frequency of word $w$.</p>
+<ul>
+<li><em>Intuition:</em> The $3/4$ exponent suppresses the probability of high-frequency stopwords (like <code>"the"</code> or <code>"of"</code>) and boosts the relative selection probability of rare words. For example, if word A has a unigram probability of $0.9$ and word B has $0.01$:<ul>
+<li>Ratio under unigram distribution: $\frac{0.9}{0.01} = 90$</li>
+<li>Ratio under $3/4$ distribution: $\frac{0.9^{3/4}}{0.01^{3/4}} \approx \frac{0.924}{0.0316} \approx 29.2$<br />
+  This makes negative sampling significantly more active on rare words during training.</li>
+</ul>
+</li>
+</ul>
 <hr />
 <h3 id="pytorch-code-integration">PyTorch Code Integration</h3>
 <p>The following PyTorch snippet validates embedding lookup equivalence and shows Skip-Gram forward pass projections:</p>
@@ -1318,26 +1537,42 @@ When using pre-trained embeddings (e.g. GloVe, FastText) for downstream tasks (l
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Compresses discrete words into continuous low-dimensional vectors, capturing semantic associations (cosine proximity).</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to solve the vocabulary dimensionality blowup and term orthogonality limits of one-hot sparse models.</li>
-<li><strong>What are its limitations?</strong><br />
-  Word2Vec assigns a single vector to each word, failing to handle homophones or polysemy (e.g. <code>"bank"</code> in financial river bank vs. river bank).</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Compresses discrete words into continuous low-dimensional vectors, capturing semantic associations (cosine proximity).</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to solve the vocabulary dimensionality blowup and term orthogonality limits of one-hot sparse models.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong><br />
+  Word2Vec assigns a single vector to each word, failing to handle homophones or polysemy (e.g. <code>"bank"</code> in financial river bank vs. river bank).</p>
+</li>
+<li>
+<p><strong>Computational Complexity (Time &amp; Memory)</strong></p>
+<ul>
 <li><strong>Flat Softmax Time</strong>: $O(|V|)$ per target prediction.</li>
 <li><strong>Negative Sampling Time</strong>: $O(K \cdot d)$ where $K$ is sample count and $d$ is embedding dimension.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$|V|$: Vocabulary dimension.</li>
 <li>$d$: Embedding space size.</li>
 <li>$C$: Context window radius.</li>
 <li>$k$: Negative sampling noise count.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Building semantic search retrieval matching systems.</li>
 <li>Initializing token representations in classification networks.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why do we need separate input (W) and output (W') matrices in Word2Vec?</em> (Using a single shared matrix causes words to match with themselves too strongly, inflating similarity coordinates and degrading semantic clustering).</li>
 <li><em>What is the advantage of FastText over Word2Vec?</em> (FastText splits words into character n-grams, allowing it to generate embeddings for unseen or out-of-vocabulary words by summing subword vector components).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1413,9 +1648,11 @@ When using pre-trained embeddings (e.g. GloVe, FastText) for downstream tasks (l
 </ul>
 <hr />
 <h2 id="3-lstm-gating-mechanics-the-constant-error-carousel-cec">3. LSTM Gating Mechanics &amp; The Constant Error Carousel (CEC)</h2>
-<p>Long Short-Term Memory (LSTM) networks resolve the vanishing gradient problem by splitting the hidden representation into two vectors:<br />
-1. <strong>Cell State ($C_t$):</strong> A linear conveyor belt that stores long-term memory, modified only by additive updates.<br />
-2. <strong>Hidden State ($h_t$):</strong> A short-term context vector derived from the cell state, used to predict outputs and gate inputs.</p>
+<p>Long Short-Term Memory (LSTM) networks resolve the vanishing gradient problem by splitting the hidden representation into two vectors:</p>
+<ol>
+<li><strong>Cell State ($C_t$):</strong> A linear conveyor belt that stores long-term memory, modified only by additive updates.</li>
+<li><strong>Hidden State ($h_t$):</strong> A short-term context vector derived from the cell state, used to predict outputs and gate inputs.</li>
+</ol>
 <h3 id="lstm-cell-architecture-diagram">LSTM Cell Architecture Diagram</h3>
 <div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; gap: 15px;">
   <div style="font-weight: bold; font-size: 14px; color: #7c3aed; text-transform: uppercase;">LSTM Cell Internal Routing</div>
@@ -1468,9 +1705,11 @@ When using pre-trained embeddings (e.g. GloVe, FastText) for downstream tasks (l
 <h4 id="algorithmic-breakdown-intuition_1">Algorithmic Breakdown &amp; Intuition:</h4>
 <ul>
 <li><strong>Forget Gate ($f_t$):</strong> The forget gate output is a vector of values between 0 and 1. It acts as a <strong>reset button</strong>. It determines what portion of the previous cell memory $C_{t-1}$ to retain. If $f_t = 0$, the corresponding memory is wiped clean (useful when transitioning to a new topic or sentence). If $f_t = 1$, the history is perfectly preserved.</li>
-<li><strong>Input Gate ($i_t$) and Candidate State ($\tilde{C}_t$):</strong></li>
+<li><strong>Input Gate ($i_t$) and Candidate State ($\tilde{C}_t$):</strong><ul>
 <li>The Candidate State $\tilde{C}_t$ creates a new vector of information extracted from the current input $x_t$ and the previous hidden state $h_{t-1}$ using a $\tanh$ activation.</li>
 <li>The Input Gate $i_t$ acts as a <strong>write-volume knob</strong> (from 0 to 1) deciding <em>which dimensions of the candidate vector</em> are written into the long-term cell state.</li>
+</ul>
+</li>
 <li><strong>Cell State Update ($\mathbf{C}_t$):</strong> This combines the filtered past memory ($f_t \odot \mathbf{C}_{t-1}$) and the gated new memory ($i_t \odot \tilde{\mathbf{C}}_t$). Because this combining operation is <strong>additive ($+$)</strong> rather than multiplicative, the gradient flows back through time without exponential decay.</li>
 <li><strong>Output Gate ($o_t$) &amp; Hidden State ($\mathbf{h}_t$):</strong> The output gate decides <em>what parts of the updated cell state to reveal</em> as the hidden state $h_t$. The cell state $C_t$ is squeezed via a $\tanh$ (to keep its values bounded) and multiplied element-wise by the output gate $o_t$. The hidden state $h_t$ is then passed as the output for the current time step and recycled to the next step.</li>
 </ul>
@@ -1482,9 +1721,11 @@ When using pre-trained embeddings (e.g. GloVe, FastText) for downstream tasks (l
 <p>This linear shortcut allows the gradient to flow backward through time indefinitely, creating the <strong>Constant Error Carousel</strong> that resolves the vanishing gradient problem.</p>
 <hr />
 <h2 id="4-gated-recurrent-unit-gru-variations">4. Gated Recurrent Unit (GRU) Variations</h2>
-<p>The Gated Recurrent Unit (GRU; Cho et al., 2014) is a simplified variant of the LSTM. It consolidates states and gates to reduce the parameter footprint:<br />
-- <strong>Single Hidden State ($h_t$):</strong> GRU merges the cell state and hidden state into a single representation $\mathbf{h}_t \in \mathbb{R}^{d_h}$.<br />
-- <strong>Consolidated Gates:</strong> It combines the forget and input gates into a single <strong>update gate</strong> $z_t$, and uses a <strong>reset gate</strong> $r_t$ to control past context flow.</p>
+<p>The Gated Recurrent Unit (GRU; Cho et al., 2014) is a simplified variant of the LSTM. It consolidates states and gates to reduce the parameter footprint:</p>
+<ul>
+<li><strong>Single Hidden State ($h_t$):</strong> GRU merges the cell state and hidden state into a single representation $\mathbf{h}_t \in \mathbb{R}^{d_h}$.</li>
+<li><strong>Consolidated Gates:</strong> It combines the forget and input gates into a single <strong>update gate</strong> $z_t$, and uses a <strong>reset gate</strong> $r_t$ to control past context flow.</li>
+</ul>
 <h3 id="gru-state-update-equations">GRU State Update Equations</h3>
 <p>At each step $t$, the GRU computes:</p>
 <p>$$z_t = \sigma(W_z [\mathbf{h}_{t-1}, \mathbf{x}_t] + b_z) \quad \text{(Update Gate)}$$</p>
@@ -1502,11 +1743,17 @@ When using pre-trained embeddings (e.g. GloVe, FastText) for downstream tasks (l
 <p>By utilizing only $3$ sets of gate projections instead of the LSTM's $4$, the GRU has <strong>$33\%$ fewer parameters</strong> than standard LSTM cells. This makes GRUs computationally faster to train and less memory-intensive on GPUs, while providing comparable performance on small-to-medium sequence lengths.</p>
 <hr />
 <h2 id="5-bidirectional-rnns-and-lstms">5. Bidirectional RNNs and LSTMs</h2>
-<p>Standard recurrent models only process text from left to right, meaning the hidden state $\mathbf{h}_t$ cannot incorporate future context. Bidirectional models run two independent recurrent streams:<br />
-1. <strong>Forward Stream:</strong> Processes the sequence from left to right, computing $\vec{\mathbf{h}}_t$:<br />
-   $$\vec{\mathbf{h}}_t = \text{LSTM}_{\text{forward}}(\mathbf{x}_t, \vec{\mathbf{h}}_{t-1})$$<br />
-2. <strong>Backward Stream:</strong> Processes the sequence from right to left (end of sentence to start), computing $\overleftarrow{\mathbf{h}}_t$:<br />
+<p>Standard recurrent models only process text from left to right, meaning the hidden state $\mathbf{h}_t$ cannot incorporate future context. Bidirectional models run two independent recurrent streams:</p>
+<ol>
+<li>
+<p><strong>Forward Stream:</strong> Processes the sequence from left to right, computing $\vec{\mathbf{h}}_t$:<br />
+   $$\vec{\mathbf{h}}_t = \text{LSTM}_{\text{forward}}(\mathbf{x}_t, \vec{\mathbf{h}}_{t-1})$$</p>
+</li>
+<li>
+<p><strong>Backward Stream:</strong> Processes the sequence from right to left (end of sentence to start), computing $\overleftarrow{\mathbf{h}}_t$:<br />
    $$\overleftarrow{\mathbf{h}}_t = \text{LSTM}_{\text{backward}}(\mathbf{x}_t, \overleftarrow{\mathbf{h}}_{t+1})$$</p>
+</li>
+</ol>
 <p>The outputs of both streams are concatenated at each time step $t$ to form the final contextual hidden state:<br />
 $$\mathbf{h}_t = [\vec{\mathbf{h}}_t \ ; \ \overleftarrow{\mathbf{h}}_t]$$</p>
 <h4 id="production-limits-interview-insight">Production Limits (Interview Insight)</h4>
@@ -1516,9 +1763,11 @@ $$\mathbf{h}_t = [\vec{\mathbf{h}}_t \ ; \ \overleftarrow{\mathbf{h}}_t]$$</p>
 </ul>
 <hr />
 <h2 id="6-sequence-to-sequence-seq2seq-and-decoding-strategies">6. Sequence-to-Sequence (Seq2Seq) and Decoding Strategies</h2>
-<p>Sequence-to-Sequence (Seq2Seq) models (Sutskever et al., 2014) convert an input sequence of arbitrary length into an output sequence of arbitrary length (e.g. English to French translation). The system is split into two components:<br />
-1. <strong>The Encoder:</strong> Processes the input tokens and compresses the entire sequence into a single <strong>context vector</strong> $\mathbf{v}$ (often the final hidden state of the encoder).<br />
-2. <strong>The Decoder:</strong> Unpacks the context vector $\mathbf{v}$ auto-regressively, generating one target token at a time.</p>
+<p>Sequence-to-Sequence (Seq2Seq) models (Sutskever et al., 2014) convert an input sequence of arbitrary length into an output sequence of arbitrary length (e.g. English to French translation). The system is split into two components:</p>
+<ol>
+<li><strong>The Encoder:</strong> Processes the input tokens and compresses the entire sequence into a single <strong>context vector</strong> $\mathbf{v}$ (often the final hidden state of the encoder).</li>
+<li><strong>The Decoder:</strong> Unpacks the context vector $\mathbf{v}$ auto-regressively, generating one target token at a time.</li>
+</ol>
 <div style="margin: 20px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; gap: 10px;">
   <div style="font-weight: bold; font-size: 14px; color: #1e3a8a; text-transform: uppercase;">Seq2Seq Encoder-Decoder Context Vector Bottleneck</div>
 
@@ -1599,37 +1848,53 @@ $$\mathbf{h}_t = [\vec{\mathbf{h}}_t \ ; \ \overleftarrow{\mathbf{h}}_t]$$</p>
 <hr />
 <h3 id="decoder-training-vs-inference-teacher-forcing">Decoder Training vs. Inference: Teacher Forcing</h3>
 <ul>
-<li><strong>Decoder Generation Loop:</strong> At step $t$, the decoder predicts the next token $y_t$ based on the context vector $\mathbf{v}$ and the sequence of previously generated tokens:<br />
-  $$P(y_t \mid y_{&lt;t}, \mathbf{v})$$</li>
-<li><strong>Teacher Forcing (Training):</strong> During training, instead of feeding the decoder's own predicted token $\hat{y}_{t-1}$ as input to the next step, we feed the <strong>ground-truth target token</strong> $y^*_{t-1}$ directly.</li>
+<li>
+<p><strong>Decoder Generation Loop:</strong> At step $t$, the decoder predicts the next token $y_t$ based on the context vector $\mathbf{v}$ and the sequence of previously generated tokens:<br />
+  $$P(y_t \mid y_{&lt;t}, \mathbf{v})$$</p>
+</li>
+<li>
+<p><strong>Teacher Forcing (Training):</strong> During training, instead of feeding the decoder's own predicted token $\hat{y}_{t-1}$ as input to the next step, we feed the <strong>ground-truth target token</strong> $y^*_{t-1}$ directly.</p>
+<ul>
 <li><em>Why it's used:</em> Accelerates training convergence. Without teacher forcing, an early error by the model would cascade, making all subsequent predictions in the sequence wrong, and preventing the model from learning from correct examples.</li>
 <li><em>Exposure Bias (Production Caveat):</em> Creates a mismatch between training and inference. At inference time, the model has no ground truth and must feed its own predictions back into itself. If it makes an early mistake, the error propagates, leading to repetitive or nonsensical generation loops.</li>
+</ul>
+</li>
 </ul>
 <hr />
 <h3 id="decoding-strategies-at-inference">Decoding Strategies at Inference</h3>
 <p>Once the model predicts probability distributions over the vocabulary at step $t$, we must select the token sequence.</p>
 <h4 id="1-greedy-search">1. Greedy Search</h4>
 <p>Selects the single token with the highest probability at each step:<br />
-$$y_t = \arg\max P(y \mid y_{&lt;t}, \mathbf{v})$$<br />
-- <em>Trade-off:</em> Computes fast ($O(1)$ search width), but is sub-optimal. If the model makes a mistake at step 1, it cannot backtrack, locking it into a poor generation path.</p>
+$$y_t = \arg\max P(y \mid y_{&lt;t}, \mathbf{v})$$</p>
+<ul>
+<li><em>Trade-off:</em> Computes fast ($O(1)$ search width), but is sub-optimal. If the model makes a mistake at step 1, it cannot backtrack, locking it into a poor generation path.</li>
+</ul>
 <h4 id="2-beam-search">2. Beam Search</h4>
 <p>Maintains the $B$ most likely hypothesis sequences (beams) at each step to explore a larger search space without exponential scaling.</p>
 <h5 id="step-by-step-example-with-beam-width-mathplaceholder107endmath">Step-by-Step Example with Beam Width $B=2$:</h5>
-<p>Let our vocabulary be <code>{"the", "cat", "sat"}</code>.<br />
-- <strong>Step 1:</strong> Decode the first token. The model produces probabilities:<br />
-  - <code>"the"</code> ($0.6$), <code>"cat"</code> ($0.3$), <code>"sat"</code> ($0.1$)<br />
-  - Keep top $B=2$ beams: <code>[("the", log(0.6))]</code> and <code>[("cat", log(0.3))]</code>.<br />
-- <strong>Step 2:</strong> Expand both beams to find all possible next tokens:<br />
-  - Beam 1 (<code>"the"</code>):<br />
-    - <code>"the the"</code>: $\text{score} = \log(0.6) + \log(0.1) = -0.51 + (-2.30) = -2.81$<br />
-    - <code>"the cat"</code>: $\text{score} = \log(0.6) + \log(0.7) = -0.51 + (-0.36) = -0.87$<br />
-    - <code>"the sat"</code>: $\text{score} = \log(0.6) + \log(0.2) = -0.51 + (-1.61) = -2.12$<br />
-  - Beam 2 (<code>"cat"</code>):<br />
-    - <code>"cat the"</code>: $\text{score} = \log(0.3) + \log(0.2) = -1.20 + (-1.61) = -2.81$<br />
-    - <code>"cat cat"</code>: $\text{score} = \log(0.3) + \log(0.1) = -1.20 + (-2.30) = -3.50$<br />
-    - <code>"cat sat"</code>: $\text{score} = \log(0.3) + \log(0.7) = -1.20 + (-0.36) = -1.56$<br />
-- <strong>Pruning Step:</strong> Sort all 6 candidates and retain only the top $B=2$:<br />
-  - Beams kept: <code>["the cat" (-0.87)]</code> and <code>["cat sat" (-1.56)]</code>.</p>
+<p>Let our vocabulary be <code>{"the", "cat", "sat"}</code>.</p>
+<ul>
+<li><strong>Step 1:</strong> Decode the first token. The model produces probabilities:<ul>
+<li><code>"the"</code> ($0.6$), <code>"cat"</code> ($0.3$), <code>"sat"</code> ($0.1$)</li>
+<li>Keep top $B=2$ beams: <code>[("the", log(0.6))]</code> and <code>[("cat", log(0.3))]</code>.</li>
+</ul>
+</li>
+<li><strong>Step 2:</strong> Expand both beams to find all possible next tokens:<ul>
+<li>Beam 1 (<code>"the"</code>):</li>
+<li><code>"the the"</code>: $\text{score} = \log(0.6) + \log(0.1) = -0.51 + (-2.30) = -2.81$</li>
+<li><code>"the cat"</code>: $\text{score} = \log(0.6) + \log(0.7) = -0.51 + (-0.36) = -0.87$</li>
+<li><code>"the sat"</code>: $\text{score} = \log(0.6) + \log(0.2) = -0.51 + (-1.61) = -2.12$</li>
+<li>Beam 2 (<code>"cat"</code>):</li>
+<li><code>"cat the"</code>: $\text{score} = \log(0.3) + \log(0.2) = -1.20 + (-1.61) = -2.81$</li>
+<li><code>"cat cat"</code>: $\text{score} = \log(0.3) + \log(0.1) = -1.20 + (-2.30) = -3.50$</li>
+<li><code>"cat sat"</code>: $\text{score} = \log(0.3) + \log(0.7) = -1.20 + (-0.36) = -1.56$</li>
+</ul>
+</li>
+<li><strong>Pruning Step:</strong> Sort all 6 candidates and retain only the top $B=2$:<ul>
+<li>Beams kept: <code>["the cat" (-0.87)]</code> and <code>["cat sat" (-1.56)]</code>.</li>
+</ul>
+</li>
+</ul>
 <p>This ensures the model keeps highly correlated sequences, preventing early decoding mistakes.</p>
 <hr />
 <div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Gradient Norm Clipping</strong><br />
@@ -1642,26 +1907,42 @@ To prevent exploding gradients in recurrent models, implement gradient clipping:
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Processes variable-length sequence data while retaining historical information across time steps.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced because standard feedforward networks require fixed-sized inputs, making them unable to process sequences of arbitrary length.</li>
-<li><strong>What are its limitations?</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Processes variable-length sequence data while retaining historical information across time steps.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced because standard feedforward networks require fixed-sized inputs, making them unable to process sequences of arbitrary length.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong></p>
+<ul>
 <li><strong>Sequential Bottleneck</strong>: Processing token $t$ requires computing states up to step $t-1$, preventing parallel execution.</li>
 <li><strong>Memory Footprint</strong>: BPTT requires storing intermediate hidden states for all steps, leading to high VRAM footprint.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+</ul>
+</li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Sequence processing Time</strong>: $O(L \cdot d^2)$ where $L$ is sequence length and $d$ is hidden dimension size.</li>
 <li><strong>Backpropagation Memory</strong>: $O(L \cdot d)$ per layer.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Sequence token length.</li>
 <li>$d$: Recurrent hidden state dimension.</li>
 <li>$B$: Beam search branch width parameter.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text translation pipelines.</li>
 <li>Named Entity Recognition sequence tagging.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why do we use log probabilities instead of raw probabilities in Beam Search?</em> (Multiplying small probabilities leads to numerical underflow; summing log probabilities keeps calculations numerically stable).</li>
 <li><em>How does Gradient Clipping prevent exploding gradients in RNNs?</em> (If the norm of the gradient exceeds a threshold $g_{\max}$, it is scaled down: $\mathbf{g} \leftarrow \mathbf{g} \cdot \frac{g_{\max}}{\|\mathbf{g}\|}$, preventing weight updates from causing network instability).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1676,9 +1957,11 @@ To prevent exploding gradients in recurrent models, implement gradient clipping:
 <h2 id="1-the-seq2seq-encoder-bottleneck-context-decay">1. The Seq2Seq Encoder Bottleneck &amp; Context Decay</h2>
 <p>In classical sequence-to-sequence (Seq2Seq) models, the encoder compresses the entire source sentence into a single, fixed-size context vector:</p>
 <p>$$\mathbf{c} = \mathbf{h}_L$$</p>
-<p>This introduces the <strong>encoder bottleneck</strong>: the context vector must store all information from the source sentence, regardless of sequence length.<br />
-- <strong>Context Decay:</strong> As sequence length $L$ increases, information from the early tokens (e.g. at the beginning of a long paragraph) must travel through a long chain of recurrent transitions. Since the hidden state has a fixed dimensionality, new information at step $t$ overwrites the historical context.<br />
-- <strong>Gradient Decay:</strong> The gradient backpropagating from the decoder must flow back through the entire recurrent chain to update early encoder weights, leading to vanishing updates. This causes the model to "forget" details from the beginning of the input, severely degrading translation quality on sentences longer than 30 tokens.</p>
+<p>This introduces the <strong>encoder bottleneck</strong>: the context vector must store all information from the source sentence, regardless of sequence length.</p>
+<ul>
+<li><strong>Context Decay:</strong> As sequence length $L$ increases, information from the early tokens (e.g. at the beginning of a long paragraph) must travel through a long chain of recurrent transitions. Since the hidden state has a fixed dimensionality, new information at step $t$ overwrites the historical context.</li>
+<li><strong>Gradient Decay:</strong> The gradient backpropagating from the decoder must flow back through the entire recurrent chain to update early encoder weights, leading to vanishing updates. This causes the model to "forget" details from the beginning of the input, severely degrading translation quality on sentences longer than 30 tokens.</li>
+</ul>
 <hr />
 <h2 id="2-attention-intuition-weights-bahdanau-vs-luong">2. Attention Intuition &amp; Weights: Bahdanau vs. Luong</h2>
 <p>Attention solves this bottleneck by letting the decoder view all intermediate encoder hidden states $\mathbf{h}_i$ at each decoding step. The decoder dynamically weighs the significance of each encoder hidden state:</p>
@@ -1689,10 +1972,12 @@ To prevent exploding gradients in recurrent models, implement gradient clipping:
 <h3 id="1-bahdanau-additive-attention">1. Bahdanau (Additive) Attention</h3>
 <p>Bahdanau attention calculates scores using a single-layer feedforward network with a non-linear activation. It evaluates the alignment between the <strong>previous</strong> decoder state $\mathbf{s}_{t-1}$ and the encoder states:</p>
 <p>$$\text{score}(\mathbf{s}_{t-1}, \mathbf{h}_i) = \mathbf{v}_a^T \tanh(\mathbf{W}_a \mathbf{s}_{t-1} + \mathbf{U}_a \mathbf{h}_i)$$</p>
-<p>Where:<br />
-- $\mathbf{W}_a \in \mathbb{R}^{d_a \times d_h}$ and $\mathbf{U}_a \in \mathbb{R}^{d_a \times d_h}$ are projection weight matrices.<br />
-- $\mathbf{v}_a \in \mathbb{R}^{d_a}$ is the output score projection vector.<br />
-- $d_a$ is the attention hidden size.</p>
+<p>Where:</p>
+<ul>
+<li>$\mathbf{W}_a \in \mathbb{R}^{d_a \times d_h}$ and $\mathbf{U}_a \in \mathbb{R}^{d_a \times d_h}$ are projection weight matrices.</li>
+<li>$\mathbf{v}_a \in \mathbb{R}^{d_a}$ is the output score projection vector.</li>
+<li>$d_a$ is the attention hidden size.</li>
+</ul>
 <h3 id="2-luong-multiplicative-attention">2. Luong (Multiplicative) Attention</h3>
 <p>Luong attention simplifies score calculation by using a multiplicative bilinear projection. It evaluates the alignment using the <strong>current</strong> decoder state $\mathbf{s}_t$:</p>
 <p>$$\text{score}(\mathbf{s}_t, \mathbf{h}_i) = \mathbf{s}_t^T \mathbf{W}_a \mathbf{h}_i$$</p>
@@ -1712,39 +1997,59 @@ To prevent exploding gradients in recurrent models, implement gradient clipping:
 <li><strong>Value ($V$)</strong>: The actual content vectors of the tokens (representing the information that is retrieved).</li>
 </ul>
 <h3 id="the-e-commerce-search-analogy">The E-commerce Search Analogy</h3>
-<p>When you search for <code>"running shoes"</code> on Amazon:<br />
-- Your search text is the <strong>Query</strong>.<br />
-- The database matches this query against product tags and titles (<strong>Keys</strong>).<br />
-- The search engine returns the actual product descriptions and images (<strong>Values</strong>) associated with the highest-scoring matches.</p>
+<p>When you search for <code>"running shoes"</code> on Amazon:</p>
+<ul>
+<li>Your search text is the <strong>Query</strong>.</li>
+<li>The database matches this query against product tags and titles (<strong>Keys</strong>).</li>
+<li>The search engine returns the actual product descriptions and images (<strong>Values</strong>) associated with the highest-scoring matches.</li>
+</ul>
 <hr />
 <h2 id="4-step-by-step-hand-calculation-of-scaled-dot-product-attention">4. Step-by-Step Hand-Calculation of Scaled Dot-Product Attention:</h2>
-<p>Let's calculate the scaled dot-product attention for a single query vector $\mathbf{q}$ and a key-value database containing two entries ($L=2$) in a 2-dimensional space ($d_k=2$):<br />
-- Query vector: $\mathbf{q} = [1.0, \ 2.0]^T$<br />
-- Key vectors: $\mathbf{k}_1 = [1.0, \ 0.0]^T, \quad \mathbf{k}_2 = [0.0, \ 2.0]^T$<br />
-- Value vectors: $\mathbf{v}_1 = [10.0, \ 20.0]^T, \quad \mathbf{v}_2 = [30.0, \ 40.0]^T$</p>
+<p>Let's calculate the scaled dot-product attention for a single query vector $\mathbf{q}$ and a key-value database containing two entries ($L=2$) in a 2-dimensional space ($d_k=2$):</p>
+<ul>
+<li>Query vector: $\mathbf{q} = [1.0, \ 2.0]^T$</li>
+<li>Key vectors: $\mathbf{k}_1 = [1.0, \ 0.0]^T, \quad \mathbf{k}_2 = [0.0, \ 2.0]^T$</li>
+<li>Value vectors: $\mathbf{v}_1 = [10.0, \ 20.0]^T, \quad \mathbf{v}_2 = [30.0, \ 40.0]^T$</li>
+</ul>
 <h4 id="1-calculate-dot-products">1. Calculate Dot Products:</h4>
 <ul>
-<li>Score 1 (Query and Key 1):<br />
-  $$\mathbf{q} \cdot \mathbf{k}_1 = (1.0 \times 1.0) + (2.0 \times 0.0) = 1.0000$$</li>
-<li>Score 2 (Query and Key 2):<br />
-  $$\mathbf{q} \cdot \mathbf{k}_2 = (1.0 \times 0.0) + (2.0 \times 2.0) = 4.0000$$</li>
+<li>
+<p>Score 1 (Query and Key 1):<br />
+  $$\mathbf{q} \cdot \mathbf{k}_1 = (1.0 \times 1.0) + (2.0 \times 0.0) = 1.0000$$</p>
+</li>
+<li>
+<p>Score 2 (Query and Key 2):<br />
+  $$\mathbf{q} \cdot \mathbf{k}_2 = (1.0 \times 0.0) + (2.0 \times 2.0) = 4.0000$$</p>
+</li>
 </ul>
 <h4 id="2-scale-by-mathplaceholder44endmath">2. Scale by $\sqrt{d_k}$:</h4>
-<p>Since $d_k=2$, our scaling factor is $\sqrt{2} \approx 1.4142$:<br />
-- Scaled score 1:<br />
-  $$\text{score}_1 = \frac{1.0000}{1.4142} \approx 0.7071$$<br />
-- Scaled score 2:<br />
+<p>Since $d_k=2$, our scaling factor is $\sqrt{2} \approx 1.4142$:</p>
+<ul>
+<li>
+<p>Scaled score 1:<br />
+  $$\text{score}_1 = \frac{1.0000}{1.4142} \approx 0.7071$$</p>
+</li>
+<li>
+<p>Scaled score 2:<br />
   $$\text{score}_2 = \frac{4.0000}{1.4142} \approx 2.8284$$</p>
+</li>
+</ul>
 <h4 id="3-softmax-activation">3. Softmax Activation:</h4>
 <ul>
-<li>Exponentiate scaled scores:<br />
+<li>
+<p>Exponentiate scaled scores:<br />
   $$e^{0.7071} \approx 2.0281$$<br />
-  $$e^{2.8284} \approx 16.9188$$</li>
-<li>Sum of exponents:<br />
-  $$\text{Sum} = 2.0281 + 16.9188 = 18.9469$$</li>
-<li>Compute Softmax attention weights:<br />
+  $$e^{2.8284} \approx 16.9188$$</p>
+</li>
+<li>
+<p>Sum of exponents:<br />
+  $$\text{Sum} = 2.0281 + 16.9188 = 18.9469$$</p>
+</li>
+<li>
+<p>Compute Softmax attention weights:<br />
   $$\alpha_1 = \frac{2.0281}{18.9469} \approx 0.1070$$<br />
-  $$\alpha_2 = \frac{16.9188}{18.9469} \approx 0.8930$$</li>
+  $$\alpha_2 = \frac{16.9188}{18.9469} \approx 0.8930$$</p>
+</li>
 </ul>
 <h4 id="4-weighted-sum-of-values-context-vector-mathplaceholder47endmath">4. Weighted Sum of Values (Context Vector $\mathbf{c}$):</h4>
 <p>$$\mathbf{c} = \alpha_1 \mathbf{v}_1 + \alpha_2 \mathbf{v}_2$$<br />
@@ -1755,18 +2060,26 @@ $$\mathbf{c} = 0.1070 \begin{bmatrix} 10.0 \\ 20.0 \end{bmatrix} + 0.8930 \begin
 <h2 id="5-why-attention-scales-the-mathplaceholder57endmath-factor">5. Why Attention Scales: The $1/\sqrt{d_k}$ Factor</h2>
 <p>Scaled dot-product attention scales query-key dot products by $\frac{1}{\sqrt{d_k}}$, where $d_k$ is the key dimension size.</p>
 <ul>
-<li><strong>Why is this necessary?</strong><br />
-  As the key dimension $d_k$ grows large, the dot product values grow in magnitude. This leads to large absolute inputs to the Softmax function.</li>
-<li><strong>Softmax Saturation</strong>:<br />
-  When Softmax receives very large inputs, its output distribution concentrates (assigning a probability near $1$ to the largest item and near $0$ to the rest). In these flat regions, the gradient of the Softmax function is extremely small, causing <strong>vanishing gradients</strong> during training.</li>
-<li><strong>The Fix</strong>:<br />
-  Dividing the dot product by the standard deviation $\sqrt{d_k}$ scales the input variance to $1$. This keeps the inputs in a range where Softmax remains sensitive to weight updates.</li>
+<li>
+<p><strong>Why is this necessary?</strong><br />
+  As the key dimension $d_k$ grows large, the dot product values grow in magnitude. This leads to large absolute inputs to the Softmax function.</p>
+</li>
+<li>
+<p><strong>Softmax Saturation</strong>:<br />
+  When Softmax receives very large inputs, its output distribution concentrates (assigning a probability near $1$ to the largest item and near $0$ to the rest). In these flat regions, the gradient of the Softmax function is extremely small, causing <strong>vanishing gradients</strong> during training.</p>
+</li>
+<li>
+<p><strong>The Fix</strong>:<br />
+  Dividing the dot product by the standard deviation $\sqrt{d_k}$ scales the input variance to $1$. This keeps the inputs in a range where Softmax remains sensitive to weight updates.</p>
+</li>
 </ul>
 <hr />
 <h2 id="6-transition-to-llms-why-transformers-replaced-rnns">6. Transition to LLMs: Why Transformers Replaced RNNs</h2>
-<p>The shift from recurrent models to Transformers was driven by two key limitations of RNNs:<br />
-1. <strong>No Parallel Training</strong>: RNN hidden state updates require sequential processing ($t-1 \rightarrow t$). Transformers process all tokens in parallel by replacing recurrent steps with self-attention matrix operations.<br />
-2. <strong>No Long-Range Path Decay</strong>: In RNNs, information must travel through sequential steps, causing path decay. In self-attention, the path length between any two tokens is $O(1)$, resolving the vanishing gradient problem over long sequences.</p>
+<p>The shift from recurrent models to Transformers was driven by two key limitations of RNNs:</p>
+<ol>
+<li><strong>No Parallel Training</strong>: RNN hidden state updates require sequential processing ($t-1 \rightarrow t$). Transformers process all tokens in parallel by replacing recurrent steps with self-attention matrix operations.</li>
+<li><strong>No Long-Range Path Decay</strong>: In RNNs, information must travel through sequential steps, causing path decay. In self-attention, the path length between any two tokens is $O(1)$, resolving the vanishing gradient problem over long sequences.</li>
+</ol>
 <hr />
 <div style="border-left: 4px solid #059669; background-color: #ecfdf5; color: #065f46; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>💡 TIP:</strong><div style="margin-top: 4px;"><p><strong>Production Insight: Quadratic Scaling Limits</strong><br />
 Self-attention requires computing alignment scores for all query-key pairs, scaling as $O(L^2)$ quadratic space and time complexity. For a sequence length $L = 2048$, this requires storing $4,194,304$ attention entries per head. Processing very long contexts (e.g. $100,000$ tokens) crashes GPU memory, requiring specialized sparse attention (e.g., FlashAttention) to run in production.</p></div></div>
@@ -1809,25 +2122,41 @@ Self-attention requires computing alignment scores for all query-key pairs, scal
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Allows models to process long-range token relationships without information bottlenecks.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to solve the encoder bottleneck in Seq2Seq models.</li>
-<li><strong>What are its limitations?</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Allows models to process long-range token relationships without information bottlenecks.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to solve the encoder bottleneck in Seq2Seq models.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong></p>
+<ul>
 <li><strong>Quadratic Compute Cost</strong>: Self-attention requires computing all query-key pairs, scaling as $O(L^2)$ time and memory.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+</ul>
+</li>
+<li><strong>Computational Complexity (Time &amp; Memory)</strong><ul>
 <li><strong>Self-Attention Time</strong>: $O(L^2 \cdot d)$ where $L$ is sequence length.</li>
 <li><strong>VRAM Memory Footprint</strong>: $O(L^2)$ matrix storage.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$L$: Token sequence length.</li>
 <li>$d_k$: Key vector dimension size.</li>
 <li>$d$: Hidden state vector dimension size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Text translation engines.</li>
 <li>Parallelized token sequence learning.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why is self-attention memory cost quadratic with sequence length?</em> (Because it computes an $L \times L$ attention matrix storing attention weights for every query-key pair).</li>
 <li><em>How does positional encoding help attention capture order?</em> (Attention is permutation-invariant; it treats tokens as a bag of words. Positional encodings add positional vectors to word vectors, letting the model distinguish token positions).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -1843,26 +2172,36 @@ Self-attention requires computing alignment scores for all query-key pairs, scal
 <p>For classification tasks (e.g. sentiment classification, spam detection), models are evaluated using a confusion matrix of True Positives (TP), False Positives (FP), True Negatives (TN), and False Negatives (FN).</p>
 <h3 id="key-metrics">Key Metrics:</h3>
 <ul>
-<li><strong>Precision</strong>: Measures the proportion of positive predictions that were actually correct:<br />
-  $$\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}$$</li>
-<li><strong>Recall</strong>: Measures the proportion of actual positives that were correctly identified:<br />
-  $$\text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$</li>
-<li><strong>F1 Score</strong>: The harmonic mean of precision and recall, balancing both metrics when dealing with class imbalances:<br />
-  $$\text{F1} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$</li>
+<li>
+<p><strong>Precision</strong>: Measures the proportion of positive predictions that were actually correct:<br />
+  $$\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}$$</p>
+</li>
+<li>
+<p><strong>Recall</strong>: Measures the proportion of actual positives that were correctly identified:<br />
+  $$\text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$</p>
+</li>
+<li>
+<p><strong>F1 Score</strong>: The harmonic mean of precision and recall, balancing both metrics when dealing with class imbalances:<br />
+  $$\text{F1} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$</p>
+</li>
 </ul>
 <h3 id="the-precision-recall-trade-off-interview-insight">The Precision-Recall Trade-off (Interview Insight)</h3>
-<p>In production, tuning the classification probability threshold creates a trade-off:<br />
-- <strong>High Precision / Low Recall:</strong> By setting a high threshold (e.g., $0.9$), the model only flags positive cases when it is highly confident, minimizing False Positives (useful in spam filtering where flagging a legitimate email is critical).<br />
-- <strong>High Recall / Low Precision:</strong> By setting a low threshold (e.g., $0.2$), the model flags almost all potential positives, minimizing False Negatives (useful in medical screening or threat detection where missing a positive case is critical).</p>
+<p>In production, tuning the classification probability threshold creates a trade-off:</p>
+<ul>
+<li><strong>High Precision / Low Recall:</strong> By setting a high threshold (e.g., $0.9$), the model only flags positive cases when it is highly confident, minimizing False Positives (useful in spam filtering where flagging a legitimate email is critical).</li>
+<li><strong>High Recall / Low Precision:</strong> By setting a low threshold (e.g., $0.2$), the model flags almost all potential positives, minimizing False Negatives (useful in medical screening or threat detection where missing a positive case is critical).</li>
+</ul>
 <hr />
 <h2 id="2-generation-metrics-bleu-and-rouge">2. Generation Metrics: BLEU and ROUGE</h2>
 <p>For sequence generation tasks (e.g. translation, summarization), models are evaluated against ground-truth reference texts.</p>
 <h3 id="1-bleu-bilingual-evaluation-understudy">1. BLEU (Bilingual Evaluation Understudy)</h3>
-<p>BLEU (Papineni et al., 2002) measures n-gram precision (how many generated tokens appear in the reference text). To prevent cheating (e.g., a model repeating <code>"the"</code> to get high precision), it utilizes two mechanisms:<br />
-- <strong>Clipped n-gram Precision ($p_n$):</strong> Clips the candidate token counts to the maximum frequency of that token in any single reference sentence.<br />
-- <strong>Brevity Penalty (BP):</strong> Penalizes candidate translations that are shorter than the reference:<br />
+<p>BLEU (Papineni et al., 2002) measures n-gram precision (how many generated tokens appear in the reference text). To prevent cheating (e.g., a model repeating <code>"the"</code> to get high precision), it utilizes two mechanisms:</p>
+<ul>
+<li><strong>Clipped n-gram Precision ($p_n$):</strong> Clips the candidate token counts to the maximum frequency of that token in any single reference sentence.</li>
+<li><strong>Brevity Penalty (BP):</strong> Penalizes candidate translations that are shorter than the reference:<br />
   $$\text{BP} = \begin{cases} 1 & \text{if } c &gt; r \\ e^{1 - r/c} & \text{if } c \le r \end{cases}$$<br />
-  Where $c$ is the candidate length and $r$ is the reference length.</p>
+  Where $c$ is the candidate length and $r$ is the reference length.</li>
+</ul>
 <p>The overall BLEU-N score is:<br />
 $$\text{BLEU-N} = \text{BP} \times \exp\left( \sum_{n=1}^N w_n \ln p_n \right)$$</p>
 <p><img alt="BLEU Brevity Penalty Decay" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/bleu_brevity_penalty.png" /></p>
@@ -1873,51 +2212,73 @@ This curve visualizes the value of the Brevity Penalty (BP) as a function of the
 - <strong>Production Takeaway:</strong> The Brevity Penalty is a mandatory baseline safety knob. Without it, a model could output a single high-confidence unigram to achieve a perfect precision of $1.0$. The exponential decay ensures that short, incomplete generations are heavily penalized.</p></div></div>
 
 <h3 id="2-rouge-recall-oriented-understudy-for-gisting-evaluation">2. ROUGE (Recall-Oriented Understudy for Gisting Evaluation)</h3>
-<p>ROUGE (Lin, 2004) measures n-gram recall (how many reference tokens are captured by the generated text).<br />
-- <strong>ROUGE-1</strong>: Evaluates unigram overlap recall.<br />
-- <strong>ROUGE-2</strong>: Evaluates bigram overlap recall.<br />
-- <strong>ROUGE-L</strong>: Evaluates overlap using the Longest Common Subsequence (LCS). This captures sequential order without requiring exact n-gram alignments.</p>
+<p>ROUGE (Lin, 2004) measures n-gram recall (how many reference tokens are captured by the generated text).</p>
+<ul>
+<li><strong>ROUGE-1</strong>: Evaluates unigram overlap recall.</li>
+<li><strong>ROUGE-2</strong>: Evaluates bigram overlap recall.</li>
+<li><strong>ROUGE-L</strong>: Evaluates overlap using the Longest Common Subsequence (LCS). This captures sequential order without requiring exact n-gram alignments.</li>
+</ul>
 <hr />
 <h2 id="3-step-by-step-hand-calculation-of-bleu-and-rouge">3. Step-by-Step Hand-Calculation of BLEU and ROUGE:</h2>
-<p>Let's evaluate a candidate sequence against a single reference sentence:<br />
-- Candidate: <code>"the cat sat"</code> (Length $c=3$).<br />
-- Reference: <code>"the cat sat on the mat"</code> (Length $r=6$).</p>
+<p>Let's evaluate a candidate sequence against a single reference sentence:</p>
+<ul>
+<li>Candidate: <code>"the cat sat"</code> (Length $c=3$).</li>
+<li>Reference: <code>"the cat sat on the mat"</code> (Length $r=6$).</li>
+</ul>
 <h4 id="1-calculate-bleu-2-components">1. Calculate BLEU-2 components:</h4>
 <ul>
-<li><strong>Unigram clipped precision ($p_1$):</strong></li>
+<li><strong>Unigram clipped precision ($p_1$):</strong><ul>
 <li>Candidate unigrams: <code>"the"</code> (count 1), <code>"cat"</code> (count 1), <code>"sat"</code> (count 1).</li>
 <li>All three appear in the reference sentence.</li>
 <li>Clipped counts match the raw candidate count.</li>
 <li>$$p_1 = \frac{1 + 1 + 1}{3} = 1.0000$$</li>
-<li><strong>Bigram clipped precision ($p_2$):</strong></li>
+</ul>
+</li>
+<li><strong>Bigram clipped precision ($p_2$):</strong><ul>
 <li>Candidate bigrams: <code>"the cat"</code> (count 1), <code>"cat sat"</code> (count 1).</li>
 <li>Both bigrams appear in the reference sentence.</li>
 <li>$$p_2 = \frac{1 + 1}{2} = 1.0000$$</li>
-<li><strong>Brevity Penalty (BP):</strong></li>
+</ul>
+</li>
+<li>
+<p><strong>Brevity Penalty (BP):</strong></p>
+<ul>
 <li>Since $c = 3$ and $r = 6$, we have $c \le r$:<br />
-    $$\text{BP} = e^{1 - \frac{6}{3}} = e^{-1} \approx 0.3679$$</li>
-<li><strong>BLEU-2 Score Calculation:</strong><br />
+$$\text{BP} = e^{1 - \frac{6}{3}} = e^{-1} \approx 0.3679$$</li>
+</ul>
+</li>
+<li>
+<p><strong>BLEU-2 Score Calculation:</strong><br />
   Let weights be $w_1 = 0.5, w_2 = 0.5$:<br />
-  $$\text{BLEU-2} = \text{BP} \times \exp(0.5 \ln p_1 + 0.5 \ln p_2) = 0.3679 \times \exp(0.5 \ln 1 + 0.5 \ln 1) = 0.3679 \times 1.0000 = 0.3679$$</li>
+  $$\text{BLEU-2} = \text{BP} \times \exp(0.5 \ln p_1 + 0.5 \ln p_2) = 0.3679 \times \exp(0.5 \ln 1 + 0.5 \ln 1) = 0.3679 \times 1.0000 = 0.3679$$</p>
+</li>
 </ul>
 <h4 id="2-calculate-rouge-1-recall">2. Calculate ROUGE-1 recall:</h4>
 <ul>
 <li>Reference unigrams: <code>"the"</code> (appears twice, count 2), <code>"cat"</code> (1), <code>"sat"</code> (1), <code>"on"</code> (1), <code>"mat"</code> (1). Total reference unigrams = 6.</li>
 <li>Overlapping unigrams: <code>"the"</code>, <code>"cat"</code>, <code>"sat"</code>. Total matched = 3.</li>
-<li><strong>ROUGE-1 Recall:</strong><br />
-  $$\text{Recall}_{\text{ROUGE-1}} = \frac{\text{Matches}}{\text{Reference Length}} = \frac{3}{6} = 0.5000$$</li>
-<li><strong>ROUGE-1 Precision:</strong><br />
-  $$\text{Precision}_{\text{ROUGE-1}} = \frac{\text{Matches}}{\text{Candidate Length}} = \frac{3}{3} = 1.0000$$</li>
-<li><strong>ROUGE-1 F1 Score:</strong><br />
-  $$\text{F1}_{\text{ROUGE-1}} = 2 \times \frac{1.0000 \times 0.5000}{1.0000 + 0.5000} \approx 0.6667$$</li>
+<li>
+<p><strong>ROUGE-1 Recall:</strong><br />
+  $$\text{Recall}_{\text{ROUGE-1}} = \frac{\text{Matches}}{\text{Reference Length}} = \frac{3}{6} = 0.5000$$</p>
+</li>
+<li>
+<p><strong>ROUGE-1 Precision:</strong><br />
+  $$\text{Precision}_{\text{ROUGE-1}} = \frac{\text{Matches}}{\text{Candidate Length}} = \frac{3}{3} = 1.0000$$</p>
+</li>
+<li>
+<p><strong>ROUGE-1 F1 Score:</strong><br />
+  $$\text{F1}_{\text{ROUGE-1}} = 2 \times \frac{1.0000 \times 0.5000}{1.0000 + 0.5000} \approx 0.6667$$</p>
+</li>
 </ul>
 <h5 id="findings-interpretation">Findings &amp; Interpretation:</h5>
 <p>The computed BLEU-2 score is $0.3679$, heavily suppressed by the brevity penalty because the candidate sentence is only half the length of the reference. The ROUGE-1 recall is $0.5000$, indicating that the candidate only captured half of the reference words, resulting in an F1 score of $0.6667$.</p>
 <hr />
 <h2 id="4-semantic-evaluation-sentence-bert-and-bertscore">4. Semantic Evaluation: Sentence-BERT and BERTScore</h2>
-<p>N-gram overlap metrics (BLEU, ROUGE) measure exact match counts. Consequently, they suffer from two major <strong>semantic blind spots</strong>:<br />
-1. <strong>Orthogonal Synonyms</strong>: A generated sentence like <code>"A feline rested on the rug"</code> compared against reference <code>"The cat sat on the mat"</code> receives a BLEU score of $0$ because no words overlap, despite sharing identical meanings.<br />
-2. <strong>Grammar &amp; Logical Inversions</strong>: A candidate sentence <code>"not bad, actually great"</code> compared against <code>"not great, actually bad"</code> shares identical unigrams and bigrams, but has the opposite meaning. Overlap metrics assign these sentences high scores.</p>
+<p>N-gram overlap metrics (BLEU, ROUGE) measure exact match counts. Consequently, they suffer from two major <strong>semantic blind spots</strong>:</p>
+<ol>
+<li><strong>Orthogonal Synonyms</strong>: A generated sentence like <code>"A feline rested on the rug"</code> compared against reference <code>"The cat sat on the mat"</code> receives a BLEU score of $0$ because no words overlap, despite sharing identical meanings.</li>
+<li><strong>Grammar &amp; Logical Inversions</strong>: A candidate sentence <code>"not bad, actually great"</code> compared against <code>"not great, actually bad"</code> shares identical unigrams and bigrams, but has the opposite meaning. Overlap metrics assign these sentences high scores.</li>
+</ol>
 <h3 id="bertscore">BERTScore</h3>
 <p>BERTScore (Zhang et al., 2020) resolves these issues by computing token-level semantic alignments using contextual embeddings (e.g. BERT hidden states):</p>
 <h4 id="bertscore-alignment-matrix-example">BERTScore Alignment Matrix Example</h4>
@@ -2029,25 +2390,41 @@ While automated metrics like BLEU or BERTScore are excellent for Continuous Inte
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Quantifies the accuracy, semantic alignment, and structural quality of natural language outputs.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to automate translation and summarization scoring, replacing expensive human evaluation loops.</li>
-<li><strong>What are its limitations?</strong><br />
-  BLEU/ROUGE fail to capture semantic meaning; embedding models (BERTScore) introduce computational overhead and depend on the quality of the underlying encoder.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Quantifies the accuracy, semantic alignment, and structural quality of natural language outputs.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to automate translation and summarization scoring, replacing expensive human evaluation loops.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong><br />
+  BLEU/ROUGE fail to capture semantic meaning; embedding models (BERTScore) introduce computational overhead and depend on the quality of the underlying encoder.</p>
+</li>
+<li>
+<p><strong>Computational Complexity (Time &amp; Memory)</strong></p>
+<ul>
 <li><strong>BLEU Evaluation Time</strong>: $O(L_{\text{cand}} \cdot L_{\text{ref}})$ string search.</li>
 <li><strong>BERTScore Evaluation Time</strong>: $O(L_{\text{cand}} \cdot L_{\text{ref}} \cdot d)$ plus the forward pass latency of the encoder network.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$c$: Candidate token sequence length.</li>
 <li>$r$: Reference token sequence length.</li>
 <li>$d$: Contextual embedding dimension size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Continuous Integration (CI) regression testing for translation pipelines.</li>
 <li>Semantic similarity evaluations in question-answering systems.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>Why does BLEU use a brevity penalty?</em> (Without a brevity penalty, a candidate model could output a single high-confidence word like <code>"the"</code> and receive a perfect precision score of $1.0$).</li>
 <li><em>How does BERTScore handle spelling variations?</em> (Contextual embeddings capture semantic similarities, allowing misspelled or related words to match based on their surrounding contexts).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -2060,11 +2437,17 @@ While automated metrics like BLEU or BERTScore are excellent for Continuous Inte
 <p>Moving NLP models from research environments to production requires managing deployment constraints and monitoring data drift. This module details ingestion pipelines, explains data and concept drift, and maps out Population Stability Index (PSI) equations and diagnostics.</p>
 <hr />
 <h2 id="1-ingestion-patterns-batch-vs-real-time-inference">1. Ingestion Patterns: Batch vs. Real-Time Inference</h2>
-<p>Production systems deploy models using one of two ingestion patterns:<br />
-- <strong>Batch Inference</strong>: Processes large collections of text offline (e.g. running sentiment analysis over nightly logs).<br />
-  - <em>Optimization</em>: High throughput; optimized via parallel worker nodes and large batch sizes to maximize GPU utilization.<br />
-- <strong>Real-Time Inference</strong>: Processes streaming user queries with strict latency limits (e.g. search query auto-completion).<br />
-  - <em>Optimization</em>: Low latency; optimized via model quantization, single-sample processing, and caching.</p>
+<p>Production systems deploy models using one of two ingestion patterns:</p>
+<ul>
+<li><strong>Batch Inference</strong>: Processes large collections of text offline (e.g. running sentiment analysis over nightly logs).<ul>
+<li><em>Optimization</em>: High throughput; optimized via parallel worker nodes and large batch sizes to maximize GPU utilization.</li>
+</ul>
+</li>
+<li><strong>Real-Time Inference</strong>: Processes streaming user queries with strict latency limits (e.g. search query auto-completion).<ul>
+<li><em>Optimization</em>: Low latency; optimized via model quantization, single-sample processing, and caching.</li>
+</ul>
+</li>
+</ul>
 <hr />
 <h2 id="2-monitoring-production-drift-data-vs-concept-drift">2. Monitoring Production Drift: Data vs. Concept Drift</h2>
 <p>Once deployed, models experience performance decay due to environmental changes:</p>
@@ -2097,10 +2480,12 @@ While automated metrics like BLEU or BERTScore are excellent for Continuous Inte
 <p>The Population Stability Index (PSI) is a metric used to measure how much a target distribution has shifted away from a reference distribution. It is widely used to monitor covariate shift in production models.</p>
 <h3 id="mathematical-formulation">Mathematical Formulation:</h3>
 <p>$$\text{PSI} = \sum_{i=1}^B \left( P_i - Q_i \right) \times \ln\left(\frac{P_i}{Q_i}\right)$$</p>
-<p>Where:<br />
-- $B$ is the total number of bins or categories.<br />
-- $Q_i$ is the expected proportion of samples in bucket $i$ (from the training/reference baseline).<br />
-- $P_i$ is the actual proportion of samples in bucket $i$ (from the production window).</p>
+<p>Where:</p>
+<ul>
+<li>$B$ is the total number of bins or categories.</li>
+<li>$Q_i$ is the expected proportion of samples in bucket $i$ (from the training/reference baseline).</li>
+<li>$P_i$ is the actual proportion of samples in bucket $i$ (from the production window).</li>
+</ul>
 <h3 id="stability-thresholds-drift-levels">Stability Thresholds (Drift Levels):</h3>
 <ul>
 <li><strong>$\text{PSI} &lt; 0.10$</strong>: <strong>No significant change.</strong> The production distribution matches the baseline; no action is required.</li>
@@ -2109,9 +2494,11 @@ While automated metrics like BLEU or BERTScore are excellent for Continuous Inte
 </ul>
 <hr />
 <h2 id="4-step-by-step-hand-calculation-of-psi">4. Step-by-Step Hand-Calculation of PSI:</h2>
-<p>Let's calculate the Population Stability Index for a 3-category classifier output distribution (e.g. token classifications: positive, negative, neutral) comparing the production window $P$ against the training baseline $Q$:<br />
-- Expected baseline proportions: $\mathbf{q} = [0.60, \ 0.30, \ 0.10]^T$<br />
-- Actual production proportions: $\mathbf{p} = [0.50, \ 0.30, \ 0.20]^T$</p>
+<p>Let's calculate the Population Stability Index for a 3-category classifier output distribution (e.g. token classifications: positive, negative, neutral) comparing the production window $P$ against the training baseline $Q$:</p>
+<ul>
+<li>Expected baseline proportions: $\mathbf{q} = [0.60, \ 0.30, \ 0.10]^T$</li>
+<li>Actual production proportions: $\mathbf{p} = [0.50, \ 0.30, \ 0.20]^T$</li>
+</ul>
 <h4 id="1-compute-bucket-1-positive">1. Compute Bucket 1 (Positive):</h4>
 <ul>
 <li>Expected proportion ($Q_1$): $0.60$</li>
@@ -2241,26 +2628,42 @@ While automated metrics like BLEU or BERTScore are excellent for Continuous Inte
 <hr />
 <h3 id="interview-questions-production-trade-offs">Interview Questions &amp; Production Trade-offs</h3>
 <ul>
-<li><strong>What problem does this solve?</strong><br />
-  Maintains model accuracy, latency limits, and resource efficiency when running in production.</li>
-<li><strong>Why was it introduced?</strong><br />
-  Introduced to prevent performance decay due to domain shifts and data drift in live environments.</li>
-<li><strong>What are its limitations?</strong><br />
-  Pruning and quantization can lead to degraded accuracy on edge cases.</li>
-<li><strong>Computational Complexity (Time &amp; Memory)</strong></li>
+<li>
+<p><strong>What problem does this solve?</strong><br />
+  Maintains model accuracy, latency limits, and resource efficiency when running in production.</p>
+</li>
+<li>
+<p><strong>Why was it introduced?</strong><br />
+  Introduced to prevent performance decay due to domain shifts and data drift in live environments.</p>
+</li>
+<li>
+<p><strong>What are its limitations?</strong><br />
+  Pruning and quantization can lead to degraded accuracy on edge cases.</p>
+</li>
+<li>
+<p><strong>Computational Complexity (Time &amp; Memory)</strong></p>
+<ul>
 <li><strong>Data Drift Detection Time</strong>: $O(N \cdot |V|)$ where $N$ is sample size and $|V|$ is vocabulary size.</li>
 <li><strong>Memory Footprint (int8 Quantized)</strong>: $25\%$ of the original float32 model footprint.</li>
-<li><strong>Component Variable Denotation Legend</strong></li>
+</ul>
+</li>
+<li><strong>Component Variable Denotation Legend</strong><ul>
 <li>$X$: Input text features.</li>
 <li>$Y$: Output label targets.</li>
 <li>$N$: Audit sample window count.</li>
 <li>$|V|$: Vocabulary size.</li>
-<li><strong>Production Use Cases</strong></li>
+</ul>
+</li>
+<li><strong>Production Use Cases</strong><ul>
 <li>Monitoring customer service classifiers for vocabulary shift.</li>
 <li>Compressing models to run on edge devices.</li>
-<li><strong>Follow-up questions interviewers ask</strong></li>
+</ul>
+</li>
+<li><strong>Follow-up questions interviewers ask</strong><ul>
 <li><em>How do you identify Data Drift in production NLP?</em> (By comparing the token frequency distribution of live production data against the training dataset using statistical tests like Population Stability Index (PSI) or Wasserstein Distance).</li>
 <li><em>Why do vocabulary differences between training and serving environments crash tokenizers?</em> (If the serving environment maps token indices using a different dictionary than the training environment, the token indices will map to incorrect word vectors, leading to model degradation).</li>
+</ul>
+</li>
 </ul>
     </div>
 
@@ -2528,18 +2931,26 @@ $$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \text{IDF}(t, D)$$<br />
 $$\text{IDF}(t, D) = \ln\left(\frac{1 + N}{1 + \text{DF}(t)}\right) + 1$$<br />
 Where $\text{TF}(t, d)$ is the frequency of term $t$ in document $d$, $N$ is the total documents in corpus $D$, and $\text{DF}(t)$ is the document frequency of term $t$.</p>
 <h3 id="technical-intuition-detailed-hand-calculation">Technical Intuition &amp; Detailed Hand-Calculation</h3>
-<p>Consider a micro-corpus of $N = 2$ documents:<br />
-- $d_1$: <code>"cat mat"</code><br />
-- $d_2$: <code>"mat rug"</code><br />
-Vocabulary: <code>["cat", "mat", "rug"]</code> (vocabulary size $|V| = 3$).</p>
+<p>Consider a micro-corpus of $N = 2$ documents:</p>
+<ul>
+<li>$d_1$: <code>"cat mat"</code></li>
+<li>$d_2$: <code>"mat rug"</code><br />
+Vocabulary: <code>["cat", "mat", "rug"]</code> (vocabulary size $|V| = 3$).</li>
+</ul>
 <h4 id="step-1-calculate-document-frequencies-df-and-smooth-idf-for-each-term">Step 1: Calculate Document Frequencies (DF) and Smooth IDF for each term:</h4>
 <ul>
-<li><strong>"cat"</strong>: $\text{DF}(\text{"cat"}) = 1$ (appears only in $d_1$)<br />
-  $$\text{IDF}(\text{"cat"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</li>
-<li><strong>"mat"</strong>: $\text{DF}(\text{"mat"}) = 2$ (appears in $d_1$ and $d_2$)<br />
-  $$\text{IDF}(\text{"mat"}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$</li>
-<li><strong>"rug"</strong>: $\text{DF}(\text{"rug"}) = 1$ (appears only in $d_2$)<br />
-  $$\text{IDF}(\text{"rug"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</li>
+<li>
+<p><strong>"cat"</strong>: $\text{DF}(\text{"cat"}) = 1$ (appears only in $d_1$)<br />
+  $$\text{IDF}(\text{"cat"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+</li>
+<li>
+<p><strong>"mat"</strong>: $\text{DF}(\text{"mat"}) = 2$ (appears in $d_1$ and $d_2$)<br />
+  $$\text{IDF}(\text{"mat"}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$</p>
+</li>
+<li>
+<p><strong>"rug"</strong>: $\text{DF}(\text{"rug"}) = 1$ (appears only in $d_2$)<br />
+  $$\text{IDF}(\text{"rug"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+</li>
 </ul>
 <h4 id="step-2-compute-raw-tf-idf-vector-for-mathplaceholder72endmath-frequencies-mathplaceholder73endmath-mathplaceholder74endmath-mathplaceholder75endmath">Step 2: Compute Raw TF-IDF Vector for $d_1$ (frequencies: $\text{TF}(\text{"cat"})=1$, $\text{TF}(\text{"mat"})=1$, $\text{TF}(\text{"rug"})=0$):</h4>
 <ul>
@@ -2571,10 +2982,12 @@ $$\mathbf{v}_{d_1, \text{norm}} = \left[ \frac{1.4055}{1.7249}, \ \frac{1.0000}{
 $$\text{CosineSimilarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\|_2 \|\mathbf{b}\|_2}$$<br />
 If vectors are pre-normalized to unit length, this simplifies to the dot product.</p>
 <h3 id="technical-intuition-complexity">Technical Intuition &amp; Complexity</h3>
-<p>Given vectors:<br />
-- $\mathbf{a} = [0.8, 0.6, 0.0]$<br />
-- $\mathbf{b} = [0.0, 0.6, 0.8]$<br />
-$$\mathbf{a} \cdot \mathbf{b} = (0.8 \times 0) + (0.6 \times 0.6) + (0 \times 0.8) = 0.36$$</p>
+<p>Given vectors:</p>
+<ul>
+<li>$\mathbf{a} = [0.8, 0.6, 0.0]$</li>
+<li>$\mathbf{b} = [0.0, 0.6, 0.8]$<br />
+$$\mathbf{a} \cdot \mathbf{b} = (0.8 \times 0) + (0.6 \times 0.6) + (0 \times 0.8) = 0.36$$</li>
+</ul>
 <h3 id="production-perspective-trade-offs_13">Production Perspective &amp; Trade-offs</h3>
 <p>Dot products run efficiently on modern hardware using BLAS libraries, making cosine similarity comparisons fast in production.</p>
 <h3 id="follow-up-questions_13">Follow-up Questions</h3>
@@ -2648,10 +3061,14 @@ Vocabulary: <code>["the", "cat", "sat", "on", "mat"]</code> (vocabulary size $|V
 </ul>
 <h4 id="step-2-compute-smoothed-transition-probabilities">Step 2: Compute smoothed transition probabilities:</h4>
 <ul>
-<li><strong>Seen transition</strong> $P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"})$:<br />
-  $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{C(\text{"the", "cat"}) + 1}{C(\text{"the"}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$</li>
-<li><strong>Unseen transition</strong> $P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"})$:<br />
-  $$P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"}) = \frac{C(\text{"the", "sat"}) + 1}{C(\text{"the"}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$</li>
+<li>
+<p><strong>Seen transition</strong> $P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"})$:<br />
+  $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{C(\text{"the", "cat"}) + 1}{C(\text{"the"}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$</p>
+</li>
+<li>
+<p><strong>Unseen transition</strong> $P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"})$:<br />
+  $$P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"}) = \frac{C(\text{"the", "sat"}) + 1}{C(\text{"the"}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$</p>
+</li>
 </ul>
 <p>Notice that the sum of probabilities across all possible next tokens for the history <code>"the"</code> remains normalized:<br />
 $$\sum_{w \in V} P(w \mid \text{"the"}) = \frac{2}{7} (\text{for "cat"}) + \frac{2}{7} (\text{for "mat"}) + \frac{1}{7} (\text{for "sat"}) + \frac{1}{7} (\text{for "on"}) + \frac{1}{7} (\text{for "the"}) = \frac{7}{7} = 1.0000$$</p>
@@ -2682,17 +3099,25 @@ $$\mathcal{L}_{\text{CE}} = -\frac{1}{m} \sum_{i=1}^m \ln P(w_i \mid w_{1:i-1}) 
 Exponentiating both sides:<br />
 $$e^{\mathcal{L}_{\text{CE}}} = e^{-\frac{1}{m} \ln P(W)} = \left( e^{\ln P(W)} \right)^{-\frac{1}{m}} = P(W)^{-\frac{1}{m}} = \text{PPL}(W)$$</p>
 <h4 id="2-step-by-step-hand-calculation">2. Step-by-Step Hand-Calculation:</h4>
-<p>Suppose our bigram model processes a test sequence $W = (w_1, w_2, w_3)$ with the following conditional probabilities:<br />
-- $P(w_1) = 0.50$<br />
-- $P(w_2 \mid w_1) = 0.20$<br />
-- $P(w_3 \mid w_2) = 0.40$</p>
+<p>Suppose our bigram model processes a test sequence $W = (w_1, w_2, w_3)$ with the following conditional probabilities:</p>
 <ul>
-<li><strong>Step 1: Compute Joint Probability:</strong><br />
-  $$P(W) = P(w_1) \times P(w_2 \mid w_1) \times P(w_3 \mid w_2) = 0.50 \times 0.20 \times 0.40 = 0.0400$$</li>
-<li><strong>Step 2: Calculate Average Cross-Entropy Loss ($\mathcal{L}_{\text{CE}}$):</strong><br />
-  $$\mathcal{L}_{\text{CE}} = -\frac{1}{3} \ln(0.0400) \approx -\frac{1}{3} \times (-3.2189) = 1.0730$$</li>
-<li><strong>Step 3: Calculate Perplexity:</strong><br />
-  $$\text{PPL}(W) = e^{1.0730} = 0.0400^{-\frac{1}{3}} = 25^{\frac{1}{3}} \approx 2.9240$$</li>
+<li>$P(w_1) = 0.50$</li>
+<li>$P(w_2 \mid w_1) = 0.20$</li>
+<li>
+<p>$P(w_3 \mid w_2) = 0.40$</p>
+</li>
+<li>
+<p><strong>Step 1: Compute Joint Probability:</strong><br />
+  $$P(W) = P(w_1) \times P(w_2 \mid w_1) \times P(w_3 \mid w_2) = 0.50 \times 0.20 \times 0.40 = 0.0400$$</p>
+</li>
+<li>
+<p><strong>Step 2: Calculate Average Cross-Entropy Loss ($\mathcal{L}_{\text{CE}}$):</strong><br />
+  $$\mathcal{L}_{\text{CE}} = -\frac{1}{3} \ln(0.0400) \approx -\frac{1}{3} \times (-3.2189) = 1.0730$$</p>
+</li>
+<li>
+<p><strong>Step 3: Calculate Perplexity:</strong><br />
+  $$\text{PPL}(W) = e^{1.0730} = 0.0400^{-\frac{1}{3}} = 25^{\frac{1}{3}} \approx 2.9240$$</p>
+</li>
 </ul>
 <h5 id="findings-interpretation">Findings &amp; Interpretation:</h5>
 <p>The perplexity of $2.9240$ means that at each token prediction step, the model was as confused as if it had to choose uniformly from $\approx 2.92$ candidate words. A lower perplexity indicates a more confident model.</p>
@@ -2712,9 +3137,11 @@ $$e^{\mathcal{L}_{\text{CE}}} = e^{-\frac{1}{m} \ln P(W)} = \left( e^{\ln P(W)} 
 <hr />
 <h2 id="question-19-explain-how-cbow-and-skip-gram-learn-word-embeddings">Question 19: Explain how CBOW and Skip-gram learn word embeddings.</h2>
 <h3 id="short-interview-answer-3060-seconds_18">Short Interview Answer (30–60 seconds)</h3>
-<p>Word2Vec trains static embeddings using local context predictions:<br />
-- <strong>CBOW</strong>: Predicts a target word given its surrounding context words.<br />
-- <strong>Skip-gram</strong>: Predicts context words given a target word.</p>
+<p>Word2Vec trains static embeddings using local context predictions:</p>
+<ul>
+<li><strong>CBOW</strong>: Predicts a target word given its surrounding context words.</li>
+<li><strong>Skip-gram</strong>: Predicts context words given a target word.</li>
+</ul>
 <h3 id="technical-intuition-complexity_2">Technical Intuition &amp; Complexity</h3>
 <ul>
 <li><strong>CBOW</strong>: Context vectors are averaged into a single vector $\mathbf{h}$ to predict the target.</li>
@@ -2740,23 +3167,33 @@ $$e^{\mathcal{L}_{\text{CE}}} = e^{-\frac{1}{m} \ln P(W)} = \left( e^{\ln P(W)} 
 <p>The SGNS loss function is:<br />
 $$\mathcal{L}_{\text{SGNS}} = -\ln \sigma(\mathbf{v}_w \cdot \mathbf{v}'_{w_c}) - \sum_{i=1}^K \ln \sigma(-\mathbf{v}_w \cdot \mathbf{v}'_{w_i})$$</p>
 <h3 id="technical-intuition-detailed-hand-calculation_3">Technical Intuition &amp; Detailed Hand-Calculation</h3>
-<p>Let's compute the negative sampling loss for a single step with a key target word and $K = 1$ negative sample:<br />
-- Target word: <code>"cat"</code> (context embedding vector $\mathbf{v}_{\text{cat}} = [0.10, \ 0.80, \ -0.20]^T$)<br />
-- Positive context word: <code>"sat"</code> (target embedding vector $\mathbf{v}'_{\text{sat}} = [0.20, \ 0.90, \ 0.10]^T$)<br />
-- Negative noise word: <code>"refrigerator"</code> (target embedding vector $\mathbf{v}'_{\text{refrig}} = [-0.90, \ 0.10, \ 0.80]^T$)</p>
+<p>Let's compute the negative sampling loss for a single step with a key target word and $K = 1$ negative sample:</p>
+<ul>
+<li>Target word: <code>"cat"</code> (context embedding vector $\mathbf{v}_{\text{cat}} = [0.10, \ 0.80, \ -0.20]^T$)</li>
+<li>Positive context word: <code>"sat"</code> (target embedding vector $\mathbf{v}'_{\text{sat}} = [0.20, \ 0.90, \ 0.10]^T$)</li>
+<li>Negative noise word: <code>"refrigerator"</code> (target embedding vector $\mathbf{v}'_{\text{refrig}} = [-0.90, \ 0.10, \ 0.80]^T$)</li>
+</ul>
 <h4 id="step-1-compute-dot-products">Step 1: Compute Dot Products:</h4>
 <ul>
-<li>Positive pair dot product:<br />
-  $$\mathbf{v}_{\text{cat}} \cdot \mathbf{v}'_{\text{sat}} = (0.10 \times 0.20) + (0.80 \times 0.90) + (-0.20 \times 0.10) = 0.0200 + 0.7200 - 0.0200 = 0.7200$$</li>
-<li>Negative pair dot product:<br />
-  $$\mathbf{v}_{\text{cat}} \cdot \mathbf{v}'_{\text{refrig}} = (0.10 \times -0.90) + (0.80 \times 0.10) + (-0.20 \times 0.80) = -0.0900 + 0.0800 - 0.1600 = -0.1700$$</li>
+<li>
+<p>Positive pair dot product:<br />
+  $$\mathbf{v}_{\text{cat}} \cdot \mathbf{v}'_{\text{sat}} = (0.10 \times 0.20) + (0.80 \times 0.90) + (-0.20 \times 0.10) = 0.0200 + 0.7200 - 0.0200 = 0.7200$$</p>
+</li>
+<li>
+<p>Negative pair dot product:<br />
+  $$\mathbf{v}_{\text{cat}} \cdot \mathbf{v}'_{\text{refrig}} = (0.10 \times -0.90) + (0.80 \times 0.10) + (-0.20 \times 0.80) = -0.0900 + 0.0800 - 0.1600 = -0.1700$$</p>
+</li>
 </ul>
 <h4 id="step-2-compute-logistic-sigmoid-probabilities-mathplaceholder137endmath">Step 2: Compute Logistic Sigmoid Probabilities ($\sigma(x) = \frac{1}{1 + e^{-x}}$):</h4>
 <ul>
-<li>Positive pair probability:<br />
-  $$\sigma(0.7200) = \frac{1}{1 + e^{-0.7200}} \approx \frac{1}{1 + 0.4868} = 0.6726$$</li>
-<li>Negative pair probability (note the negative sign $-\mathbf{v} \cdot \mathbf{v}'$):<br />
-  $$\sigma(-(-0.1700)) = \sigma(0.1700) = \frac{1}{1 + e^{-0.1700}} \approx \frac{1}{1 + 0.8437} = 0.5424$$</li>
+<li>
+<p>Positive pair probability:<br />
+  $$\sigma(0.7200) = \frac{1}{1 + e^{-0.7200}} \approx \frac{1}{1 + 0.4868} = 0.6726$$</p>
+</li>
+<li>
+<p>Negative pair probability (note the negative sign $-\mathbf{v} \cdot \mathbf{v}'$):<br />
+  $$\sigma(-(-0.1700)) = \sigma(0.1700) = \frac{1}{1 + e^{-0.1700}} \approx \frac{1}{1 + 0.8437} = 0.5424$$</p>
+</li>
 </ul>
 <h4 id="step-3-calculate-the-sgns-loss">Step 3: Calculate the SGNS Loss:</h4>
 <p>$$\mathcal{L}_{\text{SGNS}} = -\ln(0.6726) - \ln(0.5424) \approx 0.3966 + 0.6117 = 1.0083$$</p>
@@ -3027,16 +3464,20 @@ If $\mathbf{f}_k \approx 1$ (the forget gate remains open), the error gradient p
 <h3 id="short-interview-answer-3060-seconds_31">Short Interview Answer (30–60 seconds)</h3>
 <p>Prefer <strong>BERTScore</strong> when evaluating semantic similarity, paraphrasing, or tasks where synonyms (e.g. <code>"feline"</code> instead of <code>"cat"</code>) are acceptable, because exact-match n-gram metrics (BLEU, ROUGE) assign a score of $0$ to synonyms. Prefer <strong>BLEU</strong> or <strong>ROUGE</strong> for machine translation regression testing where exact vocabulary matches or speed are critical. BERTScore computes greedy cosine alignments over contextual embeddings from a pre-trained language model, capturing semantic shifts that overlap metrics miss.</p>
 <h3 id="technical-intuition-detailed-hand-calculation_4">Technical Intuition &amp; Detailed Hand-Calculation</h3>
-<p>Let's compute BERTScore greedy alignment scores for:<br />
-- Candidate ($c$): <code>"A feline rested on the rug"</code> (Length $c = 6$)<br />
-- Reference ($r$): <code>"The cat sat on the mat"</code> (Length $r = 6$)</p>
-<p>Suppose our contextual embedding model generates vectors for each token, and the maximum cosine similarity scores between candidate and reference tokens are:<br />
-- <code>"A"</code> matches best with <code>"The"</code> (Similarity = $0.12$)<br />
-- <code>"feline"</code> matches best with <code>"cat"</code> (Similarity = $0.88$)<br />
-- <code>"rested"</code> matches best with <code>"sat"</code> (Similarity = $0.82$)<br />
-- <code>"on"</code> matches best with <code>"on"</code> (Similarity = $0.95$)<br />
-- <code>"the"</code> matches best with <code>"the"</code> (Similarity = $0.98$)<br />
-- <code>"rug"</code> matches best with <code>"mat"</code> (Similarity = $0.85$)</p>
+<p>Let's compute BERTScore greedy alignment scores for:</p>
+<ul>
+<li>Candidate ($c$): <code>"A feline rested on the rug"</code> (Length $c = 6$)</li>
+<li>Reference ($r$): <code>"The cat sat on the mat"</code> (Length $r = 6$)</li>
+</ul>
+<p>Suppose our contextual embedding model generates vectors for each token, and the maximum cosine similarity scores between candidate and reference tokens are:</p>
+<ul>
+<li><code>"A"</code> matches best with <code>"The"</code> (Similarity = $0.12$)</li>
+<li><code>"feline"</code> matches best with <code>"cat"</code> (Similarity = $0.88$)</li>
+<li><code>"rested"</code> matches best with <code>"sat"</code> (Similarity = $0.82$)</li>
+<li><code>"on"</code> matches best with <code>"on"</code> (Similarity = $0.95$)</li>
+<li><code>"the"</code> matches best with <code>"the"</code> (Similarity = $0.98$)</li>
+<li><code>"rug"</code> matches best with <code>"mat"</code> (Similarity = $0.85$)</li>
+</ul>
 <h4 id="1-calculate-bertscore-recall-mathplaceholder186endmath">1. Calculate BERTScore Recall ($R_{\text{BERT}}$):</h4>
 <p>Aligns each reference token to the best matching candidate token, normalized by reference length:<br />
 $$R_{\text{BERT}} = \frac{1}{|r|} \sum_{w_j \in r} \max_{w_i \in c} \mathbf{E}(w_i)^T \mathbf{E}(w_j) = \frac{0.12 + 0.88 + 0.82 + 0.95 + 0.98 + 0.85}{6} = \frac{4.60}{6} \approx 0.7667$$</p>
@@ -3215,12 +3656,14 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <hr />
 <h2 id="question-40-given-an-nlp-application-how-would-you-decide-between-tf-idf-word2vec-fasttext-lstm-transformer">Question 40: Given an NLP application, how would you decide between: TF-IDF, Word2Vec, FastText, LSTM, Transformer?</h2>
 <h3 id="short-interview-answer-3060-seconds_39">Short Interview Answer (30–60 seconds)</h3>
-<p>Select based on accuracy requirements, latency budgets, and sequence complexity:<br />
-- <strong>TF-IDF</strong>: Best for simple keyword searches or classification on static text with tight compute budgets.<br />
-- <strong>Word2Vec</strong>: Best for semantic similarity lookups on static vocabularies.<br />
-- <strong>FastText</strong>: Best when handling out-of-vocabulary (OOV) tokens, typos, or morphologically rich languages.<br />
-- <strong>LSTM</strong>: Best for processing sequence structures when context length is moderate and training resources are limited.<br />
-- <strong>Transformer</strong>: Best when accuracy is the main priority and you have the compute resources to support parallel training and long contexts.</p>
+<p>Select based on accuracy requirements, latency budgets, and sequence complexity:</p>
+<ul>
+<li><strong>TF-IDF</strong>: Best for simple keyword searches or classification on static text with tight compute budgets.</li>
+<li><strong>Word2Vec</strong>: Best for semantic similarity lookups on static vocabularies.</li>
+<li><strong>FastText</strong>: Best when handling out-of-vocabulary (OOV) tokens, typos, or morphologically rich languages.</li>
+<li><strong>LSTM</strong>: Best for processing sequence structures when context length is moderate and training resources are limited.</li>
+<li><strong>Transformer</strong>: Best when accuracy is the main priority and you have the compute resources to support parallel training and long contexts.</li>
+</ul>
 <h3 id="key-interview-points_30">Key Interview Points</h3>
 <ul>
 <li>Latency vs. Accuracy</li>
@@ -3241,9 +3684,11 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <h2 id="6-advanced-questions-41-50">6. Advanced Questions (41-50)</h2>
 <h2 id="question-41-why-is-bm25-generally-better-than-tf-idf-for-retrieval">Question 41: Why is BM25 generally better than TF-IDF for retrieval?</h2>
 <h3 id="short-interview-answer-3060-seconds_40">Short Interview Answer (30–60 seconds)</h3>
-<p>BM25 improves on TF-IDF by scaling term frequency non-linearly to prevent saturation and penalizing long documents that contain terms simply due to size:<br />
-- <strong>TF-IDF</strong>: Scales term frequency linearly, allowing a term repeated 100 times to dominate the score.<br />
-- <strong>BM25</strong>: Uses a saturation parameter $k_1$ to bound the score contribution of any single term, and normalizes by document length using parameter $b$.</p>
+<p>BM25 improves on TF-IDF by scaling term frequency non-linearly to prevent saturation and penalizing long documents that contain terms simply due to size:</p>
+<ul>
+<li><strong>TF-IDF</strong>: Scales term frequency linearly, allowing a term repeated 100 times to dominate the score.</li>
+<li><strong>BM25</strong>: Uses a saturation parameter $k_1$ to bound the score contribution of any single term, and normalizes by document length using parameter $b$.</li>
+</ul>
 <h3 id="key-interview-points_31">Key Interview Points</h3>
 <ul>
 <li>Term frequency saturation ($k_1$)</li>
