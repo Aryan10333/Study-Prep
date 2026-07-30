@@ -118,15 +118,15 @@ def compile_master_guide():
         }}
         body {{
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            font-size: 15px;
-            line-height: 1.62;
-            color: #1e293b;
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #334155;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
         }}
         h1 {{
-            font-size: 24px;
+            font-size: 22px;
             color: #0f172a;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
@@ -135,8 +135,8 @@ def compile_master_guide():
             page-break-after: avoid;
         }}
         h2 {{
-            font-size: 19px;
-            color: #1e40af;
+            font-size: 18px;
+            color: #2563eb; /* Premium Royal Blue for H2 */
             margin-top: 24px;
             margin-bottom: 12px;
             border-bottom: 1px solid #e2e8f0;
@@ -144,8 +144,8 @@ def compile_master_guide():
             page-break-after: avoid;
         }}
         h3 {{
-            font-size: 16px;
-            color: #0369a1;
+            font-size: 15px;
+            color: #0284c7; /* Modern bright blue-teal for H3 */
             margin-top: 20px;
             margin-bottom: 10px;
             page-break-after: avoid;
@@ -159,18 +159,69 @@ def compile_master_guide():
             text-decoration: underline;
         }}
         
-        p, li {{
+        p {{
+            font-size: 14.5px !important;
+            line-height: 1.6 !important;
             color: #334155;
             margin-bottom: 10px;
+        }}
+        
+        /* Custom Bullet List and Ordered List Styling */
+        .module-container ul {{
+            list-style: none !important;
+            padding-left: 20px !important;
+            margin-top: 6px !important;
+            margin-bottom: 12px !important;
+        }}
+        .module-container ul li {{
+            position: relative !important;
+            margin-bottom: 8px !important;
+            padding-left: 10px !important;
+            font-size: 14.5px !important;
+            line-height: 1.6 !important;
+            color: #334155 !important;
+        }}
+        .module-container ul li::before {{
+            content: "•" !important;
+            color: #3b82f6 !important; /* Royal blue bullet dot */
+            font-weight: bold !important;
+            font-size: 20px !important;
+            display: inline-block !important;
+            width: 1em !important;
+            margin-left: -1em !important;
+            position: absolute !important;
+            top: -3px !important;
+            left: 5px !important;
+        }}
+        .module-container ul ul {{
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+        }}
+        .module-container ul ul li::before {{
+            content: "◦" !important;
+            color: #8b5cf6 !important; /* Purple circle for second level */
+            font-size: 16px !important;
+            top: -1px !important;
+        }}
+        .module-container ol {{
+            padding-left: 20px !important;
+            margin-top: 6px !important;
+            margin-bottom: 12px !important;
+        }}
+        .module-container ol li {{
+            margin-bottom: 8px !important;
+            font-size: 14.5px !important;
+            line-height: 1.6 !important;
+            color: #334155 !important;
         }}
         
         code {{
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
             background-color: #f1f5f9;
             color: #0f172a;
-            padding: 2px 6px;
+            padding: 2px 5px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 13.5px !important;
         }}
         
         img {{
@@ -398,7 +449,7 @@ def compile_cheatsheet():
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             font-size: 13px;
             line-height: 1.45;
-            color: #1e293b;
+            color: #334155;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
@@ -414,7 +465,7 @@ def compile_cheatsheet():
         }}
         h2 {{
             font-size: 14px;
-            color: #1e40af;
+            color: #2563eb;
             margin-top: 14px;
             margin-bottom: 8px;
             border-bottom: 1px solid #e2e8f0;
@@ -423,22 +474,63 @@ def compile_cheatsheet():
         }}
         h3 {{
             font-size: 12px;
-            color: #0369a1;
+            color: #0284c7;
             margin-top: 10px;
             margin-bottom: 6px;
             page-break-after: avoid;
         }}
-        p, li {{
+        p {{
             color: #334155;
             margin-bottom: 6px;
+            font-size: 13px !important;
         }}
+        
+        /* Custom Bullet List and Ordered List for Cheatsheet */
+        ul {{
+            list-style: none !important;
+            padding-left: 16px !important;
+            margin-top: 4px !important;
+            margin-bottom: 8px !important;
+        }}
+        ul li {{
+            position: relative !important;
+            margin-bottom: 5px !important;
+            padding-left: 8px !important;
+            font-size: 13px !important;
+            line-height: 1.45 !important;
+            color: #334155 !important;
+        }}
+        ul li::before {{
+            content: "•" !important;
+            color: #3b82f6 !important;
+            font-weight: bold !important;
+            font-size: 16px !important;
+            display: inline-block !important;
+            width: 1em !important;
+            margin-left: -1em !important;
+            position: absolute !important;
+            top: -2px !important;
+            left: 4px !important;
+        }}
+        ol {{
+            padding-left: 16px !important;
+            margin-top: 4px !important;
+            margin-bottom: 8px !important;
+        }}
+        ol li {{
+            margin-bottom: 5px !important;
+            font-size: 13px !important;
+            line-height: 1.45 !important;
+            color: #334155 !important;
+        }}
+        
         code {{
             font-family: 'Consolas', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
             background-color: #f1f5f9;
             color: #0f172a;
             padding: 1px 4px;
             border-radius: 3px;
-            font-size: 11.5px;
+            font-size: 12px !important;
         }}
         table {{
             width: 100% !important;
