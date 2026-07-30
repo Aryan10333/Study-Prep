@@ -56,6 +56,8 @@ All technical study guides must follow a strict **Practical Mathematics** progre
 ### Premium HTML/CSS and Inline SVG Diagrams (No Mermaid or ASCII blocks):
 - Do not use raw text-based ASCII flowcharts or Mermaid code blocks in study guides, as they do not render reliably in PDF compilers and require external CDN loading.
 - Instead, construct diagrams using **pure inline HTML/CSS blocks** (using flexbox/grid containers, rounded borders, colored headers, and simple arrows) or **inline SVG markup** (defining paths, rects, text, and arrow markers). This guarantees that diagrams render instantly, print as vector-sharp shapes, and match the target A4 styles perfectly without external JavaScript.
+- **Label Subscript Formatting**: Inside HTML/CSS/SVG diagram labels, do not use raw LaTeX/KaTeX subscripts (like `w_{t-2}`). Use native HTML `<sub>` and `<sup>` tags instead (e.g. `w<sub>t-2</sub>`, `v<sub>w<sub>t</sub></sub>`) to ensure they render beautifully and align correctly in headless browser PDF printers.
+- **Long Equation Management**: To prevent horizontal overflow and clipping of long mathematical formulas in PDF/print sheets, split equations across multiple display blocks or separate lines in the markdown source.
 
 ---
 

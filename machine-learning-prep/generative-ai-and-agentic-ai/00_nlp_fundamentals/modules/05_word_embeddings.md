@@ -35,10 +35,10 @@ Word2Vec (Mikolov et al., 2013) uses a local sliding context window of size $C$ 
     
     <!-- Input layer -->
     <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w_{t-2}</div>
-      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w_{t-1}</div>
-      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w_{t+1}</div>
-      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w_{t+2}</div>
+      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w<sub>t-2</sub></div>
+      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w<sub>t-1</sub></div>
+      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w<sub>t+1</sub></div>
+      <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 11px;">w<sub>t+2</sub></div>
     </div>
     
     <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">&darr;</div>
@@ -46,7 +46,7 @@ Word2Vec (Mikolov et al., 2013) uses a local sliding context window of size $C$ 
     <!-- Projection layer -->
     <div style="background-color: #3b82f6; color: white; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: bold; text-align: center; width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
       SUM & AVERAGE Layer<br>
-      <span style="font-size: 10px; font-weight: normal; font-family: monospace;">h = 1/(2C) * &sum; v_i</span>
+      <span style="font-size: 10px; font-weight: normal; font-family: monospace;">h = (1/2C) &Sigma; v<sub>i</sub></span>
     </div>
     
     <div style="font-size: 14px; color: #64748b; margin-top: 8px; margin-bottom: 8px;">&darr;</div>
@@ -54,7 +54,7 @@ Word2Vec (Mikolov et al., 2013) uses a local sliding context window of size $C$ 
     <!-- Output layer -->
     <div style="background-color: #ef4444; color: white; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: bold; text-align: center; width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 8px;">
       Predict Target Word<br>
-      <span style="font-size: 10px; font-weight: normal; font-family: monospace;">w_t</span>
+      <span style="font-size: 10px; font-weight: normal; font-family: monospace;">w<sub>t</sub></span>
     </div>
     <div style="color: #64748b; font-size: 11px; text-align: center; line-height: 1.3;">Averages surrounding context vectors to predict the hidden middle word.</div>
   </div>
@@ -64,24 +64,24 @@ Word2Vec (Mikolov et al., 2013) uses a local sliding context window of size $C$ 
     <div style="font-weight: bold; font-size: 14px; color: #7c3aed; margin-bottom: 12px; text-transform: uppercase;">Skip-gram Model</div>
     
     <!-- Input layer -->
-    <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 12px; font-family: monospace; font-size: 12px; margin-bottom: 12px;">w_t (Target)</div>
+    <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 12px; font-family: monospace; font-size: 12px; margin-bottom: 12px;">w<sub>t</sub> (Target)</div>
     
     <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">&darr;</div>
     
     <!-- Projection layer -->
     <div style="background-color: #8b5cf6; color: white; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: bold; text-align: center; width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
       PROJECTION Layer<br>
-      <span style="font-size: 10px; font-weight: normal; font-family: monospace;">h = v_{w_t}</span>
+      <span style="font-size: 10px; font-weight: normal; font-family: monospace;">h = v<sub>w<sub>t</sub></sub></span>
     </div>
     
     <div style="font-size: 14px; color: #64748b; margin-top: 8px; margin-bottom: 8px;">&darr;</div>
     
     <!-- Output layer -->
     <div style="display: flex; gap: 8px; margin-bottom: 12px; width: 100%; justify-content: center;">
-      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w_{t-2}</div>
-      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w_{t-1}</div>
-      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w_{t+1}</div>
-      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w_{t+2}</div>
+      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w<sub>t-2</sub></div>
+      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w<sub>t-1</sub></div>
+      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w<sub>t+1</sub></div>
+      <div style="background-color: #ec4899; color: white; border-radius: 4px; padding: 4px 6px; font-family: monospace; font-size: 10px; font-weight: bold;">w<sub>t+2</sub></div>
     </div>
     <div style="color: #64748b; font-size: 11px; text-align: center; line-height: 1.3;">Uses a single center word vector to predict the surrounding vocabulary distributions.</div>
   </div>

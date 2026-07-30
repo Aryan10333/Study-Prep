@@ -19,7 +19,9 @@ $$P(A \cap B) = P(B \mid A) P(A)$$
 For three events $A$, $B$, and $C$, we generalize this by grouping $A \cap B$ as a single event:
 $$P(A \cap B \cap C) = P(C \mid A \cap B) P(A \cap B) = P(C \mid A, B) P(B \mid A) P(A)$$
 Generalizing this step-by-step to a sequence of $m$ word tokens, the exact joint probability of a text sequence is computed as:
-$$P(w_1, w_2, \dots, w_m) = P(w_1) P(w_2 \mid w_1) P(w_3 \mid w_1, w_2) \dots P(w_m \mid w_1, \dots, w_{m-1}) = \prod_{i=1}^m P(w_i \mid w_1, \dots, w_{i-1})$$
+$$P(w_1, w_2, \dots, w_m) = P(w_1) P(w_2 \mid w_1) P(w_3 \mid w_1, w_2) \dots P(w_m \mid w_1, \dots, w_{m-1})$$
+$$\text{Which simplifies to the product form:} \quad = \prod_{i=1}^m P(w_i \mid w_1, \dots, w_{i-1})$$
+
 
 ---
 
