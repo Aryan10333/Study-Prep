@@ -49,16 +49,18 @@ Where:
 *   $|D|$ is word length of document $D$.
 *   $\text{avgdl}$ is the average document length.
 
+![BM25 Saturation](../plots/02_tfidf_vs_bm25_saturation.png)
+
+*   **Plot Interpretation:** The term contribution curves compare linear TF count scaling, log-scaled TF-IDF, and BM25 saturation curves ($k_1 = 1.2$ and $k_1 = 2.0$). While linear TF grows indefinitely, BM25 caps the term score contribution at an asymptote of $(k_1 + 1)$. This term saturation knob stops a single keyword from dominating document relevance scores when repeated excessively.
+
 ---
 
 ### Zipf's Law
 Zipf's Law states that in a natural language corpus, the frequency of a word is inversely proportional to its frequency rank (a power-law decay where a tiny fraction of the vocabulary makes up the vast majority of occurrences). This justifies the log-scaling applied in TF and IDF to prevent common words from dominating representations.
 
 ![Zipfs Law](../plots/01_zipfs_law.png)
-![BM25 Saturation](../plots/02_tfidf_vs_bm25_saturation.png)
 
-*   **Plot Interpretation (Zipf's Law):** The linear and log-log scale plots demonstrate how word frequency rank decays exponentially in natural language corpora. A few extremely high-frequency stopwords (rank $r < 10$) consume the majority of corpus frequency, while the vast majority of words appear rarely in the "long tail" (rank $r > 100$). This justifies the log-scaling applied in TF-IDF to prevent common words from dominating representations.
-*   **Plot Interpretation (Okapi BM25 Saturation):** The term contribution curves compare linear TF count scaling, log-scaled TF-IDF, and BM25 saturation curves ($k_1 = 1.2$ and $k_1 = 2.0$). While linear TF grows indefinitely, BM25 caps the term score contribution at an asymptote of $(k_1 + 1)$. This term saturation knob stops a single keyword from dominating document relevance scores when repeated excessively.
+*   **Plot Interpretation:** The linear and log-log scale plots demonstrate how word frequency rank decays exponentially in natural language corpora. A few extremely high-frequency stopwords (rank $r < 10$) consume the majority of corpus frequency, while the vast majority of words appear rarely in the "long tail" (rank $r > 100$). This justifies the log-scaling applied in TF-IDF to prevent common words from dominating representations.
 
 ---
 

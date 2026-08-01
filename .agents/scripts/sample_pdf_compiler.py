@@ -72,10 +72,19 @@ def compile_markdown_to_pdf(md_paths, html_out_path, pdf_out_path, page_title="M
         with open(md_path, "r", encoding="utf-8") as f:
             md_text = f.read()
 
-        # Step 1: Preprocess lists
+        # Step 1: Extract and safeguard KaTeX math blocks
+        math_blocks = []
+        def store_math(m):
+            math_blocks.append(m.group(0))
+            return f"MATHPLACEHOLDER{len(math_blocks)-1}ENDMATH"
+
+        md_text = re.sub(r'\$\$[\s\S]*?\$\$', store_math, md_text)
+        md_text = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', store_math, md_text)
+
+        # Step 2: Preprocess lists (runs on protected placeholder text)
         md_text = preprocess_markdown(md_text)
 
-        # Step 2: Parse and replace custom alerts
+        # Step 3: Parse and replace custom alerts
         for alert, (border, bg, color, label) in alert_types.items():
             pattern = re.compile(rf'>\s*\[!{alert}\]\s*\n((?:>[^\n]*\n?)*)', re.IGNORECASE)
             def alert_replacer(match):
@@ -91,15 +100,6 @@ def compile_markdown_to_pdf(md_paths, html_out_path, pdf_out_path, page_title="M
                 body_html = markdown.markdown(body_markdown, extensions=['fenced_code', 'tables', 'nl2br', 'sane_lists', 'codehilite'])
                 return f'<div style="border-left: 4px solid {border}; background-color: {bg}; color: {color}; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>{label}:</strong><div style="margin-top: 4px;">{body_html}</div></div>\n'
             md_text = pattern.sub(alert_replacer, md_text)
-
-        # Step 3: Extract and safeguard KaTeX math blocks
-        math_blocks = []
-        def store_math(m):
-            math_blocks.append(m.group(0))
-            return f"MATHPLACEHOLDER{len(math_blocks)-1}ENDMATH"
-
-        md_text = re.sub(r'\$\$[\s\S]*?\$\$', store_math, md_text)
-        md_text = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', store_math, md_text)
 
         # Step 4: Markdown parsing
         html_body = markdown.markdown(

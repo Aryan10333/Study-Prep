@@ -872,14 +872,16 @@ Since $\text{Score}(\text{“un”}, \text{“able”}) = 0.0001 &gt; \text{Scor
 <li>$|D|$ is word length of document $D$.</li>
 <li>$\text{avgdl}$ is the average document length.</li>
 </ul>
+<p><img alt="BM25 Saturation" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/02_tfidf_vs_bm25_saturation.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The term contribution curves compare linear TF count scaling, log-scaled TF-IDF, and BM25 saturation curves ($k_1 = 1.2$ and $k_1 = 2.0$). While linear TF grows indefinitely, BM25 caps the term score contribution at an asymptote of $(k_1 + 1)$. This term saturation knob stops a single keyword from dominating document relevance scores when repeated excessively.</li>
+</ul>
 <hr />
 <h3 id="zipfs-law">Zipf's Law</h3>
 <p>Zipf's Law states that in a natural language corpus, the frequency of a word is inversely proportional to its frequency rank (a power-law decay where a tiny fraction of the vocabulary makes up the vast majority of occurrences). This justifies the log-scaling applied in TF and IDF to prevent common words from dominating representations.</p>
-<p><img alt="Zipfs Law" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_zipfs_law.png" /><br />
-<img alt="BM25 Saturation" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/02_tfidf_vs_bm25_saturation.png" /></p>
+<p><img alt="Zipfs Law" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_zipfs_law.png" /></p>
 <ul>
-<li><strong>Plot Interpretation (Zipf's Law):</strong> The linear and log-log scale plots demonstrate how word frequency rank decays exponentially in natural language corpora. A few extremely high-frequency stopwords (rank $r &lt; 10$) consume the majority of corpus frequency, while the vast majority of words appear rarely in the "long tail" (rank $r &gt; 100$). This justifies the log-scaling applied in TF-IDF to prevent common words from dominating representations.</li>
-<li><strong>Plot Interpretation (Okapi BM25 Saturation):</strong> The term contribution curves compare linear TF count scaling, log-scaled TF-IDF, and BM25 saturation curves ($k_1 = 1.2$ and $k_1 = 2.0$). While linear TF grows indefinitely, BM25 caps the term score contribution at an asymptote of $(k_1 + 1)$. This term saturation knob stops a single keyword from dominating document relevance scores when repeated excessively.</li>
+<li><strong>Plot Interpretation:</strong> The linear and log-log scale plots demonstrate how word frequency rank decays exponentially in natural language corpora. A few extremely high-frequency stopwords (rank $r &lt; 10$) consume the majority of corpus frequency, while the vast majority of words appear rarely in the "long tail" (rank $r &gt; 100$). This justifies the log-scaling applied in TF-IDF to prevent common words from dominating representations.</li>
 </ul>
 <hr />
 <h3 id="hand-calculation-on-a-simple-example">Hand Calculation on a Simple Example</h3>

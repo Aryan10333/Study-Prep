@@ -142,25 +142,28 @@ def draw_linguistic_levels(output_dir):
         ("PHONOLOGY", "Phonemes, sound constructs, and characters.", "#60a5fa", "#eff6ff")
     ]
     
-    # Draw a single, clean upward arrow on the left
-    ax.annotate('Synthesis Direction', xy=(0.04, 0.85), xytext=(0.04, 0.15),
-                arrowprops=dict(arrowstyle="->", color='#3b82f6', lw=2, mutation_scale=15),
-                fontsize=9, fontweight='semibold', color='#64748b', rotation=90, ha='right', va='center')
+    # Draw a single, clean upward arrow on the left (separate from text to ensure perfect vertical alignment)
+    ax.annotate('', xy=(0.16, 0.85), xytext=(0.16, 0.15),
+                arrowprops=dict(arrowstyle="->", color='#3b82f6', lw=2, mutation_scale=15))
+    
+    # Draw the rotated label centered vertically next to the arrow
+    ax.text(0.11, 0.50, 'Synthesis Direction', fontsize=9, fontweight='semibold',
+            color='#64748b', rotation=90, ha='right', va='center')
     
     y = 0.8
     for name, desc, border, bg in levels:
         # Wrap description to 35 characters per line to prevent cutting off text
         wrapped_desc = textwrap.fill(desc, width=35)
         
-        # Draw box (shifted right to 0.22)
-        ax.text(0.22, y, name, fontsize=11, fontweight='bold', color=border,
+        # Draw box (shifted right to 0.38)
+        ax.text(0.38, y, name, fontsize=11, fontweight='bold', color=border,
                 bbox=dict(boxstyle="round,pad=0.5", facecolor=bg, edgecolor=border, lw=1.5),
                 ha='center', va='center')
-        ax.text(0.38, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
+        ax.text(0.54, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
         y -= 0.15
         
     ax.set_title("Levels of Linguistic Analysis Hierarchy", fontsize=12, fontweight='bold', pad=10, color='#0f172a', loc='center')
-    ax.set_xlim(0, 1.15)
+    ax.set_xlim(-0.02, 0.96)
     ax.set_ylim(0.1, 0.9)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, '01_linguistic_levels.png'), dpi=300)
@@ -204,7 +207,7 @@ def draw_nlp_pipeline(output_dir):
         y -= 0.13
         
     ax.set_title("Standard Production NLP Pipeline Flow", fontsize=12, fontweight='bold', pad=15, color='#0f172a', loc='center')
-    ax.set_xlim(0, 1.15)
+    ax.set_xlim(-0.03, 1.11)
     ax.set_ylim(0.15, 0.95)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, '01_nlp_pipeline.png'), dpi=300)
