@@ -21,6 +21,9 @@ def build_01_text_preprocessing():
 This notebook implements classical text preprocessing steps (Porter stemming and WordNet lemmatization) using NLTK on a scraped Wikipedia page corpus, and simulates a basic Byte-Pair Encoding (BPE) subword merge loop.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Scrape Wikipedia Corpus"))
+
     # Code Cell 1: Scrape Wikipedia
     cells.append(nbf.v4.new_code_cell(r"""import nltk
 import re
@@ -49,6 +52,9 @@ print("Raw Scraped Wikipedia Text snippet:\n", raw_text[:120], "...\n")
 - **Slicing**: We sliced a single representative paragraph (`paragraphs[1]`) to use as our base document. The raw text contains standard punctuation, capitalization, and numbers that need to be normalized before further processing.
 """))
     
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 2. Clean and Tokenize Text"))
+    
     # Code Cell 2: Cleaning & Tokenizing
     cells.append(nbf.v4.new_code_cell(r"""# Basic regex cleaning (remove URLs and non-alphanumeric characters)
 cleaned_text = re.sub(r"https?://\S+", "", raw_text)
@@ -65,6 +71,9 @@ print("Tokens:\n", tokens)
 - **Normalizing**: Capital letters are converted to lowercase using `.lower()`, and punctuation is removed using regular expressions. This prevents words like `"Language"` and `"language"` from being treated as separate tokens.
 - **Tokens**: The string is split into individual token words using NLTK's `word_tokenize`. We take a 15-token subset for readable processing.
 """))
+    
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 3. Compare Stemming and Lemmatization"))
     
     # Code Cell 3: Stemming vs Lemmatization
     cells.append(nbf.v4.new_code_cell(r"""stemmer = PorterStemmer()
@@ -85,6 +94,9 @@ for o, s, l in zip(tokens, stemmed, lemmatized):
 - **Porter Stemmer**: Reduces words to base forms using heuristic suffix removal rules. For example, `"studies"` might be stemmed to `"studi"`. This is fast but often generates non-dictionary stems.
 - **WordNet Lemmatizer**: Resolves words to actual dictionary lemmas using morphological lookup and Part-of-Speech (POS) tags. For example, `"studies"` is lemmatized correctly to the root word `"study"`.
 """))
+    
+    # Markdown before Cell 4
+    cells.append(nbf.v4.new_markdown_cell("## 4. Byte-Pair Encoding (BPE) Subword Simulation"))
     
     # Code Cell 4: BPE merge simulation
     cells.append(nbf.v4.new_code_cell(r"""from collections import Counter, defaultdict
@@ -152,6 +164,9 @@ def build_02_bag_of_words_tfidf():
 This notebook builds Bag of Words (BoW) and Term Frequency - Inverse Document Frequency (TF-IDF) representation matrices from scratch using NumPy over the real-world UCI SMS Spam dataset, comparing outputs against Scikit-Learn.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Load SMS Spam Dataset"))
+
     # Code Cell 1: Load Data
     cells.append(nbf.v4.new_code_cell(r"""import numpy as np
 import pandas as pd
@@ -177,6 +192,9 @@ for idx, doc in enumerate(corpus):
 - **Data Ingestion**: We fetched the SMS Spam Collection dataset directly over HTTPS.
 - **Sampling**: To allow clear visual inspection of matrix values, we sliced a 5-document sample from the corpus and cleaned basic formatting details.
 """))
+    
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 2. Vocabulary Mapping and Bag of Words"))
     
     # Code Cell 2: Vocab Mapping & BoW
     cells.append(nbf.v4.new_code_cell(r"""# Map vocabulary using regex (words length >= 2)
@@ -204,6 +222,9 @@ print("\nBag of Words Count Matrix:\n", bow_matrix)
 - **BoW Matrix**: Each row represents one document, and each column corresponds to a word index. The cells show raw count values of that term in the document.
 """))
     
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 3. TF-IDF Representation Matrix from Scratch"))
+    
     # Code Cell 3: TF-IDF from scratch
     cells.append(nbf.v4.new_code_cell(r"""# Smooth IDF formulation: log((1 + N) / (1 + DF)) + 1
 N = len(corpus)
@@ -226,6 +247,9 @@ print("\nTF-IDF Matrix (from scratch, normalized):\n", np.round(tfidf_norm, 4))
 - **Smoothed IDFs**: Computed using $\log((1 + N)/(1 + \text{DF})) + 1$. This scales down highly frequent terms while amplifying rare terms.
 - **L2 Normalization**: Ensures each document vector has a unit length of $1.0$, preventing document length differences from skewing cosine similarity calculations.
 """))
+    
+    # Markdown before Cell 4
+    cells.append(nbf.v4.new_markdown_cell("## 4. Compare with Scikit-Learn Output"))
     
     # Code Cell 4: Compare with Scikit-Learn
     cells.append(nbf.v4.new_code_cell(r"""from sklearn.feature_extraction.text import TfidfVectorizer
@@ -257,6 +281,9 @@ def build_03_word2vec():
 This notebook trains Continuous Bag-of-Words (CBOW) and Skip-gram Word2Vec embedding models using Gensim on sentences extracted from Project Gutenberg's *Alice in Wonderland*.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Ingest and Clean Sentences"))
+
     # Code Cell 1: Ingest sentences
     cells.append(nbf.v4.new_code_cell(r"""import re
 import nltk
@@ -286,6 +313,9 @@ print("Sample sentence snippet:", train_sentences[10])
 - **Filtering**: We sliced sentences with a length between 5 and 30 words to feed high-quality training structures into the embedding algorithm.
 """))
     
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 2. Train CBOW and Skip-gram Models"))
+    
     # Code Cell 2: Train CBOW and Skip-gram
     cells.append(nbf.v4.new_code_cell(r"""# Train CBOW (sg=0)
 cbow_model = Word2Vec(sentences=train_sentences, vector_size=20, window=3, min_count=2, sg=0, epochs=100)
@@ -301,6 +331,9 @@ print("Vocab size trained:", len(cbow_model.wv.key_to_index))
 - **Models**: We trained a **CBOW** model and a **Skip-gram** model.
 - **Parameters**: `vector_size=20` sets the embedding dimensionality, and `epochs=100` allows convergence on this small dataset.
 """))
+    
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 3. Embedding Vector Similarities"))
     
     # Code Cell 3: Embedding similarities
     cells.append(nbf.v4.new_code_cell(r"""print("=== CBOW Embedding vector for 'alice' ===\n", cbow_model.wv["alice"])
@@ -331,6 +364,9 @@ def build_04_glove_fasttext():
 This notebook trains FastText and Word2Vec models on Gutenberg's *Alice in Wonderland* to demonstrate how subword n-grams resolve Out-of-Vocabulary (OOV) queries.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Load and Preprocess Gutenberg Sentences"))
+
     # Code Cell 1: Load Sentences
     cells.append(nbf.v4.new_code_cell(r"""import re
 import nltk
@@ -356,6 +392,9 @@ print(f"Prepared {len(train_sentences)} sentences.")
 - **Sentences**: Slices 500 cleaned sentences from the *Alice in Wonderland* dataset to feed models.
 """))
     
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 2. Train Word2Vec and FastText Models"))
+    
     # Code Cell 2: Train Models
     cells.append(nbf.v4.new_code_cell(r"""# Train Word2Vec
 w2v = Word2Vec(train_sentences, vector_size=10, window=3, min_count=2, epochs=20)
@@ -370,6 +409,9 @@ print("Vocab Sample (Word2Vec):", list(w2v.wv.key_to_index.keys())[:8])
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Training CBOW vs Subwords
 - **Vocab Index**: Lists key words present in the dictionary. Next, we will test lookups on unseen words.
 """))
+    
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 3. Out-of-Vocabulary (OOV) Lookup Comparison"))
     
     # Code Cell 3: OOV Lookup test
     cells.append(nbf.v4.new_code_cell(r"""# OOV word query (e.g. 'alicean' - not in vocabulary)
@@ -406,6 +448,9 @@ def build_05_ngram_language_models():
 This notebook builds an N-gram Language Model from scratch and computes Perplexity metrics using a scraped Wikipedia text corpus.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Scrape Wikipedia Corpus"))
+
     # Code Cell 1: Scrape
     cells.append(nbf.v4.new_code_cell(r"""import requests
 from bs4 import BeautifulSoup
@@ -430,6 +475,9 @@ print(f"Corpus Tokens: {len(corpus)}, Vocab Size: {vocab_size}")
 - **Vocabulary Size**: The unique vocabulary size ($|V|$) serves as the normalization factor for Laplace smoothing.
 """))
     
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 2. Count Unigrams and Bigrams"))
+    
     # Code Cell 2: Unigrams & Bigrams Counts
     cells.append(nbf.v4.new_code_cell(r"""from collections import Counter
 
@@ -444,6 +492,9 @@ print("Top 5 Bigrams:", bigrams.most_common(5))
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Token Frequencies
 - **Frequencies**: Tracks occurrence counts. The most common bigrams represent lexical pairs like `('natural', 'language')` and `('language', 'processing')`.
 """))
+    
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 3. Calculate Laplace-Smoothed Transition Probabilities"))
     
     # Code Cell 3: Laplace transition probabilities
     cells.append(nbf.v4.new_code_cell(r"""def get_bigram_prob(w1, w2):
@@ -461,6 +512,9 @@ print("  P(methods | natural)  =", get_bigram_prob("natural", "methods"))
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Laplace Smoothing Transition
 - **Smoothing Effect**: Without smoothing, an unseen bigram like `('natural', 'methods')` would get a probability of $0$. By adding $+1$ to the numerator and $|V|$ to the denominator, we assign it a small, non-zero probability, preventing sequence score saturation.
 """))
+    
+    # Markdown before Cell 4
+    cells.append(nbf.v4.new_markdown_cell("## 4. Evaluate Sequence Perplexity"))
     
     # Code Cell 4: Perplexity check
     cells.append(nbf.v4.new_code_cell(r"""import math
@@ -499,6 +553,9 @@ def build_06_rnn_lstm_gru():
 This notebook trains a recurrent classifier in PyTorch to classify sentence lengths (long vs. short) using vocabulary loaded from Gutenberg's *Alice in Wonderland*.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Load Vocabulary and Corpus"))
+    
     # Code Cell 1: Load Vocab
     cells.append(nbf.v4.new_code_cell(r"""import re
 import nltk
@@ -529,6 +586,9 @@ print("Vocabulary Size:", vocab_size)
 - **Tokens Mapping**: Maps words to vocabulary index dictionaries, setting `<pad>` to index 0 and `<unk>` to index 1.
 """))
     
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 2. Sequence Padding and Tensor Creation"))
+    
     # Code Cell 2: Pad tensors
     cells.append(nbf.v4.new_code_cell(r"""seq_len = 20
 X_data = []
@@ -556,6 +616,9 @@ print("Target y tensor shape:", y.shape)
 - **Dimensions**: The inputs `X` have the shape `(300, 20)`, representing 300 batch sequences padded or sliced to a length of 20.
 - **Targets**: `y` is a binary label tensor of shape `(300,)`.
 """))
+    
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 3. Recurrent Classifier Model Definition"))
     
     # Code Cell 3: Recurrent Classifier Definition
     cells.append(nbf.v4.new_code_cell(r"""import torch.nn as nn
@@ -592,6 +655,9 @@ print("Classifier architectures defined successfully.")
 - **Bidirectional Layer**: We set `bidirectional=True` in PyTorch, which runs two independent hidden layers (forward and backward). The final linear classification layer receives the concatenated representations of shape `(batch, hidden_dim * 2)`.
 """))
     
+    # Markdown before Cell 4
+    cells.append(nbf.v4.new_markdown_cell("## 4. Model Training and Comparison"))
+    
     # Code Cell 4: Train RNN, LSTM, GRU
     cells.append(nbf.v4.new_code_cell(r"""for cell_name in ["RNN", "LSTM", "GRU"]:
     model = RecurrentClassifier(cell_type=cell_name)
@@ -612,6 +678,45 @@ print("Classifier architectures defined successfully.")
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Training Comparison
 - **Final Loss**: Shows training losses across 5 epochs. In general, LSTMs and GRUs show more stable loss decay on long context sequences compared to standard RNN cells.
 """))
+
+    # Markdown before Cell 5
+    cells.append(nbf.v4.new_markdown_cell("## 5. Model Inference on Unseen Sentences"))
+
+    # Code Cell 5: Apply Trained Model on Custom Unseen Sentences
+    cells.append(nbf.v4.new_code_cell(r"""# Apply the trained GRU model to predict on custom unseen sentences
+test_sentences = [
+    "Alice sat down near the rabbit.", # Short sentence (<= 12 words)
+    "The white rabbit looked at his watch and realized he was very late for the meeting with the queen." # Long sentence (> 12 words)
+]
+
+# We use the GRU model from the loop (which is already trained and active)
+model.eval()
+with torch.no_grad():
+    for sentence in test_sentences:
+        # Preprocess query text exactly as done for training
+        words = [w.lower() for w in sentence.split() if re.match(r"^\w+$", w)]
+        indices = [vocab.get(w, 1) for w in words]
+        if len(indices) < seq_len:
+            indices = indices + [0] * (seq_len - len(indices))
+        else:
+            indices = indices[:seq_len]
+        
+        # Add batch dimension and convert to tensor
+        input_tensor = torch.tensor([indices], dtype=torch.long)
+        logits = model(input_tensor)
+        prediction = torch.argmax(logits, dim=1).item()
+        predicted_label = "Long (> 12 words)" if prediction == 1 else "Short (<= 12 words)"
+        
+        print(f"Sentence: '{sentence}'")
+        print(f"  Token Count: {len(words)} | Predicted Class: {predicted_label}\n")
+"""))
+    
+    # Markdown Explanation 5
+    cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Applying the Trained Model
+- **Inference Pipeline**: The custom sentences are tokenized, mapped to vocabulary indices, padded to `seq_len=20`, and wrapped into a batch tensor of shape `(1, 20)`.
+- **Classification Output**: The forward pass computes class logits, and `torch.argmax` extracts the prediction.
+- **Model Learning & Convergence Note**: Due to the extremely constrained training budget (only 5 epochs on a tiny slice of 300 samples with a model initialized from scratch), the classifier exhibits high bias/underfitting and may misclassify long sentences (e.g. predicting "Short" for the 18-token sentence). In a production scenario, training to convergence would involve more epochs, a larger dataset, and dynamic learning rate scheduling to properly segregate the classes.
+"""))
     
     nb['cells'] = cells
     return nb
@@ -626,6 +731,9 @@ def build_07_nlp_pipeline():
 This notebook designs an end-to-end spam classification pipeline on the UCI SMS Spam dataset, evaluates performance, monitors for Data Drift, and applies a diagnostic data retraining patch.
 """))
     
+    # Markdown before Cell 1
+    cells.append(nbf.v4.new_markdown_cell("## 1. Train Baseline Classifier"))
+
     # Code Cell 1: Train baseline
     cells.append(nbf.v4.new_code_cell(r"""import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -642,11 +750,13 @@ X_train_raw, X_test_raw, y_train, y_test = train_test_split(
     df_sample["message"], df_sample["label"], test_size=0.2, random_state=42
 )
 
-vectorizer = TfidfVectorizer()
+# Custom token pattern to preserve single emoji characters
+vectorizer = TfidfVectorizer(token_pattern=r"\S+")
 X_train = vectorizer.fit_transform(X_train_raw)
 X_test = vectorizer.transform(X_test_raw)
 
-clf = LogisticRegression()
+# Balanced class weights to correct label distribution imbalance
+clf = LogisticRegression(class_weight='balanced')
 clf.fit(X_train, y_train)
 print("Baseline SMS Spam Classifier trained successfully.")
 print("Train set size:", X_train.shape)
@@ -656,6 +766,29 @@ print("Train set size:", X_train.shape)
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Baseline Training
 - **Trained Model**: Fits a Logistic Regression classifier on 480 SMS documents represented as sparse TF-IDF vectors.
 """))
+
+    # Markdown before Cell 1B
+    cells.append(nbf.v4.new_markdown_cell("## 2. Baseline Model Task Evaluation"))
+
+    # Code Cell 1B: Task Evaluation
+    cells.append(nbf.v4.new_code_cell(r"""from sklearn.metrics import classification_report, accuracy_score
+
+# Evaluate the baseline model on the clean test split
+preds_test = clf.predict(X_test)
+
+print("--- Baseline Model Task Evaluation (Clean Test Split) ---")
+print(f"Accuracy: {accuracy_score(y_test, preds_test):.4f}\n")
+print("Classification Report:")
+print(classification_report(y_test, preds_test))
+"""))
+
+    # Markdown Explanation 1B
+    cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Task Evaluation
+- **Task Metrics**: We calculate standard classification evaluation metrics on the held-out test split, displaying overall **Accuracy**, **Precision**, **Recall**, and **F1-Score** for each class. This represents baseline production task performance.
+"""))
+    
+    # Markdown before Cell 2
+    cells.append(nbf.v4.new_markdown_cell("## 3. Simulate Production Data Drift"))
     
     # Code Cell 2: Simulate production drift
     cells.append(nbf.v4.new_code_cell(r"""# Simulate Production Data Drift (e.g. inputs containing emojis & slang)
@@ -680,6 +813,9 @@ for text, pred in zip(drift_inputs, preds):
 - **Drift Predictions**: Emojis like `🔥` and `🏆` trigger out-of-vocabulary conditions or confuse the classifier, causing it to misclassify spam messages as ham because emoji features were absent from the training set.
 """))
     
+    # Markdown before Cell 3
+    cells.append(nbf.v4.new_markdown_cell("## 4. Apply Retraining Patch and Re-Evaluate"))
+    
     # Code Cell 3: Apply retraining patch
     cells.append(nbf.v4.new_code_cell(r"""print("--- Retraining Classifier with Drifted Datasets ---")
 # Inject samples representing the drifted data distribution
@@ -688,9 +824,9 @@ improved_train_data = pd.concat([X_train_raw, pd.Series([
 ])])
 improved_labels = pd.concat([y_train, pd.Series(["spam", "spam", "ham"])])
 
-vectorizer_imp = TfidfVectorizer()
+vectorizer_imp = TfidfVectorizer(token_pattern=r"\S+")
 X_train_imp = vectorizer_imp.fit_transform(improved_train_data)
-clf_imp = LogisticRegression()
+clf_imp = LogisticRegression(class_weight='balanced')
 clf_imp.fit(X_train_imp, improved_labels)
 
 X_drift_imp = vectorizer_imp.transform(drift_inputs)
@@ -699,13 +835,22 @@ preds_imp = clf_imp.predict(X_drift_imp)
 print("\n--- Post-Patch Predictions ---")
 for text, pred in zip(drift_inputs, preds_imp):
     print(f"Input: {text:<30} | Prediction: {pred}")
+
+# Evaluate the patched model on the clean test split to ensure no regression
+X_test_imp = vectorizer_imp.transform(X_test_raw)
+preds_imp_test = clf_imp.predict(X_test_imp)
+
+print("\n--- Patched Model Task Evaluation (Clean Test Split) ---")
+print(f"Accuracy: {accuracy_score(y_test, preds_imp_test):.4f}\n")
+print("Classification Report:")
+print(classification_report(y_test, preds_imp_test))
 """))
     
     # Markdown Explanation 3
     cells.append(nbf.v4.new_markdown_cell("""### Output Explanation: Post-Patch Evaluation
 - **Fixed Predictions**: After retraining the classifier with the injected drift dataset, the model correctly handles spam containing emojis, restoring production inference robustness.
+- **Task Evaluation Maintenance**: We verify the classification report of the patched model on the clean test split. The accuracy and F1 scores remain high, confirming that patching for new data drift did not degrade baseline performance on historical message styles.
 """))
-    
     nb['cells'] = cells
     return nb
 

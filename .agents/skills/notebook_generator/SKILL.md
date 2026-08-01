@@ -36,9 +36,8 @@ To guarantee zero unexecuted cells (`In [ ]`), empty outputs, or corrupted JSON 
 
 ### A. Construction (`nbformat`)
 1. **Use `nbformat` v4**: Construct notebook JSON structures programmatically using schema v4 components (`nbf.v4`).
-2. **Logical Cell Splitting**: Never write large code pipelines in a single monolithic cell. Split code blocks logically (e.g., `Data Ingestion` $\rightarrow$ `Preprocessing` $\rightarrow$ `Pipeline Setup` $\rightarrow$ `Execution & Profiling` $\rightarrow$ `Validation`).
-3. **Execution Block Cell Pattern**: Operational code cells MUST strictly follow this 3-cell sequence:
-   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 2. Implementing RRF Hybrid Search`).
+2. **Logical Cell Splitting**: Never write large code pipelines in a single monolithic cell. Split code blocks logically (e.g., `Data Ingestion` $\rightarrow$ `Preprocessing` $\rightarrow$ `Pipeline Setup` $\rightarrow$ `Execution & Profiling` $\rightarrow$ `Validation`)3. **Execution Block Cell Pattern**: Operational code cells MUST strictly follow this 3-cell sequence:
+   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 2. Implementing RRF Hybrid Search`). This cell **MUST** always precede the code cell to introduce the concept.
    - **Code Cell (Implementation)**: Self-contained, runnable Python code annotated with explicit tensor shape comments (e.g., `# [B, L, H]`), runtime assertions, and error handling.
    - **Markdown Cell (Output Explanation & Interpretation)**: Titled `### Output Explanation & Interpretation` (or `### Output Explanation: [Step Topic]`), explaining printed tensor shapes, losses, matrix outputs, and providing a clear conceptual and practical interpretation.
    *(Note: Initial environment setups and `import` blocks are exempt from this Output Explanation requirement.)*
@@ -49,8 +48,7 @@ To guarantee zero unexecuted cells (`In [ ]`), empty outputs, or corrupted JSON 
    from dotenv import find_dotenv, load_dotenv
 
    load_dotenv(find_dotenv())
-
-```
+   ```
 
 Sensitive credentials must **never** be hardcoded in code cells. The following environment variables are available for use:
 
@@ -74,6 +72,7 @@ Sensitive credentials must **never** be hardcoded in code cells. The following e
 
 **Rule**: Every operational code cell inside a companion notebook must be immediately followed by a markdown cell titled `### Output Explanation` or `### Output Explanation: [Step Topic]`.
 
+* **Execute First, Explain Second Policy**: When writing or updating notebooks, the agent **MUST first compile and execute the code cell to obtain the actual output logs in the notebook, read those printed outputs from the executed file, and only then write or refine the explanation cell** based directly on the actual results. Do not write hypothetical explanations using pre-execution assumptions.
 * **Thorough Inspection**: Analyze printed cell outputs in detail, detailing resulting tensor shapes, loss outputs, or probability distributions.
 * **Floating-Point Precision Transparency**: Detail why these numbers and metrics are correct. If intermediate floating-point execution or hardware precision differences cause slight numerical shifts, explicitly document both expected theoretical values and exact floating-point outputs to maintain 100% transparency.
 * **Interpretation Insights**: Connect outputs directly to theoretical concepts, explaining what the data represents, why the results match expectations, and how they apply in production.
@@ -86,7 +85,9 @@ Immediately after generating and executing any notebook, verify:
 
 * [ ] **100% Executed State**: Every code cell has an explicit execution count (`In [1]`, `In [2]`) and populated output logs. No empty brackets (`In [ ]`) exist in the final notebook.
 * [ ] **Real-World System Focus**: Pipeline operates on real data/APIs and includes metric checks.
+* [ ] **Preceding Heading Cells**: Every code cell is preceded by a markdown heading cell.
 * [ ] **Paired Analysis Cells**: Every operational code cell is paired with a corresponding Output Explanation markdown block immediately below it.
+* [ ] **Executed Output Alignment**: The contents of all explanation cells have been aligned and verified against actual executed outputs of the notebook cells.
 * [ ] **Numerical Offset Documentation**: Any floating-point rounding or precision shifts in printed logs are explicitly explained in the analysis cell.
 * [ ] **Environment Security**: Environment variables load dynamically via `find_dotenv()`. Zero hardcoded API keys or local file paths exist.
 * [ ] **No Unnecessary PDF Compilation**: Modifying or generating companion notebooks does *not* trigger master HTML/PDF chapter compilation scripts (e.g., `compile_rag.py`, `compile_agents.py`), as notebook changes do not affect PDF text chapters.

@@ -78,6 +78,9 @@ The workflow consists of an initial scoping phase followed by three independent 
 *   **Track 2: Production Notebooks & Code (Execution Focus)**
     *   **Objective:** Standalone, end-to-end executable examples profiling real-world parameters, hardware boundaries (VRAM, latency), and tensor contiguity.
     *   **Files:** Programmatically built and run inside `notebooks/` following the [sample_notebook_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_notebook_generator.py) patterns.
+    *   **Formatting Guidelines**:
+        *   **Markdown Headings**: Always place a descriptive markdown heading cell (e.g. `## X. Step Name`) immediately before each code cell.
+        *   **Execute-Before-Explain Policy**: When creating or modifying notebooks, the agent must **first write and execute the code cell to obtain the actual output, inspect the printed logs, and only then write/align the corresponding markdown explanation cell** to guarantee 100% numerical and conceptual accuracy. Do not write hypothetical explanations prior to execution.
     *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` outlining the datasets, profiling code steps, and analysis segments, and obtain explicit user sign-off before writing or executing any notebook builder scripts.
 *   **Track 3: Standalone Interview Q&As (Screening Focus)**
     *   **Objective:** Fast screening responses, key buzzwords, technical intuition, and common mistakes.
@@ -121,4 +124,5 @@ Before presenting any completed material or running compilation scripts, verify:
 * [ ] Are tensor shapes (`# [B, L, H]`) annotated in PyTorch code blocks?
 * [ ] Are variable transformations and dimension flows clearly explained?
 * [ ] Are system bottlenecks (memory-bandwidth vs. compute bound, roofline limits, HBM bounds) explicitly identified?
+* [ ] Are companion notebooks structured with markdown heading cells preceding each code cell, and are all explanation cells written only *after* reading actual executed cell outputs?
 * [ ] Are all deliverables output at the topic directory root level (`<topic_folder>/`) while source files remain cleanly separated in `modules/`, `notebooks/`, `plots/`, and `helpers/`?
