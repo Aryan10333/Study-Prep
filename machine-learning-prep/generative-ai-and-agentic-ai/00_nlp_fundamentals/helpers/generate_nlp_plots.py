@@ -388,21 +388,29 @@ def draw_lstm_cell(output_dir):
     ax.text(0.5, 0.4, 'Input Gate\ni_t = \u03c3(...)\nCandidate Cell\nC~ = tanh(...)', fontsize=8, fontweight='bold', color='#059669', ha='center', va='center',
             bbox=dict(boxstyle="square,pad=0.3", facecolor='#ecfdf5', edgecolor='#10b981'))
             
-    ax.text(0.75, 0.4, 'Output Gate\no_t = \u03c3(...)', fontsize=8.5, fontweight='bold', color='#0284c7', ha='center', va='center',
+    ax.text(0.75, 0.45, 'Output Gate\no_t = \u03c3(...)\n* tanh(C_t)', fontsize=8, fontweight='bold', color='#0284c7', ha='center', va='center',
             bbox=dict(boxstyle="square,pad=0.3", facecolor='#eff6ff', edgecolor='#0284c7'))
             
     # Connect gates to cell state line
+    # Forget Gate updates cell state (arrow UP)
     ax.annotate('', xy=(0.3, 0.75), xytext=(0.3, 0.48), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    # Input Gate updates cell state (arrow UP)
     ax.annotate('', xy=(0.5, 0.75), xytext=(0.5, 0.48), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
-    ax.annotate('', xy=(0.75, 0.75), xytext=(0.75, 0.48), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
     
+    # Output Gate reads from cell state (arrow DOWN from rail to Output Gate box)
+    ax.annotate('', xy=(0.75, 0.52), xytext=(0.75, 0.75), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    # Output Gate outputs hidden state (arrow DOWN from Output Gate box to Hidden State rail)
+    ax.annotate('', xy=(0.75, 0.25), xytext=(0.75, 0.38), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    
+    # Hidden State path
     ax.annotate('Hidden State h_t', xy=(1.05, 0.25), xytext=(0.9, 0.25), arrowprops=dict(arrowstyle="->", color='#2563eb', lw=2))
     ax.plot([0.75, 0.9], [0.25, 0.25], color='#2563eb', lw=1.5)
-    ax.annotate('', xy=(0.75, 0.25), xytext=(0.75, 0.32), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
     
     ax.set_title("LSTM Gated Recurrent Unit Architecture & State Flow", fontsize=11, fontweight='bold', pad=15, color='#0f172a')
-    ax.set_xlim(0, 1.0)
-    ax.set_ylim(0, 1.0)
+    
+    # Set wider limits to prevent clipping of text and labels outside [0, 1] range
+    ax.set_xlim(-0.15, 1.15)
+    ax.set_ylim(-0.1, 1.05)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, '09_lstm_cell.png'), dpi=300)
     plt.close()

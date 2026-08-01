@@ -123,10 +123,7 @@ def preprocess_markdown(text, file_name):
     # 1. Transform follow-up questions to non-nested cards
     text = transform_follow_up_questions(text)
     
-    # 2. Fix math quotes in formulas
-    text = fix_math_quotes(text)
-    
-    # 3. Resolve relative image paths to absolute file URIs for headless Edge renderer
+    # 2. Resolve relative image paths to absolute file URIs for headless Edge renderer
     text = text.replace("../plots/", f"file:///{plots_abs_dir}/")
 
     # 4. Strip frontmatter and replace it with Module number and title heading
@@ -197,17 +194,10 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         with open(full_path, "r", encoding="utf-8") as f:
             md_text = f.read()
 
-        md_text = preprocess_markdown(md_text, file_name)
+        # 1. Apply fix_math_quotes to the raw Markdown text
+        md_text = fix_math_quotes(md_text)
 
-        # Preprocess custom alert tags
-        for alert, (border, bg, color, label) in alert_types.items():
-            pattern = re.compile(rf'>\s*\[!{alert}\]\s*\n((?:>[^\n]*\n?)*)', re.IGNORECASE)
-            def alert_replacer(match):
-                body_lines = match.group(1).replace('>', '').strip()
-                return f'<div style="border-left: 4px solid {border}; background-color: {bg}; color: {color}; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>{label}:</strong><div style="margin-top: 4px;">{body_lines}</div></div>\n'
-            md_text = pattern.sub(alert_replacer, md_text)
-
-        # Protect math blocks
+        # 2. Protect math blocks using placeholders before any other preprocessing
         math_blocks = []
         def store_math(m):
             math_blocks.append(m.group(0))
@@ -215,6 +205,17 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
 
         md_text = re.sub(r'\$\$[\s\S]*?\$\$', store_math, md_text)
         md_text = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', store_math, md_text)
+
+        # 3. Preprocess the document (Q&As, relative images, headings, lists)
+        md_text = preprocess_markdown(md_text, file_name)
+
+        # 4. Preprocess custom alert tags
+        for alert, (border, bg, color, label) in alert_types.items():
+            pattern = re.compile(rf'>\s*\[!{alert}\]\s*\n((?:>[^\n]*\n?)*)', re.IGNORECASE)
+            def alert_replacer(match):
+                body_lines = match.group(1).replace('>', '').strip()
+                return f'<div style="border-left: 4px solid {border}; background-color: {bg}; color: {color}; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;"><strong>{label}:</strong><div style="margin-top: 4px;">{body_lines}</div></div>\n'
+            md_text = pattern.sub(alert_replacer, md_text)
 
         # Convert to HTML
         html_body = markdown.markdown(

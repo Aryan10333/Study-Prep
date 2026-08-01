@@ -814,7 +814,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 $$F_{\text{BERT}} = 2 \times \frac{P_{\text{BERT}} \times R_{\text{BERT}}}{P_{\text{BERT}} + R_{\text{BERT}}} \approx 2 \times \frac{0.7667 \times 0.7667}{0.7667 + 0.7667} \approx 0.7667$$
 
 ##### Findings & Interpretation:
-While BLEU-2 would penalize this candidate heavily due to lack of exact word matches (BLEU unigram overlap would fail on `"feline"` vs `"cat"` and `"rug"` vs `"mat"`), BERTScore detects the semantic equivalence of `"feline" \leftrightarrow "cat"` ($0.88$) and `"rug" \leftrightarrow "mat"` ($0.85$), yielding a high F1 score of $0.7667$, capturing synonym alignments.
+While BLEU-2 would penalize this candidate heavily due to lack of exact word matches (BLEU unigram overlap would fail on `"feline"` vs `"cat"` and `"rug"` vs `"mat"`), BERTScore detects the semantic equivalence of $\text{"feline"} \leftrightarrow \text{"cat"}$ ($0.88$) and $\text{"rug"} \leftrightarrow \text{"mat"}$ ($0.85$), yielding a high F1 score of $0.7667$, capturing synonym alignments.
 
 ### Production Perspective & Trade-offs
 - **Inference Latency**: BLEU is a string overlap check running in $O(L_c \cdot L_r)$ on CPU (taking $<0.1\text{ms}$). BERTScore requires running a transformer encoder forward-pass on GPU to extract token embeddings, increasing computing cost and latency by orders of magnitude, making it expensive for real-time model evaluation APIs.
