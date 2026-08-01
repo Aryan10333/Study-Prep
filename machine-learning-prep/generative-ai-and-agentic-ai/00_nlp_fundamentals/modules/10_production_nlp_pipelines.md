@@ -10,6 +10,8 @@ Think of data drift as a highway traffic shift. If your GPS maps the highway ass
 
 ![Data Drift](../plots/04_data_drift_psi.png)
 
+*   **Plot Interpretation:** The covariate shift bar chart illustrates expected baseline frequencies vs. actual serve stream category frequencies. In this case, the serve stream shows a heavy covariate shift toward "Slang/Emojis" (spiking from 5% to 38%) and a decay in "Tech/News" categories. Production systems calculate the Population Stability Index (PSI) to flag these shifts, triggering automated retraining pipelines if PSI exceeds 0.2.
+
 ---
 
 ## 2. Core Concepts & Mathematical Formulation

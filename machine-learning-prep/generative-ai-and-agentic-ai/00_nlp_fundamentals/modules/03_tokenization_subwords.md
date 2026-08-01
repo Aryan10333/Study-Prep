@@ -10,6 +10,8 @@ Think of tokenization as structural compression. We want to represent text using
 
 ![Subword Tree](../plots/03_subword_tree.png)
 
+*   **Plot Interpretation:** The subword tree shows the hierarchical fragmentation of the word `"unfriendliness"` into its constituent morphemes. The model first splits the prefix `"un-"` from the base compound `"friendliness"`. It then decomposes `"friendliness"` into the root morpheme `"friend"` and the combined suffixes `"-ly"` and `"-ness"`. This enables the vocabulary to map rare morphologically complex terms to shared root parameters.
+
 ---
 
 ## 2. Core Concepts & Mathematical Formulation

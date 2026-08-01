@@ -11,6 +11,9 @@ Think of sequential reading as tracking a cognitive notepad (the hidden state). 
 ![Gradient Flow](../plots/03_rnn_gradient_flow.png)
 ![LSTM Cell](../plots/09_lstm_cell.png)
 
+*   **Plot Interpretation (Gradient Signal Stability):** The gradient norm decay curve compares a Vanilla RNN cell against an LSTM cell state over recurrent sequence steps. Because Vanilla RNN multiplies the hidden weight matrix repeatedly during Backpropagation Through Time (BPTT), the gradient norm decays exponentially (vanishing gradients) on contexts longer than 10-15 tokens. The LSTM cell state maintains stable gradient flow over 100+ steps because its cell state transition is additive, carrying memory linearly through time.
+*   **Plot Interpretation (LSTM Cell Architecture):** The LSTM cell diagram details the gating mechanics that control information flow. The cell processes the previous hidden state ($\mathbf{h}_{t-1}$) and current input ($\mathbf{x}_t$) to compute the forget gate ($f_t$), input gate ($i_t$), candidate state ($\tilde{C}_t$), and output gate ($o_t$). These gates perform element-wise scaling to selectively forget history and write new information to the cell state ($C_t$), producing the new hidden output ($\mathbf{h}_t$).
+
 ---
 
 ## 2. Core Concepts & Mathematical Formulation

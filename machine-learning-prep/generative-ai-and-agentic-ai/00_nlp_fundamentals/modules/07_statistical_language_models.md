@@ -10,6 +10,8 @@ Think of sequence prediction as navigating a state transition highway. Instead o
 
 ![HMM Lattice](../plots/07_hmm_lattice.png)
 
+*   **Plot Interpretation:** The Hidden Markov Model transition lattice represents state sequences ($t-1$ to $t$). Each state at $t-1$ (e.g. Noun, Verb, Adj) projects transition probabilities (Transition Matrix $\mathbf{A}$) to all possible states at step $t$. By computing local state transition matrices and emission weights (Matrix $\mathbf{B}$), sequence labeling models (like Viterbi parsers) calculate the globally optimal state sequence paths without exhausting physical memory.
+
 ---
 
 ## 2. Core Concepts & Mathematical Formulation

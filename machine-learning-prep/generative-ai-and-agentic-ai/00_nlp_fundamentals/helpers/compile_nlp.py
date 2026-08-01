@@ -53,6 +53,13 @@ def transform_follow_up_questions(text):
         re.MULTILINE
     )
     
+    def md_to_html_inline(val):
+        # Convert bold syntax (**word** or __word__) to strong tag
+        val = re.sub(r'\*\*(.*?)\*\*|__(.*?)__', r'<strong>\1\2</strong>', val)
+        # Convert italic syntax (*word* or _word_) to em tag
+        val = re.sub(r'\*(.*?)\*|_(.*?)_', r'<em>\1\2</em>', val)
+        return val
+    
     def replacer(match):
         lines_block = match.group(1)
         q_a_pairs = []
@@ -95,10 +102,12 @@ def transform_follow_up_questions(text):
         ]
         
         for q, a in q_a_pairs:
+            q_html = md_to_html_inline(q)
+            a_html = md_to_html_inline(a)
             html_out.append(f"""
     <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
-        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: {q}</div>
-        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">{a}</div>
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: {q_html}</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">{a_html}</div>
     </div>
 """)
         html_out.append('</div>')

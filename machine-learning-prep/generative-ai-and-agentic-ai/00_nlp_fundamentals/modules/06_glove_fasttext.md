@@ -13,6 +13,8 @@ Think of FastText as breaking a word into a set of puzzle pieces (character n-gr
 
 ![FastText Ngrams](../plots/06_fasttext_ngrams.png)
 
+*   **Plot Interpretation:** The subword embedding aggregation flow details how FastText constructs a dense representation for the word `"<where>"`. The input string is fragmented into character n-grams ($n=3$ to $n=6$, wrapped in boundary brackets) plus the whole word itself. The model performs vector lookups for each individual subword piece, and passes them to PyTorch's `EmbeddingBag` module which computes the mean aggregation vector ($[h]$). This allows the model to reconstruct semantic vectors for out-of-vocabulary terms by pooling their subword embeddings.
+
 ---
 
 ## 2. Core Concepts & Mathematical Formulation

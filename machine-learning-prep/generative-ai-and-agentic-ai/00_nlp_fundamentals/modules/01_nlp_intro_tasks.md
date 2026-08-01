@@ -16,6 +16,8 @@ NLP translates this multi-layered code into continuous numerical vectors that ca
 
 ![Linguistic Levels](../plots/01_linguistic_levels.png)
 
+*   **Plot Interpretation:** The hierarchy of linguistic analysis illustrates how text flows from basic, discrete sound constructs (Phonology) up to multi-word morphological derivations (Morphology), grammatical structures (Syntax), literal semantics (Semantics), and finally, high-level context and intent (Pragmatics). As we move upward, computational representation shifts from simple character-matching heuristics to complex semantic vector embeddings.
+
 ### Walkthrough of a Sample String: `"Seattle's libraries are awesome! 🌟"`
 
 In production systems, processing raw text requires translating unstructured strings into structured numerical matrices through a sequential pipeline:

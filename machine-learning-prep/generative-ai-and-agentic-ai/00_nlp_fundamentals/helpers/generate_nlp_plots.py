@@ -152,12 +152,14 @@ def draw_linguistic_levels(output_dir):
                 bbox=dict(boxstyle="round,pad=0.5", facecolor=bg, edgecolor=border, lw=1.5),
                 ha='center', va='center')
         ax.text(0.26, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
-        
-        if y > 0.2:
-            # Draw arrow pointing up (shifted left to 0.12)
-            ax.annotate('', xy=(0.12, y + 0.05), xytext=(0.12, y - 0.05),
-                        arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
         y -= 0.15
+        
+    # Draw arrows connecting the boxes (in the empty space between them)
+    y_centers = [0.2, 0.35, 0.5, 0.65]
+    for yc in y_centers:
+        ax.annotate('', xy=(0.12, yc + 0.11), xytext=(0.12, yc + 0.04),
+                    arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5,
+                                    shrinkA=0, shrinkB=0))
         
     ax.set_title("Levels of Linguistic Analysis Hierarchy", fontsize=12, fontweight='bold', pad=10, color='#0f172a', loc='center')
     ax.set_xlim(0, 1.15)
@@ -246,7 +248,9 @@ def draw_fasttext_ngrams(output_dir):
     fig, ax = plt.subplots(figsize=(7.5, 4), dpi=300)
     ax.axis('off')
     
-    ax.text(0.15, 0.8, 'Word String\n"<where>"', fontsize=10, fontweight='bold', color='#0f172a', ha='center', va='center')
+    # Styled centered box for the input word
+    ax.text(0.12, 0.5, 'Word String\n"<where>"', fontsize=10, fontweight='bold', color='#0f172a', ha='center', va='center',
+            bbox=dict(boxstyle="round,pad=0.5", facecolor='#f1f5f9', edgecolor='#94a3b8', lw=1.2))
     
     ngrams = ['"<wh"', '"whe"', '"her"', '"ere"', '"re>"', '"where" (whole)']
     y = 0.8
@@ -254,8 +258,10 @@ def draw_fasttext_ngrams(output_dir):
         ax.text(0.45, y, ng, fontsize=9, color='#475569', ha='center', va='center',
                 bbox=dict(boxstyle="round,pad=0.3", facecolor='#f8fafc', edgecolor='#cbd5e1'))
         
-        ax.annotate('', xy=(0.35, y), xytext=(0.23, 0.8), arrowprops=dict(arrowstyle="->", color='#94a3b8', lw=1))
-        ax.annotate('', xy=(0.62, 0.5), xytext=(0.52, y), arrowprops=dict(arrowstyle="->", color='#94a3b8', lw=1))
+        # Left arrows fanning out from the centered word box
+        ax.annotate('', xy=(0.38, y), xytext=(0.22, 0.5), arrowprops=dict(arrowstyle="->", color='#94a3b8', lw=1.2))
+        # Right arrows fanning in to the centered aggregation box
+        ax.annotate('', xy=(0.68, 0.5), xytext=(0.52, y), arrowprops=dict(arrowstyle="->", color='#94a3b8', lw=1.2))
         y -= 0.12
         
     ax.text(0.8, 0.5, 'EmbeddingBag\nMean Aggregation\nVector [h]', fontsize=10, fontweight='bold', color='#059669', ha='center', va='center',

@@ -361,6 +361,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </ul>
 <p>NLP translates this multi-layered code into continuous numerical vectors that capture syntactic and semantic relations.</p>
 <p><img alt="Linguistic Levels" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_linguistic_levels.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The hierarchy of linguistic analysis illustrates how text flows from basic, discrete sound constructs (Phonology) up to multi-word morphological derivations (Morphology), grammatical structures (Syntax), literal semantics (Semantics), and finally, high-level context and intent (Pragmatics). As we move upward, computational representation shifts from simple character-matching heuristics to complex semantic vector embeddings.</li>
+</ul>
 <h3 id="walkthrough-of-a-sample-string-seattles-libraries-are-awesome">Walkthrough of a Sample String: <code>"Seattle's libraries are awesome! 🌟"</code></h3>
 <p>In production systems, processing raw text requires translating unstructured strings into structured numerical matrices through a sequential pipeline:</p>
 <div style="margin: 28px auto; max-width: 720px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
@@ -554,7 +557,7 @@ Comparing the scores ($0.18 &gt; 0.08$), the model correctly tags <code>"run"</c
 
     <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
         <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: What makes natural language unstructured, and what are the main dimensions of ambiguity?</div>
-        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Natural language is unstructured because it has no fixed record layout. The main dimensions of ambiguity are **lexical** (multiple word meanings), **syntactic** (multiple grammatical interpretations), and **semantic** (contextual intent).</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Natural language is unstructured because it has no fixed record layout. The main dimensions of ambiguity are <strong>lexical</strong> (multiple word meanings), <strong>syntactic</strong> (multiple grammatical interpretations), and <strong>semantic</strong> (contextual intent).</div>
     </div>
 
 </div>
@@ -737,6 +740,9 @@ $$X = \text{“wolves running quickly”}$$</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of tokenization as structural compression. We want to represent text using a code. If the code only has single letters (characters), writing a message takes a long sequence. If the code has a unique symbol for every single word (word-level), we need an infinite catalog of symbols. Subword tokenization is the middle-ground: we start with letters, identify the most common letter combinations (like <code>"ing"</code>, <code>"est"</code>, <code>"trans"</code>), and assign them unique codes. If we meet a new word like <code>"unfriendliness"</code>, we split it into known subword blocks: <code>"un-"</code>, <code>"friend"</code>, and <code>"-liness"</code>. We preserve semantics without exploding the vocabulary.</p>
 <p><img alt="Subword Tree" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/03_subword_tree.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The subword tree shows the hierarchical fragmentation of the word <code>"unfriendliness"</code> into its constituent morphemes. The model first splits the prefix <code>"un-"</code> from the base compound <code>"friendliness"</code>. It then decomposes <code>"friendliness"</code> into the root morpheme <code>"friend"</code> and the combined suffixes <code>"-ly"</code> and <code>"-ness"</code>. This enables the vocabulary to map rare morphologically complex terms to shared root parameters.</li>
+</ul>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="subword-algorithms">Subword Algorithms</h3>
@@ -957,6 +963,10 @@ Since $\text{Score}(\text{“un”}, \text{“able”}) = 0.0001 &gt; \text{Scor
 <p>Zipf's Law states that in a natural language corpus, the frequency of a word is inversely proportional to its frequency rank (a power-law decay where a tiny fraction of the vocabulary makes up the vast majority of occurrences). This justifies the log-scaling applied in TF and IDF to prevent common words from dominating representations.</p>
 <p><img alt="Zipfs Law" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_zipfs_law.png" /><br />
 <img alt="BM25 Saturation" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/02_tfidf_vs_bm25_saturation.png" /></p>
+<ul>
+<li><strong>Plot Interpretation (Zipf's Law):</strong> The linear and log-log scale plots demonstrate how word frequency rank decays exponentially in natural language corpora. A few extremely high-frequency stopwords (rank $r &lt; 10$) consume the majority of corpus frequency, while the vast majority of words appear rarely in the "long tail" (rank $r &gt; 100$). This justifies the log-scaling applied in TF-IDF to prevent common words from dominating representations.</li>
+<li><strong>Plot Interpretation (Okapi BM25 Saturation):</strong> The term contribution curves compare linear TF count scaling, log-scaled TF-IDF, and BM25 saturation curves ($k_1 = 1.2$ and $k_1 = 2.0$). While linear TF grows indefinitely, BM25 caps the term score contribution at an asymptote of $(k_1 + 1)$. This term saturation knob stops a single keyword from dominating document relevance scores when repeated excessively.</li>
+</ul>
 <hr />
 <h3 id="hand-calculation-on-a-simple-example">Hand Calculation on a Simple Example</h3>
 <p>Let's calculate TF-IDF, Cosine Similarity, and BM25 relevance scores.</p>
@@ -1163,6 +1173,9 @@ The documents share a cosine similarity of $0.3361$.</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of word embeddings as compressing language into a multi-dimensional semantic map. Instead of assigning a unique, independent dimension to every single word, we define a small, fixed coordinate space (e.g., $d=300$ dimensions). We assign each dimension to represent a continuous semantic trait (like <code>"gender"</code>, <code>"plurality"</code>, or <code>"verbosity"</code>). Words that share traits project close to each other in this space. By moving from a high-dimensional sparse space to a low-dimensional dense space, we capture semantic concepts (e.g. <code>"king"</code> $-$ <code>"man"</code> $+$ <code>"woman"</code> $\approx$ <code>"queen"</code>).</p>
 <p><img alt="Word2Vec Layout" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/05_word2vec_projection.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The CBOW and Skip-Gram model architectures represent the two directions of learning context relationships. CBOW aggregates embedding weights from context words (inputs) to predict the central target word (output), making it faster to train on frequent terms. In contrast, Skip-Gram uses the central target word (input) to project probability distributions for surrounding context words (outputs), which captures rare words more effectively.</li>
+</ul>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="word2vec-architectures">Word2Vec Architectures</h3>
@@ -1320,6 +1333,9 @@ $$\mathcal{L}_{\text{NEG}} = -\log \sigma(\mathbf{v}'^{\top}_{w_O} \mathbf{v}_{w
 <p>Think of GloVe as building a global coordinate grid by factoring a giant co-occurrence spreadsheet. If we know how often all words appear next to each other globally, we can solve a constraint optimization problem that projects words into a coordinate grid where dot-products directly match the logarithm of their co-occurrence counts.<br />
 Think of FastText as breaking a word into a set of puzzle pieces (character n-grams). A word like <code>"&lt;where&gt;"</code> is represented as the sum of its subword segments: <code>"&lt;wh"</code>, <code>"whe"</code>, <code>"her"</code>, <code>"ere"</code>, and <code>"re&gt;"</code>. If we encounter an unseen word like <code>"&lt;wherever&gt;"</code>, we can synthesize its vector representation by summing the vectors of its constituent subword pieces.</p>
 <p><img alt="FastText Ngrams" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/06_fasttext_ngrams.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The subword embedding aggregation flow details how FastText constructs a dense representation for the word <code>"&lt;where&gt;"</code>. The input string is fragmented into character n-grams ($n=3$ to $n=6$, wrapped in boundary brackets) plus the whole word itself. The model performs vector lookups for each individual subword piece, and passes them to PyTorch's <code>EmbeddingBag</code> module which computes the mean aggregation vector ($[h]$). This allows the model to reconstruct semantic vectors for out-of-vocabulary terms by pooling their subword embeddings.</li>
+</ul>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="glove-global-vectors">GloVe (Global Vectors)</h3>
@@ -1469,6 +1485,9 @@ The weighting function bounds the contribution of very frequent word transitions
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of sequence prediction as navigating a state transition highway. Instead of remembering the entire highway route you have driven since the start of your trip (the full history of words), you assume that your next turn depends only on the exit you are currently passing (the previous word or previous two words). This is the Markov assumption. By truncating the history window, we can estimate transition probabilities locally from corpus occurrence counts, making sequence scoring computationally feasible.</p>
 <p><img alt="HMM Lattice" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/07_hmm_lattice.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The Hidden Markov Model transition lattice represents state sequences ($t-1$ to $t$). Each state at $t-1$ (e.g. Noun, Verb, Adj) projects transition probabilities (Transition Matrix $\mathbf{A}$) to all possible states at step $t$. By computing local state transition matrices and emission weights (Matrix $\mathbf{B}$), sequence labeling models (like Viterbi parsers) calculate the globally optimal state sequence paths without exhausting physical memory.</li>
+</ul>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="the-chain-rule-of-probability">The Chain Rule of Probability</h3>
@@ -1625,7 +1644,7 @@ By multiplying transition and emission likelihoods, the model scores tag sequenc
 
     <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
         <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain backoff and interpolation smoothing techniques in statistical models.</div>
-        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">**Backoff** checks if the higher-order N-gram (e.g. trigram) exists; if its count is zero, it "backs off" to estimate the probability using the lower-order bigram, scaling by a normalization weight. **Interpolation** computes a weighted linear combination of unigram, bigram, and trigram probabilities simultaneously: $P(w_i | w_{i-2}, w_{i-1}) = \lambda_1 P(w_i | w_{i-2}, w_{i-1}) + \lambda_2 P(w_i | w_{i-1}) + \lambda_3 P(w_i)$, where $\sum \lambda_i = 1.0$.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;"><strong>Backoff</strong> checks if the higher-order N-gram (e.g. trigram) exists; if its count is zero, it "backs off" to estimate the probability using the lower-order bigram, scaling by a normalization weight. <strong>Interpolation</strong> computes a weighted linear combination of unigram, bigram, and trigram probabilities simultaneously: $P(w&lt;em&gt;i | w&lt;/em&gt;{i-2}, w&lt;em&gt;{i-1}) = \lambda&lt;/em&gt;1 P(w&lt;em&gt;i | w&lt;/em&gt;{i-2}, w&lt;em&gt;{i-1}) + \lambda&lt;/em&gt;2 P(w&lt;em&gt;i | w&lt;/em&gt;{i-1}) + \lambda&lt;em&gt;3 P(w&lt;/em&gt;i)$, where $\sum \lambda_i = 1.0$.</div>
     </div>
 
 </div>
@@ -1876,6 +1895,10 @@ The output candidate is penalized from $1.0$ down to $0.6065$ because it was too
 <p>Think of sequential reading as tracking a cognitive notepad (the hidden state). As you read a document word by word, you don't forget everything you read prior. Instead, you read the current word, merge it with what is currently on your cognitive notepad, erase low-value details, write down new high-value info, and update the notepad. This process repeats for every word. If the notepad has a linear carry path that isn't multiplied at each step, you can remember information from several sentences ago without losing the gradient signal.</p>
 <p><img alt="Gradient Flow" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/03_rnn_gradient_flow.png" /><br />
 <img alt="LSTM Cell" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/09_lstm_cell.png" /></p>
+<ul>
+<li><strong>Plot Interpretation (Gradient Signal Stability):</strong> The gradient norm decay curve compares a Vanilla RNN cell against an LSTM cell state over recurrent sequence steps. Because Vanilla RNN multiplies the hidden weight matrix repeatedly during Backpropagation Through Time (BPTT), the gradient norm decays exponentially (vanishing gradients) on contexts longer than 10-15 tokens. The LSTM cell state maintains stable gradient flow over 100+ steps because its cell state transition is additive, carrying memory linearly through time.</li>
+<li><strong>Plot Interpretation (LSTM Cell Architecture):</strong> The LSTM cell diagram details the gating mechanics that control information flow. The cell processes the previous hidden state ($\mathbf{h}_{t-1}$) and current input ($\mathbf{x}_t$) to compute the forget gate ($f_t$), input gate ($i_t$), candidate state ($\tilde{C}_t$), and output gate ($o_t$). These gates perform element-wise scaling to selectively forget history and write new information to the cell state ($C_t$), producing the new hidden output ($\mathbf{h}_t$).</li>
+</ul>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="the-recurrent-cell">The Recurrent Cell</h3>
@@ -1997,13 +2020,13 @@ The new cell state is $0.85$. Because the update is additive, gradients can prop
 
     <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
         <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain mathematically why recurrent units are memory-bandwidth-bound during training and inference (the sequential dependency wall).</div>
-        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In an LSTM, the hidden state at step $t$ ($\mathbf{h}_t$) cannot be computed until the state at step $t-1$ ($\mathbf{h}_{t-1}$) is completed. This serial constraint prevents parallelization across the sequence length dimension $L$. The GPU cannot run matrix operations for all words in parallel. Instead, it must read weights from High Bandwidth Memory (HBM) to SRAM, compute for one step, write back to HBM, and repeat $L$ times. This makes the pipeline memory-bandwidth-bound rather than compute-bound.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In an LSTM, the hidden state at step $t$ ($\mathbf{h}&lt;em&gt;t$) cannot be computed until the state at step $t-1$ ($\mathbf{h}&lt;/em&gt;{t-1}$) is completed. This serial constraint prevents parallelization across the sequence length dimension $L$. The GPU cannot run matrix operations for all words in parallel. Instead, it must read weights from High Bandwidth Memory (HBM) to SRAM, compute for one step, write back to HBM, and repeat $L$ times. This makes the pipeline memory-bandwidth-bound rather than compute-bound.</div>
     </div>
 
 
     <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
         <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: How does the additive cell state update mechanism in LSTMs ($\mathbf{C}_t$) resolve the vanishing gradient problem?</div>
-        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In vanilla RNNs, backpropagating gradients requires multiplying by weight matrix $\mathbf{W}_{hh}$ at each step, causing exponential decay. In LSTMs, the cell state updates using an additive equation: $\mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t$. The gradient backpropagation path contains an additive term: $\frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}} = \mathbf{f}_t$. If the forget gate is open ($\mathbf{f}_t \approx 1.0$), the gradient propagates back through time steps linearly without decaying, creating an "error carousel".</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In vanilla RNNs, backpropagating gradients requires multiplying by weight matrix $\mathbf{W}&lt;em&gt;{hh}$ at each step, causing exponential decay. In LSTMs, the cell state updates using an additive equation: $\mathbf{C}&lt;/em&gt;t = \mathbf{f}&lt;em&gt;t \odot \mathbf{C}&lt;/em&gt;{t-1} + \mathbf{i}&lt;em&gt;t \odot \tilde{\mathbf{C}}&lt;/em&gt;t$. The gradient backpropagation path contains an additive term: $\frac{\partial \mathbf{C}&lt;em&gt;t}{\partial \mathbf{C}&lt;/em&gt;{t-1}} = \mathbf{f}&lt;em&gt;t$. If the forget gate is open ($\mathbf{f}&lt;/em&gt;t \approx 1.0$), the gradient propagates back through time steps linearly without decaying, creating an "error carousel".</div>
     </div>
 
 </div>
@@ -2021,6 +2044,9 @@ The new cell state is $0.85$. Because the update is additive, gradients can prop
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of data drift as a highway traffic shift. If your GPS maps the highway assuming $90\%$ passenger cars and $10\%$ trucks (your baseline expected distribution), but a new logistics hub shifts traffic to $50\%$ trucks (actual serving distribution), the travel times and bottlenecks will change. In NLP, if a spam filter expects a baseline vocabulary distribution but starts receiving a stream of messages containing new spam emojis and slang (covariate shift), the classifier will misclassify inputs. We monitor this shift by binning incoming text frequencies and measuring the statistical distance (PSI) between actual and expected distributions.</p>
 <p><img alt="Data Drift" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/04_data_drift_psi.png" /></p>
+<ul>
+<li><strong>Plot Interpretation:</strong> The covariate shift bar chart illustrates expected baseline frequencies vs. actual serve stream category frequencies. In this case, the serve stream shows a heavy covariate shift toward "Slang/Emojis" (spiking from 5% to 38%) and a decay in "Tech/News" categories. Production systems calculate the Population Stability Index (PSI) to flag these shifts, triggering automated retraining pipelines if PSI exceeds 0.2.</li>
+</ul>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="data-drift-taxonomy">Data Drift Taxonomy</h3>
@@ -2197,7 +2223,7 @@ $$P(Y|X_{\text{actual}}) \neq P(Y|X_{\text{expected}}) \quad \text{while } P(X) 
 
     <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
         <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Detail the trade-offs of offline model batch retraining schedules vs. online real-time pipeline adjustments.</div>
-        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">**Offline batch retraining** is stable and allows thorough evaluation, but it is slow and can lead to lag in adapting to sudden shifts. **Online real-time retraining** adapts instantly but is computationally expensive, prone to catastrophic forgetting, and risks learning noise or adversarial inputs, which can corrupt the model.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;"><strong>Offline batch retraining</strong> is stable and allows thorough evaluation, but it is slow and can lead to lag in adapting to sudden shifts. <strong>Online real-time retraining</strong> adapts instantly but is computationally expensive, prone to catastrophic forgetting, and risks learning noise or adversarial inputs, which can corrupt the model.</div>
     </div>
 
 </div>

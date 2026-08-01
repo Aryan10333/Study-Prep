@@ -10,6 +10,8 @@ Think of word embeddings as compressing language into a multi-dimensional semant
 
 ![Word2Vec Layout](../plots/05_word2vec_projection.png)
 
+*   **Plot Interpretation:** The CBOW and Skip-Gram model architectures represent the two directions of learning context relationships. CBOW aggregates embedding weights from context words (inputs) to predict the central target word (output), making it faster to train on frequent terms. In contrast, Skip-Gram uses the central target word (input) to project probability distributions for surrounding context words (outputs), which captures rare words more effectively.
+
 ---
 
 ## 2. Core Concepts & Mathematical Formulation
