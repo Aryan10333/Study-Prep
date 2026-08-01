@@ -1,83 +1,120 @@
-# Workspace Customization Rules: DS & AI Engineer Interview Preparation
+# Agent Execution Protocol & Workspace Instructions
 
-This document outlines the core background, architectural guidelines, code standards, and deliverable constraints for all AI agents assisting with study prep in this repository.
-
----
-
-## 1. User Profile and Context
-
-- **Experience Level:** AI Engineer with ~3 years of experience.
-- **Primary Technical Domains:** 
-  - **GenAI & Agentic AI:** Multi-agent orchestration, tool usage, planning, reflection, RAG (dense/sparse retrieval, reranking), prompt engineering, vector databases, and fine-tuning (PEFT/LoRA/QLoRA).
-  - **Machine Learning & Deep Learning:** Classical ML algorithms, Transformer architectures, sequence models (RNN/LSTM/GRU), computer vision, embeddings, optimization algorithms, and model evaluation metrics.
-- **Goal:** Prep for Data Science (DS), Applied AI Engineer, GenAI Engineer, and ML Engineer interviews at top companies (FAANG, tier-1 tech startups).
-- **Target Knowledge Profile:** Focus on cracking high-bar interviews (systems design, production trade-offs, machine learning intuition, and debugging/refactoring) rather than academic derivations or pedantic schoolbook memorization.
+> **Purpose:** System instructions for AI Agents working in this repository (`Prep/`) to generate study material, companion notebooks, and interview cheatsheets tailored for **Aryan Chandra**.
 
 ---
 
-## 2. Core Behavioral & Pedagogical Rules
+## 1. Context & User Profile Anchoring
+Before generating content, building notebooks, or executing scripts in this workspace, the agent **MUST** read and adhere to `.agents/USER_PROFILE.md`.
 
-1. **No Academic Filler:**
-   - Avoid generic, verbose textbook summaries. Instead, each topic must begin with a short, high-level conceptual introduction that orients the reader, explaining the core engineering motivation and the specific issue it resolves. Focus directly on the core mechanics, math intuition, system failure modes, and production realities tested in top tech interviews.
-2. **Focus on Production Trade-offs:**
-   - Every mathematical formula and system component must map directly to:
-     - An evaluation choice (e.g., ROC-AUC vs. PR-AUC, BLEU vs. ROUGE, Precision vs. Recall, Perplexity).
-     - A troubleshooting scenario (e.g., singular matrices, vanishing/exploding gradients, Softmax saturation, data drift, OOV handling).
-     - A system constraint (e.g., latency budget, CPU vs. GPU memory footprint, INT8/FP16 quantization, batch size vs. throughput).
-3. **Andrew Ng Coursera Style (Practical Mathematics):**
-   - Do NOT skip core mathematics or formulas, but explain them with **simple, practical mathematical intuition and step-by-step hand-calculations on tiny sample datasets** (e.g., 3-sample datasets, 3-token matrix operations, scalar step calculations).
-   - Follow this dual structure: **Intuitive Math Formula $\rightarrow$ Step-by-Step Hand Calculation on Tiny Sample $\rightarrow$ Production Code & Output Logs**.
-4. **Notebooks and Code Style:**
-   - Notebooks must reflect clean, production-grade, framework-agnostic Python code (PyTorch, Scikit-Learn, NLTK, Gensim, NumPy).
-   - All code must be self-contained, fully executed with saved cell outputs, accompanied by clear log outputs and complexity analyses ($O(N)$ time & memory).
-5. **Exact Notebook Cell Output Alignment:**
-   - Markdown explanation cells in Jupyter Notebooks MUST directly reference and align 100% with the exact numerical values, percentages, matrix values, and confidence scores printed in the executed Python code cell outputs (e.g., matching exact posterior percentages, max logit output differences, and similarity scores).
+* **Target Persona:** Aryan Chandra (AI Engineer at Jio Platforms Ltd with ~3 years experience, targeting Applied AI / GenAI / AI Backend Engineer roles at tier-1 tech companies and high-growth AI startups).
+* **Engineering Standard:** Content must emphasize production engineering, hardware constraints, system trade-offs, and whiteboard hand calculations over purely theoretical calculus derivations.
 
 ---
 
-## 3. Formatting & Markdown Syntax Constraints
+## 2. Skills Registry & Architectural Workflow
 
-1. **KaTeX & LaTeX Math Block Compatibility:**
-   - Use standard `$ ... $` for inline math and single-line `$$ ... $$` for display math blocks.
-   - Avoid unescaped raw line breaks or unescaped characters inside math subscripts/superscripts (e.g., write `$$\mathcal{L}_{\text{loss}} = \dots$$` on a single line).
-2. **Native GFM Markdown Tables (No Fenced Code Block Wrappers):**
-   - NEVER wrap Markdown tables inside fenced backticks (` ```text ` or ` ``` `).
-   - Always write native GFM Markdown tables (`| Header 1 | Header 2 |`) so renderers compile real HTML `<table>` elements with explicit grid cell boundaries and rendered KaTeX formulas.
-3. **Code Syntax Highlighting & Background Transparency:**
-   - HTML and PDF build scripts must enforce Pygments code syntax highlighting (`monokai` or dark slate theme).
-   - Ensure CSS enforces transparent backgrounds and crisp white text defaults inside code blocks (`.codehilite, .codehilite pre, .codehilite code, .codehilite span { background-color: transparent !important; color: #f8fafc !important; }`) to prevent dark text on dark backgrounds or white box artifacts.
+Auto-discovered agent skills are located in `.agents/skills/`. The agent MUST follow the guidelines specified in each skill directory:
+
+
+```
+
+```
+                              +---------------------------------------+
+                              |   1. study_guide_generator/           |
+                              |   (Markdown Curriculum Modules)       |
+                              +-------------------+-------------------+
+                                                  |
+                                                  v
+
+```
+
++---------------------------------------+    +---------------------------------------+
+| 2. notebook_generator/                |    |  4. interview_qa_generator/           |
+| (Executable Companion Notebooks)      |    |  (Standalone Cheatsheets & Q&A)       |
++-------------------+-------------------+    +-------------------+-------------------+
+|                                            |
++-------------------+------------------------+
+|
+v
++-----------------------------------+
+|  3. pdf_compiler/                 |
+|  (Pygments, KaTeX, Edge/Chrome)   |
++-------------------+---------------+
+|
+v
++-----------------------------------+
+|      Final Output Deliverables     |
+|  (*_master.pdf / *_cheatsheet.pdf)|
++-----------------------------------+
+
+```
+
+### Skill 1: Study Guide Generator (`.agents/skills/study_guide_generator/`)
+* **Role:** Standardizes Markdown curriculum generation inside topic `modules/` folders.
+* **Rules:**
+  * Begin with first-principles motivation & real-world bottlenecks (e.g., memory wall, roofline bounds, latency limits).
+  * Use standard variable notations ($B$, $L$, $H$, $d$, $V$, $N$) and line-isolated KaTeX display equations (`$$ ... $$`).
+  * Include step-by-step micro hand calculations ($B=1, L=2, H=2$) matching deterministic PyTorch output (annotated with `# [B, L, H]`).
+  * Diagrams MUST use inline responsive SVG or flexbox containers (strictly NO raw ASCII or Mermaid).
+  * Always conclude with the mandatory **Interview Deep-Dive & System Trade-offs** template.
+
+### Skill 2: Notebook Generator (`.agents/skills/notebook_generator/`)
+* **Role:** Programmatically creates and executes production Jupyter Notebooks inside topic `notebooks/` folders via helper scripts (`helpers/build_*_notebooks.py`).
+* **Rules:**
+  * Must strictly follow the 3-cell sequence: **Markdown Heading** $\rightarrow$ **Code Implementation** $\rightarrow$ **### Output Explanation, Interpretation & Performance Analysis**.
+  * Zero unexecuted cells (`In [ ]`) allowed in final `.ipynb` files.
+  * Load API credentials dynamically using `python-dotenv` (`find_dotenv()`). Zero hardcoded secrets.
+
+
+### Skill 3: Interview Q&A Generator (`.agents/skills/interview_qa_generator/`)
+* **Role:** Generates standalone screening questions, cheatsheets, and Q&A modules.
+* **Rules:**
+  * Enforce the Q&A structure: **Short Answer (30–60s)**, **Key Buzzwords**, **Technical Intuition/Math**, **Production Perspective**, **Follow-ups**, and **Common Mistakes**.
+  * Focus on screening speed, architectural clarity, and system trade-offs.
+
+### Skill 4: PDF & HTML Master Compiler (`.agents/skills/pdf_compiler/`)
+* **Role:** Compiles Markdown sources into unified HTML and print-ready A4 PDF master deliverables using helper scripts (`helpers/compile_*.py`).
+* **Rules:**
+  * Extract math blocks (`$ ... $` / `$$ ... $$`) and escape brackets (`<` $\rightarrow$ `&lt;`) prior to Markdown rendering to prevent KaTeX corruption.
+  * Enforce Pygments Monokai dark styling with slate background (`#0f172a`) and CSS contrast overrides.
+  * Execute headless printing via Microsoft Edge or Chrome with temporary user profile directories.
 
 ---
 
-## 4. Standardized Study Guide Structure
+## 3. Topic Directory Structure Standard
 
-Every module study guide (`.md`) across any topic must conclude with a standardized interview section:
+Every study topic under `machine-learning-prep/` (e.g., `00_nlp_fundamentals/`) must strictly adhere to this 4-subfolder architecture:
 
-```markdown
-### Interview Questions & Production Trade-offs
-- What problem does this solve?
-- Why was it introduced?
-- What are its limitations?
-- Computational Complexity (Time & Memory)
-- Component Variable Denotation Legend (Explicitly defining $N, L, |V|, d, m, K, T, C, P$)
-- Production Use Cases
-- Follow-up questions interviewers ask
+```text
+machine-learning-prep/<ai_discipline>/<topic_folder>/
+├── README.md                          # High-level Syllabus of covered topics
+├── modules/                           # [SOURCE FILES] Raw Markdown Chapters
+│   ├── 01_topic_intro.md
+│   └── 02_topic_advanced.md
+├── notebooks/                         # [COMPANION CODE] 100% Executed Jupyter Notebooks
+│   ├── 01_topic_intro.ipynb
+│   └── 02_topic_advanced.ipynb
+├── plots/                             # [ASSETS] Visual diagrams & exported charts
+│   └── architecture_diagram.png
+├── helpers/                           # [SCRIPTS] Compilation & generation utilities
+│   ├── build_<topic>_notebooks.py
+│   └── compile_<topic>.py
+├── <topic>_master_study_guide.html    # [DELIVERABLE] Master curriculum HTML
+├── <topic>_master_study_guide.pdf     # [DELIVERABLE] Print-ready curriculum PDF
+├── <topic>_interview_cheatsheet.html  # [DELIVERABLE] Revision HTML cheatsheet
+└── <topic>_interview_cheatsheet.pdf   # [DELIVERABLE] Print-ready revision PDF cheatsheet
+
 ```
 
 ---
 
-## 5. Execution & Deliverable Workflow
+## 4. Execution Pre-Flight Checklist
 
-1. **Incremental Creation & Self-Sufficiency Verification**:
-   - Create Markdown files incrementally (one section/file at a time or in logical batches) rather than attempting to generate massive guides in a single pass.
-   - Review each section/file on the spot immediately after creation to check that the material is self-sufficient, dense, highly detailed, and complete, containing no placeholders or hand-waving explanations.
-2. **On-the-Spot Review & Verification After Every Artifact Generation:**
-   - Immediately after generating or modifying ANY asset (whether it is an image/plot, Markdown study guide (`.md`), Jupyter Notebook (`.ipynb`), HTML document, or PDF deliverable), the agent MUST inspect, execute, and review it on the spot before proceeding to the next file or step.
-   - For notebooks: execute all code cells and verify printed outputs match markdown explanation cells 100%.
-   - For plots/images: verify plot generation, visual clarity, axes labels, and markdown embedding links.
-   - For study guides/cheatsheets: verify KaTeX math formatting, native GFM table borders, syntax highlighting, and variable denotation legends.
-3. **Sequential Module Refinement:**
-   - Work module-by-module sequentially (update `.md` study guide + companion `.ipynb` notebook), executing and verifying cell outputs on the spot before proceeding.
-4. **Comprehensive & Concise Deliverables:**
-   - Maintain both a full comprehensive master PDF/HTML guide and a concise 1-page revision cheatsheet (`*_Interview_Cheatsheet.pdf`) for each major study topic.
+Before presenting any completed material or running compilation scripts, verify:
 
+* [ ] Does this material reflect an Applied GenAI Engineer perspective (production engineering over pure academic research math)?
+* [ ] Are tensor shapes (`# [B, L, H]`) annotated in PyTorch code blocks?
+* [ ] Are micro hand calculations provided on small sample dimensions matching code outputs to 4 decimal places?
+* [ ] Are system bottlenecks (memory-bandwidth vs. compute bound, roofline limits, HBM bounds) explicitly identified?
+* [ ] Are all deliverables output at the topic directory root level (`<topic_folder>/`) while source files remain cleanly separated in `modules/`, `notebooks/`, `plots/`, and `helpers/`?

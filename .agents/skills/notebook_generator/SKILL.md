@@ -1,67 +1,81 @@
 ---
 name: Jupyter Notebook Generator
-description: Rules and workflow for programmatically creating, executing, and explaining companion Jupyter Notebooks (.ipynb) using nbformat and virtual environment kernels.
+description: Rules and workflow for programmatically creating, executing, profiling, and documenting real-world production Jupyter Notebooks (.ipynb) using nbformat and virtual environment kernels.
 ---
 
 # Jupyter Notebook Generator Skill
 
-This skill defines the guidelines for creating, executing, and documenting Jupyter Notebooks (`.ipynb`) in this repository.
+This skill defines the guidelines for programmatically creating, executing, profiling, and documenting companion Jupyter Notebooks (`.ipynb`) in this repository.
 
 ---
 
-## 1. Programmatic Creation Workflow
+## 1. Production Scope & Real-World Engineering Tasks
 
-To avoid empty placeholders or unexecuted notebook states, all companion notebooks must be generated programmatically using a builder script (e.g., `build_*_nb.py`):
+Notebooks must completely avoid static toy mocks or trivial mathematical abstractions. Every notebook must serve as an end-to-end, production-grade engineering pipeline tailored for a Senior AI Systems Engineer preparing for technical interviews:
 
-1. **Use `nbformat`**: Construct a new notebook JSON structure programmatically using schema v4 components (`nbf.v4`).
-2. **Inject Markdown Explanations**: Interleave markdown explanation cells detailing equations, setups, and matrix parameters. **Limit Complex Math**: Avoid dense mathematical derivations or algebraic proofs inside notebooks. Keep equations clear and focus on parameters intuition, pros, cons, and production trade-offs.
-3. **Inject PyTorch/NumPy Executable Cells**: Add code blocks containing matrices and vectors that exactly match the hand calculations in the study guide.
-4. **Save Draft**: Save the unexecuted notebook to disk.
-5. **Diverse Real-World Datasets & Practical Examples**: Notebooks must avoid static toy mocks or trivial mathematical abstractions. They must load and process diverse, real-world data (such as financial logs, IT ticket logs, web pages, or files from Hugging Face/scraping) to address practical engineering problems (e.g. parent-child chunking, BM25/Vector RRF hybrid merging, Pydantic entity extraction, conversational memory indexing, state graph routing, and multi-agent developer-reviewer loops) which mirror senior AI engineer production tasks.
+- **Real-World Datasets & APIs**: Process diverse, practical data (such as financial logs, IT ticket logs, web pages, Hugging Face Hub datasets, or live search queries) to address real engineering tasks.
+- **Production AI Tasks**: Focus on advanced engineering patterns, including parent-child chunking, BM25/Vector RRF hybrid merging, Pydantic structured entity extraction, conversational memory indexing, state graph routing, custom Triton/CUDA flow, and multi-agent developer-reviewer loops.
+- **Hardware & System Profiling**: Evaluate real-world hardware constraints in every pipeline—logging peak VRAM footprints (`torch.cuda.max_memory_allocated()`), computational throughput, execution latency (`time.perf_counter()`), and tensor memory layouts (`.is_contiguous()`).
 
 ---
 
-## 2. Programmatic Execution & Verification
+## 2. Programmatic Creation & Execution Workflow
 
-After generating the draft, the script must execute the notebook in place:
+To guarantee zero unexecuted cells (`In [ ]`), empty outputs, or corrupted JSON structures, all notebooks MUST be generated and executed programmatically using a Python builder script (e.g., `build_*_nb.py`):
 
-1. **Local Kernel**: Use `nbconvert.preprocessors.ExecutePreprocessor` to run the cells in sequence.
-2. **Virtual Environment**: Execute using the local python executable:
-   `d:\Study\Prep\.venv\Scripts\python.exe`
-3. **One-by-One Sequential Execution Loop**: Never batch compile or execute multiple notebooks in a single bulk run. Always programmatically define, generate, and execute **one notebook at a time sequentially**. Inspect its printed cell outputs, confirm numerical metrics, and write/align the markdown cell explanations before proceeding to generate and execute the next notebook.
-4. **Matplotlib Agg Backend & Inline Plots**: When running the execution pipeline script headlessly, ensure that `import matplotlib; matplotlib.use('Agg')` is called in the builder script **prior** to running execution prep. Inside the notebook code cells themselves, do not call `plt.savefig()`. Instead, include `%matplotlib inline` at the top of the plotting cells and end the cell with `plt.show()` to ensure that drawn plots are serialized directly as inline base64 string outputs inside the `.ipynb` file.
-5. **Multi-Cell Structuring & Sequence**: Never write large code pipelines in a single cell. Split code blocks logically (e.g., Data Loading -> Preprocessing -> Model Setup -> Execution -> Validation) and structure each section strictly using this three-part cell sequence:
-   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 1. Step Name`).
-   - **Code Cell (Implementation)**: Self-contained python code executing that specific step.
-   - **Markdown Cell (Output Explanation)**: Titled `### Output Analysis: ...` explaining the printed values and shapes immediately following the code cell.
-6. **Assert Outputs**: Include assertions in python code cells to verify calculation bounds, catching any runtime PyTorch or numeric drift errors.
-7. **Environment Variables & API Keys**: If the execution of the notebook requires API access, the script or notebook cells must load keys dynamically using `python-dotenv` (i.e., `from dotenv import load_dotenv; load_dotenv()`) from the **root `.env` file** (located at the root of the repository: `d:\Study\Prep\.env`). Sensitive credentials must never be hardcoded in code cells. The following environment variables are available for use:
-   - `GEMINI_API_KEY` (for Google GenAI models)
-   - `GROQ_API_KEY` (for Groq model endpoints)
-   - `HF_TOKEN` (for Hugging Face Hub downloads/uploads)
-   - `OLLAMA_BASE_URL` (for local Ollama endpoints)
-   - `OPENAI_API_KEY` (for OpenAI models)
-   - `SERPER_API_KEY` (for Google search queries via Serper)
-   - `TAVILY_API_KEY` (for Tavily search API)
-   - `GITHUB_TOKEN` (for GitHub API integrations)
-8. **Save Executed State**: Save the final notebook with cell outputs populated.
+### A. Construction (`nbformat`)
+1. **Use `nbformat` v4**: Construct notebook JSON structures programmatically using schema v4 components (`nbf.v4`).
+2. **Logical Cell Splitting**: Never write large code pipelines in a single monolithic cell. Split code blocks logically (e.g., `Data Ingestion` $\rightarrow$ `Preprocessing` $\rightarrow$ `Pipeline Setup` $\rightarrow$ `Execution & Profiling` $\rightarrow$ `Validation`).
+3. **Execution Block Cell Pattern**: Operational code cells MUST strictly follow this 3-cell sequence:
+   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 2. Implementing RRF Hybrid Search & Memory Profiling`).
+   - **Code Cell (Implementation)**: Self-contained, runnable Python code annotated with explicit tensor shape comments (e.g., `# [B, L, H]`), runtime assertions, and error handling.
+   - **Markdown Cell (Output & System Analysis)**: Titled `### Output & Performance Analysis`, explaining printed tensor shapes, memory footprints, execution latency, and practical trade-offs.
+   *(Note: Initial environment setups and `import` blocks are exempt from the Output Analysis cell requirement.)*
+
+### B. Execution (`nbconvert` & Environment)
+1. **Dynamic Environment Variables & API Keys**: If notebook execution requires API access, the builder script and notebook cells must load credentials dynamically using `python-dotenv`:
+   ```python
+   from dotenv import find_dotenv, load_dotenv
+
+   load_dotenv(find_dotenv())
+
+```
+
+Sensitive credentials must **never** be hardcoded in code cells. The following environment variables are available for use:
+
+* `GEMINI_API_KEY` (Google GenAI models)
+* `GROQ_API_KEY` (Groq model endpoints)
+* `OPENAI_API_KEY` (OpenAI models)
+* `HF_TOKEN` (Hugging Face Hub access)
+* `OLLAMA_BASE_URL` (Local Ollama endpoints)
+* `SERPER_API_KEY` (Google search queries via Serper)
+* `TAVILY_API_KEY` (Tavily search API)
+* `GITHUB_TOKEN` (GitHub API integrations)
+
+2. **Headless Execution Kernel**: Execute notebooks in place using `nbconvert.preprocessors.ExecutePreprocessor` targeting the active virtual environment Python kernel (`sys.executable`).
+3. **Headless Plot Serialization**: When running the execution pipeline script headlessly, ensure `import matplotlib; matplotlib.use('Agg')` is called in the builder script prior to execution. Inside notebook code cells, include `%matplotlib inline` at the top and end plotting cells with `plt.show()` to serialize inline base64 plot strings directly into the `.ipynb` file. Do NOT call `plt.savefig()`.
+4. **Sequential Execution Loop**: Never batch compile or execute multiple notebooks in a bulk run. Always programmatically define, generate, and execute **one notebook at a time sequentially**. Inspect its printed cell outputs, confirm metrics, and write/align markdown cell explanations before proceeding to the next notebook.
+5. **Assert Outputs**: Include explicit `assert` statements in code cells to verify tensor shapes, numerical bounds, and non-empty responses, catching runtime errors or numeric drift early.
 
 ---
 
-## 3. Mandatory Post-Execution Explanations
+## 3. Post-Execution Explanations & Numerical Alignment
 
-**Rule**: Every code execution cell inside a companion Jupyter Notebook must be immediately followed by a markdown cell explaining the printed outputs.
+**Rule**: Every operational code cell inside a companion notebook must be immediately followed by a markdown cell titled `### Output & Performance Analysis`.
 
-- Read cell outputs in detail, and write a thorough explanation of why the values are correct.
-- Detail the resulting tensor shapes, gradients, loss outputs, or probability distributions.
-- Explain why these numbers are correct.
-- Cross-reference printed logs with the corresponding math study guide to ensure **100% numerical consistency** (matching values, similarity scores, and classification distribution metrics to 4 decimal places). If there is a slight numerical shift due to rounding in intermediate hand-calculation steps (e.g. `27.8600` vs. `27.8592`), clarify this in the explanation cell so that the printed output and explanation align perfectly.
+* **Thorough Inspection**: Analyze printed cell outputs in detail, detailing resulting tensor shapes, gradients, memory allocation, loss outputs, or probability distributions.
+* **Floating-Point Precision Transparency**: Detail why these numbers and metrics are correct. If intermediate floating-point execution or hardware precision differences (e.g., FP16/BF16 vs. FP32) cause slight numerical shifts (e.g., `27.8600` vs. `27.8592`), explicitly document both expected theoretical values and exact floating-point outputs to maintain 100% transparency.
+* **System Insights**: Connect system logs directly to real-world performance—highlighting memory bottlenecks, latency trade-offs, and scalability implications.
 
 ---
 
-## 4. Verification Check
-- Ensure all cells are executed and output logs are preserved.
-- Double-check that no empty brackets (`In [ ]`) exist in the final notebook.
-- Verify that every code cell is paired with a corresponding explanation block below it.
-- **No PDF Recompilation on Notebook Changes**: Modifying or generating companion notebooks does *not* affect the text study chapters. Do NOT trigger or run the master HTML/PDF compilation scripts (e.g. `compile_rag.py`, `compile_agents.py`) after notebook changes, as it has no effect on the resulting PDF guides.
+## 4. Automated Verification Checklist
 
+Immediately after generating and executing any notebook, verify:
+
+* [ ] **100% Executed State**: Every code cell has an explicit execution count (`In [1]`, `In [2]`) and populated output logs. No empty brackets (`In [ ]`) exist in the final notebook.
+* [ ] **Real-World System Focus**: Pipeline operates on real data/APIs and includes hardware, memory, or latency profiling blocks.
+* [ ] **Paired Analysis Cells**: Every operational code cell is paired with a corresponding `### Output & Performance Analysis` markdown block immediately below it.
+* [ ] **Numerical Offset Documentation**: Any floating-point rounding or precision shifts in printed logs are explicitly explained in the analysis cell.
+* [ ] **Environment Security**: Environment variables load dynamically via `find_dotenv()`. Zero hardcoded API keys or local file paths exist.
+* [ ] **No Unnecessary PDF Compilation**: Modifying or generating companion notebooks does *not* trigger master HTML/PDF chapter compilation scripts (e.g., `compile_rag.py`, `compile_agents.py`), as notebook changes do not affect PDF text chapters.
