@@ -131,7 +131,7 @@ def generate_drift_psi(output_dir):
 
 def draw_linguistic_levels(output_dir):
     """Draws levels of linguistic analysis schematic (Module 01)."""
-    fig, ax = plt.subplots(figsize=(7, 4.5), dpi=300)
+    fig, ax = plt.subplots(figsize=(7.5, 4.8), dpi=300)
     ax.axis('off')
     
     levels = [
@@ -142,30 +142,72 @@ def draw_linguistic_levels(output_dir):
         ("PHONOLOGY", "Phonemes, sound constructs, and characters.", "#60a5fa", "#eff6ff")
     ]
     
+    # Draw a single, clean upward arrow on the left
+    ax.annotate('Synthesis Direction', xy=(0.04, 0.85), xytext=(0.04, 0.15),
+                arrowprops=dict(arrowstyle="->", color='#3b82f6', lw=2, mutation_scale=15),
+                fontsize=9, fontweight='semibold', color='#64748b', rotation=90, ha='right', va='center')
+    
     y = 0.8
     for name, desc, border, bg in levels:
         # Wrap description to 35 characters per line to prevent cutting off text
         wrapped_desc = textwrap.fill(desc, width=35)
         
-        # Draw box (shifted left to 0.12)
-        ax.text(0.12, y, name, fontsize=11, fontweight='bold', color=border,
+        # Draw box (shifted right to 0.22)
+        ax.text(0.22, y, name, fontsize=11, fontweight='bold', color=border,
                 bbox=dict(boxstyle="round,pad=0.5", facecolor=bg, edgecolor=border, lw=1.5),
                 ha='center', va='center')
-        ax.text(0.26, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
+        ax.text(0.38, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
         y -= 0.15
-        
-    # Draw arrows connecting the boxes (in the empty space between them)
-    y_centers = [0.2, 0.35, 0.5, 0.65]
-    for yc in y_centers:
-        ax.annotate('', xy=(0.12, yc + 0.11), xytext=(0.12, yc + 0.04),
-                    arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5,
-                                    shrinkA=0, shrinkB=0))
         
     ax.set_title("Levels of Linguistic Analysis Hierarchy", fontsize=12, fontweight='bold', pad=10, color='#0f172a', loc='center')
     ax.set_xlim(0, 1.15)
     ax.set_ylim(0.1, 0.9)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, '01_linguistic_levels.png'), dpi=300)
+    plt.close()
+
+def draw_nlp_pipeline(output_dir):
+    """Draws standard NLP pipeline schematic (Module 01) as a clean flowchart."""
+    fig, ax = plt.subplots(figsize=(7.5, 5.5), dpi=300)
+    ax.axis('off')
+    
+    steps = [
+        ("Raw Input", '"Seattle\'s libraries are awesome!"', "#3b82f6", "#eff6ff"),
+        ("Preprocessed", '"seattles libraries are awesome" (casing/punct)', "#10b981", "#ecfdf5"),
+        ("Tokenized", '["seattle", "s", "libraries", "are", "awesome"]', "#f59e0b", "#fffbeb"),
+        ("Represented", '[42, 107, 856, 12, 93] (Embedding vector indices)', "#8b5cf6", "#f5f3ff"),
+        ("Model Feed", '[[0.12, -0.4, ...], [0.88, 0.1, ...]] (Tensor)', "#ec4899", "#fdf2f8"),
+        ("Prediction", "Sentiment: POSITIVE (Confidence: 98.4%)", "#ef4444", "#fef2f2")
+    ]
+    
+    y = 0.85
+    for i, (name, example, border, bg) in enumerate(steps):
+        # Draw Step label box on the left (centered at X=0.2)
+        ax.text(0.2, y, name, fontsize=10, fontweight='bold', color=border,
+                bbox=dict(boxstyle="round,pad=0.5", facecolor=bg, edgecolor=border, lw=1.5),
+                ha='center', va='center')
+        
+        # Draw horizontal connector arrow (→)
+        ax.annotate('', xy=(0.42, y), xytext=(0.33, y),
+                    arrowprops=dict(arrowstyle="->", color='#94a3b8', lw=1.2))
+        
+        # Draw Example box on the right (left-aligned at X=0.45)
+        ax.text(0.45, y, example, fontsize=9, color='#0f172a',
+                bbox=dict(boxstyle="round,pad=0.5", facecolor='#ffffff', edgecolor='#cbd5e1', lw=1),
+                ha='left', va='center', family='monospace' if i < 5 else 'sans-serif',
+                weight='bold' if i == 5 else 'normal')
+                
+        # Draw vertical connector arrow (↓) between step boxes
+        if i < 5:
+            ax.annotate('', xy=(0.2, y - 0.09), xytext=(0.2, y - 0.04),
+                        arrowprops=dict(arrowstyle="->", color='#cbd5e1', lw=1.5, shrinkA=0, shrinkB=0))
+        y -= 0.13
+        
+    ax.set_title("Standard Production NLP Pipeline Flow", fontsize=12, fontweight='bold', pad=15, color='#0f172a', loc='center')
+    ax.set_xlim(0, 1.15)
+    ax.set_ylim(0.15, 0.95)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, '01_nlp_pipeline.png'), dpi=300)
     plt.close()
 
 def draw_subword_tree(output_dir):
@@ -215,28 +257,38 @@ def draw_word2vec_projection(output_dir):
     for ax in axes:
         ax.axis('off')
         
-    # --- Skip-gram (Target -> Contexts) ---
-    axes[0].text(0.2, 0.5, 'Input Context\nWords\n[w_t-1, w_t+1]', fontsize=9.5, color='#475569', ha='center', va='center',
+    # --- CBOW (Contexts -> Target) ---
+    axes[0].text(0.15, 0.65, 'Context w_{t-1}', fontsize=9, color='#475569', ha='center', va='center',
                  bbox=dict(boxstyle="round,pad=0.4", facecolor='#f8fafc', edgecolor='#cbd5e1'))
-    axes[0].text(0.5, 0.5, 'Projection Layer\n(Sum/Mean Embedding)\n[h]', fontsize=9.5, fontweight='semibold', color='#2563eb', ha='center', va='center',
-                 bbox=dict(boxstyle="round,pad=0.4", facecolor='#eff6ff', edgecolor='#3b82f6', lw=1.5))
-    axes[0].text(0.8, 0.5, 'Output Target\nWord\n[w_t]', fontsize=9.5, color='#0f172a', ha='center', va='center',
+    axes[0].text(0.15, 0.35, 'Context w_{t+1}', fontsize=9, color='#475569', ha='center', va='center',
+                 bbox=dict(boxstyle="round,pad=0.4", facecolor='#f8fafc', edgecolor='#cbd5e1'))
+                 
+    axes[0].text(0.5, 0.5, 'Projection Layer\n(Sum/Mean)\n[h]', fontsize=9.5, fontweight='semibold', color='#2563eb', ha='center', va='center',
+                 bbox=dict(boxstyle="round,pad=0.5", facecolor='#eff6ff', edgecolor='#3b82f6', lw=1.5))
+                 
+    axes[0].text(0.85, 0.5, 'Target Word\nw_t', fontsize=9.5, fontweight='bold', color='#0f172a', ha='center', va='center',
                  bbox=dict(boxstyle="round,pad=0.4", facecolor='#f1f5f9', edgecolor='#94a3b8'))
                  
-    axes[0].annotate('', xy=(0.35, 0.5), xytext=(0.28, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5))
-    axes[0].annotate('', xy=(0.65, 0.5), xytext=(0.58, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5))
+    axes[0].annotate('', xy=(0.38, 0.5), xytext=(0.25, 0.65), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    axes[0].annotate('', xy=(0.38, 0.5), xytext=(0.25, 0.35), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    axes[0].annotate('', xy=(0.75, 0.5), xytext=(0.62, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5))
     axes[0].set_title("CBOW Model Architecture", fontsize=11, fontweight='bold', pad=10, color='#0f172a')
     
-    # --- CBOW (Contexts -> Target) ---
-    axes[1].text(0.2, 0.5, 'Input Target\nWord\n[w_t]', fontsize=9.5, color='#0f172a', ha='center', va='center',
+    # --- Skip-gram (Target -> Contexts) ---
+    axes[1].text(0.15, 0.5, 'Target Word\nw_t', fontsize=9.5, fontweight='bold', color='#0f172a', ha='center', va='center',
                  bbox=dict(boxstyle="round,pad=0.4", facecolor='#f1f5f9', edgecolor='#94a3b8'))
-    axes[1].text(0.5, 0.5, 'Projection Layer\n(Embedding Lookup)\n[h]', fontsize=9.5, fontweight='semibold', color='#2563eb', ha='center', va='center',
-                 bbox=dict(boxstyle="round,pad=0.4", facecolor='#eff6ff', edgecolor='#3b82f6', lw=1.5))
-    axes[1].text(0.8, 0.5, 'Output Context\nWords\n[w_t-1, w_t+1]', fontsize=9.5, color='#475569', ha='center', va='center',
+                 
+    axes[1].text(0.5, 0.5, 'Projection Layer\n(Lookup)\n[h]', fontsize=9.5, fontweight='semibold', color='#2563eb', ha='center', va='center',
+                 bbox=dict(boxstyle="round,pad=0.5", facecolor='#eff6ff', edgecolor='#3b82f6', lw=1.5))
+                 
+    axes[1].text(0.85, 0.65, 'Context w_{t-1}', fontsize=9, color='#475569', ha='center', va='center',
+                 bbox=dict(boxstyle="round,pad=0.4", facecolor='#f8fafc', edgecolor='#cbd5e1'))
+    axes[1].text(0.85, 0.35, 'Context w_{t+1}', fontsize=9, color='#475569', ha='center', va='center',
                  bbox=dict(boxstyle="round,pad=0.4", facecolor='#f8fafc', edgecolor='#cbd5e1'))
                  
-    axes[1].annotate('', xy=(0.35, 0.5), xytext=(0.28, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5))
-    axes[1].annotate('', xy=(0.65, 0.5), xytext=(0.58, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5))
+    axes[1].annotate('', xy=(0.38, 0.5), xytext=(0.25, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.5))
+    axes[1].annotate('', xy=(0.75, 0.65), xytext=(0.62, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    axes[1].annotate('', xy=(0.75, 0.35), xytext=(0.62, 0.5), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
     axes[1].set_title("Skip-Gram Model Architecture", fontsize=11, fontweight='bold', pad=10, color='#0f172a')
     
     plt.tight_layout()
@@ -368,6 +420,7 @@ if __name__ == "__main__":
     
     # Draw premium schematics
     draw_linguistic_levels(output_dir)
+    draw_nlp_pipeline(output_dir)
     draw_subword_tree(output_dir)
     draw_word2vec_projection(output_dir)
     draw_fasttext_ngrams(output_dir)
