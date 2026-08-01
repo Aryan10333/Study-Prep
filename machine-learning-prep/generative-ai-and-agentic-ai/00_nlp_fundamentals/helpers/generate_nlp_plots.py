@@ -144,23 +144,23 @@ def draw_linguistic_levels(output_dir):
     
     y = 0.8
     for name, desc, border, bg in levels:
-        # Wrap description to 42 characters per line to prevent cutting off text
-        wrapped_desc = textwrap.fill(desc, width=42)
+        # Wrap description to 35 characters per line to prevent cutting off text
+        wrapped_desc = textwrap.fill(desc, width=35)
         
-        # Draw box
-        ax.text(0.15, y, name, fontsize=11, fontweight='bold', color=border,
+        # Draw box (shifted left to 0.12)
+        ax.text(0.12, y, name, fontsize=11, fontweight='bold', color=border,
                 bbox=dict(boxstyle="round,pad=0.5", facecolor=bg, edgecolor=border, lw=1.5),
                 ha='center', va='center')
-        ax.text(0.35, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
+        ax.text(0.26, y, wrapped_desc, fontsize=9.5, color='#334155', ha='left', va='center')
         
         if y > 0.2:
-            # Draw arrow pointing up
-            ax.annotate('', xy=(0.15, y + 0.05), xytext=(0.15, y - 0.05),
+            # Draw arrow pointing up (shifted left to 0.12)
+            ax.annotate('', xy=(0.12, y + 0.05), xytext=(0.12, y - 0.05),
                         arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
         y -= 0.15
         
     ax.set_title("Levels of Linguistic Analysis Hierarchy", fontsize=12, fontweight='bold', pad=10, color='#0f172a', loc='center')
-    ax.set_xlim(0, 1.1)
+    ax.set_xlim(0, 1.15)
     ax.set_ylim(0.1, 0.9)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, '01_linguistic_levels.png'), dpi=300)

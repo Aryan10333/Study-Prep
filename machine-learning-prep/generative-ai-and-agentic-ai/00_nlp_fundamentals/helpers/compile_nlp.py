@@ -266,14 +266,14 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             margin-bottom: 12px !important;
             list-style-type: decimal !important;
         }}
-        .module-container ol li {{
+        .module-container ol > li {{
             margin-bottom: 8px !important;
             font-size: 18px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
             list-style-type: decimal !important;
         }}
-        .module-container ol li::before {{
+        .module-container ol > li::before {{
             content: none !important;
         }}
         table {{
