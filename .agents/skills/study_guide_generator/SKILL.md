@@ -135,3 +135,14 @@ Immediately after generating or updating a guide, verify:
 * [ ] KaTeX display blocks are line-isolated and `%` signs are escaped.
 * [ ] Diagrams use responsive SVG or flexbox HTML (no Mermaid or raw ASCII).
 * [ ] Section 4 interview deep-dive is fully populated without shorthand placeholders.
+
+---
+
+## 6. Standard Plot Generation Reference
+
+For generating premium statistical charts, heatmaps, and metric timelines (to be saved under the topic's `plots/` directory), refer to the standard Matplotlib/Seaborn setup at:
+*   [sample_plot_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_plot_generator.py)
+
+> [!IMPORTANT]
+> Always run plot generation scripts using the repository's active Python virtual environment (e.g. `.venv\Scripts\python.exe helpers/generate_<topic>_plots.py` on Windows) to ensure libraries like `matplotlib` and `seaborn` are correctly loaded.
+

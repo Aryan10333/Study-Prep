@@ -185,3 +185,14 @@ Immediately after compiling a master guide:
 * [ ] Code blocks maintain dark slate `#0f172a` backgrounds with bright white/cyan readable text.
 * [ ] Tables, code blocks, and images fit within A4 width without triggering page auto-scaling.
 * [ ] Headings (`h1`, `h2`, `h3`) do not appear orphaned at the bottom of PDF pages.
+
+---
+
+## 7. Standard Implementation Reference
+
+For a complete, verified, and production-ready script that implements this compilation pipeline, refer to:
+*   [sample_pdf_compiler.py](file:///d:/Study/Prep/.agents/scripts/sample_pdf_compiler.py)
+
+> [!IMPORTANT]
+> Always run compiler/builder scripts using the repository's active Python virtual environment (e.g. `.venv\Scripts\python.exe helpers/compile_<topic>.py` on Windows) to ensure libraries like `markdown` and `pygments` are correctly loaded.
+

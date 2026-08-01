@@ -79,3 +79,14 @@ Immediately after generating and executing any notebook, verify:
 * [ ] **Numerical Offset Documentation**: Any floating-point rounding or precision shifts in printed logs are explicitly explained in the analysis cell.
 * [ ] **Environment Security**: Environment variables load dynamically via `find_dotenv()`. Zero hardcoded API keys or local file paths exist.
 * [ ] **No Unnecessary PDF Compilation**: Modifying or generating companion notebooks does *not* trigger master HTML/PDF chapter compilation scripts (e.g., `compile_rag.py`, `compile_agents.py`), as notebook changes do not affect PDF text chapters.
+
+---
+
+## 5. Standard Implementation Reference
+
+For a complete, verified, and production-ready script that programmatically builds and executes companion notebooks, refer to:
+*   [sample_notebook_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_notebook_generator.py)
+
+> [!IMPORTANT]
+> Always run notebook builder/generator scripts using the repository's active Python virtual environment (e.g. `.venv\Scripts\python.exe helpers/build_<topic>_notebooks.py` on Windows) to ensure libraries like `nbformat` and `nbconvert` are correctly loaded.
+
