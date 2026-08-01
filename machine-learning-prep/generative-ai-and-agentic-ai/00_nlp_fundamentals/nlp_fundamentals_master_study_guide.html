@@ -20,7 +20,7 @@
         }
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            font-size: 14.5px;
+            font-size: 16.5px;
             line-height: 1.6;
             color: #334155;
             background-color: #ffffff;
@@ -28,7 +28,7 @@
             padding: 0;
         }
         h1 {
-            font-size: 22px;
+            font-size: 26px;
             color: #0f172a;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
@@ -38,7 +38,7 @@
             break-after: avoid;
         }
         h2 {
-            font-size: 18px;
+            font-size: 21px;
             color: #2563eb;
             margin-top: 24px;
             margin-bottom: 12px;
@@ -48,7 +48,7 @@
             break-after: avoid;
         }
         h3 {
-            font-size: 15px;
+            font-size: 18px;
             color: #0284c7;
             margin-top: 20px;
             margin-bottom: 10px;
@@ -56,7 +56,7 @@
             break-after: avoid;
         }
         h4, h5, h6 {
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             font-weight: 700 !important;
             color: #0f172a !important;
             margin-top: 18px !important;
@@ -72,18 +72,18 @@
             text-decoration: underline;
         }
         p {
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             line-height: 1.6 !important;
             color: #334155;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         img {
-            max-width: 100\%;
+            max-width: 90\%;
             height: auto;
             display: block;
-            margin: 20px auto;
+            margin: 24px auto;
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
         }
         .module-container ul {
             list-style: none !important;
@@ -95,7 +95,7 @@
             position: relative !important;
             margin-bottom: 8px !important;
             padding-left: 10px !important;
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
         }
@@ -108,7 +108,7 @@
             width: 1em !important;
             margin-left: -1em !important;
             position: absolute !important;
-            top: -3px !important;
+            top: -2px !important;
             left: 5px !important;
         }
         .module-container ul ul {
@@ -128,19 +128,19 @@
         }
         .module-container ol li {
             margin-bottom: 8px !important;
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
         }
         table {
             width: 100\%;
             border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 13.5px;
+            margin: 24px 0;
+            font-size: 14.5px;
         }
         th, td {
             border: 1px solid #cbd5e1;
-            padding: 8px 12px;
+            padding: 10px 14px;
             text-align: left;
         }
         th {
@@ -158,12 +158,12 @@
         }
         code {
             padding: 2px 4px;
-            font-size: 13px;
+            font-size: 14.5px;
             color: #0f172a;
         }
         pre code {
             padding: 0;
-            font-size: 12px;
+            font-size: 13.5px;
             color: inherit;
             background-color: transparent;
         }
@@ -254,9 +254,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .il { color: #AE81FF } /* Literal.Number.Integer.Long */
         .codehilite {
             background-color: #272822 !important;
-            padding: 12px;
+            padding: 14px;
             border-radius: 6px;
-            margin: 16px 0;
+            margin: 18px 0;
             overflow-x: auto;
         }
         .codehilite pre {
@@ -276,7 +276,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             border-radius: 0 4px 4px 0;
         }
         .katex-display {
-            margin: 14px 0 !important;
+            margin: 16px 0 !important;
             overflow-x: auto;
             overflow-y: hidden;
         }
@@ -311,11 +311,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Introduction to NLP &amp; Classical Tasks<br />
-category: NLP Foundations<br />
-prerequisites: General Machine Learning Basics</p>
-<hr />
+        <h1 id="module-01-introduction-to-nlp-classical-tasks">Module 01: Introduction to NLP &amp; Classical Tasks</h1>
 <h1 id="introduction-to-nlp-classical-tasks">Introduction to NLP &amp; Classical Tasks</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
@@ -329,7 +325,7 @@ prerequisites: General Machine Learning Basics</p>
 <li>How context and intent shape the message (Pragmatics).</li>
 </ul>
 <p>NLP translates this multi-layered code into continuous numerical vectors that capture syntactic and semantic relations.</p>
-<p><img alt="Linguistic Levels" src="plots/01_linguistic_levels.png" /></p>
+<p><img alt="Linguistic Levels" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_linguistic_levels.png" /></p>
 <h3 id="taxonomy-of-classical-tasks">Taxonomy of Classical Tasks</h3>
 <p>Classical NLP tasks are categorized into four major computational paradigms:</p>
 <ol>
@@ -439,11 +435,7 @@ Comparing the scores ($0.18 > 0.08$), the model correctly tags <code>"run"</code
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Text Preprocessing &amp; Normalization<br />
-category: NLP Foundations<br />
-prerequisites: Introduction to NLP &amp; Classical Tasks</p>
-<hr />
+        <h1 id="module-02-text-preprocessing-normalization">Module 02: Text Preprocessing &amp; Normalization</h1>
 <h1 id="text-preprocessing-normalization">Text Preprocessing &amp; Normalization</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
@@ -605,18 +597,14 @@ $$X = \text{"wolves running quickly"}$$</p>
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Tokenization &amp; Subword Algorithms<br />
-category: NLP Foundations<br />
-prerequisites: Text Preprocessing &amp; Normalization</p>
-<hr />
+        <h1 id="module-03-tokenization-subword-algorithms">Module 03: Tokenization &amp; Subword Algorithms</h1>
 <h1 id="tokenization-subword-algorithms">Tokenization &amp; Subword Algorithms</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Language models require a mapping between textual units and continuous embedding vectors. Early models split text by spaces into words. This word-level tokenization creates a massive bottleneck: if a word is missing from the training dictionary (e.g. spelling mistakes, new names, slang), it gets mapped to an Out-of-Vocabulary (<code>&lt;unk&gt;</code>) token. This discards all semantic info. If we try to expand the vocabulary to include every possible word, the embedding layer parameters ($V \times d$) blow up, consuming gigabytes of VRAM. Character-level tokenization solves OOV but makes sequences extremely long ($L$), increasing attention complexity quadratically ($O(L^2)$) and diluting the semantic signal per token. The bottleneck is finding an optimal representations partition between sequence length $L$ and vocabulary size $V$.</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of tokenization as structural compression. We want to represent text using a code. If the code only has single letters (characters), writing a message takes a long sequence. If the code has a unique symbol for every single word (word-level), we need an infinite catalog of symbols. Subword tokenization is the middle-ground: we start with letters, identify the most common letter combinations (like <code>"ing"</code>, <code>"est"</code>, <code>"trans"</code>), and assign them unique codes. If we meet a new word like <code>"unfriendliness"</code>, we split it into known subword blocks: <code>"un-"</code>, <code>"friend"</code>, and <code>"-liness"</code>. We preserve semantics without exploding the vocabulary.</p>
-<p><img alt="Subword Tree" src="plots/03_subword_tree.png" /></p>
+<p><img alt="Subword Tree" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/03_subword_tree.png" /></p>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="subword-algorithms">Subword Algorithms</h3>
@@ -784,11 +772,7 @@ Since $\text{Score}(\text{"un"}, \text{"able"}) = 0.0001 > \text{Score}(\text{"u
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Vector Space Models (Bag-of-Words, TF-IDF &amp; BM25)<br />
-category: NLP Foundations<br />
-prerequisites: Tokenization &amp; Subword Algorithms</p>
-<hr />
+        <h1 id="module-04-vector-space-models-bag-of-words-tf-idf-bm25">Module 04: Vector Space Models (Bag-of-Words, TF-IDF &amp; BM25)</h1>
 <h1 id="vector-space-models-bag-of-words-tf-idf-bm25">Vector Space Models (Bag-of-Words, TF-IDF &amp; BM25)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
@@ -836,8 +820,8 @@ prerequisites: Tokenization &amp; Subword Algorithms</p>
 <hr />
 <h3 id="zipfs-law">Zipf's Law</h3>
 <p>Zipf's Law states that in a natural language corpus, the frequency of a word is inversely proportional to its frequency rank (a power-law decay where a tiny fraction of the vocabulary makes up the vast majority of occurrences). This justifies the log-scaling applied in TF and IDF to prevent common words from dominating representations.</p>
-<p><img alt="Zipfs Law" src="plots/01_zipfs_law.png" /><br />
-<img alt="BM25 Saturation" src="plots/02_tfidf_vs_bm25_saturation.png" /></p>
+<p><img alt="Zipfs Law" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_zipfs_law.png" /><br />
+<img alt="BM25 Saturation" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/02_tfidf_vs_bm25_saturation.png" /></p>
 <hr />
 <h3 id="hand-calculation-on-a-simple-example">Hand Calculation on a Simple Example</h3>
 <p>Let's calculate TF-IDF, Cosine Similarity, and BM25 relevance scores.</p>
@@ -1031,18 +1015,14 @@ The documents share a cosine similarity of $0.3361$.</p>
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Distributed Representations (Word2Vec)<br />
-category: NLP Foundations<br />
-prerequisites: Vector Space Models (Bag-of-Words, TF-IDF &amp; BM25)</p>
-<hr />
+        <h1 id="module-05-distributed-representations-word2vec">Module 05: Distributed Representations (Word2Vec)</h1>
 <h1 id="distributed-representations-word2vec">Distributed Representations (Word2Vec)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>In sparse vector space models (such as one-hot encoding or TF-IDF), every unique word in the vocabulary is mapped to an independent dimension. This architecture has a fatal flaw: word vectors are orthogonal. The dot-product between the one-hot vectors for <code>"cat"</code> and <code>"kitten"</code> is exactly $0$. Sparse representations cannot capture semantic similarity or contextual relationships. Furthermore, storing these high-dimensional vectors ($V \approx 10^6$) balloons model parameters, leading to massive memory footprints and computational overhead. The bottleneck is the lack of compact, dense vector representations where semantic similarity maps directly to geometric proximity.</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of word embeddings as compressing language into a multi-dimensional semantic map. Instead of assigning a unique, independent dimension to every single word, we define a small, fixed coordinate space (e.g., $d=300$ dimensions). We assign each dimension to represent a continuous semantic trait (like <code>"gender"</code>, <code>"plurality"</code>, or <code>"verbosity"</code>). Words that share traits project close to each other in this space. By moving from a high-dimensional sparse space to a low-dimensional dense space, we capture semantic concepts (e.g. <code>"king"</code> $-$ <code>"man"</code> $+$ <code>"woman"</code> $\approx$ <code>"queen"</code>).</p>
-<p><img alt="Word2Vec Layout" src="plots/05_word2vec_projection.png" /></p>
+<p><img alt="Word2Vec Layout" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/05_word2vec_projection.png" /></p>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="word2vec-architectures">Word2Vec Architectures</h3>
@@ -1184,11 +1164,7 @@ $$\mathcal{L}_{\text{NEG}} = -\log \sigma(\mathbf{v}'^{\top}_{w_O} \mathbf{v}_{w
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Subword &amp; Matrix-Based Embeddings (GloVe &amp; FastText)<br />
-category: NLP Foundations<br />
-prerequisites: Distributed Representations (Word2Vec)</p>
-<hr />
+        <h1 id="module-06-subword-matrix-based-embeddings-glove-fasttext">Module 06: Subword &amp; Matrix-Based Embeddings (GloVe &amp; FastText)</h1>
 <h1 id="subword-matrix-based-embeddings-glove-fasttext">Subword &amp; Matrix-Based Embeddings (GloVe &amp; FastText)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
@@ -1200,7 +1176,7 @@ prerequisites: Distributed Representations (Word2Vec)</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of GloVe as building a global coordinate grid by factoring a giant co-occurrence spreadsheet. If we know how often all words appear next to each other globally, we can solve a constraint optimization problem that projects words into a coordinate grid where dot-products directly match the logarithm of their co-occurrence counts.<br />
 Think of FastText as breaking a word into a set of puzzle pieces (character n-grams). A word like <code>"&lt;where&gt;"</code> is represented as the sum of its subword segments: <code>"&lt;wh"</code>, <code>"whe"</code>, <code>"her"</code>, <code>"ere"</code>, and <code>"re&gt;"</code>. If we encounter an unseen word like <code>"&lt;wherever&gt;"</code>, we can synthesize its vector representation by summing the vectors of its constituent subword pieces.</p>
-<p><img alt="FastText Ngrams" src="plots/06_fasttext_ngrams.png" /></p>
+<p><img alt="FastText Ngrams" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/06_fasttext_ngrams.png" /></p>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="glove-global-vectors">GloVe (Global Vectors)</h3>
@@ -1339,18 +1315,14 @@ The weighting function bounds the contribution of very frequent word transitions
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Statistical Language Models<br />
-category: NLP Foundations<br />
-prerequisites: Subword &amp; Matrix-Based Embeddings (GloVe &amp; FastText)</p>
-<hr />
+        <h1 id="module-07-statistical-language-models">Module 07: Statistical Language Models</h1>
 <h1 id="statistical-language-models">Statistical Language Models</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Human communication consists of predicting sequence continuations: given <code>"please turn off the"</code>, a human intuitively predicts <code>"lights"</code> over <code>"refrigerator"</code> or <code>"blue"</code>. Early NLP pipelines lacked a probabilistic framework to score the "naturalness" or likelihood of text sequences. To score candidate sentences in machine translation or speech recognition, models needed to evaluate joint token probabilities. However, calculating the joint probability of a sentence requires accounting for all possible histories, which creates a massive history dimensionality wall. The bottleneck is estimating sequence probability transitions accurately without running out of computer memory or encountering zero-probabilities on unseen histories.</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of sequence prediction as navigating a state transition highway. Instead of remembering the entire highway route you have driven since the start of your trip (the full history of words), you assume that your next turn depends only on the exit you are currently passing (the previous word or previous two words). This is the Markov assumption. By truncating the history window, we can estimate transition probabilities locally from corpus occurrence counts, making sequence scoring computationally feasible.</p>
-<p><img alt="HMM Lattice" src="plots/07_hmm_lattice.png" /></p>
+<p><img alt="HMM Lattice" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/07_hmm_lattice.png" /></p>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="the-chain-rule-of-probability">The Chain Rule of Probability</h3>
@@ -1514,11 +1486,7 @@ By multiplying transition and emission likelihoods, the model scores tag sequenc
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Classical NLP Evaluation Metrics<br />
-category: NLP Foundations<br />
-prerequisites: Statistical Language Models</p>
-<hr />
+        <h1 id="module-08-classical-nlp-evaluation-metrics">Module 08: Classical NLP Evaluation Metrics</h1>
 <h1 id="classical-nlp-evaluation-metrics">Classical NLP Evaluation Metrics</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
@@ -1747,19 +1715,15 @@ The output candidate is penalized from $1.0$ down to $0.6065$ because it was too
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Recurrent Neural Networks (RNN, LSTM &amp; GRU)<br />
-category: NLP Foundations<br />
-prerequisites: Classical NLP Evaluation Metrics</p>
-<hr />
+        <h1 id="module-09-recurrent-neural-networks-rnn-lstm-gru">Module 09: Recurrent Neural Networks (RNN, LSTM &amp; GRU)</h1>
 <h1 id="recurrent-neural-networks-rnn-lstm-gru">Recurrent Neural Networks (RNN, LSTM &amp; GRU)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Standard feedforward neural networks (like MLPs) fail on natural language sequences. They require a fixed-size input vector (which cannot handle variable-length documents) and lack temporal memory (treating the word <code>"not"</code> in <code>"not good"</code> and <code>"good, not bad"</code> identically, ignoring position order). Early sequence modeling attempted to pad inputs, but this didn't capture temporal dependencies. The bottleneck of early deep NLP was the lack of sequential layers capable of keeping a running state history, sharing weights across variable-length time steps, and propagating gradients back through long temporal chains.</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of sequential reading as tracking a cognitive notepad (the hidden state). As you read a document word by word, you don't forget everything you read prior. Instead, you read the current word, merge it with what is currently on your cognitive notepad, erase low-value details, write down new high-value info, and update the notepad. This process repeats for every word. If the notepad has a linear carry path that isn't multiplied at each step, you can remember information from several sentences ago without losing the gradient signal.</p>
-<p><img alt="Gradient Flow" src="plots/03_rnn_gradient_flow.png" /><br />
-<img alt="LSTM Cell" src="plots/09_lstm_cell.png" /></p>
+<p><img alt="Gradient Flow" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/03_rnn_gradient_flow.png" /><br />
+<img alt="LSTM Cell" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/09_lstm_cell.png" /></p>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="the-recurrent-cell">The Recurrent Cell</h3>
@@ -1894,18 +1858,14 @@ The new cell state is $0.85$. Because the update is additive, gradients can prop
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <hr />
-<p>title: Production NLP Pipelines (Data Drift &amp; Monitoring)<br />
-category: NLP Foundations<br />
-prerequisites: Recurrent Neural Networks (RNN, LSTM &amp; GRU)</p>
-<hr />
+        <h1 id="module-10-production-nlp-pipelines-data-drift-monitoring">Module 10: Production NLP Pipelines (Data Drift &amp; Monitoring)</h1>
 <h1 id="production-nlp-pipelines-data-drift-monitoring">Production NLP Pipelines (Data Drift &amp; Monitoring)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Deploying an NLP model to production is not a one-off task. Human language patterns change dynamically: users adopt new slang, shift topics due to global news, or alter their emojis. A text classification model (such as a spam filter or customer intent router) trained on historical logs will degrade in performance over time when serving live requests. This phenomenon is called data drift. The bottleneck of production NLP is detecting this distribution shift on unlabeled inference streams in real time, before model degradation affects users, and automating retraining paths under tight compute budgets.</p>
 <h3 id="high-level-intuition">High-Level Intuition</h3>
 <p>Think of data drift as a highway traffic shift. If your GPS maps the highway assuming $90\%$ passenger cars and $10\%$ trucks (your baseline expected distribution), but a new logistics hub shifts traffic to $50\%$ trucks (actual serving distribution), the travel times and bottlenecks will change. In NLP, if a spam filter expects a baseline vocabulary distribution but starts receiving a stream of messages containing new spam emojis and slang (covariate shift), the classifier will misclassify inputs. We monitor this shift by binning incoming text frequencies and measuring the statistical distance (PSI) between actual and expected distributions.</p>
-<p><img alt="Data Drift" src="plots/04_data_drift_psi.png" /></p>
+<p><img alt="Data Drift" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/04_data_drift_psi.png" /></p>
 <hr />
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="data-drift-taxonomy">Data Drift Taxonomy</h3>

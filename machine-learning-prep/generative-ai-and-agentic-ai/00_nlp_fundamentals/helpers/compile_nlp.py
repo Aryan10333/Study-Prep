@@ -10,7 +10,7 @@ def get_browser_path():
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files (x86)\Google\Google Chrome\Application\chrome.exe",
+        r"C:\Program Files\QA\Google\Chrome\Application\chrome.exe",
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
     ]
     for path in candidates:
@@ -18,12 +18,36 @@ def get_browser_path():
             return path
     raise FileNotFoundError("No Microsoft Edge or Google Chrome executable found on this system.")
 
-def preprocess_markdown(text):
-    """Preprocess markdown list structures and relative paths for python-markdown."""
-    # Correct relative image paths from modules/ level to root level
-    text = text.replace("../plots/", "plots/")
+def preprocess_markdown(text, file_name):
+    """Preprocess markdown list structures, frontmatter, and absolute paths."""
+    base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
+    plots_abs_dir = os.path.abspath(os.path.join(base_dir, "plots")).replace("\\", "/")
+    
+    # 1. Resolve relative image paths to absolute file URIs for headless Edge renderer
+    text = text.replace("../plots/", f"file:///{plots_abs_dir}/")
 
-    # Double the indentation of 2-space nested lists to 4-space
+    # 2. Strip frontmatter and replace it with Module number and title heading
+    frontmatter_match = re.match(r'^---\n(.*?)\n---\n', text, re.DOTALL)
+    if frontmatter_match:
+        frontmatter_text = frontmatter_match.group(1)
+        # Extract title from frontmatter
+        title_match = re.search(r'^title:\s*(.*)$', frontmatter_text, re.MULTILINE)
+        title = title_match.group(1).strip() if title_match else ""
+        
+        # Determine module number from file name (e.g. "01_nlp_intro_tasks.md" -> "01")
+        module_num_match = re.match(r'^(\d+)_', file_name)
+        module_num = module_num_match.group(1) if module_num_match else ""
+        
+        # Strip frontmatter block from text
+        text = text[frontmatter_match.end():]
+        
+        # Prepend standard natural heading
+        if module_num:
+            text = f"# Module {module_num}: {title}\n\n" + text
+        else:
+            text = f"# {title}\n\n" + text
+
+    # 3. Double the indentation of 2-space nested lists to 4-space
     lines = text.split('\n')
     new_lines = []
     for line in lines:
@@ -35,7 +59,7 @@ def preprocess_markdown(text):
         new_lines.append(line)
     text = '\n'.join(new_lines)
 
-    # Insert blank lines before list blocks if they are missing
+    # 4. Insert blank lines before list blocks if they are missing
     lines = text.split('\n')
     new_lines = []
     for i, line in enumerate(lines):
@@ -70,7 +94,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         with open(full_path, "r", encoding="utf-8") as f:
             md_text = f.read()
 
-        md_text = preprocess_markdown(md_text)
+        md_text = preprocess_markdown(md_text, file_name)
 
         # Preprocess custom alert tags
         for alert, (border, bg, color, label) in alert_types.items():
@@ -135,7 +159,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         }}
         body {{
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            font-size: 14.5px;
+            font-size: 16.5px;
             line-height: 1.6;
             color: #334155;
             background-color: #ffffff;
@@ -143,7 +167,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             padding: 0;
         }}
         h1 {{
-            font-size: 22px;
+            font-size: 26px;
             color: #0f172a;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
@@ -153,7 +177,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             break-after: avoid;
         }}
         h2 {{
-            font-size: 18px;
+            font-size: 21px;
             color: #2563eb;
             margin-top: 24px;
             margin-bottom: 12px;
@@ -163,7 +187,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             break-after: avoid;
         }}
         h3 {{
-            font-size: 15px;
+            font-size: 18px;
             color: #0284c7;
             margin-top: 20px;
             margin-bottom: 10px;
@@ -171,7 +195,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             break-after: avoid;
         }}
         h4, h5, h6 {{
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             font-weight: 700 !important;
             color: #0f172a !important;
             margin-top: 18px !important;
@@ -187,18 +211,18 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             text-decoration: underline;
         }}
         p {{
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             line-height: 1.6 !important;
             color: #334155;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }}
         img {{
-            max-width: 100\%;
+            max-width: 90\%;
             height: auto;
             display: block;
-            margin: 20px auto;
+            margin: 24px auto;
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
         }}
         .module-container ul {{
             list-style: none !important;
@@ -210,7 +234,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             position: relative !important;
             margin-bottom: 8px !important;
             padding-left: 10px !important;
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
         }}
@@ -223,7 +247,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             width: 1em !important;
             margin-left: -1em !important;
             position: absolute !important;
-            top: -3px !important;
+            top: -2px !important;
             left: 5px !important;
         }}
         .module-container ul ul {{
@@ -243,19 +267,19 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         }}
         .module-container ol li {{
             margin-bottom: 8px !important;
-            font-size: 14.5px !important;
+            font-size: 16.5px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
         }}
         table {{
             width: 100\%;
             border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 13.5px;
+            margin: 24px 0;
+            font-size: 14.5px;
         }}
         th, td {{
             border: 1px solid #cbd5e1;
-            padding: 8px 12px;
+            padding: 10px 14px;
             text-align: left;
         }}
         th {{
@@ -273,21 +297,21 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         }}
         code {{
             padding: 2px 4px;
-            font-size: 13px;
+            font-size: 14.5px;
             color: #0f172a;
         }}
         pre code {{
             padding: 0;
-            font-size: 12px;
+            font-size: 13.5px;
             color: inherit;
             background-color: transparent;
         }}
         {pygments_css}
         .codehilite {{
             background-color: #272822 !important;
-            padding: 12px;
+            padding: 14px;
             border-radius: 6px;
-            margin: 16px 0;
+            margin: 18px 0;
             overflow-x: auto;
         }}
         .codehilite pre {{
@@ -307,7 +331,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             border-radius: 0 4px 4px 0;
         }}
         .katex-display {{
-            margin: 14px 0 !important;
+            margin: 16px 0 !important;
             overflow-x: auto;
             overflow-y: hidden;
         }}
