@@ -28,7 +28,7 @@ To compile clean, professional PDF study guides from modular Markdown files, com
 
 During compilation, standard Markdown parsers corrupt LaTeX mathematical syntax and Pygments code blocks. Use the following techniques to safeguard them:
 
-1. **Math Block Extraction**: Use regex to extract all inline math (`$ ... $`) and display blocks (`$$ ... $$`), replacing them with unique string placeholders (e.g., `MATHPLACEHOLDER_0`) before calling the markdown parser.
+1. **Math Block Extraction**: Use regex to extract all inline math (`$ ... $`) and display blocks (`$$ ... $$`), replacing them with unique string placeholders (e.g., `MATHPLACEHOLDER_0`) BEFORE any preprocessing, custom regex formatting, or text substitutions take place. This guarantees that mathematical subscripts (underscores `_` or asterisks `*`) are never corrupted or converted into HTML italics/bold tags by markdown engines or preprocessors.
 2. **Math Bracket HTML Escaping**: Inside extracted LaTeX mathematical blocks, convert all brackets `<` and `>` into `&lt;` and `&gt;` entities prior to restoring them. This prevents headless browser engines from parsing LaTeX subscripts (like `_{<t>}`) as hidden HTML tags.
 3. **Markdown Parsing**: Run `markdown.markdown()` with required extensions:
    `['fenced_code', 'tables', 'toc', 'nl2br', 'sane_lists', 'codehilite']`

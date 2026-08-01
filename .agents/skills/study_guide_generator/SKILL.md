@@ -147,6 +147,12 @@ Immediately after generating or updating a guide, verify:
 For generating premium statistical charts, heatmaps, and metric timelines (to be saved under the topic's `plots/` directory), refer to the standard Matplotlib/Seaborn setup at:
 *   [sample_plot_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_plot_generator.py)
 
+To ensure visual accuracy and cross-platform formatting compliance:
+1.  **Plot Margins & Padding**: When defining axes limits in Matplotlib/Seaborn, always specify broad limits (e.g., `xlim` and `ylim` extending past coordinates/boxes by at least 10–15%) to prevent text labels and axis titles from being clipped by A4 document borders.
+2.  **Font & Character Compatibility**: Avoid using structural or mathematical symbols (like circled times `⊗`) or flag emojis inside Matplotlib/Seaborn labels. These symbols are frequently missing from the host system's default font caches, causing empty square fallbacks and rendering warnings. Use standard ASCII markers (like `*`) or LaTeX syntax instead.
+3.  **LaTeX Operators Delimiting**: Wrap math relationship operators (like `\leftrightarrow`) inside LaTeX delimiters (`$ ... $` with text tags if necessary) rather than code backticks, to ensure they render as high-fidelity vector symbols.
+4.  **Flowchart Visuals**: Avoid using complex HTML/CSS markup to build custom flowcharts in the raw Markdown source, as they render unreliably during Edge PDF printing. Flowcharts should be generated as clean Matplotlib graphics (`.png`) and referenced relatively.
+
 > [!IMPORTANT]
 > Always run plot generation scripts using the repository's active Python virtual environment (e.g. `.venv\Scripts\python.exe helpers/generate_<topic>_plots.py` on Windows) to ensure libraries like `matplotlib` and `seaborn` are correctly loaded.
 
