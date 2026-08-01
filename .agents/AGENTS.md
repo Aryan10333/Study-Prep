@@ -67,21 +67,22 @@ v
 The workflow consists of an initial scoping phase followed by three independent parallel compilation tracks to prevent code-math synchronizing overhead and maintain high iteration speed:
 
 *   **Scoping Phase: Syllabus Generation**
-    *   **Objective:** Define target modules, notebooks, and learning boundaries using the [Syllabus Generator](file:///d:/Study/Prep/.agents/skills/syllabus_generator/SKILL.md).
+    *   **Objective:** Focus exclusively on defining the syllabus boundaries and creating the draft `README.md` at the topic's root folder.
+    *   **Action Policy:** The agent must only generate the proposed syllabus (`README.md`) for user review during this initial phase. The implementation plan at this stage must NOT list the fine details of code implementation, module contents, or Q&A items; these details and planning steps must occur later during their respective execution tracks.
     *   **Files:** Generates the high-level syllabus at the topic folder's root `README.md`.
-    *   *Checkpoint:* Explicit user review and sign-off required on `README.md` before starting tracks.
+    *   *Checkpoint:* Explicit user review and sign-off required on `README.md` before starting any execution tracks.
 *   **Track 1: Study Notes Modules (Interview Prep Focus)**
     *   **Objective:** Core theory, architecture diagrams, VRAM sizing formulas, parameter counts, and system trade-offs.
     *   **Files:** Raw markdown source chapters reside in `modules/` and compile directly into `<topic>_master_study_guide.pdf`.
-    *   *Checkpoint:* Explicit user review and sign-off required on raw markdown files before final HTML/PDF compilation.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` outlining the study notes modules, hand calculations, and visual diagrams, and obtain explicit user sign-off before writing any raw chapter files.
 *   **Track 2: Production Notebooks & Code (Execution Focus)**
     *   **Objective:** Standalone, end-to-end executable examples profiling real-world parameters, hardware boundaries (VRAM, latency), and tensor contiguity.
     *   **Files:** Programmatically built and run inside `notebooks/` following the [sample_notebook_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_notebook_generator.py) patterns.
-    *   *Checkpoint:* Explicit user review and sign-off required on notebook execution logs and outputs.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` outlining the datasets, profiling code steps, and analysis segments, and obtain explicit user sign-off before writing or executing any notebook builder scripts.
 *   **Track 3: Standalone Interview Q&As (Screening Focus)**
     *   **Objective:** Fast screening responses, key buzzwords, technical intuition, and common mistakes.
     *   **Files:** Reside in `modules/*_interview_questions.md` and compile to `<topic>_interview_cheatsheet.pdf`.
-    *   *Checkpoint:* Explicit user review required twice: first for the question list draft, and second for the final answered Q&A sheets.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` listing the proposed question list, and obtain explicit user sign-off before writing the Q&A sheet. Explicit user review is required twice: first for the question list draft, and second for the final answered Q&A sheets.
 
 ---
 

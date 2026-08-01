@@ -9,6 +9,16 @@ This skill defines the standardized process for creating dedicated, high-impact 
 
 ---
 
+## 0. Pre-Flight Checkpoint: Implementation Plan
+
+Before writing any standalone Interview Q&A cheatsheets or question banks, the agent **MUST** generate a detailed `implementation_plan.md` artifact detailing:
+1.  The proposed list of technical screening questions grouped by concept categories.
+2.  The target file paths for raw Markdown Q&A source documents and compiled deliverables.
+3.  Any specific reference sources or question banks to incorporate.
+The agent must wait for the user's explicit sign-off and approval on this implementation plan before executing.
+
+---
+
 ## 1. Context & Motivation
 
 To crack high-bar technical interviews (AI Engineer, GenAI Engineer, ML Engineer), candidates need study guides that translate raw curriculum theory into quick screening responses, technical calculations, and production trade-offs. 

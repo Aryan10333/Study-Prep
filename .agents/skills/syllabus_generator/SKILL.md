@@ -27,29 +27,13 @@ The generated `README.md` syllabus for any topic folder must strictly adhere to 
 * **Interview Frequency:** [High / Medium / Low - specify frequency in tier-1 tech and AI startup screens.]
 * **Core Goal:** [What is the ultimate engineering goal, e.g., building a production RAG system or implementing custom transformers from scratch.]
 
-## 2. Module Chapters (Markdown Study Guides)
+## 2. Module Chapters & Conceptual Scope
 List the sequential modules to be created under the `modules/` directory:
 - **Module 01: [Title]**
   - *Key Concepts:* [Concept A, Concept B, etc.]
-  - *System Bottlenecks:* [What engineering bounds will be addressed, e.g. memory footprint, computation limits, GPU walls.]
+  - *System Bottlenecks & Focus:* [What engineering bounds will be addressed, e.g. memory footprint, computation limits, GPU walls.]
 - **Module 02: [Title]**
   - ...
-
-## 3. Companion Code & Notebooks
-List the target companion Jupyter Notebooks to be created under `notebooks/` and their respective engineering objectives:
-- **Notebook 01: [Title]**
-  - *Tasks:* [Pydantic parsing, hybrid RRF, profiling, etc.]
-  - *Profiling Focus:* [VRAM checks, execution latency O(L^2), CUDA contiguity, etc.]
-
-## 4. Standalone Interview Q&As & Cheatsheets
-Outline the screening categories that will be created in the Q&A cheatsheet:
-- [Category A: e.g. Attention Complexity]
-- [Category B: e.g. PEFT/LoRA Parameters]
-
-## 5. Output Deliverables
-Specify the standard filenames to be output at the topic root level:
-- `<topic>_master_study_guide.html` / `.pdf`
-- `<topic>_interview_cheatsheet.html` / `.pdf`
 ```
 
 ---
@@ -61,5 +45,5 @@ When generating the syllabus, the agent must check:
 2. **Applied focus:** Filter out PhD-level academic research papers or complex mathematical derivations unless they are essential to system architecture (e.g. FlashAttention-2 tiling mechanics, LoRA weight decomposition).
 3. **Pre-flight Syllabus Checklist:**
    - [ ] Are modules grouped logically (dependencies first)?
-   - [ ] Is every notebook paired with a practical, production engineering problem?
+   - [ ] Is every module focused on a practical, production engineering problem?
    - [ ] Are VRAM, latency, and hardware constraints explicitly targeted?

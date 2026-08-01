@@ -9,6 +9,17 @@ This skill defines the guidelines for programmatically creating, executing, prof
 
 ---
 
+## 0. Pre-Flight Checkpoint: Implementation Plan
+
+Before writing or running any Jupyter notebook builder scripts (`build_*_notebooks.py`), the agent **MUST** generate a detailed `implementation_plan.md` artifact detailing:
+1.  The list of notebooks to generate with their target file paths.
+2.  The real-world datasets and data ingestion APIs to be utilized.
+3.  The specific engineering task pipelines, hardware assertions, and metrics profiling steps.
+4.  Any open design questions or credentials required.
+The agent must wait for the user's explicit sign-off and approval on this implementation plan before executing.
+
+---
+
 ## 1. Production Scope & Real-World Engineering Tasks
 
 Notebooks must completely avoid static toy mocks or trivial mathematical abstractions. Every notebook must serve as an end-to-end, production-grade engineering pipeline tailored for a Senior AI Systems Engineer preparing for technical interviews:
@@ -27,10 +38,10 @@ To guarantee zero unexecuted cells (`In [ ]`), empty outputs, or corrupted JSON 
 1. **Use `nbformat` v4**: Construct notebook JSON structures programmatically using schema v4 components (`nbf.v4`).
 2. **Logical Cell Splitting**: Never write large code pipelines in a single monolithic cell. Split code blocks logically (e.g., `Data Ingestion` $\rightarrow$ `Preprocessing` $\rightarrow$ `Pipeline Setup` $\rightarrow$ `Execution & Profiling` $\rightarrow$ `Validation`).
 3. **Execution Block Cell Pattern**: Operational code cells MUST strictly follow this 3-cell sequence:
-   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 2. Implementing RRF Hybrid Search & Memory Profiling`).
+   - **Markdown Cell (Heading)**: Describes the step name and objective (e.g., `## 2. Implementing RRF Hybrid Search`).
    - **Code Cell (Implementation)**: Self-contained, runnable Python code annotated with explicit tensor shape comments (e.g., `# [B, L, H]`), runtime assertions, and error handling.
-   - **Markdown Cell (Output & System Analysis)**: Titled `### Output & Performance Analysis`, explaining printed tensor shapes, memory footprints, execution latency, and practical trade-offs.
-   *(Note: Initial environment setups and `import` blocks are exempt from the Output Analysis cell requirement.)*
+   - **Markdown Cell (Output Explanation & Interpretation)**: Titled `### Output Explanation & Interpretation` (or `### Output Explanation: [Step Topic]`), explaining printed tensor shapes, losses, matrix outputs, and providing a clear conceptual and practical interpretation.
+   *(Note: Initial environment setups and `import` blocks are exempt from this Output Explanation requirement.)*
 
 ### B. Execution (`nbconvert` & Environment)
 1. **Dynamic Environment Variables & API Keys**: If notebook execution requires API access, the builder script and notebook cells must load credentials dynamically using `python-dotenv`:
@@ -61,11 +72,11 @@ Sensitive credentials must **never** be hardcoded in code cells. The following e
 
 ## 3. Post-Execution Explanations & Numerical Alignment
 
-**Rule**: Every operational code cell inside a companion notebook must be immediately followed by a markdown cell titled `### Output & Performance Analysis`.
+**Rule**: Every operational code cell inside a companion notebook must be immediately followed by a markdown cell titled `### Output Explanation` or `### Output Explanation: [Step Topic]`.
 
-* **Thorough Inspection**: Analyze printed cell outputs in detail, detailing resulting tensor shapes, gradients, memory allocation, loss outputs, or probability distributions.
-* **Floating-Point Precision Transparency**: Detail why these numbers and metrics are correct. If intermediate floating-point execution or hardware precision differences (e.g., FP16/BF16 vs. FP32) cause slight numerical shifts (e.g., `27.8600` vs. `27.8592`), explicitly document both expected theoretical values and exact floating-point outputs to maintain 100% transparency.
-* **System Insights**: Connect system logs directly to real-world performance—highlighting memory bottlenecks, latency trade-offs, and scalability implications.
+* **Thorough Inspection**: Analyze printed cell outputs in detail, detailing resulting tensor shapes, loss outputs, or probability distributions.
+* **Floating-Point Precision Transparency**: Detail why these numbers and metrics are correct. If intermediate floating-point execution or hardware precision differences cause slight numerical shifts, explicitly document both expected theoretical values and exact floating-point outputs to maintain 100% transparency.
+* **Interpretation Insights**: Connect outputs directly to theoretical concepts, explaining what the data represents, why the results match expectations, and how they apply in production.
 
 ---
 
@@ -74,8 +85,8 @@ Sensitive credentials must **never** be hardcoded in code cells. The following e
 Immediately after generating and executing any notebook, verify:
 
 * [ ] **100% Executed State**: Every code cell has an explicit execution count (`In [1]`, `In [2]`) and populated output logs. No empty brackets (`In [ ]`) exist in the final notebook.
-* [ ] **Real-World System Focus**: Pipeline operates on real data/APIs and includes hardware, memory, or latency profiling blocks.
-* [ ] **Paired Analysis Cells**: Every operational code cell is paired with a corresponding `### Output & Performance Analysis` markdown block immediately below it.
+* [ ] **Real-World System Focus**: Pipeline operates on real data/APIs and includes metric checks.
+* [ ] **Paired Analysis Cells**: Every operational code cell is paired with a corresponding Output Explanation markdown block immediately below it.
 * [ ] **Numerical Offset Documentation**: Any floating-point rounding or precision shifts in printed logs are explicitly explained in the analysis cell.
 * [ ] **Environment Security**: Environment variables load dynamically via `find_dotenv()`. Zero hardcoded API keys or local file paths exist.
 * [ ] **No Unnecessary PDF Compilation**: Modifying or generating companion notebooks does *not* trigger master HTML/PDF chapter compilation scripts (e.g., `compile_rag.py`, `compile_agents.py`), as notebook changes do not affect PDF text chapters.

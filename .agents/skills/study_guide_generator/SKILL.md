@@ -9,42 +9,46 @@ This skill defines the standardized pedagogy, formatting, and mathematical conve
 
 ---
 
-## 1. High-Level Conceptual Motivation & First Principles
+## 0. Pre-Flight Checkpoint: Implementation Plan
 
-Every study guide must begin with a foundational, standalone introduction that builds intuition from first principles before introducing complex math or code:
-
-1. **The Core Bottleneck**: Explain the real-world engineering failure mode, hardware wall, or computational bottleneck that existed prior (e.g., memory bandwidth limit, quadratic latency, vanishing gradient, communication overhead).
-2. **First-Principles Mental Model**: Introduce an intuitive analogy or visual high-level narrative explaining how the technique overcomes this bottleneck.
-3. **Core Glossary**: Define key domain terms and variables explicitly so the reader does not need to look up outside references.
+Before writing any raw Markdown study guide chapters, the agent **MUST** generate a detailed `implementation_plan.md` artifact detailing:
+1.  The list of modules/chapters to create with their target file paths.
+2.  The exact mathematical formulas to be retained and their planned step-by-step hand calculations.
+3.  The visual diagrams and premium plots to be generated or saved locally.
+4.  Any open design questions or dependencies.
+The agent must wait for the user's explicit sign-off and approval on this implementation plan before executing.
 
 ---
 
-## 2. Pedagogical Style: AI Engineer (Interview Prep Focus)
+## 1. Pedagogical Style: AI Engineer (Interview Prep Focus)
 
-All technical study guides must follow a practical **AI Systems Engineering** progression. The goal is to build deep system-level intuition for technical coding, system design, and architecture interviews across any AI domain (NLP, Vision, Distributed Systems, RL, Inference Optimization, etc.).
+All technical study guides must follow a practical **AI Systems Engineering** progression. The goal is to build deep system-level intuition for technical coding, system design, and architecture interviews across any AI domain.
 
-### A. Core Engineering Lens
+### A. Formatting & Structure Constraints
+
+Each study guide must be structured using these natural, clean headings (avoiding rigid titles like "Foundational Motivation & First Principles" or "First Principles Mental Model"):
+
+1.  **# [Topic Title]** (Main Title)
+2.  **## 1. Introduction & Intuition**: Explain the real-world engineering bottleneck, high-level conceptual intuition, and baseline textbook definitions in plain language before showing any math or code.
+3.  **## 2. Core Concepts & Mathematical Formulation**: Adhere strictly to these mathematical representation rules:
+    *   **Formula Selection Constraint:** Only write out mathematical formula blocks for core, mostly-asked interview concepts (e.g., primary loss functions, fundamental vector similarity metrics, core evaluation statistics, sequential update loops, and standard drift telemetry indices).
+    *   **Formula Accompaniment:** Every retained formula **must** be accompanied by:
+        *   **Purpose & High-level Intuition:** A plain-language explanation of what the formula does, why it exists, and the specific production bottleneck it solves.
+        *   **Hand Calculation on a Simple Example:** A concrete, step-by-step mathematical walk-through using small numbers (e.g., sequence length $L=2$, hidden size $d=2$, or a tiny mock dataset of 2-3 samples) showing how variables flow through the arithmetic to produce a final numerical result.
+        *   **Tensor & Shape Tracking:** Map input shapes to output shapes.
+    *   **Concept Simplification:** For all other secondary, auxiliary, or less-frequently-asked mathematical concepts (e.g., complex matrix-factorization loss functions, auxiliary probabilities, background power-law distributions, multi-step dynamic programming state transitions, or derivative backpropagation products), **strictly prohibit writing mathematical formula blocks**. Instead, replace the formula entirely with a description of its purpose, high-level intuition, and practical use in plain text with example if needed.
+4.  **## 3. Implementation & Reference Code**: Provide self-contained, runnable code (e.g. in PyTorch/NumPy) annotated with shape comments (e.g., `# [B, L, H]`) and deterministic random seeds.
+5.  **## 4. Interview Deep-Dive & System Trade-offs**: Complete the standard complexity tables and interview Q&A closure.
+
+---
+
+### B. Core Engineering Lens
 
 * **Strictly Prohibit Academic Formalisms**: Omit formal mathematical proofs, lengthy calculus derivations, and purely theoretical convergence analysis.
 * **Prioritize System Metrics & Hardware Awareness**: Evaluate every concept through real-world engineering constraints:
 * **Resource & Memory Footprints**: Memory bandwidth, static vs. dynamic VRAM/RAM allocation, cache behaviors, and computational scaling.
 * **System Bottlenecks**: Distinguish between memory-bandwidth-bound and compute-bound operations (e.g., Roofline Model dynamics).
 * **Dimensionality & Flow**: Track tensor and matrix shapes explicitly at every stage of execution.
-
-
-
-### B. The 4-Step Engineering Progression
-
-For every core algorithm, architecture, or optimization technique, follow this sequence:
-
-1. **Production Motivation**: Frame the topic by identifying the real-world engineering bottleneck, latency issue, or hardware constraint it resolves.
-2. **Minimal Operational Formulation**: Present the core equation(s) in KaTeX display math, paired with an explicit shape/dimension transformation layout mapping inputs to outputs.
-3. **High-Level Flow Walkthrough**: Explain the computational path and logical flow of variables through the operations (e.g., query-key multiplication, softmax scaling, and value aggregation).
-4. **Production-Style Reference Code**: Provide self-contained, framework-idiomatic code (e.g., PyTorch):
-* Annotate operational shapes directly in comments (e.g., `# [B, C, H, W]`).
-* Explicitly set deterministic random seeds (`torch.manual_seed(42)`) and isolate execution (e.g., `with torch.no_grad():`).
-
-
 
 ---
 
