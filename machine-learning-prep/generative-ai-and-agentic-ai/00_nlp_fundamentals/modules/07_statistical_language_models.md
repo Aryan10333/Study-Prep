@@ -1,10 +1,4 @@
----
-title: Statistical Language Models
-category: NLP Foundations
-prerequisites: Subword & Matrix-Based Embeddings (GloVe & FastText)
----
-
-# Statistical Language Models
+# Module 07: Statistical Language Models
 
 ## 1. Introduction & Intuition
 

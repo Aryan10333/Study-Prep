@@ -1,10 +1,4 @@
----
-title: Classical NLP Evaluation Metrics
-category: NLP Foundations
-prerequisites: Statistical Language Models
----
-
-# Classical NLP Evaluation Metrics
+# Module 08: Classical NLP Evaluation Metrics
 
 ## 1. Introduction & Intuition
 

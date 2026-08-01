@@ -1,10 +1,4 @@
----
-title: Tokenization & Subword Algorithms
-category: NLP Foundations
-prerequisites: Text Preprocessing & Normalization
----
-
-# Tokenization & Subword Algorithms
+# Module 03: Tokenization & Subword Algorithms
 
 ## 1. Introduction & Intuition
 

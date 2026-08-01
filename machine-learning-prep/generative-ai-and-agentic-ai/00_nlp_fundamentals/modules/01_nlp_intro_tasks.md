@@ -1,10 +1,4 @@
----
-title: Introduction to NLP & Classical Tasks
-category: NLP Foundations
-prerequisites: General Machine Learning Basics
----
-
-# Introduction to NLP & Classical Tasks
+# Module 01: Introduction to NLP & Classical Tasks
 
 ## 1. Introduction & Intuition
 
@@ -21,6 +15,99 @@ Think of language as a multi-layered code. To understand a message, you cannot j
 NLP translates this multi-layered code into continuous numerical vectors that capture syntactic and semantic relations.
 
 ![Linguistic Levels](../plots/01_linguistic_levels.png)
+
+### Walkthrough of a Sample String: `"Seattle's libraries are awesome! 🌟"`
+
+In production systems, processing raw text requires translating unstructured strings into structured numerical matrices through a sequential pipeline:
+
+<div style="margin: 28px auto; max-width: 720px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <!-- Row 1: Raw Input -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Raw Input</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">"Seattle's libraries are awesome! 🌟"</div>
+  </div>
+  
+  <!-- Connector 1 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 2: Preprocessed -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #10b981; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Preprocessed</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      "seattles libraries are awesome" <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(lowercased, emoji & punctuation removed)</span>
+    </div>
+  </div>
+
+  <!-- Connector 2 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 3: Tokenized -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Tokenized</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      ["seattle", "s", "libraries", "are", "awesome"] <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(split into word tokens)</span>
+    </div>
+  </div>
+
+  <!-- Connector 3 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 4: Represented -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #8b5cf6; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Represented</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      [42, 107, 856, 12, 93] <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(indices mapped to embedding vectors)</span>
+    </div>
+  </div>
+
+  <!-- Connector 4 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 5: Model Feed -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #ec4899; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Model Feed</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      [[0.12, -0.4, ...], [0.88, 0.1, ...]] <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(fed into sequence classifier)</span>
+    </div>
+  </div>
+
+  <!-- Connector 5 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 6: Prediction -->
+  <div style="display: flex; align-items: center; justify-content: center;">
+    <div style="flex: 0 0 140px; background-color: #ef4444; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Prediction</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #1e3a8a; background-color: #eff6ff; padding: 6px 12px; border-radius: 4px; border: 1px solid #bfdbfe; max-width: 460px; text-align: left; font-weight: bold;">
+      Sentiment: POSITIVE (Confidence: 98.4%)
+    </div>
+  </div>
+</div>
 
 ### Taxonomy of Classical Tasks
 Classical NLP tasks are categorized into four major computational paradigms:

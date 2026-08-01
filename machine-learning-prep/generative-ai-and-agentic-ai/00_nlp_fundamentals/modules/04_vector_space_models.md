@@ -1,10 +1,4 @@
----
-title: Vector Space Models (Bag-of-Words, TF-IDF & BM25)
-category: NLP Foundations
-prerequisites: Tokenization & Subword Algorithms
----
-
-# Vector Space Models (Bag-of-Words, TF-IDF & BM25)
+# Module 04: Vector Space Models (Bag-of-Words & TF-IDF)
 
 ## 1. Introduction & Intuition
 

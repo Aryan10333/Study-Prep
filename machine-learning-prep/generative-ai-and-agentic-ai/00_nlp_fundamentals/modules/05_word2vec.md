@@ -1,10 +1,4 @@
----
-title: Distributed Representations (Word2Vec)
-category: NLP Foundations
-prerequisites: Vector Space Models (Bag-of-Words, TF-IDF & BM25)
----
-
-# Distributed Representations (Word2Vec)
+# Module 05: Distributed Representations (Word2Vec CBOW vs. Skip-gram)
 
 ## 1. Introduction & Intuition
 

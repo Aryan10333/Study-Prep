@@ -1,10 +1,4 @@
----
-title: Production NLP Pipelines (Data Drift & Monitoring)
-category: NLP Foundations
-prerequisites: Recurrent Neural Networks (RNN, LSTM & GRU)
----
-
-# Production NLP Pipelines (Data Drift & Monitoring)
+# Module 10: Production NLP Pipelines (Data Drift & Monitoring)
 
 ## 1. Introduction & Intuition
 

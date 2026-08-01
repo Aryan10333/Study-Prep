@@ -1,10 +1,4 @@
----
-title: Recurrent Neural Networks (RNN, LSTM & GRU)
-category: NLP Foundations
-prerequisites: Classical NLP Evaluation Metrics
----
-
-# Recurrent Neural Networks (RNN, LSTM & GRU)
+# Module 09: Recurrent Neural Networks (RNN, LSTM, GRU)
 
 ## 1. Introduction & Intuition
 

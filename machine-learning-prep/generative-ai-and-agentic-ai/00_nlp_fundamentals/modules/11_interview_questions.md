@@ -1,4 +1,4 @@
-# Module 10: NLP Fundamentals High-Frequency Interview Question Bank
+# Module 11: Interview Questions & Answers
 
 This module provides detailed answers for the 40 standard and 10 advanced bonus interview questions covering NLP foundations, mathematical derivations, debugging procedures, and production systems design.
 

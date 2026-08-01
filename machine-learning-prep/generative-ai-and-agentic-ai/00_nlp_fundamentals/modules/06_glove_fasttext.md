@@ -1,10 +1,4 @@
----
-title: Subword & Matrix-Based Embeddings (GloVe & FastText)
-category: NLP Foundations
-prerequisites: Distributed Representations (Word2Vec)
----
-
-# Subword & Matrix-Based Embeddings (GloVe & FastText)
+# Module 06: Subword and Matrix-Based Embeddings (GloVe & FastText)
 
 ## 1. Introduction & Intuition
 

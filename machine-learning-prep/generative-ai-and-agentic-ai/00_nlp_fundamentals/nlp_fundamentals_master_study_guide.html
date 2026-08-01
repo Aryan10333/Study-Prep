@@ -348,7 +348,6 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
         <h1 id="module-01-introduction-to-nlp-classical-tasks">Module 01: Introduction to NLP &amp; Classical Tasks</h1>
-<h1 id="introduction-to-nlp-classical-tasks">Introduction to NLP &amp; Classical Tasks</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Computers process structured, deterministic data (like integers and relational tables) in binary states. However, human language is unstructured, variable, and highly ambiguous. Early attempts to process language relied on manual regular expressions or context-free grammars (CFGs). These systems broke down on common language variations, misspellings, or contextual shifts. The core bottleneck was the lack of representations that could capture the multi-layered, fuzzy structure of human language.</p>
@@ -362,6 +361,97 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </ul>
 <p>NLP translates this multi-layered code into continuous numerical vectors that capture syntactic and semantic relations.</p>
 <p><img alt="Linguistic Levels" src="file:///d:/Study/Prep/machine-learning-prep/generative-ai-and-agentic-ai/00_nlp_fundamentals/plots/01_linguistic_levels.png" /></p>
+<h3 id="walkthrough-of-a-sample-string-seattles-libraries-are-awesome">Walkthrough of a Sample String: <code>"Seattle's libraries are awesome! 🌟"</code></h3>
+<p>In production systems, processing raw text requires translating unstructured strings into structured numerical matrices through a sequential pipeline:</p>
+<div style="margin: 28px auto; max-width: 720px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  <!-- Row 1: Raw Input -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Raw Input</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">"Seattle's libraries are awesome! 🌟"</div>
+  </div>
+
+  <!-- Connector 1 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 2: Preprocessed -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #10b981; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Preprocessed</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      "seattles libraries are awesome" <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(lowercased, emoji & punctuation removed)</span>
+    </div>
+  </div>
+
+  <!-- Connector 2 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 3: Tokenized -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #f59e0b; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Tokenized</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      ["seattle", "s", "libraries", "are", "awesome"] <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(split into word tokens)</span>
+    </div>
+  </div>
+
+  <!-- Connector 3 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 4: Represented -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #8b5cf6; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Represented</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      [42, 107, 856, 12, 93] <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(indices mapped to embedding vectors)</span>
+    </div>
+  </div>
+
+  <!-- Connector 4 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 5: Model Feed -->
+  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; background-color: #ec4899; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Model Feed</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #0f172a; background-color: #ffffff; padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 460px; text-align: left;">
+      [[0.12, -0.4, ...], [0.88, 0.1, ...]] <span style="color: #64748b; font-family: sans-serif; font-size: 11px; margin-left: 6px;">(fed into sequence classifier)</span>
+    </div>
+  </div>
+
+  <!-- Connector 5 -->
+  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+    <div style="flex: 0 0 140px; text-align: center; color: #cbd5e1; font-size: 14px; font-weight: bold; line-height: 1;">↓</div>
+    <div style="width: 40px;"></div>
+    <div style="flex: 1; max-width: 460px;"></div>
+  </div>
+
+  <!-- Row 6: Prediction -->
+  <div style="display: flex; align-items: center; justify-content: center;">
+    <div style="flex: 0 0 140px; background-color: #ef4444; color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Prediction</div>
+    <div style="width: 40px; text-align: center; font-size: 16px; color: #64748b;">&rarr;</div>
+    <div style="flex: 1; font-family: monospace; font-size: 13px; color: #1e3a8a; background-color: #eff6ff; padding: 6px 12px; border-radius: 4px; border: 1px solid #bfdbfe; max-width: 460px; text-align: left; font-weight: bold;">
+      Sentiment: POSITIVE (Confidence: 98.4%)
+    </div>
+  </div>
+</div>
+
 <h3 id="taxonomy-of-classical-tasks">Taxonomy of Classical Tasks</h3>
 <p>Classical NLP tasks are categorized into four major computational paradigms:</p>
 <ol>
@@ -476,7 +566,6 @@ Comparing the scores ($0.18 &gt; 0.08$), the model correctly tags <code>"run"</c
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
         <h1 id="module-02-text-preprocessing-normalization">Module 02: Text Preprocessing &amp; Normalization</h1>
-<h1 id="text-preprocessing-normalization">Text Preprocessing &amp; Normalization</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Machine learning models process static numerical vectors, not raw strings. To convert text into vectors, we must map words to a fixed vocabulary index. However, raw human text contains capitalization variance, punctuation, typos, and morphologic endings (e.g. <code>"runs"</code>, <code>"running"</code>, <code>"ran"</code>). If we assign a unique vector index to every variation, the vocabulary size ($|V|$) explodes. This increases model parameters (VRAM footprint) and splits statistical data signals, as the model must learn the meaning of <code>"ran"</code> and <code>"running"</code> independently. The bottleneck is compressing vocabulary variations without losing semantic context.</p>
@@ -642,7 +731,6 @@ $$X = \text{“wolves running quickly”}$$</p>
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
         <h1 id="module-03-tokenization-subword-algorithms">Module 03: Tokenization &amp; Subword Algorithms</h1>
-<h1 id="tokenization-subword-algorithms">Tokenization &amp; Subword Algorithms</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Language models require a mapping between textual units and continuous embedding vectors. Early models split text by spaces into words. This word-level tokenization creates a massive bottleneck: if a word is missing from the training dictionary (e.g. spelling mistakes, new names, slang), it gets mapped to an Out-of-Vocabulary (<code>&lt;unk&gt;</code>) token. This discards all semantic info. If we try to expand the vocabulary to include every possible word, the embedding layer parameters ($V \times d$) blow up, consuming gigabytes of VRAM. Character-level tokenization solves OOV but makes sequences extremely long ($L$), increasing attention complexity quadratically ($O(L^2)$) and diluting the semantic signal per token. The bottleneck is finding an optimal representations partition between sequence length $L$ and vocabulary size $V$.</p>
@@ -820,8 +908,7 @@ Since $\text{Score}(\text{“un”}, \text{“able”}) = 0.0001 &gt; \text{Scor
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <h1 id="module-04-vector-space-models-bag-of-words-tf-idf-bm25">Module 04: Vector Space Models (Bag-of-Words, TF-IDF &amp; BM25)</h1>
-<h1 id="vector-space-models-bag-of-words-tf-idf-bm25">Vector Space Models (Bag-of-Words, TF-IDF &amp; BM25)</h1>
+        <h1 id="module-04-vector-space-models-bag-of-words-tf-idf">Module 04: Vector Space Models (Bag-of-Words &amp; TF-IDF)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Human documents vary in length, vocabulary choices, and grammatical style. To compare two text sequences algorithmically (e.g. for search retrieval or document clustering), we require a structured numerical coordinate space. Early keyword search pipelines matched exact strings, which failed to score partial overlaps or account for word frequencies. The bottleneck of early text retrieval was the lack of standard vector spaces where documents could be represented, normalized, and compared mathematically based on the semantic importance of their constituent terms.</p>
@@ -1069,8 +1156,7 @@ The documents share a cosine similarity of $0.3361$.</p>
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <h1 id="module-05-distributed-representations-word2vec">Module 05: Distributed Representations (Word2Vec)</h1>
-<h1 id="distributed-representations-word2vec">Distributed Representations (Word2Vec)</h1>
+        <h1 id="module-05-distributed-representations-word2vec-cbow-vs-skip-gram">Module 05: Distributed Representations (Word2Vec CBOW vs. Skip-gram)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>In sparse vector space models (such as one-hot encoding or TF-IDF), every unique word in the vocabulary is mapped to an independent dimension. This architecture has a fatal flaw: word vectors are orthogonal. The dot-product between the one-hot vectors for <code>"cat"</code> and <code>"kitten"</code> is exactly $0$. Sparse representations cannot capture semantic similarity or contextual relationships. Furthermore, storing these high-dimensional vectors ($V \approx 10^6$) balloons model parameters, leading to massive memory footprints and computational overhead. The bottleneck is the lack of compact, dense vector representations where semantic similarity maps directly to geometric proximity.</p>
@@ -1222,8 +1308,7 @@ $$\mathcal{L}_{\text{NEG}} = -\log \sigma(\mathbf{v}'^{\top}_{w_O} \mathbf{v}_{w
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <h1 id="module-06-subword-matrix-based-embeddings-glove-fasttext">Module 06: Subword &amp; Matrix-Based Embeddings (GloVe &amp; FastText)</h1>
-<h1 id="subword-matrix-based-embeddings-glove-fasttext">Subword &amp; Matrix-Based Embeddings (GloVe &amp; FastText)</h1>
+        <h1 id="module-06-subword-and-matrix-based-embeddings-glove-fasttext">Module 06: Subword and Matrix-Based Embeddings (GloVe &amp; FastText)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>While Word2Vec embeddings capture local semantics, they suffer from two major limitations:</p>
@@ -1378,7 +1463,6 @@ The weighting function bounds the contribution of very frequent word transitions
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
         <h1 id="module-07-statistical-language-models">Module 07: Statistical Language Models</h1>
-<h1 id="statistical-language-models">Statistical Language Models</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Human communication consists of predicting sequence continuations: given <code>"please turn off the"</code>, a human intuitively predicts <code>"lights"</code> over <code>"refrigerator"</code> or <code>"blue"</code>. Early NLP pipelines lacked a probabilistic framework to score the "naturalness" or likelihood of text sequences. To score candidate sentences in machine translation or speech recognition, models needed to evaluate joint token probabilities. However, calculating the joint probability of a sentence requires accounting for all possible histories, which creates a massive history dimensionality wall. The bottleneck is estimating sequence probability transitions accurately without running out of computer memory or encountering zero-probabilities on unseen histories.</p>
@@ -1553,7 +1637,6 @@ By multiplying transition and emission likelihoods, the model scores tag sequenc
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
         <h1 id="module-08-classical-nlp-evaluation-metrics">Module 08: Classical NLP Evaluation Metrics</h1>
-<h1 id="classical-nlp-evaluation-metrics">Classical NLP Evaluation Metrics</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Building language pipelines requires standard, objective, and automated metrics to evaluate performance. In structured machine learning, we compare predictions against labels directly using accuracy or mean squared error. In NLP, however, output strings can have different lengths, word ordering, and synonyms. If a model translates a sentence as <code>"The cat sat on the rug"</code> and the reference is <code>"On the mat sat the cat"</code>, a simple token accuracy metric will score it as a failure. Evaluating text generation requires metrics that can handle semantic equivalence, sequence alignment variations, and probabilistic perplexity. The bottleneck is designing automated evaluation metrics that correlate well with human judgment without requiring expensive manual verification.</p>
@@ -1785,8 +1868,7 @@ The output candidate is penalized from $1.0$ down to $0.6065$ because it was too
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <h1 id="module-09-recurrent-neural-networks-rnn-lstm-gru">Module 09: Recurrent Neural Networks (RNN, LSTM &amp; GRU)</h1>
-<h1 id="recurrent-neural-networks-rnn-lstm-gru">Recurrent Neural Networks (RNN, LSTM &amp; GRU)</h1>
+        <h1 id="module-09-recurrent-neural-networks-rnn-lstm-gru">Module 09: Recurrent Neural Networks (RNN, LSTM, GRU)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Standard feedforward neural networks (like MLPs) fail on natural language sequences. They require a fixed-size input vector (which cannot handle variable-length documents) and lack temporal memory (treating the word <code>"not"</code> in <code>"not good"</code> and <code>"good, not bad"</code> identically, ignoring position order). Early sequence modeling attempted to pad inputs, but this didn't capture temporal dependencies. The bottleneck of early deep NLP was the lack of sequential layers capable of keeping a running state history, sharing weights across variable-length time steps, and propagating gradients back through long temporal chains.</p>
@@ -1933,7 +2015,6 @@ The new cell state is $0.85$. Because the update is additive, gradients can prop
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
         <h1 id="module-10-production-nlp-pipelines-data-drift-monitoring">Module 10: Production NLP Pipelines (Data Drift &amp; Monitoring)</h1>
-<h1 id="production-nlp-pipelines-data-drift-monitoring">Production NLP Pipelines (Data Drift &amp; Monitoring)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
 <h3 id="the-core-bottleneck">The Core Bottleneck</h3>
 <p>Deploying an NLP model to production is not a one-off task. Human language patterns change dynamically: users adopt new slang, shift topics due to global news, or alter their emojis. A text classification model (such as a spam filter or customer intent router) trained on historical logs will degrade in performance over time when serving live requests. This phenomenon is called data drift. The bottleneck of production NLP is detecting this distribution shift on unlabeled inference streams in real time, before model degradation affects users, and automating retraining paths under tight compute budgets.</p>
@@ -2127,7 +2208,7 @@ $$P(Y|X_{\text{actual}}) \neq P(Y|X_{\text{expected}}) \quad \text{while } P(X) 
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">NLP Foundations Curriculum Guide</span>
         </div>
-        <h1 id="module-10-nlp-fundamentals-high-frequency-interview-question-bank">Module 10: NLP Fundamentals High-Frequency Interview Question Bank</h1>
+        <h1 id="module-11-interview-questions-answers">Module 11: Interview Questions &amp; Answers</h1>
 <p>This module provides detailed answers for the 40 standard and 10 advanced bonus interview questions covering NLP foundations, mathematical derivations, debugging procedures, and production systems design.</p>
 <hr />
 <h2 id="1-conceptual-questions-1-12">1. Conceptual Questions (1-12)</h2>

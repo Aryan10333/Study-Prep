@@ -1,10 +1,4 @@
----
-title: Text Preprocessing & Normalization
-category: NLP Foundations
-prerequisites: Introduction to NLP & Classical Tasks
----
-
-# Text Preprocessing & Normalization
+# Module 02: Text Preprocessing & Normalization
 
 ## 1. Introduction & Intuition
 
