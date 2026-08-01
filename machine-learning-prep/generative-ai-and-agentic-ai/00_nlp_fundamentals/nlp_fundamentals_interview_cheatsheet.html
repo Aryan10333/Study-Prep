@@ -18,6 +18,17 @@
             size: A4;
             margin: 20mm 18mm 20mm 18mm;
         }
+        /* Hide scrollbars globally in PDF print */
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+        }
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             font-size: 14.5px;
@@ -164,6 +175,9 @@
             font-family: Consolas, Monaco, 'Andale Mono', monospace;
             background-color: #f1f5f9;
             border-radius: 4px;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         code {
             padding: 2px 4px;
@@ -175,6 +189,9 @@
             font-size: 13.5px;
             color: inherit;
             background-color: transparent;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -266,15 +283,21 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             padding: 14px;
             border-radius: 6px;
             margin: 18px 0;
-            overflow-x: auto;
+            overflow: visible !important;
         }
         .codehilite pre {
             margin: 0;
             background-color: transparent !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         .codehilite code {
             background-color: transparent !important;
             color: #f8f8f2 !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         blockquote {
             border-left: 4px solid #3b82f6;
@@ -286,8 +309,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         }
         .katex-display {
             margin: 16px 0 !important;
-            overflow-x: auto;
-            overflow-y: hidden;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scrollbar-width: none !important;
+        }
+        .katex-display::-webkit-scrollbar {
+            display: none !important;
         }
         .module-container {
             page-break-before: always;
@@ -430,7 +457,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <hr />
 <h2 id="question-6-why-did-modern-nlp-move-from-word-tokenization-to-subword-tokenization">Question 6: Why did modern NLP move from word tokenization to subword tokenization?</h2>
 <h3 id="short-interview-answer-3060-seconds_5">Short Interview Answer (30–60 seconds)</h3>
-<p>Word-level tokenization struggles with vocabulary explosion ($|V| > 1,000,000$) and high OOV rates. Subword tokenization represents text using a smaller vocabulary of root prefixes and suffixes, allowing models to process new or misspelled words without crashing or generating <code>&lt;unk&gt;</code> tokens.</p>
+<p>Word-level tokenization struggles with vocabulary explosion ($|V| &gt; 1,000,000$) and high OOV rates. Subword tokenization represents text using a smaller vocabulary of root prefixes and suffixes, allowing models to process new or misspelled words without crashing or generating <code>&lt;unk&gt;</code> tokens.</p>
 <h3 id="key-interview-points_5">Key Interview Points</h3>
 <ul>
 <li>Vocabulary size limits</li>
@@ -588,23 +615,23 @@ Vocabulary: <code>["cat", "mat", "rug"]</code> (vocabulary size $|V| = 3$).</li>
 <h4 id="step-1-calculate-document-frequencies-df-and-smooth-idf-for-each-term">Step 1: Calculate Document Frequencies (DF) and Smooth IDF for each term:</h4>
 <ul>
 <li>
-<p><strong>"cat"</strong>: $\text{DF}(\text{"cat"}) = 1$ (appears only in $d_1$)<br />
-  $$\text{IDF}(\text{"cat"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+<p><strong>"cat"</strong>: $\text{DF}(\text{“cat”}) = 1$ (appears only in $d_1$)<br />
+  $$\text{IDF}(\text{“cat”}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
 </li>
 <li>
-<p><strong>"mat"</strong>: $\text{DF}(\text{"mat"}) = 2$ (appears in $d_1$ and $d_2$)<br />
-  $$\text{IDF}(\text{"mat"}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$</p>
+<p><strong>"mat"</strong>: $\text{DF}(\text{“mat”}) = 2$ (appears in $d_1$ and $d_2$)<br />
+  $$\text{IDF}(\text{“mat”}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$</p>
 </li>
 <li>
-<p><strong>"rug"</strong>: $\text{DF}(\text{"rug"}) = 1$ (appears only in $d_2$)<br />
-  $$\text{IDF}(\text{"rug"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+<p><strong>"rug"</strong>: $\text{DF}(\text{“rug”}) = 1$ (appears only in $d_2$)<br />
+  $$\text{IDF}(\text{“rug”}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
 </li>
 </ul>
-<h4 id="step-2-compute-raw-tf-idf-vector-for-mathplaceholder72endmath-frequencies-mathplaceholder73endmath-mathplaceholder74endmath-mathplaceholder75endmath">Step 2: Compute Raw TF-IDF Vector for $d_1$ (frequencies: $\text{TF}(\text{"cat"})=1$, $\text{TF}(\text{"mat"})=1$, $\text{TF}(\text{"rug"})=0$):</h4>
+<h4 id="step-2-compute-raw-tf-idf-vector-for-mathplaceholder72endmath-frequencies-mathplaceholder73endmath-mathplaceholder74endmath-mathplaceholder75endmath">Step 2: Compute Raw TF-IDF Vector for $d_1$ (frequencies: $\text{TF}(\text{“cat”})=1$, $\text{TF}(\text{“mat”})=1$, $\text{TF}(\text{“rug”})=0$):</h4>
 <ul>
-<li>$\text{TF-IDF}(\text{"cat"}, d_1) = 1 \times 1.4055 = 1.4055$</li>
-<li>$\text{TF-IDF}(\text{"mat"}, d_1) = 1 \times 1.0000 = 1.0000$</li>
-<li>$\text{TF-IDF}(\text{"rug"}, d_1) = 0 \times 1.4055 = 0.0000$<br />
+<li>$\text{TF-IDF}(\text{“cat”}, d_1) = 1 \times 1.4055 = 1.4055$</li>
+<li>$\text{TF-IDF}(\text{“mat”}, d_1) = 1 \times 1.0000 = 1.0000$</li>
+<li>$\text{TF-IDF}(\text{“rug”}, d_1) = 0 \times 1.4055 = 0.0000$<br />
 $$\mathbf{v}_{d_1} = [1.4055, \ 1.0000, \ 0.0000]^T$$</li>
 </ul>
 <h4 id="step-3-apply-mathplaceholder79endmath-normalization-to-prevent-document-length-bias">Step 3: Apply $L_2$ Normalization to prevent document length bias:</h4>
@@ -613,7 +640,7 @@ $$\mathbf{v}_{d_1, \text{norm}} = \left[ \frac{1.4055}{1.7249}, \ \frac{1.0000}{
 <h3 id="production-perspective-trade-offs_12">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Length Normalization</strong>: Essential because longer documents naturally repeat words, inflating TF scores. $L_2$ normalization maps vectors onto a unit hypersphere, allowing Cosine Similarity to measure angles rather than absolute vector lengths.</li>
-<li><strong>Sparse Storage</strong>: Large corpora yield $|V| > 100,000$, resulting in memory-heavy matrices. Production systems store representations in coordinate (COO) or compressed sparse row (CSR) formats to minimize storage overhead.</li>
+<li><strong>Sparse Storage</strong>: Large corpora yield $|V| &gt; 100,000$, resulting in memory-heavy matrices. Production systems store representations in coordinate (COO) or compressed sparse row (CSR) formats to minimize storage overhead.</li>
 </ul>
 <h3 id="follow-up-questions_12">Follow-up Questions</h3>
 <ul>
@@ -676,7 +703,7 @@ $$P(w_1, \dots, w_m) \approx \prod_{i=1}^m P(w_i \mid w_{i-N+1}, \dots, w_{i-1})
 $$P_{\text{MLE}}(w_i \mid w_{i-1}) = \frac{C(w_{i-1}, w_i)}{C(w_{i-1})}$$<br />
 Where $C(w_{i-1}, w_i)$ is the bigram co-occurrence count.</p>
 <h3 id="technical-intuition-complexity_1">Technical Intuition &amp; Complexity</h3>
-<p>If the bigram <code>"sat on"</code> appears 10 times and <code>"sat"</code> appears 100 times, the MLE probability $P(\text{"on"} \mid \text{"sat"}) = 10 / 100 = 0.1$.</p>
+<p>If the bigram <code>"sat on"</code> appears 10 times and <code>"sat"</code> appears 100 times, the MLE probability $P(\text{“on”} \mid \text{“sat”}) = 10 / 100 = 0.1$.</p>
 <h3 id="production-perspective-trade-offs_15">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Time Complexity</strong>: $O(1)$ constant time lookup if using precomputed n-gram tables.</li>
@@ -702,24 +729,24 @@ Where $C(w_{i-1}, w_i)$ is the bigram count, $C(w_{i-1})$ is the unigram history
 Vocabulary: <code>["the", "cat", "sat", "on", "mat"]</code> (vocabulary size $|V| = 5$).</p>
 <h4 id="step-1-track-counts-for-unigrams-and-bigrams">Step 1: Track counts for unigrams and bigrams:</h4>
 <ul>
-<li>$C(\text{"the"}) = 2$</li>
-<li>$C(\text{"the", "cat"}) = 1$</li>
-<li>$C(\text{"the", "mat"}) = 1$</li>
-<li>$C(\text{"the", "sat"}) = 0$ (unseen transition)</li>
+<li>$C(\text{“the”}) = 2$</li>
+<li>$C(\text{“the”, “cat”}) = 1$</li>
+<li>$C(\text{“the”, “mat”}) = 1$</li>
+<li>$C(\text{“the”, “sat”}) = 0$ (unseen transition)</li>
 </ul>
 <h4 id="step-2-compute-smoothed-transition-probabilities">Step 2: Compute smoothed transition probabilities:</h4>
 <ul>
 <li>
-<p><strong>Seen transition</strong> $P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"})$:<br />
-  $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{C(\text{"the", "cat"}) + 1}{C(\text{"the"}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$</p>
+<p><strong>Seen transition</strong> $P_{\text{Laplace}}(\text{“cat”} \mid \text{“the”})$:<br />
+  $$P_{\text{Laplace}}(\text{“cat”} \mid \text{“the”}) = \frac{C(\text{“the”, “cat”}) + 1}{C(\text{“the”}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$</p>
 </li>
 <li>
-<p><strong>Unseen transition</strong> $P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"})$:<br />
-  $$P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"}) = \frac{C(\text{"the", "sat"}) + 1}{C(\text{"the"}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$</p>
+<p><strong>Unseen transition</strong> $P_{\text{Laplace}}(\text{“sat”} \mid \text{“the”})$:<br />
+  $$P_{\text{Laplace}}(\text{“sat”} \mid \text{“the”}) = \frac{C(\text{“the”, “sat”}) + 1}{C(\text{“the”}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$</p>
 </li>
 </ul>
 <p>Notice that the sum of probabilities across all possible next tokens for the history <code>"the"</code> remains normalized:<br />
-$$\sum_{w \in V} P(w \mid \text{"the"}) = \frac{2}{7} (\text{for "cat"}) + \frac{2}{7} (\text{for "mat"}) + \frac{1}{7} (\text{for "sat"}) + \frac{1}{7} (\text{for "on"}) + \frac{1}{7} (\text{for "the"}) = \frac{7}{7} = 1.0000$$</p>
+$$\sum_{w \in V} P(w \mid \text{“the”}) = \frac{2}{7} (\text{for “cat”}) + \frac{2}{7} (\text{for “mat”}) + \frac{1}{7} (\text{for “sat”}) + \frac{1}{7} (\text{for “on”}) + \frac{1}{7} (\text{for “the”}) = \frac{7}{7} = 1.0000$$</p>
 <h3 id="production-perspective-trade-offs_16">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>The $|V|$ Bottleneck</strong>: While Laplace smoothing ensures mathematical validity, adding $1$ to all unseen transitions allocates a massive amount of probability mass to the long tail of rare or unseen words in large vocabularies (e.g. $|V| = 50,000$), significantly degrading the probability of common, natural transitions.</li>
@@ -811,7 +838,7 @@ $$e^{\mathcal{L}_{\text{CE}}} = e^{-\frac{1}{m} \ln P(W)} = \left( e^{\ln P(W)} 
 <hr />
 <h2 id="question-20-why-does-negative-sampling-make-word2vec-training-faster">Question 20: Why does Negative Sampling make Word2Vec training faster?</h2>
 <h3 id="short-interview-answer-3060-seconds_19">Short Interview Answer (30–60 seconds)</h3>
-<p>Standard multiclass Softmax requires computing a normalization sum over the entire vocabulary $|V|$ (often $>100,000$ tokens) in the denominator for every single training step, which is computationally prohibitive. Skip-gram with Negative Sampling (SGNS) reformulates the task as a binary logistic regression game. For each target-context pair, the model optimizes a binary classifier to distinguish the true target-context pair from $K$ randomly drawn "noise" (negative) samples, reducing computing complexity from $O(|V|)$ to $O(K)$.</p>
+<p>Standard multiclass Softmax requires computing a normalization sum over the entire vocabulary $|V|$ (often $&gt;100,000$ tokens) in the denominator for every single training step, which is computationally prohibitive. Skip-gram with Negative Sampling (SGNS) reformulates the task as a binary logistic regression game. For each target-context pair, the model optimizes a binary classifier to distinguish the true target-context pair from $K$ randomly drawn "noise" (negative) samples, reducing computing complexity from $O(|V|)$ to $O(K)$.</p>
 <p>The SGNS loss function is:<br />
 $$\mathcal{L}_{\text{SGNS}} = -\ln \sigma(\mathbf{v}_w \cdot \mathbf{v}'_{w_c}) - \sum_{i=1}^K \ln \sigma(-\mathbf{v}_w \cdot \mathbf{v}'_{w_i})$$</p>
 <h3 id="technical-intuition-detailed-hand-calculation_3">Technical Intuition &amp; Detailed Hand-Calculation</h3>
@@ -872,7 +899,7 @@ If the largest eigenvalue of $W_{hh}$ is less than 1, multiplying this matrix re
 <ul>
 <li>Backpropagation through time (BPTT)</li>
 <li>Jacobian chain product</li>
-<li>Spectral radius $\rho(W_{hh}) < 1$</li>
+<li>Spectral radius $\rho(W_{hh}) &lt; 1$</li>
 </ul>
 <h3 id="production-perspective-trade-offs_20">Production Perspective &amp; Trade-offs</h3>
 <p>Vanishing gradients prevent standard RNNs from learning long-range dependencies, requiring the use of LSTMs or GRUs.</p>
@@ -1138,7 +1165,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <p>While BLEU-2 would penalize this candidate heavily due to lack of exact word matches (BLEU unigram overlap would fail on <code>"feline"</code> vs <code>"cat"</code> and <code>"rug"</code> vs <code>"mat"</code>), BERTScore detects the semantic equivalence of <code>"feline" \leftrightarrow "cat"</code> ($0.88$) and <code>"rug" \leftrightarrow "mat"</code> ($0.85$), yielding a high F1 score of $0.7667$, capturing synonym alignments.</p>
 <h3 id="production-perspective-trade-offs_31">Production Perspective &amp; Trade-offs</h3>
 <ul>
-<li><strong>Inference Latency</strong>: BLEU is a string overlap check running in $O(L_c \cdot L_r)$ on CPU (taking $<0.1\text{ms}$). BERTScore requires running a transformer encoder forward-pass on GPU to extract token embeddings, increasing computing cost and latency by orders of magnitude, making it expensive for real-time model evaluation APIs.</li>
+<li><strong>Inference Latency</strong>: BLEU is a string overlap check running in $O(L_c \cdot L_r)$ on CPU (taking $&lt;0.1\text{ms}$). BERTScore requires running a transformer encoder forward-pass on GPU to extract token embeddings, increasing computing cost and latency by orders of magnitude, making it expensive for real-time model evaluation APIs.</li>
 <li><strong>Model Bias</strong>: BERTScore scores depend on the underlying embedding model. A model biased against certain structures can skew evaluation scores, requiring careful selection of the encoder (e.g. RoBERTa-large).</li>
 </ul>
 <h3 id="follow-up-questions_31">Follow-up Questions</h3>
@@ -1247,7 +1274,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <h3 id="production-perspective-trade-offs_36">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Low Latency</strong>: Suggestion lookups must run in &lt;10ms. Store the prefix trie in memory (e.g. using Redis), caching frequent suggestions.</li>
-<li><strong>Storage</strong>: Prune n-grams with count frequencies $< 5$ to compress trie memory size.</li>
+<li><strong>Storage</strong>: Prune n-grams with count frequencies $&lt; 5$ to compress trie memory size.</li>
 </ul>
 <h3 id="follow-up-questions_36">Follow-up Questions</h3>
 <ul>
@@ -1420,7 +1447,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <h2 id="question-45-explain-greedy-decoding-versus-beam-search">Question 45: Explain greedy decoding versus beam search.</h2>
 <h3 id="short-interview-answer-3060-seconds_44">Short Interview Answer (30–60 seconds)</h3>
 <ul>
-<li><strong>Greedy Search</strong>: Selects the single most likely token at each step ($y_t = \arg\max P(y \mid y_{<t})$). It is computationally fast ($O(L)$) but cannot backtrack.</li>
+<li><strong>Greedy Search</strong>: Selects the single most likely token at each step ($y_t = \arg\max P(y \mid y_{&lt;t})$). It is computationally fast ($O(L)$) but cannot backtrack.</li>
 <li><strong>Beam Search</strong>: Explores multiple paths ($O(L \cdot B)$), keeping a running set of the $B$ most likely sequences. It improves generation quality at the cost of higher latency and memory usage.</li>
 </ul>
 <h3 id="key-interview-points_35">Key Interview Points</h3>
@@ -1430,7 +1457,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <li>Latency trade-offs</li>
 </ul>
 <h3 id="production-perspective-trade-offs_44">Production Perspective &amp; Trade-offs</h3>
-<p>In production, large beam sizes (e.g. $B > 10$) increase latency and memory usage. A beam size of $2\text{--}5$ is typically preferred to balance speed and quality.</p>
+<p>In production, large beam sizes (e.g. $B &gt; 10$) increase latency and memory usage. A beam size of $2\text{--}5$ is typically preferred to balance speed and quality.</p>
 <h3 id="follow-up-questions_44">Follow-up Questions</h3>
 <ul>
 <li><strong>Follow-up</strong>: <em>Why apply length normalization in beam search?</em> -&gt; Without normalization, beam search favors shorter generations because multiplying probabilities yields smaller values as sequence length increases.</li>
@@ -1540,7 +1567,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <p>While self-attention enables fast, parallel training, its quadratic memory cost ($O(L^2)$) makes serving long sequences resource-intensive.</p>
 <h3 id="follow-up-questions_49">Follow-up Questions</h3>
 <ul>
-<li><strong>Follow-up</strong>: <em>At what sequence length L does self-attention compute cost exceed RNNs?</em> -&gt; When sequence length $L$ exceeds the hidden dimension $d$ ($L > d$), self-attention becomes more computationally expensive than RNNs.</li>
+<li><strong>Follow-up</strong>: <em>At what sequence length L does self-attention compute cost exceed RNNs?</em> -&gt; When sequence length $L$ exceeds the hidden dimension $d$ ($L &gt; d$), self-attention becomes more computationally expensive than RNNs.</li>
 </ul>
 <h3 id="common-mistakes_49">Common Mistakes</h3>
 <ul>

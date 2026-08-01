@@ -18,15 +18,109 @@ def get_browser_path():
             return path
     raise FileNotFoundError("No Microsoft Edge or Google Chrome executable found on this system.")
 
+def fix_math_quotes(text):
+    """Replace straight quotes with correct curly opening and closing quotes inside LaTeX text blocks."""
+    def replace_in_math(math_match):
+        math_content = math_match.group(0)
+        def replace_in_text_cmd(text_match):
+            text_content = text_match.group(0)
+            # Normalize escaped quotes if present
+            text_content = text_content.replace('\\"', '"')
+            parts = text_content.split('"')
+            new_parts = []
+            for i, part in enumerate(parts):
+                if i == 0:
+                    new_parts.append(part)
+                elif i % 2 == 1:
+                    new_parts.append('“' + part)
+                else:
+                    new_parts.append('”' + part)
+            return "".join(new_parts)
+        
+        # Match \text{...} commands
+        math_content = re.sub(r'\\text\{([^{}]+)\}', replace_in_text_cmd, math_content)
+        return math_content
+
+    # Target display math ($$...$$) and inline math ($...$)
+    text = re.sub(r'\$\$[\s\S]*?\$\$', replace_in_math, text)
+    text = re.sub(r'(?<!\$)\$[^$\n]+\$(?!\$)', replace_in_math, text)
+    return text
+
+def transform_follow_up_questions(text):
+    """Transform nested Common Interviewer Follow-Up Questions into flat, left-accented visual cards."""
+    pattern = re.compile(
+        r'^\s*[-*]\s+\*\*Common Interviewer Follow-Up Questions:\*\*\s*\n((?:\s{4,}.*\n?)*)',
+        re.MULTILINE
+    )
+    
+    def replacer(match):
+        lines_block = match.group(1)
+        q_a_pairs = []
+        current_q = None
+        current_a = []
+        
+        lines = lines_block.split('\n')
+        for line in lines:
+            stripped = line.strip()
+            # Match standard question formats: 1. *Q:* or 1. Q:
+            q_match = re.match(r'^\d+\.\s+\*Q:\*(.*)$', stripped)
+            if not q_match:
+                q_match = re.match(r'^\d+\.\s+Q:(.*)$', stripped)
+                
+            if q_match:
+                if current_q:
+                    q_a_pairs.append((current_q, " ".join(current_a)))
+                current_q = q_match.group(1).strip()
+                current_a = []
+            elif stripped.startswith('*   *A:*') or stripped.startswith('* *A:*') or stripped.startswith('- *A:*') or re.match(r'^[-*]\s+\*A:\*', stripped):
+                a_content = re.sub(r'^[-*]\s+\*A:\*', '', stripped).strip()
+                current_a.append(a_content)
+            elif stripped.startswith('*   A:') or stripped.startswith('* A:') or re.match(r'^[-*]\s+A:', stripped):
+                a_content = re.sub(r'^[-*]\s+A:', '', stripped).strip()
+                current_a.append(a_content)
+            elif stripped:
+                # Append line continuation
+                if current_q:
+                    if line.startswith('        ') or line.startswith('\t\t'):
+                        current_a.append(stripped.replace('*', '').strip())
+                    else:
+                        current_q += " " + stripped
+                        
+        if current_q:
+            q_a_pairs.append((current_q, " ".join(current_a)))
+            
+        html_out = [
+            '<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">',
+            '    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>'
+        ]
+        
+        for q, a in q_a_pairs:
+            html_out.append(f"""
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: {q}</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">{a}</div>
+    </div>
+""")
+        html_out.append('</div>')
+        return "\n".join(html_out) + "\n"
+        
+    return pattern.sub(replacer, text)
+
 def preprocess_markdown(text, file_name):
-    """Preprocess markdown list structures, frontmatter, and absolute paths."""
+    """Preprocess markdown list structures, frontmatter, relative paths, quotes, and Q&A formatting."""
     base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
     plots_abs_dir = os.path.abspath(os.path.join(base_dir, "plots")).replace("\\", "/")
     
-    # 1. Resolve relative image paths to absolute file URIs for headless Edge renderer
+    # 1. Transform follow-up questions to non-nested cards
+    text = transform_follow_up_questions(text)
+    
+    # 2. Fix math quotes in formulas
+    text = fix_math_quotes(text)
+    
+    # 3. Resolve relative image paths to absolute file URIs for headless Edge renderer
     text = text.replace("../plots/", f"file:///{plots_abs_dir}/")
 
-    # 2. Strip frontmatter and replace it with Module number and title heading
+    # 4. Strip frontmatter and replace it with Module number and title heading
     frontmatter_match = re.match(r'^---\n(.*?)\n---\n', text, re.DOTALL)
     if frontmatter_match:
         frontmatter_text = frontmatter_match.group(1)
@@ -34,7 +128,7 @@ def preprocess_markdown(text, file_name):
         title_match = re.search(r'^title:\s*(.*)$', frontmatter_text, re.MULTILINE)
         title = title_match.group(1).strip() if title_match else ""
         
-        # Determine module number from file name (e.g. "01_nlp_intro_tasks.md" -> "01")
+        # Determine module number from file name
         module_num_match = re.match(r'^(\d+)_', file_name)
         module_num = module_num_match.group(1) if module_num_match else ""
         
@@ -47,7 +141,7 @@ def preprocess_markdown(text, file_name):
         else:
             text = f"# {title}\n\n" + text
 
-    # 3. Double the indentation of 2-space nested lists to 4-space
+    # 5. Double the indentation of 2-space nested lists to 4-space
     lines = text.split('\n')
     new_lines = []
     for line in lines:
@@ -59,7 +153,7 @@ def preprocess_markdown(text, file_name):
         new_lines.append(line)
     text = '\n'.join(new_lines)
 
-    # 4. Insert blank lines before list blocks if they are missing
+    # 6. Insert blank lines before list blocks if they are missing
     lines = text.split('\n')
     new_lines = []
     for i, line in enumerate(lines):
@@ -119,9 +213,10 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             extensions=['fenced_code', 'tables', 'toc', 'nl2br', 'sane_lists', 'codehilite']
         )
 
-        # Restore math blocks
+        # Restore math blocks and escape brackets inside math for headless browser compatibility
         for idx, block in enumerate(math_blocks):
-            html_body = html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", block)
+            escaped_block = block.replace('<', '&lt;').replace('>', '&gt;')
+            html_body = html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", escaped_block)
 
         # Wrap in module container
         module_html = f"""
@@ -156,6 +251,17 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         @page {{
             size: A4;
             margin: 20mm 18mm 20mm 18mm;
+        }}
+        /* Hide scrollbars globally in PDF print */
+        * {{
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }}
+        ::-webkit-scrollbar {{
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
         }}
         body {{
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
@@ -303,6 +409,9 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             font-family: Consolas, Monaco, 'Andale Mono', monospace;
             background-color: #f1f5f9;
             border-radius: 4px;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }}
         code {{
             padding: 2px 4px;
@@ -314,6 +423,9 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             font-size: 13.5px;
             color: inherit;
             background-color: transparent;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }}
         {pygments_css}
         .codehilite {{
@@ -321,15 +433,21 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             padding: 14px;
             border-radius: 6px;
             margin: 18px 0;
-            overflow-x: auto;
+            overflow: visible !important;
         }}
         .codehilite pre {{
             margin: 0;
             background-color: transparent !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }}
         .codehilite code {{
             background-color: transparent !important;
             color: #f8f8f2 !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }}
         blockquote {{
             border-left: 4px solid #3b82f6;
@@ -341,8 +459,12 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         }}
         .katex-display {{
             margin: 16px 0 !important;
-            overflow-x: auto;
-            overflow-y: hidden;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scrollbar-width: none !important;
+        }}
+        .katex-display::-webkit-scrollbar {{
+            display: none !important;
         }}
         .module-container {{
             page-break-before: always;

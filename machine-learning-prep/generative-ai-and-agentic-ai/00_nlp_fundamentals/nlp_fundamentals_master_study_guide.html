@@ -18,6 +18,17 @@
             size: A4;
             margin: 20mm 18mm 20mm 18mm;
         }
+        /* Hide scrollbars globally in PDF print */
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+        }
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             font-size: 14.5px;
@@ -164,6 +175,9 @@
             font-family: Consolas, Monaco, 'Andale Mono', monospace;
             background-color: #f1f5f9;
             border-radius: 4px;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         code {
             padding: 2px 4px;
@@ -175,6 +189,9 @@
             font-size: 13.5px;
             color: inherit;
             background-color: transparent;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -266,15 +283,21 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             padding: 14px;
             border-radius: 6px;
             margin: 18px 0;
-            overflow-x: auto;
+            overflow: visible !important;
         }
         .codehilite pre {
             margin: 0;
             background-color: transparent !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         .codehilite code {
             background-color: transparent !important;
             color: #f8f8f2 !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
         }
         blockquote {
             border-left: 4px solid #3b82f6;
@@ -286,8 +309,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         }
         .katex-display {
             margin: 16px 0 !important;
-            overflow-x: auto;
-            overflow-y: hidden;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scrollbar-width: none !important;
+        }
+        .katex-display::-webkit-scrollbar {
+            display: none !important;
         }
         .module-container {
             page-break-before: always;
@@ -353,22 +380,22 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Let's resolve the Part-of-Speech tag for the word <code>"run"</code> in two different contexts.<br />
 Suppose we have a trained vocabulary dictionary containing:</p>
 <ul>
-<li>$P(\text{"run"} | \text{Verb}) = 0.80$</li>
-<li>$P(\text{"run"} | \text{Noun}) = 0.20$</li>
+<li>$P(\text{“run”} | \text{Verb}) = 0.80$</li>
+<li>$P(\text{“run”} | \text{Noun}) = 0.20$</li>
 </ul>
 <p>If we encounter <code>"run"</code> in isolation, our model performs a direct probability lookup:</p>
 <ul>
-<li>$P(\text{Verb} | \text{"run"}) \propto 0.80$</li>
-<li>$P(\text{Noun} | \text{"run"}) \propto 0.20$<br />
-The model predicts <strong>Verb</strong> because $0.80 > 0.20$.</li>
+<li>$P(\text{Verb} | \text{“run”}) \propto 0.80$</li>
+<li>$P(\text{Noun} | \text{“run”}) \propto 0.20$<br />
+The model predicts <strong>Verb</strong> because $0.80 &gt; 0.20$.</li>
 </ul>
 <p>Now, suppose we have contextual tag transition rules:</p>
 <ul>
 <li>If the previous word is an Article (e.g., <code>"the"</code>), the tag transition probability is $P(\text{Noun} | \text{Article}) = 0.90$ and $P(\text{Verb} | \text{Article}) = 0.10$.</li>
 <li>In the phrase <code>"the run"</code>, the model multiplies the word lookup probability by the transition likelihood:<ul>
-<li><strong>Score as Noun:</strong> $P(\text{Noun} | \text{Article}) \times P(\text{"run"} | \text{Noun}) = 0.90 \times 0.20 = 0.18$</li>
-<li><strong>Score as Verb:</strong> $P(\text{Verb} | \text{Article}) \times P(\text{"run"} | \text{Verb}) = 0.10 \times 0.80 = 0.08$<br />
-Comparing the scores ($0.18 > 0.08$), the model correctly tags <code>"run"</code> as a <strong>Noun</strong> in this context.</li>
+<li><strong>Score as Noun:</strong> $P(\text{Noun} | \text{Article}) \times P(\text{“run”} | \text{Noun}) = 0.90 \times 0.20 = 0.18$</li>
+<li><strong>Score as Verb:</strong> $P(\text{Verb} | \text{Article}) \times P(\text{“run”} | \text{Verb}) = 0.10 \times 0.80 = 0.08$<br />
+Comparing the scores ($0.18 &gt; 0.08$), the model correctly tags <code>"run"</code> as a <strong>Noun</strong> in this context.</li>
 </ul>
 </li>
 </ul>
@@ -425,18 +452,22 @@ Comparing the scores ($0.18 > 0.08$), the model correctly tags <code>"run"</code
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Rule-based heuristics are frequently deployed as lightweight profanity filters or safety guards before hitting large-scale DL models.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Contrast syntactic parsing with semantic understanding. Why is semantic representation fundamentally harder?<ul>
-<li><em>A:</em> Syntactic parsing maps grammatical linkages between tokens. Semantic understanding captures literal meaning. Semantics is harder because of polysemy (words with multiple meanings) and context dependency.</li>
 </ul>
-</li>
-<li><em>Q:</em> What makes natural language unstructured, and what are the main dimensions of ambiguity?<ul>
-<li><em>A:</em> Natural language is unstructured because it has no fixed record layout. The main dimensions of ambiguity are <strong>lexical</strong> (multiple word meanings), <strong>syntactic</strong> (multiple grammatical interpretations), and <strong>semantic</strong> (contextual intent).</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Contrast syntactic parsing with semantic understanding. Why is semantic representation fundamentally harder?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Syntactic parsing maps grammatical linkages between tokens. Semantic understanding captures literal meaning. Semantics is harder because of polysemy (words with multiple meanings) and context dependency.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: What makes natural language unstructured, and what are the main dimensions of ambiguity?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Natural language is unstructured because it has no fixed record layout. The main dimensions of ambiguity are **lexical** (multiple word meanings), **syntactic** (multiple grammatical interpretations), and **semantic** (contextual intent).</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -479,7 +510,7 @@ Comparing the scores ($0.18 > 0.08$), the model correctly tags <code>"run"</code
 <p>Normalizing all characters to a single form (typically NFC) prevents vocabularies from treating visually identical text as different words.</p>
 <h4 id="hand-calculation-on-a-simple-example">Hand Calculation on a Simple Example</h4>
 <p>Let's preprocess and compare stemming vs. lemmatization on the sequence:<br />
-$$X = \text{"wolves running quickly"}$$</p>
+$$X = \text{“wolves running quickly”}$$</p>
 <ul>
 <li>
 <p><strong>Step 1: Stemming (Porter Algorithm Rules)</strong></p>
@@ -587,18 +618,22 @@ $$X = \text{"wolves running quickly"}$$</p>
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> For web-scale indexing (e.g. search engines), stemming is integrated directly into the indexing phase. For modern neural nets (like LLMs), character-level subword tokenizers have largely replaced stemming and lemmatization, delegating root mapping to embedding parameter learning.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Why is lemmatization computationally more expensive than stemming, and when is this trade-off justified?<ul>
-<li><em>A:</em> Lemmatization requires checking grammatical context and loading a morphology lookup index (database) to resolve roots. The trade-off is justified when semantic accuracy and word validity are critical (e.g., question answering, semantic search), whereas stemming is better for speed-critical, retrieval-focused search indices.</li>
 </ul>
-</li>
-<li><em>Q:</em> How does Unicode normalization prevent token fragmentation in subword models?<ul>
-<li><em>A:</em> If Unicode characters like <code>"é"</code> exist as NFD (two code points <code>e</code> + accent) and NFC (one code point <code>é</code>), a subword model will tokenize them as separate tokens. Normalizing to a standard form NFC/NFKC ensures equivalent text is mapped to the same vocabulary indices, preventing vocabulary splits.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Why is lemmatization computationally more expensive than stemming, and when is this trade-off justified?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Lemmatization requires checking grammatical context and loading a morphology lookup index (database) to resolve roots. The trade-off is justified when semantic accuracy and word validity are critical (e.g., question answering, semantic search), whereas stemming is better for speed-critical, retrieval-focused search indices.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: How does Unicode normalization prevent token fragmentation in subword models?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">If Unicode characters like `"é"` exist as NFD (two code points `e` + accent) and NFC (one code point `é`), a subword model will tokenize them as separate tokens. Normalizing to a standard form NFC/NFKC ensures equivalent text is mapped to the same vocabulary indices, preventing vocabulary splits.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -680,12 +715,12 @@ $$X = \text{"wolves running quickly"}$$</p>
 </li>
 <li>
 <p><strong>Candidate A (merge <code>"un"</code> + <code>"able"</code> into <code>"unable"</code>):</strong><br />
-    $$\text{Score}(\text{"un"}, \text{"able"}) = \frac{\text{Count}(\text{"unable"})}{\text{Count}(\text{"un"}) \times \text{Count}(\text{"able"})} = \frac{50}{1000 \times 500} = \frac{50}{500000} = 0.0001$$</p>
+    $$\text{Score}(\text{“un”}, \text{“able”}) = \frac{\text{Count}(\text{“unable”})}{\text{Count}(\text{“un”}) \times \text{Count}(\text{“able”})} = \frac{50}{1000 \times 500} = \frac{50}{500000} = 0.0001$$</p>
 </li>
 <li>
 <p><strong>Candidate B (merge <code>"u"</code> + <code>"n"</code> into <code>"un"</code>):</strong><br />
-    $$\text{Score}(\text{"u"}, \text{"n"}) = \frac{\text{Count}(\text{"un"})}{\text{Count}(\text{"u"}) \times \text{Count}(\text{"n"})} = \frac{1000}{10000 \times 20000} = \frac{1000}{200000000} = 0.000005$$<br />
-Since $\text{Score}(\text{"un"}, \text{"able"}) = 0.0001 > \text{Score}(\text{"u"}, \text{"n"}) = 0.000005$, the model merges <code>"un"</code> and <code>"able"</code> first, as they have higher mutual dependency.</p>
+    $$\text{Score}(\text{“u”}, \text{“n”}) = \frac{\text{Count}(\text{“un”})}{\text{Count}(\text{“u”}) \times \text{Count}(\text{“n”})} = \frac{1000}{10000 \times 20000} = \frac{1000}{200000000} = 0.000005$$<br />
+Since $\text{Score}(\text{“un”}, \text{“able”}) = 0.0001 &gt; \text{Score}(\text{“u”}, \text{“n”}) = 0.000005$, the model merges <code>"un"</code> and <code>"able"</code> first, as they have higher mutual dependency.</p>
 </li>
 </ul>
 <hr />
@@ -762,18 +797,22 @@ Since $\text{Score}(\text{"un"}, \text{"able"}) = 0.0001 > \text{Score}(\text{"u
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Subword vocabularies are fixed prior to model pre-training. Changing the tokenizer vocab size later requires retraining the entire model's embedding weights from scratch.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> How do BPE and SentencePiece handle Out-of-Vocabulary (OOV) tokens at inference?<ul>
-<li><em>A:</em> At inference, if a word is not directly present in the vocabulary, the subword tokenizer falls back to matching smaller character sequences down to individual byte tokens (SentencePiece byte-fallback). This guarantees that every text input is decomposed into a valid sequence of known token IDs, completely eliminating the <code>&lt;unk&gt;</code> tag.</li>
 </ul>
-</li>
-<li><em>Q:</em> Detail the mathematical trade-off of choosing a small vocabulary size (e.g., $8\text{k}$) vs. a large vocabulary size (e.g., $128\text{k}$).<ul>
-<li><em>A:</em> A small vocabulary size ($8\text{k}$) reduces embedding parameter count ($V \times d$), saving VRAM. However, it splits words into smaller subwords, increasing the sequence length $L$ for the same sentence, which increases attention computational complexity quadratically ($O(L^2)$). A large vocabulary ($128\text{k}$) produces shorter sequence lengths but balloons the embedding layer VRAM footprint, which is a major constraint on consumer hardware.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: How do BPE and SentencePiece handle Out-of-Vocabulary (OOV) tokens at inference?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">At inference, if a word is not directly present in the vocabulary, the subword tokenizer falls back to matching smaller character sequences down to individual byte tokens (SentencePiece byte-fallback). This guarantees that every text input is decomposed into a valid sequence of known token IDs, completely eliminating the `<unk>` tag.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Detail the mathematical trade-off of choosing a small vocabulary size (e.g., $8\text{k}$) vs. a large vocabulary size (e.g., $128\text{k}$).</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">A small vocabulary size ($8\text{k}$) reduces embedding parameter count ($V \times d$), saving VRAM. However, it splits words into smaller subwords, increasing the sequence length $L$ for the same sentence, which increases attention computational complexity quadratically ($O(L^2)$). A large vocabulary ($128\text{k}$) produces shorter sequence lengths but balloons the embedding layer VRAM footprint, which is a major constraint on consumer hardware.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -850,15 +889,15 @@ Since $\text{Score}(\text{"un"}, \text{"able"}) = 0.0001 > \text{Score}(\text{"u
 <ol>
 <li>
 <p>Term <code>"cat"</code>: appears in $D_1$ and $D_2$. $\text{df} = 2$.<br />
-    $$\text{IDF}(\text{"cat"}) = \log\left(\frac{1 + 2}{1 + 2}\right) + 1 = \log(1) + 1 = 1.0$$</p>
+    $$\text{IDF}(\text{“cat”}) = \log\left(\frac{1 + 2}{1 + 2}\right) + 1 = \log(1) + 1 = 1.0$$</p>
 </li>
 <li>
 <p>Term <code>"sat"</code>: appears in $D_1$ only. $\text{df} = 1$.<br />
-    $$\text{IDF}(\text{"sat"}) = \log\left(\frac{1 + 2}{1 + 1}\right) + 1 = \log(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+    $$\text{IDF}(\text{“sat”}) = \log\left(\frac{1 + 2}{1 + 1}\right) + 1 = \log(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
 </li>
 <li>
 <p>Term <code>"running"</code>: appears in $D_2$ only. $\text{df} = 1$.<br />
-    $$\text{IDF}(\text{"running"}) = 1.4055$$</p>
+    $$\text{IDF}(\text{“running”}) = 1.4055$$</p>
 </li>
 </ol>
 </li>
@@ -900,7 +939,7 @@ The documents share a cosine similarity of $0.3361$.</p>
 <ol>
 <li>
 <p>Score for <code>"cat"</code> ($f = 1$ in $D_1$):<br />
-    $$\text{Score}_{\text{cat}} = \text{IDF}(\text{"cat"}) \times \frac{f \cdot (k_1 + 1)}{f + k_1 \cdot \left(1 - b + b \cdot \frac{|D_1|}{\text{avgdl}}\right)}$$<br />
+    $$\text{Score}_{\text{cat}} = \text{IDF}(\text{“cat”}) \times \frac{f \cdot (k_1 + 1)}{f + k_1 \cdot \left(1 - b + b \cdot \frac{|D_1|}{\text{avgdl}}\right)}$$<br />
     $$\text{Score}_{\text{cat}} = 1.0 \times \frac{1 \times 2.2}{1 + 1.2 \times (1 - 0.75 + 0.75 \times 1.0)} = \frac{2.2}{2.2} = 1.0$$</p>
 </li>
 <li>
@@ -1001,22 +1040,28 @@ The documents share a cosine similarity of $0.3361$.</p>
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> In production search engines (e.g. Elasticsearch, Vespa), BM25 serves as a high-speed "first-stage retriever" to narrow down millions of documents to a few hundred candidates, which are then passed to expensive dense cross-encoders.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Why are Bag-of-Words and TF-IDF matrices sparse, and how does sparse representation affect memory footprint and matrix calculations?<ul>
-<li><em>A:</em> They are sparse because a single document only contains a tiny subset of the global vocabulary $V$. Storing these as dense matrices wastes memory. We represent them as sparse data formats (like CSR - Compressed Sparse Row) that store only non-zero values and their indices. This drastically reduces the memory footprint and accelerates dot-products, as we skip calculations containing zeros.</li>
 </ul>
-</li>
-<li><em>Q:</em> Explain Zipf's Law and how it justifies the log-scaling applied in TF and IDF.<ul>
-<li><em>A:</em> Zipf's Law shows that word frequencies decay exponentially with rank. A few terms (like <code>"the"</code>) appear exponentially more often than rare words. If we scaled scores linearly with frequency, these terms would dominate. Log-scaling term frequencies compresses their impact, while IDF log-scaling dampens the effect of globally high-frequency terms.</li>
-</ul>
-</li>
-<li><em>Q:</em> Explain why BM25 is preferred over TF-IDF for production retrieval. What do the parameters $k_1$ and $b$ control?<ul>
-<li><em>A:</em> BM25 is preferred because it prevents term frequency saturation and normalizes document length. The parameter $k_1$ controls the saturation limit: as a term repeats, its score contribution asymptotically plateaus rather than growing indefinitely. The parameter $b$ controls length normalization: it penalizes long documents, preventing them from dominating rankings simply because they contain more words, while scaling the penalty based on average collection length.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Why are Bag-of-Words and TF-IDF matrices sparse, and how does sparse representation affect memory footprint and matrix calculations?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">They are sparse because a single document only contains a tiny subset of the global vocabulary $V$. Storing these as dense matrices wastes memory. We represent them as sparse data formats (like CSR - Compressed Sparse Row) that store only non-zero values and their indices. This drastically reduces the memory footprint and accelerates dot-products, as we skip calculations containing zeros.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain Zipf's Law and how it justifies the log-scaling applied in TF and IDF.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Zipf's Law shows that word frequencies decay exponentially with rank. A few terms (like `"the"`) appear exponentially more often than rare words. If we scaled scores linearly with frequency, these terms would dominate. Log-scaling term frequencies compresses their impact, while IDF log-scaling dampens the effect of globally high-frequency terms.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain why BM25 is preferred over TF-IDF for production retrieval. What do the parameters $k_1$ and $b$ control?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">BM25 is preferred because it prevents term frequency saturation and normalizes document length. The parameter $k_1$ controls the saturation limit: as a term repeats, its score contribution asymptotically plateaus rather than growing indefinitely. The parameter $b$ controls length normalization: it penalizes long documents, preventing them from dominating rankings simply because they contain more words, while scaling the penalty based on average collection length.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -1154,18 +1199,22 @@ $$\mathcal{L}_{\text{NEG}} = -\log \sigma(\mathbf{v}'^{\top}_{w_O} \mathbf{v}_{w
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Word2Vec models are often pre-trained and saved as static lookup tables to speed up downstream models, avoiding real-time projection computation during serving.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Derive the computational complexity reduction of Skip-gram with negative sampling compared to Skip-gram with full Softmax.<ul>
-<li><em>A:</em> With full Softmax, the model must calculate the score for the true context word and compute a partition normalization sum over the entire vocabulary size $V$, leading to $O(V \times d)$ operations. Negative sampling maps this to a binary classification problem: computing the dot-product for the target word, the positive context word, and $k$ negative sample words. This reduces operations to $O(k \times d)$. For $V = 10^6$ and $k = 5$, this speeds up training by several orders of magnitude.</li>
 </ul>
-</li>
-<li><em>Q:</em> Why does Skip-gram perform better on rare words compared to CBOW? Explain in terms of gradient updates.<ul>
-<li><em>A:</em> In CBOW, context word embeddings are averaged into a single context representation to predict the target word. This averaging acts as a smoothing operation, diluting the signal of rare context words. In Skip-gram, each target word independently predicts context words, applying direct gradient updates to context embeddings. Rare target words update their context vectors directly, preserving semantic distinctness.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Derive the computational complexity reduction of Skip-gram with negative sampling compared to Skip-gram with full Softmax.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">With full Softmax, the model must calculate the score for the true context word and compute a partition normalization sum over the entire vocabulary size $V$, leading to $O(V \times d)$ operations. Negative sampling maps this to a binary classification problem: computing the dot-product for the target word, the positive context word, and $k$ negative sample words. This reduces operations to $O(k \times d)$. For $V = 10^6$ and $k = 5$, this speeds up training by several orders of magnitude.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Why does Skip-gram perform better on rare words compared to CBOW? Explain in terms of gradient updates.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In CBOW, context word embeddings are averaged into a single context representation to predict the target word. This averaging acts as a smoothing operation, diluting the signal of rare context words. In Skip-gram, each target word independently predicts context words, applying direct gradient updates to context embeddings. Rare target words update their context vectors directly, preserving semantic distinctness.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -1194,7 +1243,7 @@ Think of FastText as breaking a word into a set of puzzle pieces (character n-gr
 <ul>
 <li><strong>Method:</strong> GloVe solves a weighted least-squares regression problem over the entire co-occurrence matrix $\mathbf{X}$. The objective projects word vectors $\mathbf{w}_i$ and $\mathbf{w}_j$ such that their dot-product $\mathbf{w}_i^{\top} \mathbf{w}_j$ approximates the logarithm of their co-occurrence frequency $\log X_{ij}$.</li>
 <li><strong>Weighting Function $f(X_{ij})$:</strong> To prevent highly frequent words (like <code>"the"</code>, <code>"and"</code>) from dominating the loss, GloVe dampens their influence using a scaling function:<br />
-    $$f(X) = \begin{cases} \left( \frac{X}{x_{\text{max}}} \right)^\alpha & \text{if } X < x_{\text{max}} \\ 1.0 & \text{otherwise} \end{cases}$$<br />
+    $$f(X) = \begin{cases} \left( \frac{X}{x_{\text{max}}} \right)^\alpha & \text{if } X &lt; x_{\text{max}} \\ 1.0 & \text{otherwise} \end{cases}$$<br />
     Where $x_{\text{max}} = 100$ and $\alpha = 0.75$ are standard production bounds.</li>
 </ul>
 <hr />
@@ -1231,14 +1280,14 @@ The weighting function bounds the contribution of very frequent word transitions
 <li><strong>Dimension:</strong> $d = 3$.</li>
 <li><strong>Character 3-grams of <code>"cat"</code>:</strong> <code>{"&lt;ca", "cat", "at&gt;"}</code>.</li>
 <li>Assume the hashed bucket vectors for these n-grams are:<ul>
-<li>$\mathbf{z}_{\text{"<ca"}} = [0.1, \quad 0.2, \quad 0.3]$</li>
-<li>$\mathbf{z}_{\text{"cat"}} = [0.0, \quad 0.5, \quad -0.1]$</li>
-<li>$\mathbf{z}_{\text{"at>"}} = [0.5, \quad 0.2, \quad 0.4]$</li>
+<li>$\mathbf{z}_{\text{“&lt;ca”}} = [0.1, \quad 0.2, \quad 0.3]$</li>
+<li>$\mathbf{z}_{\text{“cat”}} = [0.0, \quad 0.5, \quad -0.1]$</li>
+<li>$\mathbf{z}_{\text{“at&gt;”}} = [0.5, \quad 0.2, \quad 0.4]$</li>
 </ul>
 </li>
 <li><strong>Synthesized Word Vector calculation:</strong><br />
-    $$\mathbf{v}_{\text{"cat"}} = \mathbf{z}_{\text{"<ca"}} + \mathbf{z}_{\text{"cat"}} + \mathbf{z}_{\text{"at>"}}$$<br />
-    $$\mathbf{v}_{\text{"cat"}} = [0.1 + 0.0 + 0.5, \quad 0.2 + 0.5 + 0.2, \quad 0.3 - 0.1 + 0.4] = [0.6, \quad 0.9, \quad 0.6]$$</li>
+    $$\mathbf{v}_{\text{“cat”}} = \mathbf{z}_{\text{“&lt;ca”}} + \mathbf{z}_{\text{“cat”}} + \mathbf{z}_{\text{“at&gt;”}}$$<br />
+    $$\mathbf{v}_{\text{“cat”}} = [0.1 + 0.0 + 0.5, \quad 0.2 + 0.5 + 0.2, \quad 0.3 - 0.1 + 0.4] = [0.6, \quad 0.9, \quad 0.6]$$</li>
 </ul>
 <hr />
 <h4 id="tensor-shape-tracking">Tensor &amp; Shape Tracking</h4>
@@ -1299,24 +1348,28 @@ The weighting function bounds the contribution of very frequent word transitions
 <h3 id="2-system-complexity-scaling">2. System Complexity &amp; Scaling</h3>
 <ul>
 <li><strong>Time Complexity (FLOPs):</strong> GloVe matrix construction scales as $O(\text{Corpus\_Size})$. FastText inference scales as $O(M \times d)$ operations per word, where $M$ is the number of character n-grams.</li>
-<li><strong>Space/Memory Footprint:</strong> FastText requires massive storage since it needs to store embeddings for all $K_{\text{buckets}}$ n-grams (frequently $>2\text{GB}$ on disk), unlike static word indices.</li>
+<li><strong>Space/Memory Footprint:</strong> FastText requires massive storage since it needs to store embeddings for all $K_{\text{buckets}}$ n-grams (frequently $&gt;2\text{GB}$ on disk), unlike static word indices.</li>
 <li><strong>Primary Bottleneck Type:</strong> Disk I/O and RAM loading latency during initialization; memory-bandwidth-bound during inference lookup.</li>
 </ul>
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Due to the large memory footprint of FastText hash tables, production serving pipelines often compress model weights using quantization (e.g. float16 conversion, product quantization) to reduce RAM footprints.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> What is the conceptual difference between Word2Vec's predictive window objective and GloVe's matrix-factorization global co-occurrence objective?<ul>
-<li><em>A:</em> Word2Vec is a predictive model that slides context windows over the corpus, updating embeddings locally using stochastic gradient descent. It spends computations redundantly on frequent word pairs. GloVe is a count-based model that aggregates global counts over the entire corpus first, and then solves a matrix factorization problem. This directly models global co-occurrence statistics, resulting in faster convergence on large corpora.</li>
 </ul>
-</li>
-<li><em>Q:</em> Detail the memory footprint penalty and inference speed trade-offs introduced by FastText subword storage systems during model loading.<ul>
-<li><em>A:</em> Word2Vec only stores one vector per word, requiring $V \times d$ parameters. FastText must store vectors for both words and character n-grams. Because the number of possible subword n-grams is massive, FastText maps them to a large hash table (e.g., $K = 2\text{M}$ buckets), scaling memory parameters to $K \times d$. This increases model load times and RAM usage by several gigabytes, while adding tokenization overhead to parse words into n-grams at runtime.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: What is the conceptual difference between Word2Vec's predictive window objective and GloVe's matrix-factorization global co-occurrence objective?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Word2Vec is a predictive model that slides context windows over the corpus, updating embeddings locally using stochastic gradient descent. It spends computations redundantly on frequent word pairs. GloVe is a count-based model that aggregates global counts over the entire corpus first, and then solves a matrix factorization problem. This directly models global co-occurrence statistics, resulting in faster convergence on large corpora.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Detail the memory footprint penalty and inference speed trade-offs introduced by FastText subword storage systems during model loading.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Word2Vec only stores one vector per word, requiring $V \times d$ parameters. FastText must store vectors for both words and character n-grams. Because the number of possible subword n-grams is massive, FastText maps them to a large hash table (e.g., $K = 2\text{M}$ buckets), scaling memory parameters to $K \times d$. This increases model load times and RAM usage by several gigabytes, while adding tokenization overhead to parse words into n-grams at runtime.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -1336,7 +1389,7 @@ The weighting function bounds the contribution of very frequent word transitions
 <h2 id="2-core-concepts-mathematical-formulation">2. Core Concepts &amp; Mathematical Formulation</h2>
 <h3 id="the-chain-rule-of-probability">The Chain Rule of Probability</h3>
 <p>To score a text sequence, we calculate its joint probability. The exact joint probability of a sequence of $L$ words is factored sequentially using the chain rule:<br />
-$$P(w_1, w_2, \dots, w_L) = \prod_{i=1}^L P(w_i | w_{<i})$$</p>
+$$P(w_1, w_2, \dots, w_L) = \prod_{i=1}^L P(w_i | w_{&lt;i})$$</p>
 <h3 id="the-markov-assumption-bigrams">The Markov Assumption &amp; Bigrams</h3>
 <p>To make calculations tractable, N-gram models assume that the probability of a word depends only on the previous $N-1$ words. A <strong>Bigram Model ($N=2$)</strong> looks back only at the single immediate preceding word:<br />
 $$P(w_1, \dots, w_L) \approx \prod_{i=1}^L P(w_i | w_{i-1})$$</p>
@@ -1380,27 +1433,27 @@ By multiplying transition and emission likelihoods, the model scores tag sequenc
 <ol>
 <li>
 <p>Probability of <code>"models"</code> given <code>"language"</code>:<br />
-    $$P_{\text{Laplace}}(\text{"models"} | \text{"language"}) = \frac{\text{Count}(\text{"language models"}) + 1}{\text{Count}(\text{"language"}) + |V|}$$<br />
-    $$P_{\text{Laplace}}(\text{"models"} | \text{"language"}) = \frac{1 + 1}{2 + 4} = \frac{2}{6} \approx 0.3333$$</p>
+    $$P_{\text{Laplace}}(\text{“models”} | \text{“language”}) = \frac{\text{Count}(\text{“language models”}) + 1}{\text{Count}(\text{“language”}) + |V|}$$<br />
+    $$P_{\text{Laplace}}(\text{“models”} | \text{“language”}) = \frac{1 + 1}{2 + 4} = \frac{2}{6} \approx 0.3333$$</p>
 </li>
 <li>
 <p>Probability of <code>"systems"</code> given <code>"language"</code> (resolving the zero count):<br />
-    $$P_{\text{Laplace}}(\text{"systems"} | \text{"language"}) = \frac{\text{Count}(\text{"language systems"}) + 1}{\text{Count}(\text{"language"}) + |V|}$$<br />
-    $$P_{\text{Laplace}}(\text{"systems"} | \text{"language"}) = \frac{0 + 1}{2 + 4} = \frac{1}{6} \approx 0.1667$$</p>
+    $$P_{\text{Laplace}}(\text{“systems”} | \text{“language”}) = \frac{\text{Count}(\text{“language systems”}) + 1}{\text{Count}(\text{“language”}) + |V|}$$<br />
+    $$P_{\text{Laplace}}(\text{“systems”} | \text{“language”}) = \frac{0 + 1}{2 + 4} = \frac{1}{6} \approx 0.1667$$</p>
 </li>
 </ol>
 </li>
 <li>
 <p><strong>Step 2: Evaluate Joint Sequence Probability</strong><br />
-    Let's score the sequence: $W = [\text{"language"}, \text{"models"}]$.</p>
+    Let's score the sequence: $W = [\text{“language”}, \text{“models”}]$.</p>
 <ul>
 <li>
 <p>Assume initial unigram probability for the starting word is:<br />
-    $$P(\text{"language"}) = \frac{\text{Count}(\text{"language"}) + 1}{\text{Total Tokens} + |V|} = \frac{2 + 1}{5 + 4} = \frac{3}{9} \approx 0.3333$$</p>
+    $$P(\text{“language”}) = \frac{\text{Count}(\text{“language”}) + 1}{\text{Total Tokens} + |V|} = \frac{2 + 1}{5 + 4} = \frac{3}{9} \approx 0.3333$$</p>
 </li>
 <li>
 <p>Joint Probability:<br />
-    $$P(W) = P(\text{"language"}) \times P_{\text{Laplace}}(\text{"models"} | \text{"language"})$$<br />
+    $$P(W) = P(\text{“language”}) \times P_{\text{Laplace}}(\text{“models”} | \text{“language”})$$<br />
     $$P(W) = 0.3333 \times 0.3333 \approx 0.1111$$</p>
 </li>
 </ul>
@@ -1476,18 +1529,22 @@ By multiplying transition and emission likelihoods, the model scores tag sequenc
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Due to the exponential memory footprint of high-order N-grams, production systems rarely scale beyond trigram or 4-gram tables, instead using neural sequence models (RNNs/Transformers) to capture arbitrary history lengths in fixed embedding parameters.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Why does memory space complexity scale exponentially ($O(|V|^k)$) for statistical k-gram models, and how did this limitation motivate sequential deep learning architectures?<ul>
-<li><em>A:</em> An N-gram model must allocate memory space for all potential token combinations: $V$ values for unigrams, $V^2$ values for bigrams, and $V^N$ values for N-grams. For a small vocabulary of $50\text{k}$ tokens, a trigram table requires allocating $50\text{k}^3 = 125 \times 10^{12}$ storage cells, which quickly exceeds computer RAM. Deep learning sequence models resolve this by compressing history into a fixed-size dense hidden state vector, scaling memory parameters linearly with layer depth rather than sequence history length.</li>
 </ul>
-</li>
-<li><em>Q:</em> Explain backoff and interpolation smoothing techniques in statistical models.<ul>
-<li><em>A:</em> <strong>Backoff</strong> checks if the higher-order N-gram (e.g. trigram) exists; if its count is zero, it "backs off" to estimate the probability using the lower-order bigram, scaling by a normalization weight. <strong>Interpolation</strong> computes a weighted linear combination of unigram, bigram, and trigram probabilities simultaneously: $P(w_i | w_{i-2}, w_{i-1}) = \lambda_1 P(w_i | w_{i-2}, w_{i-1}) + \lambda_2 P(w_i | w_{i-1}) + \lambda_3 P(w_i)$, where $\sum \lambda_i = 1.0$.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Why does memory space complexity scale exponentially ($O(|V|^k)$) for statistical k-gram models, and how did this limitation motivate sequential deep learning architectures?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">An N-gram model must allocate memory space for all potential token combinations: $V$ values for unigrams, $V^2$ values for bigrams, and $V^N$ values for N-grams. For a small vocabulary of $50\text{k}$ tokens, a trigram table requires allocating $50\text{k}^3 = 125 \times 10^{12}$ storage cells, which quickly exceeds computer RAM. Deep learning sequence models resolve this by compressing history into a fixed-size dense hidden state vector, scaling memory parameters linearly with layer depth rather than sequence history length.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain backoff and interpolation smoothing techniques in statistical models.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">**Backoff** checks if the higher-order N-gram (e.g. trigram) exists; if its count is zero, it "backs off" to estimate the probability using the lower-order bigram, scaling by a normalization weight. **Interpolation** computes a weighted linear combination of unigram, bigram, and trigram probabilities simultaneously: $P(w_i | w_{i-2}, w_{i-1}) = \lambda_1 P(w_i | w_{i-2}, w_{i-1}) + \lambda_2 P(w_i | w_{i-1}) + \lambda_3 P(w_i)$, where $\sum \lambda_i = 1.0$.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -1511,7 +1568,7 @@ If we want to test translation quality, we count the overlap of word sequences (
 <ul>
 <li><strong>Intuition &amp; Practical Use:</strong> Lower perplexity indicates the model is less surprised by the test words, meaning it has modeled the true probability distribution of the language accurately.</li>
 <li><strong>Mathematical Formulation:</strong><br />
-    $$\text{PPL}(W) = \exp \left( -\frac{1}{N} \sum_{i=1}^N \log P(w_i | w_{<i}) \right) = \exp(\text{Cross-Entropy Loss})$$</li>
+    $$\text{PPL}(W) = \exp \left( -\frac{1}{N} \sum_{i=1}^N \log P(w_i | w_{&lt;i}) \right) = \exp(\text{Cross-Entropy Loss})$$</li>
 </ul>
 <hr />
 <h3 id="bleu-bilingual-evaluation-understudy">BLEU (Bilingual Evaluation Understudy)</h3>
@@ -1520,7 +1577,7 @@ If we want to test translation quality, we count the overlap of word sequences (
 <li><strong>Intuition &amp; Practical Use:</strong> Evaluates machine translation quality automatically by penalizing word discrepancies and incorrect sentence lengths.</li>
 <li><strong>Mathematical Formulation:</strong><br />
     $$\text{BLEU} = \text{BP} \times \exp \left( \sum_{n=1}^N w_n \log p_n \right)$$<br />
-    $$\text{BP} = \begin{cases} 1 & \text{if } c > r \\ \exp\left(1 - \frac{r}{c}\right) & \text{if } c \le r \end{cases}$$<br />
+    $$\text{BP} = \begin{cases} 1 & \text{if } c &gt; r \\ \exp\left(1 - \frac{r}{c}\right) & \text{if } c \le r \end{cases}$$<br />
     Where $p_n$ is modified n-gram precision, $w_n = 1/N$, $c$ is candidate length, and $r$ is reference length.</li>
 </ul>
 <hr />
@@ -1705,18 +1762,22 @@ The output candidate is penalized from $1.0$ down to $0.6065$ because it was too
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> For validating large-scale generation models (like LLMs), overlap metrics are often supplemented with semantic similarity lookups (like BERTScore) or LLM-based evaluations (G-Eval) to prevent synonym penalty errors.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Explain why perplexity is highly dependent on the vocabulary size ($|V|$), and why comparing perplexity values between two models with different tokenizers is mathematically invalid.<ul>
-<li><em>A:</em> Perplexity is the exponent of the cross-entropy loss over a probability distribution of size $|V|$. A model with a smaller vocabulary size (e.g. $8\text{k}$) naturally has a smaller pool of options to select from at each step compared to a model with a massive vocabulary (e.g. $128\text{k}$). The cross-entropy loss of the smaller vocab model will be lower, yielding a lower perplexity simply due to vocab size, not model capability. Comparing perplexity is only valid when the vocabulary index size and tokenizer mappings are identical.</li>
 </ul>
-</li>
-<li><em>Q:</em> What are the key architectural limitations of BLEU for evaluating translation semantic quality?<ul>
-<li><em>A:</em> BLEU has three main limits: it penalizes synonyms because it matches exact string n-grams; it is insensitive to grammatical differences as long as n-gram counts match; and it does not capture sentence-level coherence or semantic intent, focusing only on local window overlaps.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain why perplexity is highly dependent on the vocabulary size ($|V|$), and why comparing perplexity values between two models with different tokenizers is mathematically invalid.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Perplexity is the exponent of the cross-entropy loss over a probability distribution of size $|V|$. A model with a smaller vocabulary size (e.g. $8\text{k}$) naturally has a smaller pool of options to select from at each step compared to a model with a massive vocabulary (e.g. $128\text{k}$). The cross-entropy loss of the smaller vocab model will be lower, yielding a lower perplexity simply due to vocab size, not model capability. Comparing perplexity is only valid when the vocabulary index size and tokenizer mappings are identical.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: What are the key architectural limitations of BLEU for evaluating translation semantic quality?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">BLEU has three main limits: it penalizes synonyms because it matches exact string n-grams; it is insensitive to grammatical differences as long as n-gram counts match; and it does not capture sentence-level coherence or semantic intent, focusing only on local window overlaps.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -1745,7 +1806,7 @@ The output candidate is penalized from $1.0$ down to $0.6065$ because it was too
 <hr />
 <h3 id="gradient-dynamics-and-the-bptt-bottleneck">Gradient Dynamics and the BPTT Bottleneck</h3>
 <h4 id="backpropagation-through-time-bptt-gradient-decay">Backpropagation Through Time (BPTT) &amp; Gradient Decay</h4>
-<p>To train recurrent cells, we compute gradients by unrolling the model over sequence length $L$. The loss at the final step is backpropagated to the initial step using the chain rule. Because the hidden state weights $\mathbf{W}_{hh}$ are multiplied repeatedly (once for each time step), the gradient norm decays exponentially to zero if eigenvalues of $\mathbf{W}_{hh}$ are $<1.0$ (vanishing gradient), or blows up to infinity if eigenvalues are $>1.0$ (exploding gradient). This prevents standard RNNs from learning long-term dependencies.</p>
+<p>To train recurrent cells, we compute gradients by unrolling the model over sequence length $L$. The loss at the final step is backpropagated to the initial step using the chain rule. Because the hidden state weights $\mathbf{W}_{hh}$ are multiplied repeatedly (once for each time step), the gradient norm decays exponentially to zero if eigenvalues of $\mathbf{W}_{hh}$ are $&lt;1.0$ (vanishing gradient), or blows up to infinity if eigenvalues are $&gt;1.0$ (exploding gradient). This prevents standard RNNs from learning long-term dependencies.</p>
 <hr />
 <h3 id="the-gating-principle">The Gating Principle</h3>
 <p>To solve vanishing gradients, LSTMs introduce <strong>Gates</strong> (sigmoidal filters outputting values $\in [0, 1]$ to control memory writing, reading, and forgetting) and carry information linearly along an additive memory superhighway called the <strong>Cell State</strong> ($\mathbf{C}_t$).</p>
@@ -1848,18 +1909,22 @@ The new cell state is $0.85$. Because the update is additive, gradients can prop
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Due to the sequential dependency wall, LSTMs cannot leverage GPU parallelization along the sequence length dimension $L$ during training, which makes them much slower to train than Transformers.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> Explain mathematically why recurrent units are memory-bandwidth-bound during training and inference (the sequential dependency wall).<ul>
-<li><em>A:</em> In an LSTM, the hidden state at step $t$ ($\mathbf{h}_t$) cannot be computed until the state at step $t-1$ ($\mathbf{h}_{t-1}$) is completed. This serial constraint prevents parallelization across the sequence length dimension $L$. The GPU cannot run matrix operations for all words in parallel. Instead, it must read weights from High Bandwidth Memory (HBM) to SRAM, compute for one step, write back to HBM, and repeat $L$ times. This makes the pipeline memory-bandwidth-bound rather than compute-bound.</li>
 </ul>
-</li>
-<li><em>Q:</em> How does the additive cell state update mechanism in LSTMs ($\mathbf{C}_t$) resolve the vanishing gradient problem?<ul>
-<li><em>A:</em> In vanilla RNNs, backpropagating gradients requires multiplying by weight matrix $\mathbf{W}_{hh}$ at each step, causing exponential decay. In LSTMs, the cell state updates using an additive equation: $\mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t$. The gradient backpropagation path contains an additive term: $\frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}} = \mathbf{f}_t$. If the forget gate is open ($\mathbf{f}_t \approx 1.0$), the gradient propagates back through time steps linearly without decaying, creating an "error carousel".</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Explain mathematically why recurrent units are memory-bandwidth-bound during training and inference (the sequential dependency wall).</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In an LSTM, the hidden state at step $t$ ($\mathbf{h}_t$) cannot be computed until the state at step $t-1$ ($\mathbf{h}_{t-1}$) is completed. This serial constraint prevents parallelization across the sequence length dimension $L$. The GPU cannot run matrix operations for all words in parallel. Instead, it must read weights from High Bandwidth Memory (HBM) to SRAM, compute for one step, write back to HBM, and repeat $L$ times. This makes the pipeline memory-bandwidth-bound rather than compute-bound.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: How does the additive cell state update mechanism in LSTMs ($\mathbf{C}_t$) resolve the vanishing gradient problem?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">In vanilla RNNs, backpropagating gradients requires multiplying by weight matrix $\mathbf{W}_{hh}$ at each step, causing exponential decay. In LSTMs, the cell state updates using an additive equation: $\mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t$. The gradient backpropagation path contains an additive term: $\frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}} = \mathbf{f}_t$. If the forget gate is open ($\mathbf{f}_t \approx 1.0$), the gradient propagates back through time steps linearly without decaying, creating an "error carousel".</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -1900,8 +1965,8 @@ $$P(Y|X_{\text{actual}}) \neq P(Y|X_{\text{expected}}) \quad \text{while } P(X) 
 <p>PSI measures the extent of distribution shift between a reference dataset (Expected) and a target dataset (Actual) over $B$ bins. In production, this calculates a single numeric value indicating if the model inputs have drifted enough to require retraining, without needing expensive human-labeled data.</p>
 <ul>
 <li><strong>PSI Interpretation Rules:</strong><ul>
-<li>$\text{PSI} < 0.1$: Stable; no significant distribution change.</li>
-<li>$0.1 \le \text{PSI} < 0.25$: Moderate shift; monitor the model and consider retraining.</li>
+<li>$\text{PSI} &lt; 0.1$: Stable; no significant distribution change.</li>
+<li>$0.1 \le \text{PSI} &lt; 0.25$: Moderate shift; monitor the model and consider retraining.</li>
 <li>$\text{PSI} \ge 0.25$: High shift; alert the pipeline and trigger retraining immediately.</li>
 </ul>
 </li>
@@ -1963,7 +2028,7 @@ $$P(Y|X_{\text{actual}}) \neq P(Y|X_{\text{expected}}) \quad \text{while } P(X) 
     $$\text{PSI} = \text{Contr}_{\text{Tech}} + \text{Contr}_{\text{Other}} = 0.0575 + 0.1386 = 0.1961$$</p>
 </li>
 <li>
-<p><strong>Interpretation:</strong> Since $0.10 \le \text{PSI} = 0.1961 < 0.25$, we flag a <strong>moderate shift</strong>. The pipeline should monitor the incoming stream closely and prepare for retraining, but doesn't need to alert developers yet.</p>
+<p><strong>Interpretation:</strong> Since $0.10 \le \text{PSI} = 0.1961 &lt; 0.25$, we flag a <strong>moderate shift</strong>. The pipeline should monitor the incoming stream closely and prepare for retraining, but doesn't need to alert developers yet.</p>
 </li>
 </ul>
 <hr />
@@ -2039,18 +2104,22 @@ $$P(Y|X_{\text{actual}}) \neq P(Y|X_{\text{expected}}) \quad \text{while } P(X) 
 <h3 id="3-production-scalability">3. Production &amp; Scalability</h3>
 <ul>
 <li><strong>Deployment Considerations:</strong> Telemetry services typically run asynchronously to prevent logging overhead from adding latency to the main model serving thread.</li>
-<li><strong>Common Interviewer Follow-Up Questions:</strong><ol>
-<li><em>Q:</em> What is covariate data drift in vocabulary distributions, and how can we detect it on an unlabeled serving stream in real time?<ul>
-<li><em>A:</em> Covariate data drift in NLP occurs when the frequency distribution of input words changes over time (e.g. a sudden surge in specific hashtags or emojis). Because the serving stream is unlabeled, we cannot calculate model accuracy directly. Instead, we compute the Population Stability Index (PSI) or perform a Kolmogorov-Smirnov (KS) test comparing the word frequency distributions of the live stream against the training baseline. If the PSI exceeds $0.25$, we flag significant drift.</li>
 </ul>
-</li>
-<li><em>Q:</em> Detail the trade-offs of offline model batch retraining schedules vs. online real-time pipeline adjustments.<ul>
-<li><em>A:</em> <strong>Offline batch retraining</strong> is stable and allows thorough evaluation, but it is slow and can lead to lag in adapting to sudden shifts. <strong>Online real-time retraining</strong> adapts instantly but is computationally expensive, prone to catastrophic forgetting, and risks learning noise or adversarial inputs, which can corrupt the model.</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
+<div class="follow-up-section" style="margin-top: 24px; margin-bottom: 24px; page-break-inside: avoid;">
+    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Common Interviewer Follow-Up Questions</div>
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: What is covariate data drift in vocabulary distributions, and how can we detect it on an unlabeled serving stream in real time?</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">Covariate data drift in NLP occurs when the frequency distribution of input words changes over time (e.g. a sudden surge in specific hashtags or emojis). Because the serving stream is unlabeled, we cannot calculate model accuracy directly. Instead, we compute the Population Stability Index (PSI) or perform a Kolmogorov-Smirnov (KS) test comparing the word frequency distributions of the live stream against the training baseline. If the PSI exceeds $0.25$, we flag significant drift.</div>
+    </div>
+
+
+    <div class="q-card" style="margin-bottom: 14px; border-left: 3px solid #3b82f6; padding-left: 12px; margin-top: 10px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14.5px; margin-bottom: 4px;">Question: Detail the trade-offs of offline model batch retraining schedules vs. online real-time pipeline adjustments.</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 14px; text-align: justify !important;">**Offline batch retraining** is stable and allows thorough evaluation, but it is slow and can lead to lag in adapting to sudden shifts. **Online real-time retraining** adapts instantly but is computationally expensive, prone to catastrophic forgetting, and risks learning noise or adversarial inputs, which can corrupt the model.</div>
+    </div>
+
+</div>
     </div>
 
 
@@ -2168,7 +2237,7 @@ $$P(Y|X_{\text{actual}}) \neq P(Y|X_{\text{expected}}) \quad \text{while } P(X) 
 <hr />
 <h2 id="question-6-why-did-modern-nlp-move-from-word-tokenization-to-subword-tokenization">Question 6: Why did modern NLP move from word tokenization to subword tokenization?</h2>
 <h3 id="short-interview-answer-3060-seconds_5">Short Interview Answer (30–60 seconds)</h3>
-<p>Word-level tokenization struggles with vocabulary explosion ($|V| > 1,000,000$) and high OOV rates. Subword tokenization represents text using a smaller vocabulary of root prefixes and suffixes, allowing models to process new or misspelled words without crashing or generating <code>&lt;unk&gt;</code> tokens.</p>
+<p>Word-level tokenization struggles with vocabulary explosion ($|V| &gt; 1,000,000$) and high OOV rates. Subword tokenization represents text using a smaller vocabulary of root prefixes and suffixes, allowing models to process new or misspelled words without crashing or generating <code>&lt;unk&gt;</code> tokens.</p>
 <h3 id="key-interview-points_5">Key Interview Points</h3>
 <ul>
 <li>Vocabulary size limits</li>
@@ -2326,23 +2395,23 @@ Vocabulary: <code>["cat", "mat", "rug"]</code> (vocabulary size $|V| = 3$).</li>
 <h4 id="step-1-calculate-document-frequencies-df-and-smooth-idf-for-each-term">Step 1: Calculate Document Frequencies (DF) and Smooth IDF for each term:</h4>
 <ul>
 <li>
-<p><strong>"cat"</strong>: $\text{DF}(\text{"cat"}) = 1$ (appears only in $d_1$)<br />
-  $$\text{IDF}(\text{"cat"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+<p><strong>"cat"</strong>: $\text{DF}(\text{“cat”}) = 1$ (appears only in $d_1$)<br />
+  $$\text{IDF}(\text{“cat”}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
 </li>
 <li>
-<p><strong>"mat"</strong>: $\text{DF}(\text{"mat"}) = 2$ (appears in $d_1$ and $d_2$)<br />
-  $$\text{IDF}(\text{"mat"}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$</p>
+<p><strong>"mat"</strong>: $\text{DF}(\text{“mat”}) = 2$ (appears in $d_1$ and $d_2$)<br />
+  $$\text{IDF}(\text{“mat”}) = \ln\left(\frac{1 + 2}{1 + 2}\right) + 1 = \ln(1.0) + 1 = 0.0000 + 1 = 1.0000$$</p>
 </li>
 <li>
-<p><strong>"rug"</strong>: $\text{DF}(\text{"rug"}) = 1$ (appears only in $d_2$)<br />
-  $$\text{IDF}(\text{"rug"}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
+<p><strong>"rug"</strong>: $\text{DF}(\text{“rug”}) = 1$ (appears only in $d_2$)<br />
+  $$\text{IDF}(\text{“rug”}) = \ln\left(\frac{1 + 2}{1 + 1}\right) + 1 = \ln(1.5) + 1 \approx 0.4055 + 1 = 1.4055$$</p>
 </li>
 </ul>
-<h4 id="step-2-compute-raw-tf-idf-vector-for-mathplaceholder72endmath-frequencies-mathplaceholder73endmath-mathplaceholder74endmath-mathplaceholder75endmath">Step 2: Compute Raw TF-IDF Vector for $d_1$ (frequencies: $\text{TF}(\text{"cat"})=1$, $\text{TF}(\text{"mat"})=1$, $\text{TF}(\text{"rug"})=0$):</h4>
+<h4 id="step-2-compute-raw-tf-idf-vector-for-mathplaceholder72endmath-frequencies-mathplaceholder73endmath-mathplaceholder74endmath-mathplaceholder75endmath">Step 2: Compute Raw TF-IDF Vector for $d_1$ (frequencies: $\text{TF}(\text{“cat”})=1$, $\text{TF}(\text{“mat”})=1$, $\text{TF}(\text{“rug”})=0$):</h4>
 <ul>
-<li>$\text{TF-IDF}(\text{"cat"}, d_1) = 1 \times 1.4055 = 1.4055$</li>
-<li>$\text{TF-IDF}(\text{"mat"}, d_1) = 1 \times 1.0000 = 1.0000$</li>
-<li>$\text{TF-IDF}(\text{"rug"}, d_1) = 0 \times 1.4055 = 0.0000$<br />
+<li>$\text{TF-IDF}(\text{“cat”}, d_1) = 1 \times 1.4055 = 1.4055$</li>
+<li>$\text{TF-IDF}(\text{“mat”}, d_1) = 1 \times 1.0000 = 1.0000$</li>
+<li>$\text{TF-IDF}(\text{“rug”}, d_1) = 0 \times 1.4055 = 0.0000$<br />
 $$\mathbf{v}_{d_1} = [1.4055, \ 1.0000, \ 0.0000]^T$$</li>
 </ul>
 <h4 id="step-3-apply-mathplaceholder79endmath-normalization-to-prevent-document-length-bias">Step 3: Apply $L_2$ Normalization to prevent document length bias:</h4>
@@ -2351,7 +2420,7 @@ $$\mathbf{v}_{d_1, \text{norm}} = \left[ \frac{1.4055}{1.7249}, \ \frac{1.0000}{
 <h3 id="production-perspective-trade-offs_12">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Length Normalization</strong>: Essential because longer documents naturally repeat words, inflating TF scores. $L_2$ normalization maps vectors onto a unit hypersphere, allowing Cosine Similarity to measure angles rather than absolute vector lengths.</li>
-<li><strong>Sparse Storage</strong>: Large corpora yield $|V| > 100,000$, resulting in memory-heavy matrices. Production systems store representations in coordinate (COO) or compressed sparse row (CSR) formats to minimize storage overhead.</li>
+<li><strong>Sparse Storage</strong>: Large corpora yield $|V| &gt; 100,000$, resulting in memory-heavy matrices. Production systems store representations in coordinate (COO) or compressed sparse row (CSR) formats to minimize storage overhead.</li>
 </ul>
 <h3 id="follow-up-questions_12">Follow-up Questions</h3>
 <ul>
@@ -2414,7 +2483,7 @@ $$P(w_1, \dots, w_m) \approx \prod_{i=1}^m P(w_i \mid w_{i-N+1}, \dots, w_{i-1})
 $$P_{\text{MLE}}(w_i \mid w_{i-1}) = \frac{C(w_{i-1}, w_i)}{C(w_{i-1})}$$<br />
 Where $C(w_{i-1}, w_i)$ is the bigram co-occurrence count.</p>
 <h3 id="technical-intuition-complexity_1">Technical Intuition &amp; Complexity</h3>
-<p>If the bigram <code>"sat on"</code> appears 10 times and <code>"sat"</code> appears 100 times, the MLE probability $P(\text{"on"} \mid \text{"sat"}) = 10 / 100 = 0.1$.</p>
+<p>If the bigram <code>"sat on"</code> appears 10 times and <code>"sat"</code> appears 100 times, the MLE probability $P(\text{“on”} \mid \text{“sat”}) = 10 / 100 = 0.1$.</p>
 <h3 id="production-perspective-trade-offs_15">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Time Complexity</strong>: $O(1)$ constant time lookup if using precomputed n-gram tables.</li>
@@ -2440,24 +2509,24 @@ Where $C(w_{i-1}, w_i)$ is the bigram count, $C(w_{i-1})$ is the unigram history
 Vocabulary: <code>["the", "cat", "sat", "on", "mat"]</code> (vocabulary size $|V| = 5$).</p>
 <h4 id="step-1-track-counts-for-unigrams-and-bigrams">Step 1: Track counts for unigrams and bigrams:</h4>
 <ul>
-<li>$C(\text{"the"}) = 2$</li>
-<li>$C(\text{"the", "cat"}) = 1$</li>
-<li>$C(\text{"the", "mat"}) = 1$</li>
-<li>$C(\text{"the", "sat"}) = 0$ (unseen transition)</li>
+<li>$C(\text{“the”}) = 2$</li>
+<li>$C(\text{“the”, “cat”}) = 1$</li>
+<li>$C(\text{“the”, “mat”}) = 1$</li>
+<li>$C(\text{“the”, “sat”}) = 0$ (unseen transition)</li>
 </ul>
 <h4 id="step-2-compute-smoothed-transition-probabilities">Step 2: Compute smoothed transition probabilities:</h4>
 <ul>
 <li>
-<p><strong>Seen transition</strong> $P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"})$:<br />
-  $$P_{\text{Laplace}}(\text{"cat"} \mid \text{"the"}) = \frac{C(\text{"the", "cat"}) + 1}{C(\text{"the"}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$</p>
+<p><strong>Seen transition</strong> $P_{\text{Laplace}}(\text{“cat”} \mid \text{“the”})$:<br />
+  $$P_{\text{Laplace}}(\text{“cat”} \mid \text{“the”}) = \frac{C(\text{“the”, “cat”}) + 1}{C(\text{“the”}) + |V|} = \frac{1 + 1}{2 + 5} = \frac{2}{7} \approx 0.2857$$</p>
 </li>
 <li>
-<p><strong>Unseen transition</strong> $P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"})$:<br />
-  $$P_{\text{Laplace}}(\text{"sat"} \mid \text{"the"}) = \frac{C(\text{"the", "sat"}) + 1}{C(\text{"the"}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$</p>
+<p><strong>Unseen transition</strong> $P_{\text{Laplace}}(\text{“sat”} \mid \text{“the”})$:<br />
+  $$P_{\text{Laplace}}(\text{“sat”} \mid \text{“the”}) = \frac{C(\text{“the”, “sat”}) + 1}{C(\text{“the”}) + |V|} = \frac{0 + 1}{2 + 5} = \frac{1}{7} \approx 0.1429$$</p>
 </li>
 </ul>
 <p>Notice that the sum of probabilities across all possible next tokens for the history <code>"the"</code> remains normalized:<br />
-$$\sum_{w \in V} P(w \mid \text{"the"}) = \frac{2}{7} (\text{for "cat"}) + \frac{2}{7} (\text{for "mat"}) + \frac{1}{7} (\text{for "sat"}) + \frac{1}{7} (\text{for "on"}) + \frac{1}{7} (\text{for "the"}) = \frac{7}{7} = 1.0000$$</p>
+$$\sum_{w \in V} P(w \mid \text{“the”}) = \frac{2}{7} (\text{for “cat”}) + \frac{2}{7} (\text{for “mat”}) + \frac{1}{7} (\text{for “sat”}) + \frac{1}{7} (\text{for “on”}) + \frac{1}{7} (\text{for “the”}) = \frac{7}{7} = 1.0000$$</p>
 <h3 id="production-perspective-trade-offs_16">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>The $|V|$ Bottleneck</strong>: While Laplace smoothing ensures mathematical validity, adding $1$ to all unseen transitions allocates a massive amount of probability mass to the long tail of rare or unseen words in large vocabularies (e.g. $|V| = 50,000$), significantly degrading the probability of common, natural transitions.</li>
@@ -2549,7 +2618,7 @@ $$e^{\mathcal{L}_{\text{CE}}} = e^{-\frac{1}{m} \ln P(W)} = \left( e^{\ln P(W)} 
 <hr />
 <h2 id="question-20-why-does-negative-sampling-make-word2vec-training-faster">Question 20: Why does Negative Sampling make Word2Vec training faster?</h2>
 <h3 id="short-interview-answer-3060-seconds_19">Short Interview Answer (30–60 seconds)</h3>
-<p>Standard multiclass Softmax requires computing a normalization sum over the entire vocabulary $|V|$ (often $>100,000$ tokens) in the denominator for every single training step, which is computationally prohibitive. Skip-gram with Negative Sampling (SGNS) reformulates the task as a binary logistic regression game. For each target-context pair, the model optimizes a binary classifier to distinguish the true target-context pair from $K$ randomly drawn "noise" (negative) samples, reducing computing complexity from $O(|V|)$ to $O(K)$.</p>
+<p>Standard multiclass Softmax requires computing a normalization sum over the entire vocabulary $|V|$ (often $&gt;100,000$ tokens) in the denominator for every single training step, which is computationally prohibitive. Skip-gram with Negative Sampling (SGNS) reformulates the task as a binary logistic regression game. For each target-context pair, the model optimizes a binary classifier to distinguish the true target-context pair from $K$ randomly drawn "noise" (negative) samples, reducing computing complexity from $O(|V|)$ to $O(K)$.</p>
 <p>The SGNS loss function is:<br />
 $$\mathcal{L}_{\text{SGNS}} = -\ln \sigma(\mathbf{v}_w \cdot \mathbf{v}'_{w_c}) - \sum_{i=1}^K \ln \sigma(-\mathbf{v}_w \cdot \mathbf{v}'_{w_i})$$</p>
 <h3 id="technical-intuition-detailed-hand-calculation_3">Technical Intuition &amp; Detailed Hand-Calculation</h3>
@@ -2610,7 +2679,7 @@ If the largest eigenvalue of $W_{hh}$ is less than 1, multiplying this matrix re
 <ul>
 <li>Backpropagation through time (BPTT)</li>
 <li>Jacobian chain product</li>
-<li>Spectral radius $\rho(W_{hh}) < 1$</li>
+<li>Spectral radius $\rho(W_{hh}) &lt; 1$</li>
 </ul>
 <h3 id="production-perspective-trade-offs_20">Production Perspective &amp; Trade-offs</h3>
 <p>Vanishing gradients prevent standard RNNs from learning long-range dependencies, requiring the use of LSTMs or GRUs.</p>
@@ -2876,7 +2945,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <p>While BLEU-2 would penalize this candidate heavily due to lack of exact word matches (BLEU unigram overlap would fail on <code>"feline"</code> vs <code>"cat"</code> and <code>"rug"</code> vs <code>"mat"</code>), BERTScore detects the semantic equivalence of <code>"feline" \leftrightarrow "cat"</code> ($0.88$) and <code>"rug" \leftrightarrow "mat"</code> ($0.85$), yielding a high F1 score of $0.7667$, capturing synonym alignments.</p>
 <h3 id="production-perspective-trade-offs_31">Production Perspective &amp; Trade-offs</h3>
 <ul>
-<li><strong>Inference Latency</strong>: BLEU is a string overlap check running in $O(L_c \cdot L_r)$ on CPU (taking $<0.1\text{ms}$). BERTScore requires running a transformer encoder forward-pass on GPU to extract token embeddings, increasing computing cost and latency by orders of magnitude, making it expensive for real-time model evaluation APIs.</li>
+<li><strong>Inference Latency</strong>: BLEU is a string overlap check running in $O(L_c \cdot L_r)$ on CPU (taking $&lt;0.1\text{ms}$). BERTScore requires running a transformer encoder forward-pass on GPU to extract token embeddings, increasing computing cost and latency by orders of magnitude, making it expensive for real-time model evaluation APIs.</li>
 <li><strong>Model Bias</strong>: BERTScore scores depend on the underlying embedding model. A model biased against certain structures can skew evaluation scores, requiring careful selection of the encoder (e.g. RoBERTa-large).</li>
 </ul>
 <h3 id="follow-up-questions_31">Follow-up Questions</h3>
@@ -2985,7 +3054,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <h3 id="production-perspective-trade-offs_36">Production Perspective &amp; Trade-offs</h3>
 <ul>
 <li><strong>Low Latency</strong>: Suggestion lookups must run in &lt;10ms. Store the prefix trie in memory (e.g. using Redis), caching frequent suggestions.</li>
-<li><strong>Storage</strong>: Prune n-grams with count frequencies $< 5$ to compress trie memory size.</li>
+<li><strong>Storage</strong>: Prune n-grams with count frequencies $&lt; 5$ to compress trie memory size.</li>
 </ul>
 <h3 id="follow-up-questions_36">Follow-up Questions</h3>
 <ul>
@@ -3158,7 +3227,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <h2 id="question-45-explain-greedy-decoding-versus-beam-search">Question 45: Explain greedy decoding versus beam search.</h2>
 <h3 id="short-interview-answer-3060-seconds_44">Short Interview Answer (30–60 seconds)</h3>
 <ul>
-<li><strong>Greedy Search</strong>: Selects the single most likely token at each step ($y_t = \arg\max P(y \mid y_{<t})$). It is computationally fast ($O(L)$) but cannot backtrack.</li>
+<li><strong>Greedy Search</strong>: Selects the single most likely token at each step ($y_t = \arg\max P(y \mid y_{&lt;t})$). It is computationally fast ($O(L)$) but cannot backtrack.</li>
 <li><strong>Beam Search</strong>: Explores multiple paths ($O(L \cdot B)$), keeping a running set of the $B$ most likely sequences. It improves generation quality at the cost of higher latency and memory usage.</li>
 </ul>
 <h3 id="key-interview-points_35">Key Interview Points</h3>
@@ -3168,7 +3237,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <li>Latency trade-offs</li>
 </ul>
 <h3 id="production-perspective-trade-offs_44">Production Perspective &amp; Trade-offs</h3>
-<p>In production, large beam sizes (e.g. $B > 10$) increase latency and memory usage. A beam size of $2\text{--}5$ is typically preferred to balance speed and quality.</p>
+<p>In production, large beam sizes (e.g. $B &gt; 10$) increase latency and memory usage. A beam size of $2\text{--}5$ is typically preferred to balance speed and quality.</p>
 <h3 id="follow-up-questions_44">Follow-up Questions</h3>
 <ul>
 <li><strong>Follow-up</strong>: <em>Why apply length normalization in beam search?</em> -&gt; Without normalization, beam search favors shorter generations because multiplying probabilities yields smaller values as sequence length increases.</li>
@@ -3278,7 +3347,7 @@ $$P_{\text{BERT}} = \frac{1}{|c|} \sum_{w_i \in c} \max_{w_j \in r} \mathbf{E}(w
 <p>While self-attention enables fast, parallel training, its quadratic memory cost ($O(L^2)$) makes serving long sequences resource-intensive.</p>
 <h3 id="follow-up-questions_49">Follow-up Questions</h3>
 <ul>
-<li><strong>Follow-up</strong>: <em>At what sequence length L does self-attention compute cost exceed RNNs?</em> -&gt; When sequence length $L$ exceeds the hidden dimension $d$ ($L > d$), self-attention becomes more computationally expensive than RNNs.</li>
+<li><strong>Follow-up</strong>: <em>At what sequence length L does self-attention compute cost exceed RNNs?</em> -&gt; When sequence length $L$ exceeds the hidden dimension $d$ ($L &gt; d$), self-attention becomes more computationally expensive than RNNs.</li>
 </ul>
 <h3 id="common-mistakes_49">Common Mistakes</h3>
 <ul>
