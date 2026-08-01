@@ -49,20 +49,43 @@ v
 ```
 
 ### Core Skills
-- **Skill 1: [Study Guide Generator](file:///d:/Study/Prep/.agents/skills/study_guide_generator/SKILL.md)**
-  - **Role:** Standardizes Markdown curriculum generation inside topic `modules/` folders.
-- **Skill 2: [Notebook Generator](file:///d:/Study/Prep/.agents/skills/notebook_generator/SKILL.md)**
-  - **Role:** Programmatically creates, executes, and profiles companion notebooks inside `notebooks/` folders.
-- **Skill 3: [Interview Q&A Generator](file:///d:/Study/Prep/.agents/skills/interview_qa_generator/SKILL.md)**
-  - **Role:** Generates standalone screening questions, cheatsheets, and Q&A modules.
-- **Skill 4: [PDF & HTML Master Compiler](file:///d:/Study/Prep/.agents/skills/pdf_compiler/SKILL.md)**
-  - **Role:** Compiles Markdown sources into unified HTML and print-ready A4 PDF master deliverables.
-- **Skill 5: [Syllabus Generator](file:///d:/Study/Prep/.agents/skills/syllabus_generator/SKILL.md)**
+- **Skill 1: [Syllabus Generator](file:///d:/Study/Prep/.agents/skills/syllabus_generator/SKILL.md)**
   - **Role:** Sets templates and filtering rules for drafting custom learning syllabus curricula in `README.md`.
+- **Skill 2: [Study Guide Generator](file:///d:/Study/Prep/.agents/skills/study_guide_generator/SKILL.md)**
+  - **Role:** Standardizes Markdown curriculum generation inside topic `modules/` folders.
+- **Skill 3: [Notebook Generator](file:///d:/Study/Prep/.agents/skills/notebook_generator/SKILL.md)**
+  - **Role:** Programmatically creates, executes, and profiles companion notebooks inside `notebooks/` folders.
+- **Skill 4: [Interview Q&A Generator](file:///d:/Study/Prep/.agents/skills/interview_qa_generator/SKILL.md)**
+  - **Role:** Generates standalone screening questions, cheatsheets, and Q&A modules.
+- **Skill 5: [PDF & HTML Master Compiler](file:///d:/Study/Prep/.agents/skills/pdf_compiler/SKILL.md)**
+  - **Role:** Compiles Markdown sources into unified HTML and print-ready A4 PDF master deliverables.
 
 ---
 
-## 3. Topic Directory Structure Standard
+## 3. Decoupled Pipeline System Workflow
+
+The workflow consists of an initial scoping phase followed by three independent parallel compilation tracks to prevent code-math synchronizing overhead and maintain high iteration speed:
+
+*   **Scoping Phase: Syllabus Generation**
+    *   **Objective:** Define target modules, notebooks, and learning boundaries using the [Syllabus Generator](file:///d:/Study/Prep/.agents/skills/syllabus_generator/SKILL.md).
+    *   **Files:** Generates the high-level syllabus at the topic folder's root `README.md`.
+    *   *Checkpoint:* Explicit user review and sign-off required on `README.md` before starting tracks.
+*   **Track 1: Study Notes Modules (Interview Prep Focus)**
+    *   **Objective:** Core theory, architecture diagrams, VRAM sizing formulas, parameter counts, and system trade-offs.
+    *   **Files:** Raw markdown source chapters reside in `modules/` and compile directly into `<topic>_master_study_guide.pdf`.
+    *   *Checkpoint:* Explicit user review and sign-off required on raw markdown files before final HTML/PDF compilation.
+*   **Track 2: Production Notebooks & Code (Execution Focus)**
+    *   **Objective:** Standalone, end-to-end executable examples profiling real-world parameters, hardware boundaries (VRAM, latency), and tensor contiguity.
+    *   **Files:** Programmatically built and run inside `notebooks/` following the [sample_notebook_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_notebook_generator.py) patterns.
+    *   *Checkpoint:* Explicit user review and sign-off required on notebook execution logs and outputs.
+*   **Track 3: Standalone Interview Q&As (Screening Focus)**
+    *   **Objective:** Fast screening responses, key buzzwords, technical intuition, and common mistakes.
+    *   **Files:** Reside in `modules/*_interview_questions.md` and compile to `<topic>_interview_cheatsheet.pdf`.
+    *   *Checkpoint:* Explicit user review required twice: first for the question list draft, and second for the final answered Q&A sheets.
+
+---
+
+## 4. Topic Directory Structure Standard
 
 Every study topic under `machine-learning-prep/` (e.g., `00_nlp_fundamentals/`) must strictly adhere to this 4-subfolder architecture:
 
@@ -89,7 +112,7 @@ machine-learning-prep/<ai_discipline>/<topic_folder>/
 
 ---
 
-## 4. Execution Pre-Flight Checklist
+## 5. Execution Pre-Flight Checklist
 
 Before presenting any completed material or running compilation scripts, verify:
 
