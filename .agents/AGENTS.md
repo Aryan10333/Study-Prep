@@ -8,18 +8,16 @@
 Before generating content, building notebooks, or executing scripts in this workspace, the agent **MUST** read and adhere to `.agents/USER_PROFILE.md`.
 
 * **Target Persona:** Aryan Chandra (AI Engineer at Jio Platforms Ltd with ~3 years experience, targeting Applied AI / GenAI / AI Backend Engineer roles at tier-1 tech companies and high-growth AI startups).
-* **Engineering Standard:** Content must emphasize production engineering, hardware constraints, system trade-offs, and whiteboard hand calculations over purely theoretical calculus derivations.
+* **Engineering Standard:** Content must emphasize production engineering, hardware constraints, system trade-offs, and tensor dimension tracking over purely theoretical calculus derivations.
 
 ---
 
 ## 2. Skills Registry & Architectural Workflow
 
-Auto-discovered agent skills are located in `.agents/skills/`. The agent MUST follow the guidelines specified in each skill directory:
-
-
-```
+Auto-discovered agent skills are located in `.agents/skills/`. The agent MUST follow the guidelines specified in each skill's respective `SKILL.md` file:
 
 ```
+
                               +---------------------------------------+
                               |   1. study_guide_generator/           |
                               |   (Markdown Curriculum Modules)       |
@@ -30,7 +28,7 @@ Auto-discovered agent skills are located in `.agents/skills/`. The agent MUST fo
 ```
 
 +---------------------------------------+    +---------------------------------------+
-| 2. notebook_generator/                |    |  4. interview_qa_generator/           |
+| 2. notebook_generator/                |    |  3. interview_qa_generator/           |
 | (Executable Companion Notebooks)      |    |  (Standalone Cheatsheets & Q&A)       |
 +-------------------+-------------------+    +-------------------+-------------------+
 |                                            |
@@ -38,7 +36,7 @@ Auto-discovered agent skills are located in `.agents/skills/`. The agent MUST fo
 |
 v
 +-----------------------------------+
-|  3. pdf_compiler/                 |
+|  4. pdf_compiler/                 |
 |  (Pygments, KaTeX, Edge/Chrome)   |
 +-------------------+---------------+
 |
@@ -50,35 +48,17 @@ v
 
 ```
 
-### Skill 1: Study Guide Generator (`.agents/skills/study_guide_generator/`)
-* **Role:** Standardizes Markdown curriculum generation inside topic `modules/` folders.
-* **Rules:**
-  * Begin with first-principles motivation & real-world bottlenecks (e.g., memory wall, roofline bounds, latency limits).
-  * Use standard variable notations ($B$, $L$, $H$, $d$, $V$, $N$) and line-isolated KaTeX display equations (`$$ ... $$`).
-  * Include step-by-step micro hand calculations ($B=1, L=2, H=2$) matching deterministic PyTorch output (annotated with `# [B, L, H]`).
-  * Diagrams MUST use inline responsive SVG or flexbox containers (strictly NO raw ASCII or Mermaid).
-  * Always conclude with the mandatory **Interview Deep-Dive & System Trade-offs** template.
-
-### Skill 2: Notebook Generator (`.agents/skills/notebook_generator/`)
-* **Role:** Programmatically creates and executes production Jupyter Notebooks inside topic `notebooks/` folders via helper scripts (`helpers/build_*_notebooks.py`).
-* **Rules:**
-  * Must strictly follow the 3-cell sequence: **Markdown Heading** $\rightarrow$ **Code Implementation** $\rightarrow$ **### Output Explanation, Interpretation & Performance Analysis**.
-  * Zero unexecuted cells (`In [ ]`) allowed in final `.ipynb` files.
-  * Load API credentials dynamically using `python-dotenv` (`find_dotenv()`). Zero hardcoded secrets.
-
-
-### Skill 3: Interview Q&A Generator (`.agents/skills/interview_qa_generator/`)
-* **Role:** Generates standalone screening questions, cheatsheets, and Q&A modules.
-* **Rules:**
-  * Enforce the Q&A structure: **Short Answer (30–60s)**, **Key Buzzwords**, **Technical Intuition/Math**, **Production Perspective**, **Follow-ups**, and **Common Mistakes**.
-  * Focus on screening speed, architectural clarity, and system trade-offs.
-
-### Skill 4: PDF & HTML Master Compiler (`.agents/skills/pdf_compiler/`)
-* **Role:** Compiles Markdown sources into unified HTML and print-ready A4 PDF master deliverables using helper scripts (`helpers/compile_*.py`).
-* **Rules:**
-  * Extract math blocks (`$ ... $` / `$$ ... $$`) and escape brackets (`<` $\rightarrow$ `&lt;`) prior to Markdown rendering to prevent KaTeX corruption.
-  * Enforce Pygments Monokai dark styling with slate background (`#0f172a`) and CSS contrast overrides.
-  * Execute headless printing via Microsoft Edge or Chrome with temporary user profile directories.
+### Core Skills
+- **Skill 1: [Study Guide Generator](file:///d:/Study/Prep/.agents/skills/study_guide_generator/SKILL.md)**
+  - **Role:** Standardizes Markdown curriculum generation inside topic `modules/` folders.
+- **Skill 2: [Notebook Generator](file:///d:/Study/Prep/.agents/skills/notebook_generator/SKILL.md)**
+  - **Role:** Programmatically creates, executes, and profiles companion notebooks inside `notebooks/` folders.
+- **Skill 3: [Interview Q&A Generator](file:///d:/Study/Prep/.agents/skills/interview_qa_generator/SKILL.md)**
+  - **Role:** Generates standalone screening questions, cheatsheets, and Q&A modules.
+- **Skill 4: [PDF & HTML Master Compiler](file:///d:/Study/Prep/.agents/skills/pdf_compiler/SKILL.md)**
+  - **Role:** Compiles Markdown sources into unified HTML and print-ready A4 PDF master deliverables.
+- **Skill 5: [Syllabus Generator](file:///d:/Study/Prep/.agents/skills/syllabus_generator/SKILL.md)**
+  - **Role:** Sets templates and filtering rules for drafting custom learning syllabus curricula in `README.md`.
 
 ---
 
@@ -115,6 +95,6 @@ Before presenting any completed material or running compilation scripts, verify:
 
 * [ ] Does this material reflect an Applied GenAI Engineer perspective (production engineering over pure academic research math)?
 * [ ] Are tensor shapes (`# [B, L, H]`) annotated in PyTorch code blocks?
-* [ ] Are micro hand calculations provided on small sample dimensions matching code outputs to 4 decimal places?
+* [ ] Are variable transformations and dimension flows clearly explained?
 * [ ] Are system bottlenecks (memory-bandwidth vs. compute bound, roofline limits, HBM bounds) explicitly identified?
 * [ ] Are all deliverables output at the topic directory root level (`<topic_folder>/`) while source files remain cleanly separated in `modules/`, `notebooks/`, `plots/`, and `helpers/`?

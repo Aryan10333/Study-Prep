@@ -1,6 +1,6 @@
 ---
 name: Study Guide Generator
-description: Guidelines and constraints for generating self-contained, interview-focused AI engineering Markdown study guides with practical hand calculations, tensor flow maps, GFM tables, and system trade-off closures.
+description: Guidelines and constraints for generating self-contained, interview-focused AI engineering Markdown study guides with tensor flow maps, GFM tables, and system trade-off closures.
 ---
 
 # Study Guide Generator Skill
@@ -39,11 +39,10 @@ For every core algorithm, architecture, or optimization technique, follow this s
 
 1. **Production Motivation**: Frame the topic by identifying the real-world engineering bottleneck, latency issue, or hardware constraint it resolves.
 2. **Minimal Operational Formulation**: Present the core equation(s) in KaTeX display math, paired with an explicit shape/dimension transformation layout mapping inputs to outputs.
-3. **Step-by-Step Micro Calculation**: Trace execution on a toy sample space (e.g., mini-batch size $= 1$, feature/hidden dim $= 2$, sequence/spatial length $= 2$). Focus on how values flow through operations rather than abstract algebra.
-4. **Production-Style Reference Code**: Provide self-contained, framework-idiomatic code (e.g., PyTorch) verifying the calculation (to 4 decimal places):
+3. **High-Level Flow Walkthrough**: Explain the computational path and logical flow of variables through the operations (e.g., query-key multiplication, softmax scaling, and value aggregation).
+4. **Production-Style Reference Code**: Provide self-contained, framework-idiomatic code (e.g., PyTorch):
 * Annotate operational shapes directly in comments (e.g., `# [B, C, H, W]`).
 * Explicitly set deterministic random seeds (`torch.manual_seed(42)`) and isolate execution (e.g., `with torch.no_grad():`).
-* Note any rounding discrepancies between intermediate hand math and floating-point execution.
 
 
 
@@ -131,7 +130,7 @@ Immediately after generating or updating a guide, verify:
 * [ ] YAML Frontmatter included with title, category, and prerequisites.
 * [ ] First-principles conceptual motivation precedes any math or code.
 * [ ] Operational math includes explicit tensor/array dimension shapes.
-* [ ] Step-by-step hand calculation on a toy space exactly matches the code output (to 4 decimal places).
+* [ ] Code is verified to be accurate, logically matching mathematical formulas and descriptions.
 * [ ] Code is runnable, deterministic, and annotated with shape comments `# [B, L, H]`.
 * [ ] KaTeX display blocks are line-isolated and `%` signs are escaped.
 * [ ] Diagrams use responsive SVG or flexbox HTML (no Mermaid or raw ASCII).

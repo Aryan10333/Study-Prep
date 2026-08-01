@@ -153,7 +153,7 @@ High-signal preparation for interviews focused on:
    Every topic should bridge foundational concepts with deployment realities, including latency, memory usage, inference optimization, cost considerations, scalability, monitoring, debugging, and engineering trade-offs.
 
 4. **Mathematical Intuition**
-   Mathematical concepts should include intuitive explanations, complete derivations where appropriate, and step-by-step numerical walkthroughs with small examples that match implementation outputs.
+   Mathematical concepts should include intuitive explanations, complete derivations where appropriate, and clear variable flow mapping.
 
 ---
 
