@@ -159,15 +159,16 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         }}
         body {{
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            font-size: 18px;
+            font-size: 20px;
             line-height: 1.6;
             color: #334155;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
+            text-align: justify;
         }}
         h1 {{
-            font-size: 28px;
+            font-size: 30px;
             color: #0f172a;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 6px;
@@ -177,7 +178,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             break-after: avoid;
         }}
         h2 {{
-            font-size: 23px;
+            font-size: 25px;
             color: #2563eb;
             margin-top: 24px;
             margin-bottom: 12px;
@@ -187,7 +188,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             break-after: avoid;
         }}
         h3 {{
-            font-size: 20px;
+            font-size: 22px;
             color: #0284c7;
             margin-top: 20px;
             margin-bottom: 10px;
@@ -195,7 +196,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             break-after: avoid;
         }}
         h4, h5, h6 {{
-            font-size: 18px !important;
+            font-size: 20px !important;
             font-weight: 700 !important;
             color: #0f172a !important;
             margin-top: 18px !important;
@@ -211,13 +212,14 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             text-decoration: underline;
         }}
         p {{
-            font-size: 18px !important;
+            font-size: 20px !important;
             line-height: 1.6 !important;
             color: #334155;
             margin-bottom: 12px;
+            text-align: justify;
         }}
         img {{
-            max-width: 90\%;
+            max-width: 100%;
             height: auto;
             display: block;
             margin: 24px auto;
@@ -234,15 +236,16 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             position: relative !important;
             margin-bottom: 8px !important;
             padding-left: 10px !important;
-            font-size: 18px !important;
+            font-size: 20px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
+            text-align: justify;
         }}
         .module-container ul > li::before {{
             content: "•" !important;
             color: #3b82f6 !important;
             font-weight: bold !important;
-            font-size: 22px !important;
+            font-size: 24px !important;
             display: inline-block !important;
             width: 1em !important;
             margin-left: -1em !important;
@@ -257,7 +260,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         .module-container ul ul > li::before {{
             content: "◦" !important;
             color: #64748b !important;
-            font-size: 18px !important;
+            font-size: 20px !important;
             top: -1px !important;
         }}
         .module-container ol {{
@@ -268,19 +271,20 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         }}
         .module-container ol > li {{
             margin-bottom: 8px !important;
-            font-size: 18px !important;
+            font-size: 20px !important;
             line-height: 1.6 !important;
             color: #334155 !important;
             list-style-type: decimal !important;
+            text-align: justify;
         }}
         .module-container ol > li::before {{
             content: none !important;
         }}
         table {{
-            width: 100\%;
+            width: 100%;
             border-collapse: collapse;
             margin: 24px 0;
-            font-size: 14.5px;
+            font-size: 16px;
         }}
         th, td {{
             border: 1px solid #cbd5e1;
