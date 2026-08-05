@@ -84,8 +84,15 @@ The workflow consists of an initial scoping phase followed by three independent 
     *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` outlining the datasets, profiling code steps, and analysis segments, and obtain explicit user sign-off before writing or executing any notebook builder scripts.
 *   **Track 3: Standalone Interview Q&As (Screening Focus)**
     *   **Objective:** Fast screening responses, key buzzwords, technical intuition, and common mistakes.
+    *   **Formatting Guideline**: 
+        *   **Simple Question Titles**: Keep question headers simple and direct (no math equations or derivations in headers).
+        *   **Essential vs. Deep Dive Split**: Format every Q&A with an *Essential* block (conversational/spoken-style first-person response, a 2–4 line intuitive example, and key buzzword definitions) and a *Deep Dive* block (formulas without long derivations, production constraints, short common mistakes, and 2–4 follow-ups).
+        *   **One-Line Takeaway**: End each answer with a single-sentence takeaway.
+        *   **Comparison Tables**: Proactively include comparison tables to contrast architectures, parameters, or algorithms (e.g. GPT vs. BERT vs. T5, LayerNorm vs. RMSNorm, MHA vs. GQA vs. MQA, Greedy vs. Sampling).
+        *   **Final Revision Sheet**: Conclude each cheatsheet with a 2-page summary section containing a takeaway table, a key formula box, and a top follow-up Q&A index.
+    *   **Batching Policy**: Large question sets (20+ questions) must be generated and appended in logical batches of 10–15 questions in sequence. To minimize interruptions, the agent will proceed from batch to batch automatically in a single session without pausing for review.
     *   **Files:** Reside in `modules/*_interview_questions.md` and compile to `<topic>_interview_cheatsheet.pdf`.
-    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` listing the proposed question list, and obtain explicit user sign-off before writing the Q&A sheet. Explicit user review is required twice: first for the question list draft, and second for the final answered Q&A sheets.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` listing the proposed question list, and obtain explicit user sign-off before writing the Q&A sheet. Explicit user review is required twice: first for the question list draft, and second for the final completed Q&A sheet.
 
 ---
 

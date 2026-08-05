@@ -37,29 +37,63 @@ For every interview question generated, the output must strictly follow this str
 ```markdown
 ## Question [Number]: [Question Title]
 
-### Short Interview Answer (30–60 seconds)
-[Provide a concise, high-impact screening answer suitable for initial technical screens.]
+### [ESSENTIAL]
 
-### Key Interview Points
-- [Keyword/Buzzword 1]
-- [Keyword/Buzzword 2]
-- [Keyword/Buzzword 3]
+#### Conversational Answer
+[Spoken-style interview response, written in a first-person/conversational flow (e.g. "I'd explain that...", "The core reason is...") rather than textbook passive paragraphs. Keep it punchy and direct.]
 
-### Technical Intuition & Complexity (where applicable)
-[Specify formulas, mathematical intuition, complexity classes (O(L^2), etc.), and tiny numerical step-by-step hand calculations on micro-samples (e.g. L=2, d=2) in KaTeX syntax.]
+#### Intuitive Example
+*   [A concrete, real-world example spanning 2–4 lines detailing how the concept applies to simple text or sequences.]
 
-### Production Perspective & Trade-offs
-[Analyze VRAM footprints, memory bandwidth limitations, latency budgets, GPU SM occupancy, and server bottlenecks.]
+#### Key Interview Points
+- **[Keyword/Buzzword 1]**: Short definition.
+- **[Keyword/Buzzword 2]**: Short definition.
+- **[Keyword/Buzzword 3]**: Short definition.
 
-### Follow-up Questions
-- **Follow-up**: [Question] -> [Answer]
+---
 
-### Common Mistakes
-- [Explain standard misconceptions and incorrect answers candidates make]
+### [DEEP DIVE]
+
+#### Technical Intuition & Key Formulas (No Derivations)
+[Introduce the core formulas in KaTeX, with direct variable explanations. Remove all step-by-step mathematical proofs or variance derivations, keeping only the high-level intuition.]
+
+#### Production Perspective & Trade-offs
+[Analyze VRAM footprints, memory-bandwidth limits, latency budgets, GPU memory access, or server bottlenecks.]
+
+#### Common Mistakes
+*   **Common Mistakes**:
+    1. [Top frequent misconception candidate makes - keep it short and focus on top 2-3 mistakes.]
+    2. [Second frequent misconception.]
+
+#### Common Follow-up Questions
+1.  **Q: [Follow-up Question]?**
+    *   **A**: [Conversational Answer].
+2.  **Q: [Follow-up Question]?**
+    *   **A**: [Conversational Answer].
+
+#### One-Line Takeaway
+> **Takeaway:** [One-sentence summary for fast revision.]
 ```
+
+### Comparison Tables Rule:
+Use comparison tables where appropriate to contrast competing architectures, methods, or parameters (e.g., GPT vs. BERT vs. T5, LayerNorm vs. RMSNorm, RoPE vs. ALiBi vs. Learned, MHA vs. GQA vs. MQA, Greedy vs. Beam Search vs. Sampling, Dense vs. MoE).
+
+### Final Revision Sheet Rule:
+Every interview cheatsheet must conclude with a dedicated 2-3 page revision sheet section:
+`# [Topic] Interview Cheatsheet: Final Revision Sheet`
+This section must contain:
+1.  **Quick-Recall One-Line Takeaways Table**: A dense table mapping all questions to their respective one-line takeaways.
+2.  **Essential Formula Cheat Sheet**: A list of core mathematical equations (e.g., Attention, Normalization, Scaling Laws, etc.) with KaTeX styling.
+3.  **Top Follow-up Q&As**: A fast-review index of the most critical follow-up questions and answers.
 
 ### Global Selection Rule:
 Not every question requires math formulas, numerical examples, complexity analysis, or code snippets. Include them only when they representationally improve the explanation (e.g., Self-Attention, KV Cache, RoPE, Scaling Laws, MoE). For purely conceptual questions, prioritize intuition, architecture, and production constraints.
+
+### Simple Question Titles Rule:
+Do not inject mathematical formulas or technical derivations directly into the `Question Title` itself. Keep the question title simple, clean, and direct (e.g. `Why divide attention scores by √d?` instead of `Why do we scale the attention score matrix by 1/√d_k? Derive the variance...`). Place all mathematical proofs, KaTeX calculations, and derivations exclusively in the *Technical Intuition & Complexity* or *Production Perspective* sections of the answer.
+
+### Batch-Wise Generation Rule:
+When generating answers for a large question bank (e.g. 20+ questions), do NOT write the entire set in a single turn. Instead, segment the list into logical batches of 10–15 questions. Write and append one batch at a time to the Markdown file sequentially. Do this automatically in sequence without pausing to ask for user approval between batches. A single final review and sign-off is requested at the very end when all batches are fully answered. This prevents context token limits and ensures maximum detail.
 
 ---
 
