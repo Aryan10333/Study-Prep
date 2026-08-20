@@ -368,52 +368,64 @@ def draw_hmm_lattice(output_dir):
     plt.close()
 
 def draw_lstm_cell(output_dir):
-    """Draws detailed LSTM gating structure schematic (Module 09)."""
-    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=300)
+    """Draws detailed LSTM gating structure schematic (Module 09).
+
+    Label placement rule (see study_guide_generator/SKILL.md Section 6, point 7):
+    every state-rail / input-bus label is anchored OFFSET from its connector line
+    and clear of the cell boundary box, and every label has an explicit connecting
+    arrow, to avoid the arrow-through-text and dangling-label defects this diagram
+    previously had.
+    """
+    fig, ax = plt.subplots(figsize=(9, 5), dpi=300)
     ax.axis('off')
-    
+
+    forget_x, input_x, output_x = 0.25, 0.58, 0.88
+
     # Background box representing cell boundary
-    ax.add_patch(plt.Rectangle((0.1, 0.1), 0.8, 0.8, fill=False, edgecolor='#64748b', lw=2, linestyle='-'))
-    
-    # State paths
-    ax.annotate('Cell State C_t-1', xy=(0.1, 0.75), xytext=(-0.05, 0.75), arrowprops=dict(arrowstyle="<-", color='#8b5cf6', lw=1.5))
-    ax.annotate('Cell State C_t', xy=(1.05, 0.75), xytext=(0.9, 0.75), arrowprops=dict(arrowstyle="->", color='#8b5cf6', lw=2))
-    ax.plot([0.1, 0.9], [0.75, 0.75], color='#8b5cf6', lw=2) # State rail
-    
-    # Inputs
-    ax.text(0.25, -0.05, 'Input x_t', fontsize=9, fontweight='semibold', color='#0f172a', ha='center')
-    ax.text(0.55, -0.05, 'Hidden State h_t-1', fontsize=9, fontweight='semibold', color='#475569', ha='center')
-    
-    # Draw Gating operations
-    ax.text(0.3, 0.4, 'Forget Gate\nf_t = \u03c3(...)', fontsize=8.5, fontweight='bold', color='#dc2626', ha='center', va='center',
-            bbox=dict(boxstyle="square,pad=0.3", facecolor='#fef2f2', edgecolor='#ef4444'))
-            
-    ax.text(0.5, 0.4, 'Input Gate\ni_t = \u03c3(...)\nCandidate Cell\nC~ = tanh(...)', fontsize=8, fontweight='bold', color='#059669', ha='center', va='center',
-            bbox=dict(boxstyle="square,pad=0.3", facecolor='#ecfdf5', edgecolor='#10b981'))
-            
-    ax.text(0.75, 0.45, 'Output Gate\no_t = \u03c3(...)\n* tanh(C_t)', fontsize=8, fontweight='bold', color='#0284c7', ha='center', va='center',
-            bbox=dict(boxstyle="square,pad=0.3", facecolor='#eff6ff', edgecolor='#0284c7'))
-            
-    # Connect gates to cell state line
-    # Forget Gate updates cell state (arrow UP)
-    ax.annotate('', xy=(0.3, 0.75), xytext=(0.3, 0.48), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
-    # Input Gate updates cell state (arrow UP)
-    ax.annotate('', xy=(0.5, 0.75), xytext=(0.5, 0.48), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
-    
-    # Output Gate reads from cell state (arrow DOWN from rail to Output Gate box)
-    ax.annotate('', xy=(0.75, 0.52), xytext=(0.75, 0.75), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
-    # Output Gate outputs hidden state (arrow DOWN from Output Gate box to Hidden State rail)
-    ax.annotate('', xy=(0.75, 0.25), xytext=(0.75, 0.38), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
-    
-    # Hidden State path
-    ax.annotate('Hidden State h_t', xy=(1.05, 0.25), xytext=(0.9, 0.25), arrowprops=dict(arrowstyle="->", color='#2563eb', lw=2))
-    ax.plot([0.75, 0.9], [0.25, 0.25], color='#2563eb', lw=1.5)
-    
-    ax.set_title("LSTM Gated Recurrent Unit Architecture & State Flow", fontsize=11, fontweight='bold', pad=15, color='#0f172a')
-    
-    # Set wider limits to prevent clipping of text and labels outside [0, 1] range
-    ax.set_xlim(-0.15, 1.15)
-    ax.set_ylim(-0.1, 1.05)
+    ax.add_patch(plt.Rectangle((0.05, 0.15), 1.0, 0.75, fill=False, edgecolor='#64748b', lw=2, linestyle='-'))
+
+    # --- Cell state rail (top): labels offset above the line and clear of the box border ---
+    ax.annotate('', xy=(1.2, 0.8), xytext=(-0.15, 0.8), arrowprops=dict(arrowstyle="-|>", color='#8b5cf6', lw=2.2))
+    ax.text(-0.15, 0.86, 'Cell State $C_{t-1}$', fontsize=9.5, fontweight='semibold', color='#5b21b6', ha='right', va='bottom')
+    ax.text(1.2, 0.86, 'Cell State $C_t$', fontsize=9.5, fontweight='semibold', color='#5b21b6', ha='left', va='bottom')
+
+    # --- Gating operation boxes (widened spacing so none clip each other) ---
+    ax.text(forget_x, 0.55, 'Forget Gate\n$f_t = \\sigma(...)$', fontsize=8.5, fontweight='bold', color='#dc2626',
+            ha='center', va='center', bbox=dict(boxstyle="square,pad=0.35", facecolor='#fef2f2', edgecolor='#ef4444'))
+
+    ax.text(input_x, 0.55, 'Input Gate\n$i_t = \\sigma(...)$\nCandidate Cell\n$\\tilde{C}_t = \\tanh(...)$',
+            fontsize=8, fontweight='bold', color='#059669', ha='center', va='center',
+            bbox=dict(boxstyle="square,pad=0.35", facecolor='#ecfdf5', edgecolor='#10b981'))
+
+    ax.text(output_x, 0.58, 'Output Gate\n$o_t = \\sigma(...)$\n$* \\tanh(C_t)$', fontsize=8, fontweight='bold', color='#0284c7',
+            ha='center', va='center', bbox=dict(boxstyle="square,pad=0.35", facecolor='#eff6ff', edgecolor='#0284c7'))
+
+    # Connect gates to cell state rail (arrows terminate just below the rail, not through it)
+    ax.annotate('', xy=(forget_x, 0.78), xytext=(forget_x, 0.63), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    ax.annotate('', xy=(input_x, 0.78), xytext=(input_x, 0.63), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    ax.annotate('', xy=(output_x, 0.67), xytext=(output_x, 0.78), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+
+    # --- Hidden state rail (bottom-right) ---
+    ax.annotate('', xy=(1.2, 0.42), xytext=(output_x, 0.42), arrowprops=dict(arrowstyle="-|>", color='#2563eb', lw=2))
+    ax.annotate('', xy=(output_x, 0.49), xytext=(output_x, 0.42), arrowprops=dict(arrowstyle="->", color='#64748b', lw=1.2))
+    ax.text(1.2, 0.47, 'Hidden State $h_t$', fontsize=9.5, fontweight='semibold', color='#1e3a8a', ha='left', va='bottom')
+
+    # --- Input bus: wires x_t and h_t-1 into every gate (previously dangling, unconnected) ---
+    bus_y = 0.24
+    ax.plot([forget_x - 0.05, output_x - 0.03], [bus_y, bus_y], color='#94a3b8', lw=1.2, linestyle='--')
+    ax.annotate('', xy=(forget_x, bus_y), xytext=(forget_x, 0.135), arrowprops=dict(arrowstyle="->", color='#334155', lw=1.2))
+    ax.annotate('', xy=(input_x, bus_y), xytext=(input_x, 0.135), arrowprops=dict(arrowstyle="->", color='#334155', lw=1.2))
+    for gate_x in (forget_x, input_x, output_x):
+        ax.annotate('', xy=(gate_x, 0.48), xytext=(gate_x, bus_y), arrowprops=dict(arrowstyle="->", color='#94a3b8', lw=1.0))
+
+    # Bottom labels sit fully clear below the box's bottom border (y=0.15).
+    ax.text(forget_x, 0.12, 'Input $x_t$', fontsize=9, fontweight='semibold', color='#0f172a', ha='center', va='top')
+    ax.text(input_x, 0.12, 'Hidden State $h_{t-1}$', fontsize=9, fontweight='semibold', color='#475569', ha='center', va='top')
+
+    ax.set_title("LSTM Gated Recurrent Unit Architecture & State Flow", fontsize=11, fontweight='bold', pad=14, color='#0f172a')
+
+    ax.set_xlim(-0.45, 1.55)
+    ax.set_ylim(-0.02, 0.98)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, '09_lstm_cell.png'), dpi=300)
     plt.close()

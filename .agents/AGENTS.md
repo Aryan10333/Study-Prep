@@ -133,3 +133,16 @@ Before presenting any completed material or running compilation scripts, verify:
 * [ ] Are system bottlenecks (memory-bandwidth vs. compute bound, roofline limits, HBM bounds) explicitly identified?
 * [ ] Are companion notebooks structured with markdown heading cells preceding each code cell, and are all explanation cells written only *after* reading actual executed cell outputs?
 * [ ] Are all deliverables output at the topic directory root level (`<topic_folder>/`) while source files remain cleanly separated in `modules/`, `notebooks/`, `plots/`, and `helpers/`?
+
+---
+
+## 6. Automated Compliance Verification (Mandatory Last Step)
+
+Every skill file in `.agents/skills/` lists an "Automated Verification Checklist" as markdown bullets. In practice, a checklist that only exists as prose is easy to silently skip — especially mid-batch on a large generation task, or when resuming work started in an earlier session. This has already produced real drift in this repository: a 50-question interview cheatsheet was fully written and left in place using none of the section structure its own skill mandated, and a compiler script embedded hardcoded absolute filesystem paths into a deliverable meant to be portable, and neither was caught until a later manual review.
+
+To prevent this recurring, before presenting any track's output as complete (Study Notes, Notebooks, or Interview Q&As), run an explicit, scriptable compliance pass over the generated file(s) rather than eyeballing the prose checklist:
+* **Interview Q&A track**: grep the generated `*_interview_questions.md` for the required section headings (`[ESSENTIAL]`, `[DEEP DIVE]`, `One-Line Takeaway`, `Final Revision Sheet`) per the check defined in [interview_qa_generator/SKILL.md](file:///d:/Study/Prep/.agents/skills/interview_qa_generator/SKILL.md) Section 5, and confirm counts match the question total.
+* **PDF/HTML compiler track**: grep the compiled `.html` output and the compiler script itself for hardcoded absolute paths or stray `file:///` references per [pdf_compiler/SKILL.md](file:///d:/Study/Prep/.agents/skills/pdf_compiler/SKILL.md) Section 6, and confirm the output PDF file was actually written and is non-empty.
+* **Study guide track**: after generating any box-and-arrow/state-flow diagram, visually inspect the rendered PNG (not just confirm the script exited cleanly) per [study_guide_generator/SKILL.md](file:///d:/Study/Prep/.agents/skills/study_guide_generator/SKILL.md) Section 6, point 7.
+
+If a topic's `modules/`, `notebooks/`, or deliverables were generated before a skill file was last edited, do not assume they are still compliant — run the relevant check against the existing files before extending or re-compiling them.

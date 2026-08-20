@@ -164,3 +164,16 @@ Before final delivery, verify:
 - [ ] **GFM Tables**: Tables are written using native Markdown formatting and are never wrapped inside fenced code blocks.
 - [ ] **No placeholders**: Every question has a complete answer without placeholders.
 - [ ] **Variable consistency**: Variable notations ($L$, $d$, $b$, $N$, $C$) align 100% between complexity sheets and explanations.
+
+---
+
+## 5. Mandatory Structural Compliance Check (Automated, Not Optional)
+
+A checklist read by an agent is easy to silently skip under context pressure or when resuming a large batch job — this has previously produced a fully-written 50-question cheatsheet that used none of the required section structure (no `[ESSENTIAL]`/`[DEEP DIVE]` split, no takeaways, no Final Revision Sheet) without anyone catching it until a later review. To prevent this from recurring, the agent **MUST** run an explicit grep-based self-check against the finished `*_interview_questions.md` file before presenting it to the user or handing it to the compiler:
+
+1. **Per-question structure**: Every `## Question N:` block must contain all of: `### [ESSENTIAL]`, `#### Conversational Answer`, `#### Intuitive Example`, `#### Key Interview Points`, `### [DEEP DIVE]`, `#### Technical Intuition & Key Formulas (No Derivations)`, `#### Production Perspective & Trade-offs`, `#### Common Mistakes`, `#### Common Follow-up Questions`, `#### One-Line Takeaway`. Count occurrences of each heading and confirm the count matches the total number of questions.
+2. **No Derivations rule**: Scan each `[DEEP DIVE]` block for multi-step derivation chains (sequences of `$$...$$` blocks connected by "differentiating", "substituting", "therefore" prose). Formulas are allowed; step-by-step proofs are not — collapse them to the final formula plus a one-line intuition.
+3. **Final Revision Sheet**: Confirm the file ends with the `# [Topic] Interview Cheatsheet: Final Revision Sheet` section, and that it contains all three required subsections (Quick-Recall Takeaways Table, Essential Formula Cheat Sheet, Top Follow-up Q&As).
+4. **Report the check**: State explicitly to the user which of the four checks passed/failed before declaring the track complete. If any check fails, fix the file — do not present it as done with a caveat.
+
+This check applies whenever a Q&A file is generated *or* edited, including resuming/appending batches to an existing file. If you are asked to review or extend an existing `*_interview_questions.md` file, run this check on it first — do not assume a pre-existing file is compliant.

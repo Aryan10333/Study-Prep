@@ -1,8 +1,16 @@
+import base64
+import mimetypes
 import os
 import re
+import shutil
 import markdown
 import subprocess
+import tempfile
 from pygments.formatters import HtmlFormatter
+
+# Portable: derived from this script's own location (helpers/ -> topic root),
+# never a hardcoded absolute path. See pdf_compiler/SKILL.md Section 4.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def get_browser_path():
     """Dynamically locate Edge or Chrome browser binary across standard paths."""
@@ -10,8 +18,11 @@ def get_browser_path():
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files\QA\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        shutil.which("msedge"),
+        shutil.which("chrome"),
+        shutil.which("google-chrome"),
+        shutil.which("chromium"),
     ]
     for path in candidates:
         if path and os.path.exists(path):
@@ -112,19 +123,88 @@ def transform_follow_up_questions(text):
 """)
         html_out.append('</div>')
         return "\n".join(html_out) + "\n"
-        
+
     return pattern.sub(replacer, text)
+
+def transform_qa_module_followups(text):
+    """Flatten module 11's '#### Common Follow-up Questions' Q/A lists into left-accented cards.
+
+    Distinct from transform_follow_up_questions() above, which handles the older
+    '**Common Interviewer Follow-Up Questions:**' bullet style used in modules 01-10.
+    """
+    pattern = re.compile(
+        r'^#### Common Follow-up Questions\s*\n((?:.*\n?)*?)(?=\n---|\n#### |\Z)',
+        re.MULTILINE
+    )
+
+    def md_to_html_inline(val):
+        return re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', val)
+
+    def replacer(match):
+        block = match.group(1)
+        q_a_pairs = []
+        current_q, current_a = None, []
+        for line in block.split('\n'):
+            stripped = line.strip()
+            q_match = re.match(r'^\d+\.\s+\*\*Q:\s*(.*?)\*\*\s*$', stripped)
+            if q_match:
+                if current_q:
+                    q_a_pairs.append((current_q, " ".join(current_a)))
+                current_q = q_match.group(1).strip()
+                current_a = []
+            elif re.match(r'^[-*]\s+\*\*A\*\*:', stripped):
+                current_a.append(re.sub(r'^[-*]\s+\*\*A\*\*:\s*', '', stripped))
+            elif stripped and current_q:
+                current_a.append(stripped)
+        if current_q:
+            q_a_pairs.append((current_q, " ".join(current_a)))
+
+        html_out = [
+            '<div class="follow-up-section" style="margin-top: 20px; margin-bottom: 20px; page-break-inside: avoid;">',
+            '    <div style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #cbd5e1; '
+            'padding-bottom: 4px; margin-bottom: 12px; font-size: 14.5px; text-transform: uppercase; '
+            'letter-spacing: 0.05em;">Common Follow-up Questions</div>'
+        ]
+        for q, a in q_a_pairs:
+            html_out.append(f"""
+    <div class="q-card" style="margin-bottom: 12px; border-left: 3px solid #3b82f6; padding-left: 12px; page-break-inside: avoid;">
+        <div style="font-weight: 600; color: #1e3a8a; font-size: 14px; margin-bottom: 4px;">Q: {md_to_html_inline(q)}</div>
+        <div style="color: #334155; line-height: 1.5; font-size: 13.5px;">{md_to_html_inline(a)}</div>
+    </div>
+""")
+        html_out.append('</div>\n')
+        return "\n".join(html_out)
+
+    return pattern.sub(replacer, text)
+
+def embed_images_as_base64(text, plots_dir):
+    """Rewrite '../plots/x.png' references to base64 data: URIs so the compiled HTML
+    is fully portable (no machine-local file:// paths). See pdf_compiler/SKILL.md Section 4.
+    """
+    def replacer(match):
+        rel_path = match.group(1)
+        abs_path = os.path.normpath(os.path.join(plots_dir, os.path.basename(rel_path)))
+        if not os.path.exists(abs_path):
+            print(f"WARNING: image not found for embedding: {abs_path}")
+            return match.group(0)
+        mime, _ = mimetypes.guess_type(abs_path)
+        mime = mime or "image/png"
+        with open(abs_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("ascii")
+        return f'(data:{mime};base64,{encoded})'
+
+    return re.sub(r'\(\.\./plots/([^)]+)\)', replacer, text)
 
 def preprocess_markdown(text, file_name):
     """Preprocess markdown list structures, frontmatter, relative paths, quotes, and Q&A formatting."""
-    base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
-    plots_abs_dir = os.path.abspath(os.path.join(base_dir, "plots")).replace("\\", "/")
-    
-    # 1. Transform follow-up questions to non-nested cards
+    plots_dir = os.path.join(BASE_DIR, "plots")
+
+    # 1. Transform follow-up questions to non-nested cards (both known formats)
     text = transform_follow_up_questions(text)
-    
-    # 2. Resolve relative image paths to absolute file URIs for headless Edge renderer
-    text = text.replace("../plots/", f"file:///{plots_abs_dir}/")
+    text = transform_qa_module_followups(text)
+
+    # 2. Embed plot images as base64 data URIs (portable HTML, no file:// paths)
+    text = embed_images_as_base64(text, plots_dir)
 
     # 4. Strip frontmatter and replace it with Module number and title heading
     frontmatter_match = re.match(r'^---\n(.*?)\n---\n', text, re.DOTALL)
@@ -174,7 +254,7 @@ def preprocess_markdown(text, file_name):
     return '\n'.join(new_lines)
 
 def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_label):
-    base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
+    base_dir = BASE_DIR
     alert_types = {
         'NOTE': ('#2563eb', '#eff6ff', '#1e40af', '📌 NOTE'),
         'TIP': ('#059669', '#ecfdf5', '#065f46', '💡 TIP'),
@@ -512,29 +592,37 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         f.write(full_html)
     print(f"Created HTML file at: {html_out_path}")
 
-    # Generate PDF using Microsoft Edge Headless CLI
+    # Generate PDF using Microsoft Edge Headless CLI.
+    # Retry loop: headless Edge printing has been observed to exit 0 with no output
+    # file on a transient race, then succeed immediately on retry. See pdf_compiler/SKILL.md
+    # Section 4 for the confirmed-in-practice note on this.
     edge_path = get_browser_path()
-    temp_user_data = os.path.join(os.environ.get("TEMP", r"C:\Windows\Temp"), "edge_pdf_dir_tmp_nlp")
-    
-    cmd = [
-        edge_path,
-        f"--user-data-dir={temp_user_data}",
-        "--headless",
-        "--disable-gpu",
-        "--run-all-compositor-stages-before-draw",
-        "--virtual-time-budget=8000",
-        "--no-pdf-header-footer",
-        f"--print-to-pdf={pdf_out_path}",
-        html_out_path
-    ]
-    
     print(f"Running browser PDF compilation for {os.path.basename(pdf_out_path)}...")
-    subprocess.run(cmd, capture_output=True, text=True)
-    print(f"SUCCESS: PDF generated at: {pdf_out_path}")
+    max_attempts = 3
+    for attempt in range(1, max_attempts + 1):
+        with tempfile.TemporaryDirectory() as temp_user_data:
+            cmd = [
+                edge_path,
+                f"--user-data-dir={temp_user_data}",
+                "--headless",
+                "--disable-gpu",
+                "--run-all-compositor-stages-before-draw",
+                "--virtual-time-budget=8000",
+                "--no-pdf-header-footer",
+                f"--print-to-pdf={pdf_out_path}",
+                html_out_path
+            ]
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
+        if os.path.exists(pdf_out_path) and os.path.getsize(pdf_out_path) > 0:
+            print(f"SUCCESS: PDF generated at: {pdf_out_path} ({os.path.getsize(pdf_out_path)} bytes, attempt {attempt})")
+            break
+        print(f"WARNING: attempt {attempt}/{max_attempts} produced no valid PDF, retrying...")
+    else:
+        raise RuntimeError(f"PDF compilation did not produce a valid file at {pdf_out_path} after {max_attempts} attempts")
 
 def main():
-    base_dir = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
-    
+    base_dir = BASE_DIR
+
     # 1. Compile Standalone Interview Cheatsheet
     print("\n--- Compiling Standalone NLP Interview Cheatsheet ---")
     cheatsheet_html = os.path.join(base_dir, "nlp_fundamentals_interview_cheatsheet.html")

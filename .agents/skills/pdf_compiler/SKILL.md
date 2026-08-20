@@ -21,6 +21,8 @@ To compile clean, professional PDF study guides from modular Markdown files, com
    - **WARNING**: Orange border (`#d97706`), light orange background (`#fffbeb`), dark orange text (`#92400e`).
    - **CAUTION**: Red border (`#dc2626`), light red background (`#fef2f2`), dark red text (`#991b1b`).
 3. **Safe Blockquote Line Parsing**: Do not globally replace `>` in blockquotes, as this corrupts mathematical subscripts (`<unk>`) and arrows (`->`). Split blockquotes line-by-line, stripping only the leading `>`. Parse inner markdown to HTML before wrapping in container divs to preserve bold text and nested lists.
+4. **Math-Block Curly-Quote Fixing**: Straight double quotes (`"..."`) typed inside `\text{...}` commands within LaTeX blocks render as raw typewriter quotes in KaTeX, which look unprofessional next to the document's typographic quotes elsewhere. Before any other preprocessing, regex-match `\text{...}` spans inside `$...$`/`$$...$$` blocks and convert straight `"` pairs inside them to curly opening/closing quotes (`"` / `"`). This must run *before* math-block placeholder extraction (step 2 of Section 2), since it operates on the raw LaTeX content.
+5. **Follow-Up Question Card Flattening**: Nested `Common Interviewer Follow-Up Questions` lists (numbered `*Q:*`/`*A:*` pairs, often indented under a bullet) render poorly as raw nested Markdown lists in the compiled PDF — inconsistent indentation and broken numbering. Detect this block pattern with a dedicated regex pass and re-emit it as flat, left-accented "card" divs (one bordered div per Q/A pair) instead of leaving it as nested Markdown for the generic list renderer to handle. This is a required transform, not an optional enhancement — compiled output without it has visibly degraded Q&A formatting.
 
 ---
 
@@ -155,7 +157,47 @@ def compile_html_to_pdf(html_input_path, pdf_output_path):
         ]
         subprocess.run(cmd, capture_output=True, text=True, check=True)
 
+    # Verify the browser actually produced the file — a headless print can exit
+    # 0 while silently failing to write output (e.g. locked profile dir, bad path).
+    if not os.path.exists(pdf_output_path) or os.path.getsize(pdf_output_path) == 0:
+        raise RuntimeError(f"PDF compilation did not produce a valid file at {pdf_output_path}")
+
 ```
+
+**Confirmed in practice, not just theoretical:** headless Edge printing (and `--screenshot`) has been observed to exit 0 with no output file at all on the first attempt, then succeed immediately on an unmodified retry — a real, reproducible race condition, not a hypothetical edge case. Wrap the subprocess call + verification in a small retry loop (2-3 attempts, no backoff needed) rather than failing the whole compile on the first transient miss:
+
+```python
+def compile_html_to_pdf(html_input_path, pdf_output_path, max_attempts=3):
+    browser_path = get_browser_path()
+    for attempt in range(1, max_attempts + 1):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cmd = [
+                browser_path, f"--user-data-dir={temp_dir}", "--headless", "--disable-gpu",
+                "--run-all-compositor-stages-before-draw", "--virtual-time-budget=8000",
+                "--no-pdf-header-footer", f"--print-to-pdf={pdf_output_path}", html_input_path,
+            ]
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
+        if os.path.exists(pdf_output_path) and os.path.getsize(pdf_output_path) > 0:
+            return
+    raise RuntimeError(f"PDF compilation did not produce a valid file at {pdf_output_path} after {max_attempts} attempts")
+```
+
+### Never Hardcode Absolute Filesystem Paths
+
+Compilation scripts must resolve every directory (`base_dir`, the `modules/`/`plots/`/`helpers/` paths, output paths) relative to the script's own location, never as a literal hardcoded absolute path (e.g. `r"d:\Study\Prep\..."`):
+
+```python
+# Correct: portable across machines, users, and repo relocations.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # helpers/ -> topic root
+
+# Wrong: breaks the moment the repo is moved, renamed, cloned elsewhere,
+# or run by a different user/agent session.
+BASE_DIR = r"d:\Study\Prep\machine-learning-prep\generative-ai-and-agentic-ai\00_nlp_fundamentals"
+```
+
+A hardcoded absolute `base_dir` doesn't just risk the compiler script breaking — it leaks directly into the compiled deliverable. If plot image references are rewritten to `file:///<base_dir>/plots/...` absolute URIs (required for the headless browser to resolve local images during PDF printing), those same literal paths persist inside the saved `*.html` file. The PDF itself stays portable (images are rasterized into it at compile time), but the standalone HTML deliverable will only render images on the exact machine and file path it was generated on. Prefer one of:
+1. **Embed images as base64 `data:` URIs** in the HTML instead of `file:///` links, so the HTML deliverable is fully self-contained and portable, or
+2. If keeping `file:///` links for simplicity, explicitly document in the deliverable (or to the user) that the `.html` output is machine-local only and the `.pdf` is the portable artifact.
 
 ---
 
@@ -185,6 +227,8 @@ Immediately after compiling a master guide:
 * [ ] Code blocks maintain dark slate `#0f172a` backgrounds with bright white/cyan readable text.
 * [ ] Tables, code blocks, and images fit within A4 width without triggering page auto-scaling.
 * [ ] Headings (`h1`, `h2`, `h3`) do not appear orphaned at the bottom of PDF pages.
+* [ ] **Path portability**: `grep`/search the compiled `.html` output for the literal string `file:///` — if matches exist, confirm this was a deliberate choice (see Section 4) and not an accidental hardcoded `base_dir`. Search the compiler script itself for hardcoded absolute paths (e.g. `d:\`, `/home/`, `/Users/`) — none should exist outside of `os.path`-derived variables.
+* [ ] **PDF output verified**: The compiler script asserted the output PDF file exists and is non-empty after the subprocess call (not just that the subprocess exited 0).
 
 ---
 
