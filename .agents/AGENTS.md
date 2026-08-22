@@ -74,14 +74,14 @@ The workflow consists of an initial scoping phase followed by three independent 
 *   **Track 1: Study Notes Modules (Interview Prep Focus)**
     *   **Objective:** Core theory, architecture diagrams, VRAM sizing formulas, parameter counts, and system trade-offs.
     *   **Files:** Raw markdown source chapters reside in `modules/` and compile directly into `<topic>_master_study_guide.pdf`.
-    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` outlining the study notes modules, hand calculations, and visual diagrams, and obtain explicit user sign-off before writing any raw chapter files.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plans/implementation_plan_study_guide.md` outlining the study notes modules, hand calculations, and visual diagrams, and obtain explicit user sign-off before writing any raw chapter files.
 *   **Track 2: Production Notebooks & Code (Execution Focus)**
     *   **Objective:** Standalone, end-to-end executable examples profiling real-world parameters, hardware boundaries (VRAM, latency), and tensor contiguity.
     *   **Files:** Programmatically built and run inside `notebooks/` following the [sample_notebook_generator.py](file:///d:/Study/Prep/.agents/scripts/sample_notebook_generator.py) patterns.
     *   **Formatting Guidelines**:
         *   **Markdown Headings**: Always place a descriptive markdown heading cell (e.g. `## X. Step Name`) immediately before each code cell.
         *   **Execute-Before-Explain Policy**: When creating or modifying notebooks, the agent must **first write and execute the code cell to obtain the actual output, inspect the printed logs, and only then write/align the corresponding markdown explanation cell** to guarantee 100% numerical and conceptual accuracy. Do not write hypothetical explanations prior to execution.
-    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` outlining the datasets, profiling code steps, and analysis segments, and obtain explicit user sign-off before writing or executing any notebook builder scripts.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plans/implementation_plan_notebook.md` outlining the datasets, profiling code steps, and analysis segments, and obtain explicit user sign-off before writing or executing any notebook builder scripts.
 *   **Track 3: Standalone Interview Q&As (Screening Focus)**
     *   **Objective:** Fast screening responses, key buzzwords, technical intuition, and common mistakes.
     *   **Formatting Guideline**: 
@@ -92,7 +92,7 @@ The workflow consists of an initial scoping phase followed by three independent 
         *   **Final Revision Sheet**: Conclude each cheatsheet with a 2-page summary section containing a takeaway table, a key formula box, and a top follow-up Q&A index.
     *   **Batching Policy**: Large question sets (20+ questions) must be generated and appended in logical batches of 10–15 questions in sequence. To minimize interruptions, the agent will proceed from batch to batch automatically in a single session without pausing for review.
     *   **Files:** Reside in `modules/*_interview_questions.md` and compile to `<topic>_interview_cheatsheet.pdf`.
-    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plan.md` listing the proposed question list, and obtain explicit user sign-off before writing the Q&A sheet. Explicit user review is required twice: first for the question list draft, and second for the final completed Q&A sheet.
+    *   *Checkpoint:* **Implementation Plan Checkpoint:** The agent MUST generate a dedicated `implementation_plans/implementation_plan_interview_qa.md` listing the proposed question list, and obtain explicit user sign-off before writing the Q&A sheet. Explicit user review is required twice: first for the question list draft, and second for the final completed Q&A sheet.
 
 ---
 
@@ -103,6 +103,10 @@ Every study topic under `machine-learning-prep/` (e.g., `00_nlp_fundamentals/`) 
 ```text
 machine-learning-prep/<ai_discipline>/<topic_folder>/
 ├── README.md                          # High-level Syllabus of covered topics
+├── implementation_plans/              # [PLANS] One file per track, all sign-off docs live here
+│   ├── implementation_plan_study_guide.md   # Track 1 sign-off (study guide modules)
+│   ├── implementation_plan_notebook.md      # Track 2 sign-off (companion notebooks)
+│   └── implementation_plan_interview_qa.md  # Track 3 sign-off (interview Q&A)
 ├── modules/                           # [SOURCE FILES] Raw Markdown Chapters
 │   ├── 01_topic_intro.md
 │   └── 02_topic_advanced.md

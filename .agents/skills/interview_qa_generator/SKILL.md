@@ -11,7 +11,7 @@ This skill defines the standardized process for creating dedicated, high-impact 
 
 ## 0. Pre-Flight Checkpoint: Implementation Plan
 
-Before writing any standalone Interview Q&A cheatsheets or question banks, the agent **MUST** generate a detailed `implementation_plan.md` artifact detailing:
+Before writing any standalone Interview Q&A cheatsheets or question banks, the agent **MUST** generate a detailed `implementation_plans/implementation_plan_interview_qa.md` artifact (in the topic's `implementation_plans/` subfolder, created if it does not yet exist) detailing:
 1.  The proposed list of technical screening questions grouped by concept categories.
 2.  The target file paths for raw Markdown Q&A source documents and compiled deliverables.
 3.  Any specific reference sources or question banks to incorporate.

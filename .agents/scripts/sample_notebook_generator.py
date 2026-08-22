@@ -4,16 +4,29 @@ import nbformat as nbf
 from nbconvert.preprocessors import ExecutePreprocessor
 from dotenv import find_dotenv, load_dotenv
 
+
+def _extract_stdout(nb, cell_index):
+    """Reads back the real printed stdout of an already-executed code cell."""
+    text = ""
+    for out in nb["cells"][cell_index].get("outputs", []):
+        if out.get("output_type") == "stream":
+            text += out.get("text", "")
+        elif out.get("output_type") == "execute_result":
+            text += out.get("data", {}).get("text/plain", "")
+    return text
+
+
 def generate_and_execute_notebook(notebook_out_path):
-    """Programmatically builds, executes, and saves a structured Jupyter Notebook."""
-    # Ensure parent folder exists
+    """Two-pass build: (1) construct + execute with code-only cells and a
+    placeholder explanation cell, (2) re-open the executed notebook, read its
+    real printed output, and rewrite the explanation cell to quote it literally.
+    Never author explanation prose before Pass 1 has produced real output."""
     os.makedirs(os.path.dirname(notebook_out_path), exist_ok=True)
 
-    # 1. Initialize notebook object
+    # ----- PASS 1: construct heading + code cells only, execute, save -----
     nb = nbf.v4.new_notebook()
     cells = []
 
-    # 2. Add Introduction Header
     cells.append(nbf.v4.new_markdown_cell(
         "# Production Matrix Multiplication & Performance Profiling\n"
         "\n"
@@ -21,97 +34,93 @@ def generate_and_execute_notebook(notebook_out_path):
         "It dynamically loads environment keys, checks GPU contiguity, and profiles memory footprints."
     ))
 
-    # 3. Add Environment setup cell
     cells.append(nbf.v4.new_code_cell(
         "import os\n"
         "from dotenv import load_dotenv, find_dotenv\n"
         "\n"
-        "# Load environment keys dynamically\n"
         "load_dotenv(find_dotenv())\n"
         "print(\"Environment keys loaded.\")"
     ))
 
-    # 4. Heading Cell (Step 1)
     cells.append(nbf.v4.new_markdown_cell(
         "## 1. PyTorch Tensor Contiguity and GPU Execution Profile"
     ))
 
-    # 5. Code Cell (Step 1) with shape annotations, assertions, and memory profiling
+    # Index of this code cell is tracked so Pass 2 can read its real output back.
+    profiling_cell_index = len(cells)
     cells.append(nbf.v4.new_code_cell(
         "import time\n"
         "import torch\n"
         "\n"
-        "# Ensure determinism\n"
         "torch.manual_seed(42)\n"
         "\n"
-        "# Define tensor parameters\n"
         "B, L, H = 2, 4, 8\n"
-        "\n"
-        "# Create random tensor inputs representing sequence embeddings\n"
-        "x = torch.randn(B, L, H, device='cuda' if torch.cuda.is_available() else 'cpu') # [B, L, H]\n"
-        "w = torch.randn(H, H, device=x.device) # [H, H]\n"
+        "x = torch.randn(B, L, H, device='cuda' if torch.cuda.is_available() else 'cpu')  # [B, L, H]\n"
+        "w = torch.randn(H, H, device=x.device)  # [H, H]\n"
         "\n"
         "start_time = time.perf_counter()\n"
-        "# Perform linear projections\n"
-        "out = torch.matmul(x, w) # [B, L, H]\n"
+        "out = torch.matmul(x, w)  # [B, L, H]\n"
         "latency = (time.perf_counter() - start_time) * 1000\n"
         "\n"
         "print(f\"Output shape: {list(out.shape)}\")\n"
         "print(f\"Tensor Contiguous check: {out.is_contiguous()}\")\n"
         "print(f\"Execution Latency: {latency:.4f} ms\")\n"
         "\n"
-        "# VRAM usage if running on GPU\n"
         "if torch.cuda.is_available():\n"
         "    print(f\"Max GPU Memory Allocated: {torch.cuda.max_memory_allocated() / (1024**2):.2f} MB\")\n"
         "\n"
-        "# Assert shapes and values\n"
         "assert out.shape == (B, L, H), \"Shape mismatch!\"\n"
         "assert not torch.isnan(out).any(), \"NaNs detected!\""
     ))
 
-    # 6. Analysis Cell (Step 1)
+    # Placeholder only -- real explanation text is written in Pass 2, from real output.
+    explanation_cell_index = len(cells)
     cells.append(nbf.v4.new_markdown_cell(
-        "### Output & Performance Analysis\n"
-        "- **Dimension Flow:** The Query projection successfully mapped input `x` of shape `[2, 4, 8]` through weights `[8, 8]` resulting in `[2, 4, 8]` matching the query/key layer dimensions.\n"
-        "- **Contiguity Layout:** The tensor `.is_contiguous()` checks pass, ensuring contiguous memory segments are presented to downstream CUDA kernels to prevent memory-bandwidth-bound cache line penalties.\n"
-        "- **Profiling Insights:** Execution latency was tracked under PyTorch's native CPU/GPU execution pathways, proving latency budget limits."
+        "### Output Explanation: Tensor Profile\n_(pending real output)_"
     ))
 
-    nb['cells'] = cells
-
-    # Set default kernelspec and metadata
-    nb['metadata'] = {
-        'kernelspec': {
-            'display_name': 'Python 3 (ipykernel)',
-            'language': 'python',
-            'name': 'python3'
-        },
-        'language_info': {
-            'name': 'python'
-        }
+    nb["cells"] = cells
+    nb["metadata"] = {
+        "kernelspec": {"display_name": "Python 3 (ipykernel)", "language": "python", "name": "python3"},
+        "language_info": {"name": "python"},
     }
 
-    # Save draft
-    with open(notebook_out_path, 'w', encoding='utf-8') as f:
+    ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
+    ep.preprocess(nb, {"metadata": {"path": os.path.dirname(notebook_out_path) or "."}})
+
+    with open(notebook_out_path, "w", encoding="utf-8") as f:
         nbf.write(nb, f)
-    print(f"Created draft notebook structure: {notebook_out_path}")
+    print(f"Pass 1 complete: notebook executed and saved: {notebook_out_path}")
 
-    # 7. Execute the notebook in place using the active environment kernel
-    print("Running ExecutePreprocessor...")
-    ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
-    
-    with open(notebook_out_path, 'r', encoding='utf-8') as f:
-        nb_loaded = nbf.read(f, as_version=4)
+    # ----- PASS 2: read the real output back, then rewrite the explanation -----
+    with open(notebook_out_path, "r", encoding="utf-8") as f:
+        nb_executed = nbf.read(f, as_version=4)
 
-    ep.preprocess(nb_loaded, {'metadata': {'path': os.path.dirname(notebook_out_path)}})
+    real_stdout = _extract_stdout(nb_executed, profiling_cell_index)
+    # real_stdout now literally contains lines like:
+    #   "Output shape: [2, 4, 8]"
+    #   "Tensor Contiguous check: True"
+    #   "Execution Latency: 0.1234 ms"
+    # Parse/copy the exact values out of it -- never guess or restate them abstractly.
+    lines = [ln for ln in real_stdout.splitlines() if ln.strip()]
+    quoted_lines = "\n".join(f"  `{ln}`" for ln in lines)
 
-    # Save executed output
-    with open(notebook_out_path, 'w', encoding='utf-8') as f:
-        nbf.write(nb_loaded, f)
-    print(f"Notebook executed and serialized successfully: {notebook_out_path}")
+    nb_executed["cells"][explanation_cell_index]["source"] = (
+        "### Output Explanation: Tensor Profile\n"
+        f"- **Real printed output from this run:**\n{quoted_lines}\n"
+        "- **Dimension flow**: the shape line above shows the actual output shape produced by "
+        "`torch.matmul(x, w)` on this run's random seed -- quoted directly, not assumed from the code.\n"
+        "- **Contiguity and latency are the literal measured values above**, not restated generically -- "
+        "if a future run prints different latency or a different device line, this explanation must be "
+        "regenerated from that new output, not left as-is."
+    )
+
+    with open(notebook_out_path, "w", encoding="utf-8") as f:
+        nbf.write(nb_executed, f)
+    print(f"Pass 2 complete: explanation cell rewritten from real output: {notebook_out_path}")
+
 
 if __name__ == "__main__":
-    # Test execution in current workspace directory
     test_ipynb = os.path.abspath("./test_sample_execution.ipynb")
     try:
         generate_and_execute_notebook(test_ipynb)

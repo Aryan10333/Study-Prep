@@ -11,7 +11,7 @@ This skill defines the standardized pedagogy, formatting, and mathematical conve
 
 ## 0. Pre-Flight Checkpoint: Implementation Plan
 
-Before writing any raw Markdown study guide chapters, the agent **MUST** generate a detailed `implementation_plan.md` artifact detailing:
+Before writing any raw Markdown study guide chapters, the agent **MUST** generate a detailed `implementation_plans/implementation_plan_study_guide.md` artifact (in the topic's `implementation_plans/` subfolder, created if it does not yet exist) detailing:
 1.  The list of modules/chapters to create with their target file paths.
 2.  The exact mathematical formulas to be retained and their planned step-by-step hand calculations.
 3.  The visual diagrams and premium plots to be generated or saved locally.
@@ -93,7 +93,9 @@ Consistently use standard variable denotations across all sections:
 
 * Do not use raw ASCII flowcharts or Mermaid code blocks (they render unreliably in compiler/PDF tools).
 * Construct visual diagrams using **responsive inline SVG** (`viewBox="0 0 W H" width="100%" height="auto"`) or **styled HTML flexbox containers** (`max-width: 100%; overflow-x: auto;`).
+* **Never put `$...$`-delimited LaTeX inside an SVG `<text>` element — confirmed in practice to render as silently missing content, not visible broken text.** The compiler's KaTeX auto-render pass walks the whole document body and finds the `$` delimiters inside SVG text nodes same as anywhere else, but KaTeX's output is HTML (`<span>` elements), which cannot be inserted as a child of an SVG `<text>` node — the browser drops it, leaving a blank gap exactly where the math should be (e.g. a label reading "estimates $\hat{A}_t$" renders as "estimates )" with the math silently gone). Use plain Unicode characters/HTML entities instead (`&#952;` = θ, `&#955;` = λ, `&#960;` = π, `&#8722;` = −, `&#215;` = ×) with underscore notation for subscripts (`&#952;_base` reading as "θ_base") — this is the same "no raw LaTeX in SVG/HTML labels" rule as the `w<sub>t-1</sub>` guidance above, stated with the concrete failure mode so it's clear *why* it matters, not just that it's a style preference.
 * Use HTML subscript/superscript tags inside SVG/HTML labels (`w<sub>t-1</sub>`) rather than raw LaTeX syntax.
+* **After writing any inline SVG diagram, actually render and view it** (e.g. extract the `<svg>` block into a standalone HTML file and screenshot it) before considering the module complete — box/title collisions and off-canvas stray paths are easy to introduce with hand-computed coordinates and are not visible from reading the SVG source alone. This is the same discipline required for matplotlib diagrams in Section 6, point 7, extended to inline SVG.
 
 ---
 
