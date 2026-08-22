@@ -4,7 +4,7 @@
 
 ## 1. Evolution of NLP (Q1–Q4)
 
-### Question 1: Why did Transformers replace RNNs and LSTMs?
+## Question 1: Why did Transformers replace RNNs and LSTMs?
 
 ### [ESSENTIAL]
 
@@ -32,9 +32,8 @@ In an LSTM, the distance between token $1$ and token $L$ is $L$ steps, making gr
 RNNs cannot saturate modern GPU Tensor Cores because sequential execution is memory-bandwidth bound (constantly loading weights to process a single token). Transformers pack sequences into large matrices, shifting the workload to be compute-bound during training, which yields orders-of-magnitude higher training throughput (TFLOPS).
 
 #### Common Mistakes
-*   **Common Mistakes**: 
-    1. Stating that Transformers are faster at inference. In autoregressive decoding, generation is still sequential (token-by-token) and memory-bandwidth bound.
-    2. Thinking Transformers have shorter training sequences than RNNs. They process much longer sequences due to parallelization.
+1. Stating that Transformers are faster at inference. In autoregressive decoding, generation is still sequential (token-by-token) and memory-bandwidth bound.
+2. Thinking Transformers have shorter training sequences than RNNs. They process much longer sequences due to parallelization.
 
 #### Common Follow-up Questions
 1.  **Q: If self-attention is parallel, how do we preserve word order?**
@@ -47,7 +46,7 @@ RNNs cannot saturate modern GPU Tensor Cores because sequential execution is mem
 
 ---
 
-### Question 2: What are the limitations of RNNs and Seq2Seq models?
+## Question 2: What are the limitations of RNNs and Seq2Seq models?
 
 ### [ESSENTIAL]
 
@@ -75,9 +74,8 @@ This mapping is constant. As sequence length $L \to \infty$, the representation 
 Because traditional Seq2Seq models are bound by $O(L)$ recurrence loops, they cannot scale to modern pre-training datasets (trillions of tokens). Training a 7B parameter RNN Seq2Seq model from scratch would take months longer than a Transformer equivalent due to poor GPU core saturation.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Conflating Seq2Seq with Encoder-Decoder. Seq2Seq is the task framework (mapping input to output sequence); Encoder-Decoder is a specific neural architecture that implements it.
-    2. Thinking LSTMs have no memory retention. They improve on vanilla RNNs but still decay over long contexts.
+1. Conflating Seq2Seq with Encoder-Decoder. Seq2Seq is the task framework (mapping input to output sequence); Encoder-Decoder is a specific neural architecture that implements it.
+2. Thinking LSTMs have no memory retention. They improve on vanilla RNNs but still decay over long contexts.
 
 #### Common Follow-up Questions
 1.  **Q: How did early Seq2Seq models try to resolve the bottleneck?**
@@ -90,7 +88,7 @@ Because traditional Seq2Seq models are bound by $O(L)$ recurrence loops, they ca
 
 ---
 
-### Question 3: Compare Word2Vec, GloVe, and FastText.
+## Question 3: Compare Word2Vec, GloVe, and FastText.
 
 ### [ESSENTIAL]
 
@@ -118,9 +116,8 @@ This allows the representation space to share parameters across words with share
 All three models output **static embeddings**—each word has a single fixed vector. If a word has multiple meanings (e.g., *"bank"* as a river bank vs. money bank), these models average the vectors, causing semantic conflation. This requires modern contextual models (BERT/GPT) that compute embeddings dynamically.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking GloVe is a deep neural network. It is a log-bilinear matrix factorization model based on count statistics.
-    2. Using Word2Vec for character-level tasks. Word2Vec operates strictly at the word level.
+1. Thinking GloVe is a deep neural network. It is a log-bilinear matrix factorization model based on count statistics.
+2. Using Word2Vec for character-level tasks. Word2Vec operates strictly at the word level.
 
 #### Common Follow-up Questions
 1.  **Q: Why is CBOW faster than Skip-gram?**
@@ -133,7 +130,7 @@ All three models output **static embeddings**—each word has a single fixed vec
 
 ---
 
-### Question 4: Why was the Attention mechanism introduced?
+## Question 4: Why was the Attention mechanism introduced?
 
 ### [ESSENTIAL]
 
@@ -161,9 +158,8 @@ This replaces the static mapping $c = h_L$ with a dynamically routed representat
 Attention adds a computational layer: at every decoding step, we must calculate pairwise dot products against all encoder hidden states. This scales as $O(L_{\text{dec}} \times L_{\text{enc}})$, which is memory-intensive and increases latency for long documents.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking attention was invented for the Transformer. Attention was originally developed to improve RNN-based Seq2Seq models.
-    2. Believing attention weights represent actual causality. They represent correlation and routing patterns, not mathematical causal proofs.
+1. Thinking attention was invented for the Transformer. Attention was originally developed to improve RNN-based Seq2Seq models.
+2. Believing attention weights represent actual causality. They represent correlation and routing patterns, not mathematical causal proofs.
 
 #### Common Follow-up Questions
 1.  **Q: What is the difference between global and local attention?**
@@ -178,7 +174,7 @@ Attention adds a computational layer: at every decoding step, we must calculate 
 
 ## 2. Transformer Architecture (Q5–Q12)
 
-### Question 5: Explain the Transformer architecture.
+## Question 5: Explain the Transformer architecture.
 
 ### [ESSENTIAL]
 
@@ -209,9 +205,8 @@ $$\text{Cross\_Attn} = \text{softmax}\left(\frac{Q_{\text{dec}} K_{\text{enc}}^T
 The lack of recurrence makes training highly parallel, but storing layer activations for the backward pass requires massive GPU VRAM. In production, training pipelines use **gradient checkpointing** to recompute activations on the fly, trading compute for a smaller VRAM footprint.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking modern LLMs use the original encoder-decoder layout. Most modern LLMs (GPT, Llama) are decoder-only.
-    2. Forgetting that positional encodings are added to the input; without them, the architecture is completely bag-of-words.
+1. Thinking modern LLMs use the original encoder-decoder layout. Most modern LLMs (GPT, Llama) are decoder-only.
+2. Forgetting that positional encodings are added to the input; without them, the architecture is completely bag-of-words.
 
 #### Common Follow-up Questions
 1.  **Q: Why does the decoder need masked self-attention?**
@@ -224,7 +219,7 @@ The lack of recurrence makes training highly parallel, but storing layer activat
 
 ---
 
-### Question 6: Compare Encoder-only, Decoder-only, and Encoder-Decoder models.
+## Question 6: Compare Encoder-only, Decoder-only, and Encoder-Decoder models.
 
 ### [ESSENTIAL]
 
@@ -256,9 +251,8 @@ The lack of recurrence makes training highly parallel, but storing layer activat
 Decoder-only models are highly versatile and dominate general assistant tasks, but their inference is slow and memory-bandwidth bound. Encoder-only models run in a single forward pass, making them cheap and fast for classification or search pipelines.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking encoder-only models are good at text generation. They cannot generate text autoregressively.
-    2. Forgetting that encoder-decoder models require separate KV Caches for both the self-attention and cross-attention blocks.
+1. Thinking encoder-only models are good at text generation. They cannot generate text autoregressively.
+2. Forgetting that encoder-decoder models require separate KV Caches for both the self-attention and cross-attention blocks.
 
 #### Common Follow-up Questions
 1.  **Q: Why did decoder-only architectures win the scaling race?**
@@ -271,7 +265,7 @@ Decoder-only models are highly versatile and dominate general assistant tasks, b
 
 ---
 
-### Question 7: Why does GPT use only the decoder?
+## Question 7: Why does GPT use only the decoder?
 
 ### [ESSENTIAL]
 
@@ -299,9 +293,8 @@ By removing the separate encoder, the model does not require cross-attention lay
 Because the prompt context is ingested causally, early prompt tokens cannot attend to later prompt tokens during the prefill phase. This makes decoder-only models slightly less sample-efficient at understanding tasks compared to bidirectional encoders of the same parameter size.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Assuming GPT decoders are identical to original Transformer decoders. GPT decoders completely remove the cross-attention layer since there is no encoder.
-    2. Thinking causal masking is disabled during prompt ingestion. The mask is always active to keep training and inference consistent.
+1. Assuming GPT decoders are identical to original Transformer decoders. GPT decoders completely remove the cross-attention layer since there is no encoder.
+2. Thinking causal masking is disabled during prompt ingestion. The mask is always active to keep training and inference consistent.
 
 #### Common Follow-up Questions
 1.  **Q: What is the main serving benefit of decoder-only models?**
@@ -314,7 +307,7 @@ Because the prompt context is ingested causally, early prompt tokens cannot atte
 
 ---
 
-### Question 8: Explain the role of Feed Forward Networks (FFNs).
+## Question 8: Explain the role of Feed Forward Networks (FFNs).
 
 ### [ESSENTIAL]
 
@@ -342,9 +335,8 @@ Complexity scales linearly with sequence length: $O(L \cdot d_{\text{model}} \cd
 Because FFNs are position-wise, they are compute-bound matrix multiplications (GEMMs). They achieve high hardware utilization on GPU Tensor Cores, making them highly FLOPS-efficient compared to memory-bound attention layers.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking FFNs share information across different tokens. FFNs process each token position independently; cross-token interaction occurs only in the attention layers.
-    2. Assuming FFN parameters change across positions. The same weights $W_1, W_2$ are applied to all token positions within a layer.
+1. Thinking FFNs share information across different tokens. FFNs process each token position independently; cross-token interaction occurs only in the attention layers.
+2. Assuming FFN parameters change across positions. The same weights $W_1, W_2$ are applied to all token positions within a layer.
 
 #### Common Follow-up Questions
 1.  **Q: Why does the intermediate dimension scale to $4d$?**
@@ -357,7 +349,7 @@ Because FFNs are position-wise, they are compute-bound matrix multiplications (G
 
 ---
 
-### Question 9: Why are Residual Connections important?
+## Question 9: Why are Residual Connections important?
 
 ### [ESSENTIAL]
 
@@ -387,9 +379,8 @@ This constant $1$ prevents the gradient from vanishing to zero, regardless of de
 Residual connections require keeping the input activation $x$ in GPU VRAM during the forward pass of the block $F(x)$, because we need $x$ to perform the final addition. This increases the activation memory footprint, limiting batch sizes during training.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking residual connections reduce computational complexity. They add no compute, but they increase VRAM allocation for activations.
-    2. Believing gradients flow only through the layer function. Gradients flow primarily through the identity shortcut path.
+1. Thinking residual connections reduce computational complexity. They add no compute, but they increase VRAM allocation for activations.
+2. Believing gradients flow only through the layer function. Gradients flow primarily through the identity shortcut path.
 
 #### Common Follow-up Questions
 1.  **Q: What is the impact of residual connections on feature scaling?**
@@ -402,7 +393,7 @@ Residual connections require keeping the input activation $x$ in GPU VRAM during
 
 ---
 
-### Question 10: LayerNorm vs RMSNorm.
+## Question 10: LayerNorm vs RMSNorm.
 
 ### [ESSENTIAL]
 
@@ -438,9 +429,8 @@ Residual connections require keeping the input activation $x$ in GPU VRAM during
 Normalization is memory-bandwidth bound on GPUs (reading/writing to HBM). Removing the mean-centering step halves the memory reads needed for reduction, improving throughput by up to 10% on normalization-dense architectures.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking RMSNorm has fewer scale parameters. Both use the same size learnable scale parameter $\gamma$; RMSNorm simply removes the learnable bias parameter $\beta$.
-    2. Believing RMSNorm degrades model convergence. Empirical tests show convergence behavior is virtually identical.
+1. Thinking RMSNorm has fewer scale parameters. Both use the same size learnable scale parameter $\gamma$; RMSNorm simply removes the learnable bias parameter $\beta$.
+2. Believing RMSNorm degrades model convergence. Empirical tests show convergence behavior is virtually identical.
 
 #### Common Follow-up Questions
 1.  **Q: Why is mean centering unnecessary?**
@@ -453,7 +443,7 @@ Normalization is memory-bandwidth bound on GPUs (reading/writing to HBM). Removi
 
 ---
 
-### Question 11: Pre-LN vs Post-LN Transformers.
+## Question 11: Pre-LN vs Post-LN Transformers.
 
 ### [ESSENTIAL]
 
@@ -486,9 +476,8 @@ Normalization is memory-bandwidth bound on GPUs (reading/writing to HBM). Removi
 Because activations accumulate along the unnormalized residual path in Pre-LN, the scale of hidden states grows with depth. We must add a final normalization block right before the output projection head to prevent activation explosion.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking Pre-LN has different parameter counts. The block parameters are identical; only the layout configuration changes.
-    2. Assuming Pre-LN completely eliminates the need for learning rate schedules. You still need cosine decay, but you can skip or drastically shorten the warmup phase.
+1. Thinking Pre-LN has different parameter counts. The block parameters are identical; only the layout configuration changes.
+2. Assuming Pre-LN completely eliminates the need for learning rate schedules. You still need cosine decay, but you can skip or drastically shorten the warmup phase.
 
 #### Common Follow-up Questions
 1.  **Q: Why was Post-LN used in the original paper if Pre-LN is better?**
@@ -501,7 +490,7 @@ Because activations accumulate along the unnormalized residual path in Pre-LN, t
 
 ---
 
-### Question 12: Why do modern LLMs use GELU/SwiGLU instead of ReLU?
+## Question 12: Why do modern LLMs use GELU/SwiGLU instead of ReLU?
 
 ### [ESSENTIAL]
 
@@ -533,9 +522,8 @@ Because activations accumulate along the unnormalized residual path in Pre-LN, t
 SwiGLU requires three projection matrices ($W_{\text{gate}}$, $W_{\text{value}}$, $W_{\text{down}}$) instead of two. To keep the parameter count equivalent to standard FFNs, we reduce the intermediate projection size: $d_{\text{ffn}} \approx \frac{8}{3} d_{\text{model}}$ (instead of $4d_{\text{model}}$).
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Forgetting that SwiGLU requires more parameters if the intermediate dimension is not downscaled.
-    2. Thinking SwiGLU adds compute layers. It increases parameter footprint, but the computations remain highly efficient on GPU Tensor Cores.
+1. Forgetting that SwiGLU requires more parameters if the intermediate dimension is not downscaled.
+2. Thinking SwiGLU adds compute layers. It increases parameter footprint, but the computations remain highly efficient on GPU Tensor Cores.
 
 #### Common Follow-up Questions
 1.  **Q: What does the 'GLU' in SwiGLU stand for?**
@@ -550,7 +538,7 @@ SwiGLU requires three projection matrices ($W_{\text{gate}}$, $W_{\text{value}}$
 
 ## 3. Attention Mechanisms (Q13–Q22)
 
-### Question 13: Explain Self-Attention.
+## Question 13: Explain Self-Attention.
 
 ### [ESSENTIAL]
 
@@ -578,9 +566,8 @@ The dot product $Q K^T$ generates an $L \times L$ similarity matrix. The softmax
 The $L \times L$ similarity matrix creates an $O(L^2)$ computational and memory bottleneck. For a sequence length $L = 100,000$, just storing a single layer's attention scores requires massive GPU memory allocation, making context scaling the primary serving bottleneck.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking self-attention itself has learnable parameters. The attention routing is parameter-free; the learnable weights reside in the projection matrices $W_q, W_k, W_v, W_o$.
-    2. Assuming self-attention operates sequentially. It is fully parallelized via matrix-matrix multiplication.
+1. Thinking self-attention itself has learnable parameters. The attention routing is parameter-free; the learnable weights reside in the projection matrices $W_q, W_k, W_v, W_o$.
+2. Assuming self-attention operates sequentially. It is fully parallelized via matrix-matrix multiplication.
 
 #### Common Follow-up Questions
 1.  **Q: What is the computational complexity of self-attention?**
@@ -593,7 +580,7 @@ The $L \times L$ similarity matrix creates an $O(L^2)$ computational and memory 
 
 ---
 
-### Question 14: What are Query, Key, and Value?
+## Question 14: What are Query, Key, and Value?
 
 ### [ESSENTIAL]
 
@@ -624,9 +611,8 @@ $$z_i = \sum_j \text{softmax}(\text{score}_{i,:})_j v_j$$
 In multi-head attention, the hidden dimension $d_{\text{model}}$ is split across $h$ heads, meaning the size of individual $Q, K, V$ vectors is $d_k = d_{\text{model}}/h$. This keeps computation constant compared to single-head attention while increasing representation diversity.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking $Q, K, V$ are static lookups. They are computed dynamically at every layer from the preceding layer's output.
-    2. Confusing the Key and the Value. Keys are used to calculate the similarity scores; Values represent the actual content being mixed.
+1. Thinking $Q, K, V$ are static lookups. They are computed dynamically at every layer from the preceding layer's output.
+2. Confusing the Key and the Value. Keys are used to calculate the similarity scores; Values represent the actual content being mixed.
 
 #### Common Follow-up Questions
 1.  **Q: Can we set $Q$, $K$, and $V$ to be identical to the input $X$?**
@@ -639,7 +625,7 @@ In multi-head attention, the hidden dimension $d_{\text{model}}$ is split across
 
 ---
 
-### Question 15: Why divide attention scores by √d?
+## Question 15: Why divide attention scores by √d?
 
 ### [ESSENTIAL]
 
@@ -668,9 +654,8 @@ $$\text{Var}\left(\frac{q \cdot k}{\sqrt{d_k}}\right) = 1.0$$
 Without scaling, gradients flowing through the softmax layers vanish, causing training runs to diverge early.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Saying division is used to normalize the scores between 0 and 1. Softmax handles the 0-1 normalization; $\sqrt{d_k}$ controls the variance of the inputs to softmax.
-    2. Thinking $d$ is the sequence length. $d_k$ is the projection dimension of the attention head.
+1. Saying division is used to normalize the scores between 0 and 1. Softmax handles the 0-1 normalization; $\sqrt{d_k}$ controls the variance of the inputs to softmax.
+2. Thinking $d$ is the sequence length. $d_k$ is the projection dimension of the attention head.
 
 #### Common Follow-up Questions
 1.  **Q: Are there other scaling methods?**
@@ -683,7 +668,7 @@ Without scaling, gradients flowing through the softmax layers vanish, causing tr
 
 ---
 
-### Question 16: Explain Causal Masking.
+## Question 16: Explain Causal Masking.
 
 ### [ESSENTIAL]
 
@@ -712,9 +697,8 @@ Softmax evaluated on $-\infty$ yields $0$, forcing the attention weights for fut
 During training, causal masking allows parallel processing of the entire sequence (we calculate all sequence losses in a single forward pass). During inference, we generate one token at a time, making the causal mask redundant beyond the active sequence limit, which is optimized using KV Caches.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking causal masking is applied after softmax. The mask must be applied before softmax (by setting scores to $-\infty$), otherwise weights would not sum to 1.0 over valid tokens.
-    2. Using causal masking in encoders. Encoders should look bidirectionally; causal masking is reserved for autoregressive decoders.
+1. Thinking causal masking is applied after softmax. The mask must be applied before softmax (by setting scores to $-\infty$), otherwise weights would not sum to 1.0 over valid tokens.
+2. Using causal masking in encoders. Encoders should look bidirectionally; causal masking is reserved for autoregressive decoders.
 
 #### Common Follow-up Questions
 1.  **Q: Can we use causal masking in encoders?**
@@ -727,7 +711,7 @@ During training, causal masking allows parallel processing of the entire sequenc
 
 ---
 
-### Question 17: Why is Self-Attention O(n²)?
+## Question 17: Why is Self-Attention O(n²)?
 
 ### [ESSENTIAL]
 
@@ -757,9 +741,8 @@ where $h$ is the number of heads. As sequence length $L$ grows larger than the h
 For $L = 100,000$ and $d = 4096$, the raw attention matrix size is $10^9$ elements. At float16 precision, just storing a single layer's attention scores requires **20 GB** of GPU VRAM, making long context inference extremely memory-intensive.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Stating that FFN layers scale quadratically. FFNs process tokens independently, meaning they scale linearly ($O(L)$) with sequence length.
-    2. Thinking that only compute is quadratic. The VRAM memory footprint for storing activations is also $O(L^2)$, which is often the harder bottleneck.
+1. Stating that FFN layers scale quadratically. FFNs process tokens independently, meaning they scale linearly ($O(L)$) with sequence length.
+2. Thinking that only compute is quadratic. The VRAM memory footprint for storing activations is also $O(L^2)$, which is often the harder bottleneck.
 
 #### Common Follow-up Questions
 1.  **Q: What are linear attention alternatives?**
@@ -772,7 +755,7 @@ For $L = 100,000$ and $d = 4096$, the raw attention matrix size is $10^9$ elemen
 
 ---
 
-### Question 18: Explain Multi-Head Attention.
+## Question 18: Explain Multi-Head Attention.
 
 ### [ESSENTIAL]
 
@@ -802,9 +785,8 @@ $$W_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}, \quad W^O \in \mathbb{R}^{
 Splitting shapes to `[B, h, L, d_k]` allows batched matrix multiplications using efficient GPU libraries.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking MHA performs $h$ times more computations than single-head attention. Because individual head dimensions are scaled down ($d_k = d_{\text{model}}/h$), total FLOPs remain equivalent.
-    2. Assuming all heads capture the same features. Each head is initialized randomly, causing them to specialize in different linguistic patterns.
+1. Thinking MHA performs $h$ times more computations than single-head attention. Because individual head dimensions are scaled down ($d_k = d_{\text{model}}/h$), total FLOPs remain equivalent.
+2. Assuming all heads capture the same features. Each head is initialized randomly, causing them to specialize in different linguistic patterns.
 
 #### Common Follow-up Questions
 1.  **Q: Does increasing head count $h$ always improve performance?**
@@ -817,7 +799,7 @@ Splitting shapes to `[B, h, L, d_k]` allows batched matrix multiplications using
 
 ---
 
-### Question 19: What does each attention head learn?
+## Question 19: What does each attention head learn?
 
 ### [ESSENTIAL]
 
@@ -845,9 +827,8 @@ A low entropy head behaves like a pointer (focusing on a single token, e.g., the
 Because some heads learn redundant mappings or have high similarity, serving systems can prune inactive or redundant heads after training without significant loss in accuracy.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Assuming we explicitly guide heads during training. Head specialization emerges naturally from random initialization and gradient descent.
-    2. Thinking all heads are equally important. Pruning studies show that many heads can be removed at inference time without impacting output quality.
+1. Assuming we explicitly guide heads during training. Head specialization emerges naturally from random initialization and gradient descent.
+2. Thinking all heads are equally important. Pruning studies show that many heads can be removed at inference time without impacting output quality.
 
 #### Common Follow-up Questions
 1.  **Q: What are "induction heads"?**
@@ -860,7 +841,7 @@ Because some heads learn redundant mappings or have high similarity, serving sys
 
 ---
 
-### Question 20: Self-Attention vs Cross-Attention.
+## Question 20: Self-Attention vs Cross-Attention.
 
 ### [ESSENTIAL]
 
@@ -893,9 +874,8 @@ Because some heads learn redundant mappings or have high similarity, serving sys
 In self-attention, keys and values change with every generated token, requiring step-by-step caching updates. In cross-attention, the encoder outputs are static once computed, meaning the cross-attention keys and values do not change during decoding, saving compute memory updates.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking cross-attention uses causal masking. Cross-attention does not use causal masking because it maps to static encoder states that are fully computed in advance.
-    2. Assuming decoder-only models use cross-attention. Decoder-only models have no encoder, so they use self-attention exclusively.
+1. Thinking cross-attention uses causal masking. Cross-attention does not use causal masking because it maps to static encoder states that are fully computed in advance.
+2. Assuming decoder-only models use cross-attention. Decoder-only models have no encoder, so they use self-attention exclusively.
 
 #### Common Follow-up Questions
 1.  **Q: Why do decoder-only models omit cross-attention?**
@@ -908,7 +888,7 @@ In self-attention, keys and values change with every generated token, requiring 
 
 ---
 
-### Question 21: What is FlashAttention, and why is it faster?
+## Question 21: What is FlashAttention, and why is it faster?
 
 ### [ESSENTIAL]
 
@@ -936,9 +916,8 @@ $$s^{\text{new}} = s^{(1)} e^{m^{(1)} - m^{\text{new}}} + s^{(2)} e^{m^{(2)} - m
 FlashAttention yields a 2x to 4x speedup in training and inference without any approximation or loss in model accuracy. It enables context lengths to scale to 32k or higher on standard GPU hardware.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking FlashAttention is an approximate attention method (like local or sparse attention). FlashAttention is mathematically identical to standard attention, yielding the exact same outputs.
-    2. Believing FlashAttention reduces the number of operations (FLOPs). It actually computes the same (or slightly more) FLOPs, but runs faster by optimizing memory access.
+1. Thinking FlashAttention is an approximate attention method (like local or sparse attention). FlashAttention is mathematically identical to standard attention, yielding the exact same outputs.
+2. Believing FlashAttention reduces the number of operations (FLOPs). It actually computes the same (or slightly more) FLOPs, but runs faster by optimizing memory access.
 
 #### Common Follow-up Questions
 1.  **Q: What is the main difference in FlashAttention-2?**
@@ -951,7 +930,7 @@ FlashAttention yields a 2x to 4x speedup in training and inference without any a
 
 ---
 
-### Question 22: Why does FlashAttention perform more FLOPs in the backward pass yet runs faster?
+## Question 22: Why does FlashAttention perform more FLOPs in the backward pass yet runs faster?
 
 ### [ESSENTIAL]
 
@@ -977,9 +956,8 @@ Modern GPUs (A100, H100) have extremely high compute capacity (~312 TFLOPS) but 
 By not storing the intermediate $L \times L$ attention matrix, FlashAttention reduces activation memory scaling from quadratic $O(L^2)$ to linear $O(L)$, allowing models to train with much larger batch sizes and sequence lengths.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking FlashAttention performs more FLOPs in the forward pass. In the forward pass, it performs the same FLOPs but reduces memory IO; only the backward pass adds FLOPs due to recomputation.
-    2. Believing this recomputation degrades model accuracy. The recomputation is mathematically exact, so gradients remain identical.
+1. Thinking FlashAttention performs more FLOPs in the forward pass. In the forward pass, it performs the same FLOPs but reduces memory IO; only the backward pass adds FLOPs due to recomputation.
+2. Believing this recomputation degrades model accuracy. The recomputation is mathematically exact, so gradients remain identical.
 
 #### Common Follow-up Questions
 1.  **Q: Is this trade-off related to gradient checkpointing?**
@@ -994,7 +972,7 @@ By not storing the intermediate $L \times L$ attention matrix, FlashAttention re
 
 ## 4. Positional Encoding (Q23–Q25)
 
-### Question 23: Why do Transformers need positional information?
+## Question 23: Why do Transformers need positional information?
 
 ### [ESSENTIAL]
 
@@ -1022,9 +1000,8 @@ The representations themselves do not change based on sequence location; they ar
 Absolute positional encodings are added once at the input embedding layer, which is computationally cheap. However, they limit the model to a fixed context length during training; the model has no parameters or references to process position indices larger than those seen during training.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking positional encodings are learned weights added to the attention matrix directly. Standard absolute encodings are added once to input token vectors.
-    2. Assuming the model automatically learns word order through causal masking. Causal masking restricts attention to past tokens but does not assign coordinate index values to those past positions.
+1. Thinking positional encodings are learned weights added to the attention matrix directly. Standard absolute encodings are added once to input token vectors.
+2. Assuming the model automatically learns word order through causal masking. Causal masking restricts attention to past tokens but does not assign coordinate index values to those past positions.
 
 #### Common Follow-up Questions
 1.  **Q: Why not use a sequential RNN input layer to capture order?**
@@ -1037,7 +1014,7 @@ Absolute positional encodings are added once at the input embedding layer, which
 
 ---
 
-### Question 24: Explain Rotary Positional Embeddings (RoPE).
+## Question 24: Explain Rotary Positional Embeddings (RoPE).
 
 ### [ESSENTIAL]
 
@@ -1069,9 +1046,8 @@ $$x_{\text{rotated}} = x \odot \cos(m\Theta) + \text{rotate\_half}(x) \odot \sin
 where `rotate_half` swaps and negates vector halves, saving memory bandwidth.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking RoPE is applied to Value ($V$) vectors. RoPE is applied only to Queries ($Q$) and Keys ($K$) to calculate attention weights; Values ($V$) are left unrotated.
-    2. Believing RoPE is a static additive embedding. It is a multiplicative rotation applied at every attention layer.
+1. Thinking RoPE is applied to Value ($V$) vectors. RoPE is applied only to Queries ($Q$) and Keys ($K$) to calculate attention weights; Values ($V$) are left unrotated.
+2. Believing RoPE is a static additive embedding. It is a multiplicative rotation applied at every attention layer.
 
 #### Common Follow-up Questions
 1.  **Q: What is NTK-aware scaling for RoPE?**
@@ -1084,7 +1060,7 @@ where `rotate_half` swaps and negates vector halves, saving memory bandwidth.
 
 ---
 
-### Question 25: Compare Sinusoidal Encoding, Learned Embeddings, RoPE, and ALiBi.
+## Question 25: Compare Sinusoidal Encoding, Learned Embeddings, RoPE, and ALiBi.
 
 ### [ESSENTIAL]
 
@@ -1124,9 +1100,8 @@ where $m$ is a constant slope hyperparameter determined per attention head.
 ALiBi is simple and fast, but its linear penalty can over-penalize long-range dependencies, causing the model to ignore distant tokens even when they are highly relevant. RoPE, combined with NTK frequency scaling, has become the dominant industry standard due to its flexibility.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking RoPE adds parameters. Like sinusoidal encoding, RoPE's rotation frequencies are mathematically pre-computed and do not add parameters.
-    2. Assuming ALiBi modifies query-key projection weights. It adds a static bias matrix directly to the attention logits.
+1. Thinking RoPE adds parameters. Like sinusoidal encoding, RoPE's rotation frequencies are mathematically pre-computed and do not add parameters.
+2. Assuming ALiBi modifies query-key projection weights. It adds a static bias matrix directly to the attention logits.
 
 #### Common Follow-up Questions
 1.  **Q: Why does ALiBi extrapolate so well?**
@@ -1141,7 +1116,7 @@ ALiBi is simple and fast, but its linear penalty can over-penalize long-range de
 
 ## 5. Tokenization & Embeddings (Q26–Q30)
 
-### Question 26: Explain Byte Pair Encoding (BPE).
+## Question 26: Explain Byte Pair Encoding (BPE).
 
 ### [ESSENTIAL]
 
@@ -1171,9 +1146,8 @@ We merge this pair globally across the corpus, add it to our vocabulary, and rep
 A larger vocabulary size reduces sequence token lengths (which saves compute during inference), but increases the embedding layer's parameter footprint and memory usage.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Believing BPE requires training a neural network. BPE is a deterministic statistical algorithm based purely on co-occurrence frequency counts in text.
-    2. Thinking BPE runs on characters only. Modern LLMs use Byte-level BPE, which operates on raw UTF-8 bytes to handle foreign characters and emojis.
+1. Believing BPE requires training a neural network. BPE is a deterministic statistical algorithm based purely on co-occurrence frequency counts in text.
+2. Thinking BPE runs on characters only. Modern LLMs use Byte-level BPE, which operates on raw UTF-8 bytes to handle foreign characters and emojis.
 
 #### Common Follow-up Questions
 1.  **Q: How does BPE handle unseen words at test time?**
@@ -1186,7 +1160,7 @@ A larger vocabulary size reduces sequence token lengths (which saves compute dur
 
 ---
 
-### Question 27: Compare BPE, WordPiece, and SentencePiece.
+## Question 27: Compare BPE, WordPiece, and SentencePiece.
 
 ### [ESSENTIAL]
 
@@ -1221,9 +1195,8 @@ A larger vocabulary size reduces sequence token lengths (which saves compute dur
 In production, byte-fallback is crucial. If a user types a rare emoji or character, SentencePiece converts it to 4 byte tokens (`<0xF0><0x9F>...`). While this increases sequence length, it prevents system crashes or loss of semantic information.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking WordPiece and BPE are identical. BPE merges based on raw frequency counts; WordPiece merges by maximizing statistical likelihood under a probabilistic model.
-    2. Believing SentencePiece is an entirely new tokenization algorithm. SentencePiece is a software wrapper that implements BPE or Unigram on raw byte streams without pre-splitting text.
+1. Thinking WordPiece and BPE are identical. BPE merges based on raw frequency counts; WordPiece merges by maximizing statistical likelihood under a probabilistic model.
+2. Believing SentencePiece is an entirely new tokenization algorithm. SentencePiece is a software wrapper that implements BPE or Unigram on raw byte streams without pre-splitting text.
 
 #### Common Follow-up Questions
 1.  **Q: Why do modern decoders use SentencePiece over BPE?**
@@ -1236,7 +1209,7 @@ In production, byte-fallback is crucial. If a user types a rare emoji or charact
 
 ---
 
-### Question 28: Why does token count matter?
+## Question 28: Why does token count matter?
 
 ### [ESSENTIAL]
 
@@ -1267,9 +1240,8 @@ $$\text{Cost} = c_1 \cdot L_{\text{prompt}} + c_2 \cdot L_{\text{gen}}$$
 Increasing vocabulary size (e.g., from 32k to 128k in Llama-3) reduces sequence length by 15-20%, speeding up inference and reducing cost, but increases the static model parameter size in VRAM by hundreds of megabytes.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Assuming 1 token is always equivalent to 1 word. In English, 1 token is typically ~0.75 words, but this ratio changes significantly across languages.
-    2. Thinking characters and tokens scale linearly in all tokenizers. Emojis and code sequences scale differently based on tokenizer design.
+1. Assuming 1 token is always equivalent to 1 word. In English, 1 token is typically ~0.75 words, but this ratio changes significantly across languages.
+2. Thinking characters and tokens scale linearly in all tokenizers. Emojis and code sequences scale differently based on tokenizer design.
 
 #### Common Follow-up Questions
 1.  **Q: Why are API providers charging per token instead of per character?**
@@ -1282,7 +1254,7 @@ Increasing vocabulary size (e.g., from 32k to 128k in Llama-3) reduces sequence 
 
 ---
 
-### Question 29: What are contextual embeddings?
+## Question 29: What are contextual embeddings?
 
 ### [ESSENTIAL]
 
@@ -1310,9 +1282,8 @@ The vector $h_i^{(l)}$ at position $i$ contains information from all other posit
 Generating contextual embeddings requires running the full forward pass of the model, which is much slower and more compute-intensive than retrieving static vectors from a lookup table.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Confusing static input embeddings with contextual hidden state embeddings. Input embeddings are static lookups; hidden states are contextualized.
-    2. Thinking contextual embeddings are static after training. They change with every new prompt configuration.
+1. Confusing static input embeddings with contextual hidden state embeddings. Input embeddings are static lookups; hidden states are contextualized.
+2. Thinking contextual embeddings are static after training. They change with every new prompt configuration.
 
 #### Common Follow-up Questions
 1.  **Q: Which layers of an LLM provide the best contextual embeddings for search?**
@@ -1325,7 +1296,7 @@ Generating contextual embeddings requires running the full forward pass of the m
 
 ---
 
-### Question 30: Why is cosine similarity commonly used for embeddings?
+## Question 30: Why is cosine similarity commonly used for embeddings?
 
 ### [ESSENTIAL]
 
@@ -1354,9 +1325,8 @@ $$\text{CosineSimilarity}(A, B) = A \cdot B$$
 Computing cosine similarity on unnormalized vectors requires repeatedly calculating square roots for magnitudes ($\|A\|$), which degrades search speed. Unit-normalization is a mandatory pre-processing step for low-latency retrieval.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Believing cosine similarity is always superior to Euclidean distance. If vectors are unit-normalized, cosine similarity and Euclidean distance are monotonically equivalent, but Cosine similarity is faster to calculate.
-    2. Assuming cosine similarity maps to a true metric space distance. It does not satisfy the triangle inequality, which is why vector databases map it to angular distance for indexing.
+1. Believing cosine similarity is always superior to Euclidean distance. If vectors are unit-normalized, cosine similarity and Euclidean distance are monotonically equivalent, but Cosine similarity is faster to calculate.
+2. Assuming cosine similarity maps to a true metric space distance. It does not satisfy the triangle inequality, which is why vector databases map it to angular distance for indexing.
 
 #### Common Follow-up Questions
 1.  **Q: When would you use Dot Product instead of Cosine Similarity?**
@@ -1371,7 +1341,7 @@ Computing cosine similarity on unnormalized vectors requires repeatedly calculat
 
 ## 6. Training & Fine-Tuning (Q31–Q36)
 
-### Question 31: How is GPT trained using next-token prediction?
+## Question 31: How is GPT trained using next-token prediction?
 
 ### [ESSENTIAL]
 
@@ -1402,9 +1372,8 @@ For each token position, the final hidden state $h_i$ is multiplied by the trans
 The final classification layer has shape `[d_model, V]`. For Llama-3 ($d_{\text{model}} = 8192$, $V = 128k$), this projection contains **1 Billion parameters** (~2 GB at fp16), making it a major VRAM and memory-bandwidth consumer during training and inference.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Believing next-token prediction is run sequentially during training. Sequential generation only occurs at inference; training processes all tokens in parallel via causal masking.
-    2. Thinking the prompt doesn't calculate loss during pre-training. In pre-training, loss is calculated at every single token position.
+1. Believing next-token prediction is run sequentially during training. Sequential generation only occurs at inference; training processes all tokens in parallel via causal masking.
+2. Thinking the prompt doesn't calculate loss during pre-training. In pre-training, loss is calculated at every single token position.
 
 #### Common Follow-up Questions
 1.  **Q: What is weight tying?**
@@ -1417,7 +1386,7 @@ The final classification layer has shape `[d_model, V]`. For Llama-3 ($d_{\text{
 
 ---
 
-### Question 32: Explain Cross-Entropy Loss and Teacher Forcing.
+## Question 32: Explain Cross-Entropy Loss and Teacher Forcing.
 
 ### [ESSENTIAL]
 
@@ -1445,9 +1414,8 @@ Without Teacher Forcing, training would require sequential generation: we would 
 Because of the discrepancy between training (always getting true tokens) and inference (getting its own generated tokens), errors accumulate during decoding. This is known as **exposure bias** and is typically mitigated using reinforcement learning alignment (DPO/RLHF).
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking Teacher Forcing is used at inference. During inference, the ground truth is unavailable, so the model must feed its own predictions back as inputs.
-    2. Believing cross-entropy measures semantic similarity. It only measures exact word index matches; predicting a close synonym still yields high loss if it doesn't match the target vocabulary index.
+1. Thinking Teacher Forcing is used at inference. During inference, the ground truth is unavailable, so the model must feed its own predictions back as inputs.
+2. Believing cross-entropy measures semantic similarity. It only measures exact word index matches; predicting a close synonym still yields high loss if it doesn't match the target vocabulary index.
 
 #### Common Follow-up Questions
 1.  **Q: How does exposure bias impact long text generation?**
@@ -1460,7 +1428,7 @@ Because of the discrepancy between training (always getting true tokens) and inf
 
 ---
 
-### Question 33: Pretraining vs Fine-Tuning vs Instruction Tuning.
+## Question 33: Pretraining vs Fine-Tuning vs Instruction Tuning.
 
 ### [ESSENTIAL]
 
@@ -1492,9 +1460,8 @@ Because of the discrepancy between training (always getting true tokens) and inf
 Adapting models through full fine-tuning can trigger **catastrophic forgetting**, where the model loses general capabilities in exchange for task-specific performance. We mitigate this by mixing a small percentage of pre-training data into the tuning dataset.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking instruction tuning adds factual knowledge. Factual knowledge is primarily encoded during pre-training; instruction tuning teaches the model how to retrieve and format that knowledge.
-    2. Believing fine-tuning always requires updating all model weights. Modern pipelines use Parameter-Efficient Fine-Tuning (PEFT/LoRA) to update less than 1% of parameters.
+1. Thinking instruction tuning adds factual knowledge. Factual knowledge is primarily encoded during pre-training; instruction tuning teaches the model how to retrieve and format that knowledge.
+2. Believing fine-tuning always requires updating all model weights. Modern pipelines use Parameter-Efficient Fine-Tuning (PEFT/LoRA) to update less than 1% of parameters.
 
 #### Common Follow-up Questions
 1.  **Q: What is Catastrophic Forgetting?**
@@ -1507,7 +1474,7 @@ Adapting models through full fine-tuning can trigger **catastrophic forgetting**
 
 ---
 
-### Question 34: What is Supervised Fine-Tuning (SFT)?
+## Question 34: What is Supervised Fine-Tuning (SFT)?
 
 ### [ESSENTIAL]
 
@@ -1535,9 +1502,8 @@ The loss at positions $p_1$ to $p_k$ is explicitly zeroed out during backpropaga
 SFT model performance is highly sensitive to training data formatting. If your deployment system uses a different chat template (e.g. ChatML vs. Alpaca styles) than the one used during SFT, the model's output quality and safety boundaries can break in production.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Computing gradients on the user's prompt. This forces the model to learn to generate the user's questions, wasting capacity and degrading conversational quality.
-    2. Thinking SFT requires millions of examples. Modern instruction tuning focuses on high-quality, human-curated datasets (often fewer than 10,000 examples).
+1. Computing gradients on the user's prompt. This forces the model to learn to generate the user's questions, wasting capacity and degrading conversational quality.
+2. Thinking SFT requires millions of examples. Modern instruction tuning focuses on high-quality, human-curated datasets (often fewer than 10,000 examples).
 
 #### Common Follow-up Questions
 1.  **Q: What is the "alignment tax"?**
@@ -1550,7 +1516,7 @@ SFT model performance is highly sensitive to training data formatting. If your d
 
 ---
 
-### Question 35: What are RLHF and Direct Preference Optimization (DPO)?
+## Question 35: What are RLHF and Direct Preference Optimization (DPO)?
 
 ### [ESSENTIAL]
 
@@ -1578,9 +1544,8 @@ The hyperparameter $\beta$ controls the strength of the KL-divergence constraint
 RLHF (PPO) requires hosting 4 separate models in VRAM (Actor, Critic, Reward, Reference) during training, making it extremely memory-intensive. DPO only requires loading the active training policy $\pi_\theta$ and the frozen reference model $\pi_{\text{ref}}$, halving VRAM requirements.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking DPO is unsupervised. DPO requires labeled preference datasets containing chosen and rejected response pairs for every prompt.
-    2. Believing DPO completely eliminates reward models. It bypasses training one explicitly, but the mathematical loss function still implicitly models human reward.
+1. Thinking DPO is unsupervised. DPO requires labeled preference datasets containing chosen and rejected response pairs for every prompt.
+2. Believing DPO completely eliminates reward models. It bypasses training one explicitly, but the mathematical loss function still implicitly models human reward.
 
 #### Common Follow-up Questions
 1.  **Q: What is reward hacking?**
@@ -1593,7 +1558,7 @@ RLHF (PPO) requires hosting 4 separate models in VRAM (Actor, Critic, Reward, Re
 
 ---
 
-### Question 36: Why does scaling more data often outperform scaling more parameters (Chinchilla Scaling Laws)?
+## Question 36: Why does scaling more data often outperform scaling more parameters (Chinchilla Scaling Laws)?
 
 ### [ESSENTIAL]
 
@@ -1623,9 +1588,8 @@ Chinchilla empirical scaling showed $\alpha \approx 0.34$ and $\beta \approx 0.2
 Serving a model to millions of users means inference compute dominates total lifecycle costs. Over-training smaller models past the Chinchilla limit is standard practice because the high training compute cost is quickly amortized over serving queries.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking Chinchilla laws dictate how to get the highest quality model regardless of compute. Chinchilla laws strictly focus on maximizing training quality *under a fixed compute budget*.
-    2. Assuming token over-training has no limit. Eventually the model reaches its representation capacity ceiling, where training on more tokens yields diminishing returns.
+1. Thinking Chinchilla laws dictate how to get the highest quality model regardless of compute. Chinchilla laws strictly focus on maximizing training quality *under a fixed compute budget*.
+2. Assuming token over-training has no limit. Eventually the model reaches its representation capacity ceiling, where training on more tokens yields diminishing returns.
 
 #### Common Follow-up Questions
 1.  **Q: How many tokens are compute-optimal for a 7B model according to Chinchilla?**
@@ -1640,7 +1604,7 @@ Serving a model to millions of users means inference compute dominates total lif
 
 ## 7. Inference & Text Generation (Q37–Q43)
 
-### Question 37: Explain autoregressive text generation.
+## Question 37: Explain autoregressive text generation.
 
 ### [ESSENTIAL]
 
@@ -1670,9 +1634,8 @@ At step $t$, the decoder computes logits $z_t = f(\text{Prompt}, x_{1:t-1})$. We
 Because each token requires loading the entire model's weights from HBM to SRAM to perform simple vector-matrix math, decoding GPU utilization is extremely low. We optimize this using **continuous batching** and **quantization** to maximize serving throughput.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking the prompt ingestion (prefill) is also autoregressive. The prompt is ingested in parallel in a single forward pass; only subsequent generation is autoregressive.
-    2. Assuming decoding latency is compute-bound. Latency is limited by memory bandwidth (speed of loading weights to SRAM), not raw FLOPS.
+1. Thinking the prompt ingestion (prefill) is also autoregressive. The prompt is ingested in parallel in a single forward pass; only subsequent generation is autoregressive.
+2. Assuming decoding latency is compute-bound. Latency is limited by memory bandwidth (speed of loading weights to SRAM), not raw FLOPS.
 
 #### Common Follow-up Questions
 1.  **Q: How does speculative decoding speed this up?**
@@ -1685,7 +1648,7 @@ Because each token requires loading the entire model's weights from HBM to SRAM 
 
 ---
 
-### Question 38: Compare Greedy Search, Beam Search, Top-k, Top-p, and Temperature sampling.
+## Question 38: Compare Greedy Search, Beam Search, Top-k, Top-p, and Temperature sampling.
 
 ### [ESSENTIAL]
 
@@ -1726,9 +1689,8 @@ $$p_i = \frac{e^{z_i / \tau}}{\sum_j e^{z_j / \tau}}$$
 Top-P is preferred in production because it adjusts the sampling pool dynamically. If the model is confident (one token has 99%), the pool shrinks to 1 token. If the model is uncertain, the pool expands, avoiding the text corruption that static Top-K limits can cause.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking temperature alters the model parameters. Temperature is applied strictly to output logits at the final softmax layer during generation; the model weights are unaffected.
-    2. Using high temperature without Top-K/P filtering. This can raise the probability of nonsensical or grammatical-error tokens, causing gibberish outputs.
+1. Thinking temperature alters the model parameters. Temperature is applied strictly to output logits at the final softmax layer during generation; the model weights are unaffected.
+2. Using high temperature without Top-K/P filtering. This can raise the probability of nonsensical or grammatical-error tokens, causing gibberish outputs.
 
 #### Common Follow-up Questions
 1.  **Q: What happens if temperature is set to $0$?**
@@ -1741,7 +1703,7 @@ Top-P is preferred in production because it adjusts the sampling pool dynamicall
 
 ---
 
-### Question 39: Why is Beam Search rarely used in chat LLMs?
+## Question 39: Why is Beam Search rarely used in chat LLMs?
 
 ### [ESSENTIAL]
 
@@ -1769,9 +1731,8 @@ This tracking requires active cache synchronization across memory channels.
 Modern serving frameworks prioritize high concurrency. Replacing Beam Search with sampling techniques (Top-P with temperature) allows serving systems to utilize continuous batching to handle hundreds of concurrent users.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Assuming Beam Search executes $B$ times slower because of FLOPs. The bottleneck is memory capacity (VRAM allocation for tracking paths), not GPU processing power.
-    2. Believing Beam Search is bad for all tasks. It is highly effective for code syntax generation or math execution where exact structure matters.
+1. Assuming Beam Search executes $B$ times slower because of FLOPs. The bottleneck is memory capacity (VRAM allocation for tracking paths), not GPU processing power.
+2. Believing Beam Search is bad for all tasks. It is highly effective for code syntax generation or math execution where exact structure matters.
 
 #### Common Follow-up Questions
 1.  **Q: Where is Beam Search still useful?**
@@ -1784,7 +1745,7 @@ Modern serving frameworks prioritize high concurrency. Replacing Beam Search wit
 
 ---
 
-### Question 40: What is a context window?
+## Question 40: What is a context window?
 
 ### [ESSENTIAL]
 
@@ -1814,9 +1775,8 @@ just to store the raw attention weights, creating a physical hardware barrier.
 To support long contexts (e.g. 1 Million tokens in Gemini), engineering teams use techniques like Grouped-Query Attention (GQA) to shrink KV Cache footprint, FlashAttention to avoid materializing the attention matrix, and sparse or linear attention layers.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking the context window limits only the input prompt length. The context window is shared; the sum of input prompt tokens and generated output tokens must remain below the limit.
-    2. Assuming that you can scale context length indefinitely by just adding more GPU VRAM. Positional encodings (like RoPE) must be fine-tuned or scaled (e.g., using Yarn or NTK scaling) to maintain accuracy at long distances.
+1. Thinking the context window limits only the input prompt length. The context window is shared; the sum of input prompt tokens and generated output tokens must remain below the limit.
+2. Assuming that you can scale context length indefinitely by just adding more GPU VRAM. Positional encodings (like RoPE) must be fine-tuned or scaled (e.g., using Yarn or NTK scaling) to maintain accuracy at long distances.
 
 #### Common Follow-up Questions
 1.  **Q: What is the "needle-in-a-haystack" test?**
@@ -1829,7 +1789,7 @@ To support long contexts (e.g. 1 Million tokens in Gemini), engineering teams us
 
 ---
 
-### Question 41: Explain the KV Cache.
+## Question 41: Explain the KV Cache.
 
 ### [ESSENTIAL]
 
@@ -1867,9 +1827,8 @@ $$\text{VRAM}_{\text{KVCache}} = 2 \times 2 \times B \times L \times n_{\text{la
 Because the KV cache size grows dynamically with each user's generation step, standard static allocation leads to severe VRAM fragmentation and wasted memory. Modern engines use **PagedAttention** to allocate KV Cache memory dynamically in non-contiguous virtual blocks, similar to OS paging.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking the Query ($Q$) vectors are cached. Queries are never cached because we only calculate attention for the active query token; we never need past queries.
-    2. Believing the KV Cache is used during training. During training, teacher forcing exposes all targets in parallel. We process all tokens concurrently using causal masking, so there is no sequential history to cache.
+1. Thinking the Query ($Q$) vectors are cached. Queries are never cached because we only calculate attention for the active query token; we never need past queries.
+2. Believing the KV Cache is used during training. During training, teacher forcing exposes all targets in parallel. We process all tokens concurrently using causal masking, so there is no sequential history to cache.
 
 #### Common Follow-up Questions
 1.  **Q: How does batch size affect KV cache VRAM?**
@@ -1882,7 +1841,7 @@ Because the KV cache size grows dynamically with each user's generation step, st
 
 ---
 
-### Question 42: Why is the first generated token slower than subsequent tokens? (Prefill vs Decode)
+## Question 42: Why is the first generated token slower than subsequent tokens? (Prefill vs Decode)
 
 ### [ESSENTIAL]
 
@@ -1914,9 +1873,8 @@ Because the KV cache size grows dynamically with each user's generation step, st
 Because prefill and decode have different bottlenecks, modern serving frameworks use **Chunked Prefill** to split large prompts into smaller blocks, mixing them with decode requests to maintain balanced GPU utilization.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Assuming decode is slow because it performs more FLOPs. Decode performs significantly fewer FLOPs than prefill, but runs slower because it cannot parallelize weight retrieval.
-    2. Thinking that prompt processing is sequential. The entire prompt is computed in parallel in a single forward pass.
+1. Assuming decode is slow because it performs more FLOPs. Decode performs significantly fewer FLOPs than prefill, but runs slower because it cannot parallelize weight retrieval.
+2. Thinking that prompt processing is sequential. The entire prompt is computed in parallel in a single forward pass.
 
 #### Common Follow-up Questions
 1.  **Q: How does batch size affect decode efficiency?**
@@ -1929,7 +1887,7 @@ Because prefill and decode have different bottlenecks, modern serving frameworks
 
 ---
 
-### Question 43: How do Multi-Query Attention (MQA) and Grouped-Query Attention (GQA) reduce inference cost?
+## Question 43: How do Multi-Query Attention (MQA) and Grouped-Query Attention (GQA) reduce inference cost?
 
 ### [ESSENTIAL]
 
@@ -1968,9 +1926,8 @@ $$\text{MHA Shape} = [B, L, H, d_k], \quad \text{GQA Shape} = [B, L, G, d_k], \q
 Reducing the KV cache size directly lowers the memory-bandwidth bottleneck during decoding, allowing serving engines (like vLLM) to host larger batch sizes (more concurrent users) in the same GPU VRAM, lowering infrastructure costs.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking GQA/MQA reduces model parameters significantly. They only reduce the projection layer parameters for Keys and Values, which represents less than 2% of total model parameters. The primary savings are in KV Cache activation memory during inference.
-    2. Believing GQA can be applied to any pre-trained model at inference time. The model must be pre-trained with grouped projections, or converted via specialized fine-tuning.
+1. Thinking GQA/MQA reduces model parameters significantly. They only reduce the projection layer parameters for Keys and Values, which represents less than 2% of total model parameters. The primary savings are in KV Cache activation memory during inference.
+2. Believing GQA can be applied to any pre-trained model at inference time. The model must be pre-trained with grouped projections, or converted via specialized fine-tuning.
 
 #### Common Follow-up Questions
 1.  **Q: Why does GQA perform better than MQA?**
@@ -1985,7 +1942,7 @@ Reducing the KV cache size directly lowers the memory-bandwidth bottleneck durin
 
 ## 8. Modern LLM Architectures & Mixture of Experts (Q44–Q47)
 
-### Question 44: Compare GPT, BERT, T5, and Llama.
+## Question 44: Compare GPT, BERT, T5, and Llama.
 
 ### [ESSENTIAL]
 
@@ -2024,9 +1981,8 @@ Reducing the KV cache size directly lowers the memory-bandwidth bottleneck durin
 Decoder-only models dominate the market because they share parameters across prompt processing and generation, making them flexible few-shot learners. However, they suffer from sequential inference bottlenecks. Encoder-only models are significantly faster and cheaper to serve for simple extraction or classification tasks.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking Llama uses an encoder. Llama is a decoder-only model; it has no cross-attention or encoder blocks.
-    2. Assuming T5 is slower than GPT because of the two-part structure. For structured translation, T5 is highly parameter-efficient.
+1. Thinking Llama uses an encoder. Llama is a decoder-only model; it has no cross-attention or encoder blocks.
+2. Assuming T5 is slower than GPT because of the two-part structure. For structured translation, T5 is highly parameter-efficient.
 
 #### Common Follow-up Questions
 1.  **Q: Why did decoder-only architectures win the general assistant race over encoder-decoders?**
@@ -2039,7 +1995,7 @@ Decoder-only models dominate the market because they share parameters across pro
 
 ---
 
-### Question 45: What innovations did Llama introduce?
+## Question 45: What innovations did Llama introduce?
 
 ### [ESSENTIAL]
 
@@ -2068,9 +2024,8 @@ This matches the parameter count of standard FFNs while implementing SwiGLU gati
 GQA combined with RMSNorm allows Llama-3-8B to deliver nearly 2x the inference token-generation throughput of Llama-1-7B on the same GPU hardware.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking Llama uses standard LayerNorm. Llama uses RMSNorm exclusively.
-    2. Assuming Llama models are trained bidirectionally. They are causally masked next-token predictors.
+1. Thinking Llama uses standard LayerNorm. Llama uses RMSNorm exclusively.
+2. Assuming Llama models are trained bidirectionally. They are causally masked next-token predictors.
 
 #### Common Follow-up Questions
 1.  **Q: What is the difference between Llama-1, Llama-2, and Llama-3?**
@@ -2083,7 +2038,7 @@ GQA combined with RMSNorm allows Llama-3-8B to deliver nearly 2x the inference t
 
 ---
 
-### Question 46: What is Mixture of Experts (MoE)? Explain Dense vs Sparse models.
+## Question 46: What is Mixture of Experts (MoE)? Explain Dense vs Sparse models.
 
 ### [ESSENTIAL]
 
@@ -2121,9 +2076,8 @@ $$y = \sum_{i \in \text{selected}} G(x)_i E_i(x)$$
 MoE models require loading all experts into VRAM. A 141B parameter MoE model requires multiple GPUs just to hold the weights in memory, making hosting expensive for low-concurrency workloads.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Believing MoE is an ensemble model where outputs of all experts are averaged. MoE is sparse; only the top-K selected experts are executed for any single token.
-    2. Thinking MoE reduces VRAM requirements. It reduces compute (FLOPs) per token, but increases VRAM requirements because all experts must remain in GPU memory.
+1. Believing MoE is an ensemble model where outputs of all experts are averaged. MoE is sparse; only the top-K selected experts are executed for any single token.
+2. Thinking MoE reduces VRAM requirements. It reduces compute (FLOPs) per token, but increases VRAM requirements because all experts must remain in GPU memory.
 
 #### Common Follow-up Questions
 1.  **Q: How does routing affect batching?**
@@ -2136,7 +2090,7 @@ MoE models require loading all experts into VRAM. A 141B parameter MoE model req
 
 ---
 
-### Question 47: What is Router Collapse in MoE models, and how do we mitigate it?
+## Question 47: What is Router Collapse in MoE models, and how do we mitigate it?
 
 ### [ESSENTIAL]
 
@@ -2164,9 +2118,8 @@ Minimizing this product forces the token distribution $f$ and probabilities $P$ 
 During inference, serving engines enforce an "Expert Capacity" parameter. If an expert receives more tokens than its capacity threshold, the excess tokens are dropped or routed to second-choice experts to prevent memory overflow.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking router collapse is resolved at inference time. Mitigations must be enforced during pre-training using auxiliary losses; post-hoc adjustments cannot fix untrained experts.
-    2. Believing load balancing loss degrades model performance. It stabilizes training by utilizing the full representation capacity of all experts.
+1. Thinking router collapse is resolved at inference time. Mitigations must be enforced during pre-training using auxiliary losses; post-hoc adjustments cannot fix untrained experts.
+2. Believing load balancing loss degrades model performance. It stabilizes training by utilizing the full representation capacity of all experts.
 
 #### Common Follow-up Questions
 1.  **Q: What is Expert Capacity?**
@@ -2181,7 +2134,7 @@ During inference, serving engines enforce an "Expert Capacity" parameter. If an 
 
 ## 9. Reasoning & Deep Thinking Models (Q48–Q50)
 
-### Question 48: How do reasoning models (e.g. DeepSeek-R1, OpenAI o1) scale Test-Time Compute (TTC)?
+## Question 48: How do reasoning models (e.g. DeepSeek-R1, OpenAI o1) scale Test-Time Compute (TTC)?
 
 ### [ESSENTIAL]
 
@@ -2209,9 +2162,8 @@ This allows a smaller base model (e.g. 32B parameters) to outperform dense 70B m
 Generating hundreds of thinking tokens per query drastically increases serving costs. The KV cache size grows linearly, and sequence execution times extend, increasing latency and reducing serving concurrency.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Believing reasoning models use separate external solvers to write code. The reasoning, self-correction, and math execution occur entirely within the LLM's own autoregressive token generation path.
-    2. Thinking that more thinking tokens always improve output quality. For simple queries (e.g., *"What is capital of France?"*), generating thinking tokens adds latency and cost without improving accuracy.
+1. Believing reasoning models use separate external solvers to write code. The reasoning, self-correction, and math execution occur entirely within the LLM's own autoregressive token generation path.
+2. Thinking that more thinking tokens always improve output quality. For simple queries (e.g., *"What is capital of France?"*), generating thinking tokens adds latency and cost without improving accuracy.
 
 #### Common Follow-up Questions
 1.  **Q: What is GRPO and why is it used?**
@@ -2224,7 +2176,7 @@ Generating hundreds of thinking tokens per query drastically increases serving c
 
 ---
 
-### Question 49: How do reasoning models perform self-correction and backtracking during generation?
+## Question 49: How do reasoning models perform self-correction and backtracking during generation?
 
 ### [ESSENTIAL]
 
@@ -2250,9 +2202,8 @@ The model's weights remain frozen during inference. Self-correction is driven en
 Backtracking increases sequence length. If a model spends 800 tokens self-correcting, the user must wait for the decode sequence to finish, requiring streaming UI layouts to display the active thinking process.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking self-correction requires modifying active attention weights at runtime. The attention weights are frozen; self-correction is driven entirely by context window history processing of previously generated error tokens.
-    2. Assuming self-correction is 100% reliable. In practice, models can still hallucinate that they fixed an error when they actually introduced a new one.
+1. Thinking self-correction requires modifying active attention weights at runtime. The attention weights are frozen; self-correction is driven entirely by context window history processing of previously generated error tokens.
+2. Assuming self-correction is 100% reliable. In practice, models can still hallucinate that they fixed an error when they actually introduced a new one.
 
 #### Common Follow-up Questions
 1.  **Q: How do we prevent models from cheating by outputting long, meaningless thinking traces to pad compute?**
@@ -2265,7 +2216,7 @@ Backtracking increases sequence length. If a model spends 800 tokens self-correc
 
 ---
 
-### Question 50: Contrast Process-Supervised Reward Models (PRMs) and Outcome-Supervised Reward Models (ORMs).
+## Question 50: Contrast Process-Supervised Reward Models (PRMs) and Outcome-Supervised Reward Models (ORMs).
 
 ### [ESSENTIAL]
 
@@ -2298,9 +2249,8 @@ Let a reasoning trace contain steps $S = [s_1, s_2, ..., s_k, \text{Final Answer
 Training a PRM requires massive human-in-the-loop or LLM-as-a-judge labeling to score millions of individual reasoning steps, making it significantly more expensive to train than simple ORMs (which use automated code compilers or unit tests).
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Believing PRMs are executed during inference. PRMs are used during training (RL reward signals) or during verification search (ranking candidate paths), but are not part of the base model's forward generation pass.
-    2. Assuming ORMs are useless. ORMs are highly effective for code syntax or math compilation where final correctness is easily verifiable.
+1. Believing PRMs are executed during inference. PRMs are used during training (RL reward signals) or during verification search (ranking candidate paths), but are not part of the base model's forward generation pass.
+2. Assuming ORMs are useless. ORMs are highly effective for code syntax or math compilation where final correctness is easily verifiable.
 
 #### Common Follow-up Questions
 1.  **Q: How do we automate step-level labeling for PRMs?**
@@ -2315,7 +2265,7 @@ Training a PRM requires massive human-in-the-loop or LLM-as-a-judge labeling to 
 
 ## 10. Limitations, Evaluation, & Production (Q51–Q53)
 
-### Question 51: Why do LLMs hallucinate, and how can hallucinations be reduced?
+## Question 51: Why do LLMs hallucinate, and how can hallucinations be reduced?
 
 ### [ESSENTIAL]
 
@@ -2345,9 +2295,8 @@ If the training corpus had low density or conflicting information for the fact, 
 RAG requires a retrieval database pipeline (vector index lookup), which adds latency to the system. The trade-off is higher accuracy and groundability in exchange for extra infrastructure cost and slower Time-to-First-Token (TTFT).
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking fine-tuning on fact databases completely resolves hallucinations. Fine-tuning can actually increase hallucinations (hallucination by injection) if the model is forced to memorize facts it lacks the parameter capacity to store.
-    2. Assuming low temperature completely prevents hallucinations. It only makes the model output the most probable tokens, which can still be factual errors if the model weights contain bad facts.
+1. Thinking fine-tuning on fact databases completely resolves hallucinations. Fine-tuning can actually increase hallucinations (hallucination by injection) if the model is forced to memorize facts it lacks the parameter capacity to store.
+2. Assuming low temperature completely prevents hallucinations. It only makes the model output the most probable tokens, which can still be factual errors if the model weights contain bad facts.
 
 #### Common Follow-up Questions
 1.  **Q: What is "hallucination snowballing"?**
@@ -2360,7 +2309,7 @@ RAG requires a retrieval database pipeline (vector index lookup), which adds lat
 
 ---
 
-### Question 52: How are LLMs evaluated?
+## Question 52: How are LLMs evaluated?
 
 ### [ESSENTIAL]
 
@@ -2388,9 +2337,8 @@ If the model is perfectly certain, $\text{PPL} = 1.0$.
 Modern LLMs are trained on vast web scrapes, which often contain test sets from popular benchmarks (MMLU). GPQA is crucial because it keeps its questions hidden from public web indexing to guarantee clean evaluation.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Relying on BLEU/ROUGE for conversational chat models. These metrics require exact word match overlaps, failing to capture semantic synonyms or conversational quality.
-    2. Assuming a high MMLU score guarantees a model is good in production. Benchmark contamination and overfitting can inflate scores without improving real-world capability.
+1. Relying on BLEU/ROUGE for conversational chat models. These metrics require exact word match overlaps, failing to capture semantic synonyms or conversational quality.
+2. Assuming a high MMLU score guarantees a model is good in production. Benchmark contamination and overfitting can inflate scores without improving real-world capability.
 
 #### Common Follow-up Questions
 1.  **Q: What are the biases of LLM-as-a-Judge?**
@@ -2403,7 +2351,7 @@ Modern LLMs are trained on vast web scrapes, which often contain test sets from 
 
 ---
 
-### Question 53: Walk through the complete LLM inference pipeline and explain optimization techniques for lower latency.
+## Question 53: Walk through the complete LLM inference pipeline and explain optimization techniques for lower latency.
 
 ### [ESSENTIAL]
 
@@ -2436,9 +2384,8 @@ Quantizing a 70B model from 16-bit to 4-bit shrinks model size from 140 GB to 35
 Traditional batching groups requests statically, forcing users to wait for the longest generation to complete. Continuous batching schedules requests at the iteration level, inserting new prompts and ejecting finished generations dynamically at every step, boosting GPU throughput by up to 4x.
 
 #### Common Mistakes
-*   **Common Mistakes**:
-    1. Thinking speculative decoding reduces the total FLOPs computed. Speculative decoding actually computes *more* FLOPs (due to double forward passes and validation checks), but runs faster because it reduces the number of sequential memory-bandwidth bound steps.
-    2. Assuming CPU-GPU transfer happens at every token step. Weights are loaded once to GPU memory; only input/output tokens transfer during generation, which adds negligible latency.
+1. Thinking speculative decoding reduces the total FLOPs computed. Speculative decoding actually computes *more* FLOPs (due to double forward passes and validation checks), but runs faster because it reduces the number of sequential memory-bandwidth bound steps.
+2. Assuming CPU-GPU transfer happens at every token step. Weights are loaded once to GPU memory; only input/output tokens transfer during generation, which adds negligible latency.
 
 #### Common Follow-up Questions
 1.  **Q: What is Tensor Parallelism?**

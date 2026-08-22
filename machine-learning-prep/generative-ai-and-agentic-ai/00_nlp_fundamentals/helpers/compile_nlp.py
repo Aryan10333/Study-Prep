@@ -596,11 +596,19 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
     # Retry loop: headless Edge printing has been observed to exit 0 with no output
     # file on a transient race, then succeed immediately on retry. See pdf_compiler/SKILL.md
     # Section 4 for the confirmed-in-practice note on this.
+    #
+    # Cleanup uses manual mkdtemp + best-effort rmtree rather than
+    # tempfile.TemporaryDirectory()'s context manager: Edge's Crashpad handler can
+    # still hold a file lock inside the profile dir for a moment after the main
+    # process exits, and strict cleanup raises WinError 145 ("directory not empty")
+    # on that race. ignore_errors=True treats leftover profile dirs as harmless
+    # (OS temp cleanup reclaims them later) instead of failing the whole compile.
     edge_path = get_browser_path()
     print(f"Running browser PDF compilation for {os.path.basename(pdf_out_path)}...")
     max_attempts = 3
     for attempt in range(1, max_attempts + 1):
-        with tempfile.TemporaryDirectory() as temp_user_data:
+        temp_user_data = tempfile.mkdtemp(prefix="edge_pdf_")
+        try:
             cmd = [
                 edge_path,
                 f"--user-data-dir={temp_user_data}",
@@ -613,6 +621,8 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
                 html_out_path
             ]
             subprocess.run(cmd, capture_output=True, text=True, check=True)
+        finally:
+            shutil.rmtree(temp_user_data, ignore_errors=True)
         if os.path.exists(pdf_out_path) and os.path.getsize(pdf_out_path) > 0:
             print(f"SUCCESS: PDF generated at: {pdf_out_path} ({os.path.getsize(pdf_out_path)} bytes, attempt {attempt})")
             break

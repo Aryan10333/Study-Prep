@@ -164,19 +164,24 @@ def compile_html_to_pdf(html_input_path, pdf_output_path):
 
 ```
 
-**Confirmed in practice, not just theoretical:** headless Edge printing (and `--screenshot`) has been observed to exit 0 with no output file at all on the first attempt, then succeed immediately on an unmodified retry — a real, reproducible race condition, not a hypothetical edge case. Wrap the subprocess call + verification in a small retry loop (2-3 attempts, no backoff needed) rather than failing the whole compile on the first transient miss:
+**Confirmed in practice, not just theoretical:** headless Edge printing (and `--screenshot`) has been observed to exit 0 with no output file at all on the first attempt, then succeed immediately on an unmodified retry — a real, reproducible race condition, not a hypothetical edge case. Wrap the subprocess call + verification in a small retry loop (2-3 attempts, no backoff needed) rather than failing the whole compile on the first transient miss.
+
+Use manual `tempfile.mkdtemp()` + `shutil.rmtree(..., ignore_errors=True)` for the profile directory, **not** `tempfile.TemporaryDirectory()`'s context manager — also confirmed in practice: Edge's Crashpad crash-handler subprocess can still hold a file lock inside the profile dir for a moment after the main Edge process exits, and `TemporaryDirectory`'s strict cleanup raises `OSError: [WinError 145] The directory is not empty` on that race, crashing the whole compile on an otherwise-successful PDF generation. A leftover profile dir is harmless (OS temp cleanup reclaims it later); a crashed compiler script is not.
 
 ```python
 def compile_html_to_pdf(html_input_path, pdf_output_path, max_attempts=3):
     browser_path = get_browser_path()
     for attempt in range(1, max_attempts + 1):
-        with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir = tempfile.mkdtemp(prefix="edge_pdf_")
+        try:
             cmd = [
                 browser_path, f"--user-data-dir={temp_dir}", "--headless", "--disable-gpu",
                 "--run-all-compositor-stages-before-draw", "--virtual-time-budget=8000",
                 "--no-pdf-header-footer", f"--print-to-pdf={pdf_output_path}", html_input_path,
             ]
             subprocess.run(cmd, capture_output=True, text=True, check=True)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
         if os.path.exists(pdf_output_path) and os.path.getsize(pdf_output_path) > 0:
             return
     raise RuntimeError(f"PDF compilation did not produce a valid file at {pdf_output_path} after {max_attempts} attempts")
