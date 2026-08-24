@@ -654,5 +654,23 @@ def main():
         includes="Step-by-Step Numerical Hand Calculations, Python Implementations, SVG Diagrams, Computed Plots",
     )
 
+    print("\n--- Compiling Standalone LLM Evaluation, Observability & Guardrails Interview Cheatsheet ---")
+    cheatsheet_html = os.path.join(base_dir, "llm_evaluation_observability_guardrails_interview_cheatsheet.html")
+    cheatsheet_pdf = os.path.join(base_dir, "llm_evaluation_observability_guardrails_interview_cheatsheet.pdf")
+
+    cheatsheet_modules = [
+        "10_llm_evaluation_observability_guardrails_interview_questions.md",
+    ]
+    compile_document(
+        cheatsheet_modules,
+        cheatsheet_html,
+        cheatsheet_pdf,
+        "LLM Evaluation, Observability & Guardrails: Interview Cheatsheet",
+        "LLM Evaluation, Observability & Guardrails Interview Q&amp;A",
+        subtitle="54 Questions on Metrics, LLM-as-Judge, Human Evaluation, RAG/Agent Evaluation, Hallucination Detection, Observability &amp; Guardrails",
+        focus_areas="Evaluation validity, LLM-as-judge bias &amp; calibration, LLM-rater agreement, RAG faithfulness &amp; agent efficiency, hallucination signal-vs-detector, pipeline tracing, guardrail architecture, continuous evaluation &amp; drift detection",
+        includes="54 Standardized Q&amp;As (Essential + Deep Dive), Real Track 2 Notebook Findings, Final Revision Sheet",
+    )
+
 if __name__ == "__main__":
     main()
