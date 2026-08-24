@@ -654,5 +654,20 @@ def main():
         includes="Step-by-Step Numerical Hand Calculations, Python Implementations, SVG Diagrams, Computed Plots",
     )
 
+    print("\n--- Compiling LLM Inference & Optimization Interview Q&A Cheatsheet ---")
+    qa_html = os.path.join(base_dir, "llm_inference_optimization_interview_cheatsheet.html")
+    qa_pdf = os.path.join(base_dir, "llm_inference_optimization_interview_cheatsheet.pdf")
+
+    compile_document(
+        ["10_llm_inference_interview_questions.md"],
+        qa_html,
+        qa_pdf,
+        "LLM Inference & Optimization Interview Q&A Cheatsheet",
+        "LLM Inference & Optimization — 54 Interview Questions & Answers",
+        subtitle="Real Measured Results from This Topic's Own Executed Notebooks, Grounded in Every Module's Hand Calculations",
+        focus_areas="Prefill/decode fundamentals, KV cache & GQA/MQA, PagedAttention, FlashAttention, inference quantization, batching strategies, speculative decoding, serving architecture, production monitoring & cost modeling",
+        includes="Conversational + Deep-Dive Answers, Key Formulas, Production Trade-offs, Common Mistakes, Follow-Up Q&As, Final Revision Sheet",
+    )
+
 if __name__ == "__main__":
     main()
