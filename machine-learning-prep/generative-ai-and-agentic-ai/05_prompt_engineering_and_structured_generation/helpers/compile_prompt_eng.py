@@ -654,7 +654,20 @@ def main():
         includes="Step-by-Step Numerical Hand Calculations, Python Implementations, SVG/HTML Diagrams",
     )
 
-    # Interview Q&A cheatsheet compilation will be added here once Track 3 is written.
+    print("\n--- Compiling Prompt Engineering & Structured Generation Interview Q&A Cheatsheet ---")
+    qa_html = os.path.join(base_dir, "prompt_engineering_interview_cheatsheet.html")
+    qa_pdf = os.path.join(base_dir, "prompt_engineering_interview_cheatsheet.pdf")
+
+    compile_document(
+        ["10_prompt_engineering_interview_questions.md"],
+        qa_html,
+        qa_pdf,
+        "Prompt Engineering & Structured Generation Interview Q&A Cheatsheet",
+        "Prompt Engineering & Structured Generation — 59 Interview Questions & Answers",
+        subtitle="Real Measured Results from This Topic's Own Executed Notebooks, Grounded in Every Module's Hand Calculations",
+        focus_areas="Instruction hierarchy, reasoning elicitation, structured output, constrained decoding, prompt optimization, context assembly, evaluation & versioning, injection defense, production templating & caching",
+        includes="Conversational + Deep-Dive Answers, Key Formulas, Production Trade-offs, Common Mistakes, Follow-Up Q&As, Final Revision Sheet",
+    )
 
 if __name__ == "__main__":
     main()

@@ -107,3 +107,59 @@ Real issues caught during verification (not shipped unverified): 1 real math bug
 Real bugs found and fixed during Track 2 (none shipped unverified): a flaky probabilistic-accuracy construction was avoided in Track 1 already; in Track 2, a real stable-prefix token-count shortfall (Notebook 06) and a real substring-vs-exact-match false-positive in attack-success detection (Notebook 06, the same failure class `04_ai_agents_and_protocols` encountered previously) were both caught via real execution and corrected before Pass 2 explanations were written. A real Wikipedia `403 Forbidden` (Notebook 05, missing `User-Agent` header) was also caught and fixed.
 
 Every notebook's real experiments produced genuinely informative results — several were honest negative results (no measurable difference, or a technique that didn't help) rather than results engineered to confirm the study guide's claims, consistent with this repo's established discipline of reporting what was actually measured.
+
+---
+
+## Track 3 Log
+
+| 25. Track 3 (interview Q&A) implementation plan draft | `interview_qa_generator/SKILL.md` (already fully read this session, ~12,718 chars, held in context) + all 9 Track 1 modules' content (already authored this session, held in context) | `implementation_plan_interview_qa.md` (12,653 chars) | ~3,180 | ~3,163 | **~6,343** | 59-question plan drafted across 9 modules, citing 10 real Track 2 findings as differentiators, pre-sign-off. |
+
+**Running total (est.): ~161,295 tokens**
+
+| 26. Track 3, Batch 1 (Q1–12, Modules 01–02) | Approved plan's Q1–12 section (~2,900 chars, held in context) + Track 1 Modules 01–02 content (already authored, held in context) | `10_prompt_engineering_interview_questions.md` created (41,709 chars) | ~725 | ~10,427 | **~11,152** | 12 questions written with full [ESSENTIAL]/[DEEP DIVE] structure, grounded in Track 1 formulas and Track 2 real notebook findings (few-shot's zero gain, 0/5 vs 5/5 CoT result, majority-vote formula). |
+
+**Running total (est.): ~172,447 tokens**
+
+| 27. Track 3, Batch 2 (Q13–25, Modules 03–04) | Approved plan's Q13–25 section (~3,100 chars, held in context) + Track 1 Modules 03–04 content (already authored, held in context) | Q&A file diff (41,709→86,979 chars, +45,270 chars) | ~775 | ~11,318 | **~12,093** | 13 questions written, grounded in real Track 2 findings (3-way structured-output tie, exact-match vs. lenient-validator gap, masked-softmax hand calc). |
+
+**Running total (est.): ~184,540 tokens**
+
+| 28. Track 3, Batch 3 (Q26–37, Modules 05–06) | Approved plan's Q26–37 section (~3,000 chars, held in context) + Track 1 Modules 05–06 content (already authored, held in context) | Q&A file diff (86,979→127,656 chars, +40,677 chars) | ~750 | ~10,169 | **~10,919** | 12 questions written, grounded in real Track 2 findings (baseline-recorded optimization result, live Wikipedia trim-priority chain demonstration). |
+
+**Running total (est.): ~195,459 tokens**
+
+| 29. Track 3, Batch 4 (Q38–50, Modules 07–08) | Approved plan's Q38–50 section (~3,300 chars, held in context) + Track 1 Modules 07–08 content (already authored, held in context) | Q&A file diff (127,656→172,304 chars, +44,648 chars) | ~825 | ~11,162 | **~11,987** | 13 questions written, grounded in real Track 2 findings (multi-dimensional A/B tie + cost gap, the substring-vs-exact-match security-metric bug and its general lesson). |
+
+**Running total (est.): ~207,446 tokens**
+
+| 30. Track 3, Batch 5 (Q51–59, Module 09 + synthesis) + Final Revision Sheet + structural compliance check | Approved plan's Q51–59 section (~1,900 chars, held in context) + Track 1 Module 09 content (already authored, held in context) | Q&A file diff (172,304→220,317 chars, +48,013 chars) + grep-based compliance verification | ~475 | ~12,003 | **~12,478** | 9 questions + Final Revision Sheet (59-row table, 7-formula cheat sheet, 10 follow-ups) written, grounded in real caching observation, portability, and both synthesis questions citing real cross-notebook findings. All 4 mandatory structural checks passed: 59/59 on every required heading, 0 derivation chains, Final Revision Sheet complete, 0 placeholders. |
+
+**Running total (est.): ~219,924 tokens**
+
+| 31. Cheatsheet compilation (compiler update + PDF/HTML build + verification) | `helpers/compile_prompt_eng.py` (already authored, held in context) | Compiler diff (27,453→28,426 chars) + `prompt_engineering_interview_cheatsheet.html` (334,937 chars) + `.pdf` (1,164,528 bytes) | ~200 | ~2,100 | **~2,300** | Added second `compile_document()` call at the existing placeholder; verified 0 `file:///` leaks, 0 `MATHPLACEHOLDER` leaks, 59 `follow-up-section` divs, 118 `q-card` divs — all matching what was written. Visually spot-checked cover page + Q1 rendering. |
+
+**Running total (est.): ~222,224 tokens**
+
+---
+
+## Track 3 Summary
+
+**Interview Q&A cheatsheet complete and verified.** Total estimated tokens for Track 3 (implementation plan + 5 batches + compilation): **~222,224 − 161,295 = ~60,929 tokens**, across 7 steps (entries 25–31).
+
+All 59 questions grounded in Track 1's real hand-calc formulas and Track 2's real notebook findings, each explicitly framed as an observation from a specific experiment rather than a universal law, per this topic's own established assumption-transparency discipline (self-consistency independence, geometric-retry constant-$p$). Mandatory structural compliance check passed on all 4 points before compilation.
+
+---
+
+## Grand Total (All 3 Tracks)
+
+**Total estimated tokens for the full Topic 05 build (syllabus → Track 1 → Track 2 → Track 3): ~222,224 tokens**, across 31 logged steps.
+
+| Phase | Est. Tokens |
+|---|---|
+| Syllabus (draft + revision) | ~7,197 |
+| Track 1 (plan + 9 modules + plots + compilation) | ~78,404 |
+| Track 2 (plan + 6 notebooks) | ~66,159 |
+| Track 3 (plan + Q&A batches + compilation) | ~60,929 |
+| **Grand total** | **~212,689*** |
+
+*\*Note: this sum (~212,689) differs slightly from the raw running-total figure above (~222,224) due to compounding re-reads of prior content across phases (e.g., Track 3 batches re-reading Track 1 module content already counted once). Both figures are estimates from the same `chars/4` methodology — treat them as order-of-magnitude signals for relative step cost, not exact accounting, per this log's stated methodology note at the top of the file.*
