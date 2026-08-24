@@ -654,5 +654,23 @@ def main():
         includes="Step-by-Step Numerical Hand Calculations, Python Implementations, SVG Diagrams, Computed Plots",
     )
 
+    print("\n--- Compiling Standalone GenAI System Design & LLMOps Interview Cheatsheet ---")
+    cheatsheet_html = os.path.join(base_dir, "genai_system_design_and_llmops_interview_cheatsheet.html")
+    cheatsheet_pdf = os.path.join(base_dir, "genai_system_design_and_llmops_interview_cheatsheet.pdf")
+
+    cheatsheet_modules = [
+        "10_genai_system_design_and_llmops_interview_questions.md",
+    ]
+    compile_document(
+        cheatsheet_modules,
+        cheatsheet_html,
+        cheatsheet_pdf,
+        "GenAI System Design & LLMOps: Interview Cheatsheet",
+        "GenAI System Design & LLMOps Interview Q&amp;A",
+        subtitle="54 Questions on the System Design Interview Framework, Reference Architectures, Capacity/Cost Engineering, LLMOps, Deployment, Reliability &amp; Security",
+        focus_areas="System design interview structure, archetype selection, Little's-Law capacity estimation, knowledge-infrastructure lifecycle, artifact lineage &amp; CI/CD gating, progressive rollout criteria, retry/circuit-breaker reliability, data/tool-level authorization, prioritized case-study synthesis",
+        includes="54 Standardized Q&amp;As (Essential + Deep Dive), Real Track 2 Notebook Findings, Final Revision Sheet",
+    )
+
 if __name__ == "__main__":
     main()
