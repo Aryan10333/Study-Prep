@@ -252,6 +252,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
     }
 
     modules_html = []
+    nav_entries = []
 
     for file_name in md_files:
         full_path = os.path.join(base_dir, "modules", file_name)
@@ -290,6 +291,10 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             escaped_block = block.replace('<', '&lt;').replace('>', '&gt;')
             html_body = html_body.replace(f"MATHPLACEHOLDER{idx}ENDMATH", escaped_block)
 
+        heading_match = re.search(r'<h1[^>]*id="([^"]+)"[^>]*>(.*?)</h1>', html_body)
+        if heading_match:
+            nav_entries.append((heading_match.group(1), heading_match.group(2)))
+
         module_html = f"""
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
@@ -302,6 +307,12 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
 
     pygments_css = HtmlFormatter(style='monokai').get_style_defs('.codehilite')
     body_content = "\n".join(modules_html)
+
+    nav_links = "".join(
+        f'<a href="#{anchor_id}">{re.sub(r"^Module\s*\d+:\s*", "", title).strip() or title}</a>'
+        for anchor_id, title in nav_entries
+    )
+    nav_html = f'<nav class="site-nav">{nav_links}</nav>' if nav_links else ""
 
     full_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -538,10 +549,65 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
         .module-container {{
             page-break-before: always;
         }}
+
+        /* Screen-only readability: the rules above target the A4-print/PDF export
+           (fixed page width via @page). Viewed live in a browser, un-widthed content
+           stretches to the full window width, making text lines too long and images
+           oversized -- these overrides apply only on screen, never during print-to-PDF. */
+        .site-nav {{
+            display: none;
+        }}
+        @media screen {{
+            body {{
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 24px 32px 100px;
+                font-size: 16px;
+            }}
+            p, .module-container ul > li, .module-container ol > li {{
+                font-size: 16px !important;
+            }}
+            h4, h5, h6 {{
+                font-size: 15.5px !important;
+            }}
+            .site-nav {{
+                display: block;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background-color: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(4px);
+                border-bottom: 1px solid #e2e8f0;
+                padding: 10px 0;
+                margin: 0 -32px 0;
+                overflow-x: auto;
+                white-space: nowrap;
+            }}
+            .site-nav a {{
+                display: inline-block;
+                font-size: 12.5px;
+                font-weight: 600;
+                color: #2563eb;
+                background-color: #eff6ff;
+                border: 1px solid #dbeafe;
+                border-radius: 14px;
+                padding: 5px 12px;
+                margin: 0 6px;
+                text-decoration: none;
+                white-space: nowrap;
+            }}
+            .site-nav a:first-child {{
+                margin-left: 32px;
+            }}
+            .site-nav a:hover {{
+                background-color: #dbeafe;
+            }}
+        }}
     </style>
 </head>
 <body>
 
+{nav_html}
 <div class="cover-page" style="text-align: center; padding-top: 140px; page-break-after: always;">
     <div style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; margin-bottom: 20px;">
         MACHINE LEARNING INTERVIEW PREPARATION

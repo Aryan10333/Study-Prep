@@ -318,10 +318,65 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         .module-container {
             page-break-before: always;
         }
+
+        /* Screen-only readability: the rules above target the A4-print/PDF export
+           (fixed page width via @page). Viewed live in a browser, un-widthed content
+           stretches to the full window width, making text lines too long and images
+           oversized -- these overrides apply only on screen, never during print-to-PDF. */
+        .site-nav {
+            display: none;
+        }
+        @media screen {
+            body {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 24px 32px 100px;
+                font-size: 16px;
+            }
+            p, .module-container ul > li, .module-container ol > li {
+                font-size: 16px !important;
+            }
+            h4, h5, h6 {
+                font-size: 15.5px !important;
+            }
+            .site-nav {
+                display: block;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background-color: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(4px);
+                border-bottom: 1px solid #e2e8f0;
+                padding: 10px 0;
+                margin: 0 -32px 0;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .site-nav a {
+                display: inline-block;
+                font-size: 12.5px;
+                font-weight: 600;
+                color: #2563eb;
+                background-color: #eff6ff;
+                border: 1px solid #dbeafe;
+                border-radius: 14px;
+                padding: 5px 12px;
+                margin: 0 6px;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+            .site-nav a:first-child {
+                margin-left: 32px;
+            }
+            .site-nav a:hover {
+                background-color: #dbeafe;
+            }
+        }
     </style>
 </head>
 <body>
 
+<nav class="site-nav"><a href="#module-01-the-transformer-architecture-encoder-decoder-core">The Transformer Architecture (Encoder &amp; Decoder Core)</a><a href="#module-02-positional-encodings-embeddings">Positional Encodings &amp; Embeddings</a><a href="#module-03-modern-activation-functions-normalization-layer-variants">Modern Activation Functions &amp; Normalization Layer Variants</a><a href="#module-04-tokenization-subword-processing-for-llms">Tokenization &amp; Subword Processing for LLMs</a><a href="#module-05-modern-attention-variants-mqa-gqa-and-context-windows">Modern Attention Variants (MQA, GQA, and Context Windows)</a><a href="#module-06-kv-cache-mechanics-memory-bottlenecks">KV Cache Mechanics &amp; Memory Bottlenecks</a><a href="#module-07-gpu-memory-bounds-inference-optimizations-flashattention-pagedattention">GPU Memory Bounds &amp; Inference Optimizations (FlashAttention &amp; PagedAttention)</a><a href="#module-08-pre-training-architecture-styles-objectives-data-engineering">Pre-training: Architecture Styles, Objectives &amp; Data Engineering</a><a href="#module-09-architectural-dissection-of-frontier-models-moe-deep-thinking-models">Architectural Dissection of Frontier Models, MoE, &amp; Deep Thinking Models</a><a href="#module-10-model-evaluation-benchmark-metrics-alignment-evaluation">Model Evaluation, Benchmark Metrics, &amp; Alignment Evaluation</a></nav>
 <div class="cover-page" style="text-align: center; padding-top: 140px; page-break-after: always;">
     <div style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; margin-bottom: 20px;">
         MACHINE LEARNING INTERVIEW PREPARATION
