@@ -8,3 +8,6 @@
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# MkDocs build output (rebuilt by CI, not committed)
+site/

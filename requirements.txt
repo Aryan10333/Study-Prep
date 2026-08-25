@@ -5,3 +5,9 @@ matplotlib
 seaborn
 kagglehub
 statsmodels
+
+# Study notes site (MkDocs Material, deployed via GitHub Pages)
+mkdocs-material
+pymdown-extensions
+mkdocs-awesome-pages-plugin
+mkdocs-jupyter
