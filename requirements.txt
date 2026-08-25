@@ -7,7 +7,7 @@ kagglehub
 statsmodels
 
 # Study notes site (MkDocs Material, deployed via GitHub Pages)
-mkdocs-material
-pymdown-extensions
-mkdocs-awesome-pages-plugin
-mkdocs-jupyter
+mkdocs-material==9.7.7
+pymdown-extensions==11.0.2
+mkdocs-awesome-pages-plugin==2.10.1
+mkdocs-jupyter==0.26.3
