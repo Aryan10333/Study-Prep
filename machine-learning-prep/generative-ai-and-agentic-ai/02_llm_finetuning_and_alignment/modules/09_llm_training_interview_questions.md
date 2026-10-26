@@ -1,4 +1,4 @@
-# LLM Training Foundations – Top 51 Interview Questions & Answers
+# LLM Fine-tuning & Alignment – Top 51 Interview Questions & Answers
 
 ---
 
@@ -2082,7 +2082,7 @@ The biggest practical risk in a multi-stage pipeline isn't any single stage fail
 
 ---
 
-# LLM Training Foundations Interview Cheatsheet: Final Revision Sheet
+# LLM Fine-tuning & Alignment Interview Cheatsheet: Final Revision Sheet
 
 ## Quick-Recall One-Line Takeaways Table
 

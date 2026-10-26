@@ -1,4 +1,4 @@
-# Implementation Plan: Track 2 — Companion Notebooks (`02_llm_training_foundations`)
+# Implementation Plan: Track 2 — Companion Notebooks (`02_llm_finetuning_and_alignment`)
 
 Scope: this plan covers only the `notebooks/` companion notebooks, per `notebook_generator/SKILL.md`. Track 1 (8 study-guide modules) is complete and signed off; Track 3 (Interview Q&A) is separate and not covered here.
 

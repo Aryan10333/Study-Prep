@@ -50,7 +50,7 @@ Module 10 (Interview Q&A track — Track 3) will follow once Tracks 1 and 2 are 
 ### Cross-Module Boundary Discipline
 This topic deliberately avoids re-deriving content already owned by prior topics:
 - **Transformer attention mechanics and positional encoding fundamentals** → `01_llm_foundations`.
-- **Training-time optimization (LoRA/QLoRA, PEFT, training-time mixed precision)** → `02_llm_training_foundations` — this topic covers quantization and precision strictly at *inference* time.
+- **Training-time optimization (LoRA/QLoRA, PEFT, training-time mixed precision)** → `02_llm_finetuning_and_alignment` — this topic covers quantization and precision strictly at *inference* time.
 - **Prompt-level cost/latency budgeting and prompt caching** → `05_prompt_engineering_and_structured_generation` — this topic covers the *serving-infrastructure* side (KV cache, batching, kernels) the prompt-level budget ultimately runs on top of.
 - **Structured/constrained decoding's grammar-masking mechanism** → `05_prompt_engineering_and_structured_generation` Module 04 — referenced here only where it interacts with real decode-time throughput (e.g., Module 07), not re-derived.
 

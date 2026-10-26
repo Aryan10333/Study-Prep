@@ -657,7 +657,7 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
             cmd = [
                 edge_path,
                 f"--user-data-dir={temp_user_data}",
-                "--headless",
+                "--headless=new",
                 "--disable-gpu",
                 "--run-all-compositor-stages-before-draw",
                 # 8000ms was enough for content with light/moderate KaTeX math, but the
@@ -670,7 +670,13 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
                 f"--print-to-pdf={pdf_out_path}",
                 html_out_path
             ]
-            subprocess.run(cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True)
+            import time
+            for _ in range(180):  # the launcher can return before the PDF is written
+                if os.path.exists(pdf_out_path) and os.path.getsize(pdf_out_path) > 0:
+                    time.sleep(2)
+                    break
+                time.sleep(0.5)
         finally:
             shutil.rmtree(temp_user_data, ignore_errors=True)
         if os.path.exists(pdf_out_path) and os.path.getsize(pdf_out_path) > 0:
@@ -683,9 +689,9 @@ def compile_document(md_files, html_out_path, pdf_out_path, page_title, header_l
 def main():
     base_dir = BASE_DIR
 
-    print("\n--- Compiling Master LLM Training Foundations Study Guide ---")
-    master_html = os.path.join(base_dir, "llm_training_foundations_master_study_guide.html")
-    master_pdf = os.path.join(base_dir, "llm_training_foundations_master_study_guide.pdf")
+    print("\n--- Compiling Master LLM Fine-tuning & Alignment Study Guide ---")
+    master_html = os.path.join(base_dir, "llm_finetuning_and_alignment_master_study_guide.html")
+    master_pdf = os.path.join(base_dir, "llm_finetuning_and_alignment_master_study_guide.pdf")
 
     master_modules = [
         "01_finetuning_fundamentals_and_distributed_training.md",
@@ -701,15 +707,15 @@ def main():
         master_modules,
         master_html,
         master_pdf,
-        "LLM Training Foundations: Fine-Tuning, Alignment & Infrastructure",
-        "LLM Training Foundations Curriculum Guide",
+        "LLM Fine-tuning & Alignment: SFT, PEFT, RLHF & Training Infrastructure",
+        "LLM Fine-tuning & Alignment Curriculum Guide",
         subtitle="Distributed Training, SFT, PEFT, RLHF, DPO/GRPO &amp; Production Alignment",
         focus_areas="ZeRO/FSDP memory math, LoRA/QLoRA, RLHF/PPO, DPO/GRPO, model merging, training monitoring",
         includes="Step-by-Step Numerical Hand Calculations, PyTorch Implementations, SVG/HTML Diagrams",
     )
-    print("\n--- Compiling LLM Training Foundations Interview Cheatsheet ---")
-    cheatsheet_html = os.path.join(base_dir, "llm_training_foundations_interview_cheatsheet.html")
-    cheatsheet_pdf = os.path.join(base_dir, "llm_training_foundations_interview_cheatsheet.pdf")
+    print("\n--- Compiling LLM Fine-tuning & Alignment Interview Cheatsheet ---")
+    cheatsheet_html = os.path.join(base_dir, "llm_finetuning_and_alignment_interview_cheatsheet.html")
+    cheatsheet_pdf = os.path.join(base_dir, "llm_finetuning_and_alignment_interview_cheatsheet.pdf")
 
     cheatsheet_modules = [
         "09_llm_training_interview_questions.md",
@@ -718,8 +724,8 @@ def main():
         cheatsheet_modules,
         cheatsheet_html,
         cheatsheet_pdf,
-        "LLM Training Foundations: Top 51 Interview Questions & Answers",
-        "LLM Training Foundations Interview Cheatsheet",
+        "LLM Fine-tuning & Alignment: Top 51 Interview Questions & Answers",
+        "LLM Fine-tuning & Alignment Interview Cheatsheet",
         subtitle="Fine-Tuning, PEFT, RLHF, DPO/GRPO, Merging &amp; Production Training",
         focus_areas="7B VRAM/LoRA/SFT-loss hand calculations, RLHF/DPO/GRPO trade-offs, model merging, production monitoring",
         includes="Conversational + Deep-Dive Answers, Key Formulas, Common Mistakes, Follow-Ups, Final Revision Sheet",

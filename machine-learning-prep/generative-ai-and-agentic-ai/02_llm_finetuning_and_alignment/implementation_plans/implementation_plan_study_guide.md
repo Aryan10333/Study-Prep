@@ -1,6 +1,6 @@
-# Implementation Plan: Track 1 — Study Notes Modules (`02_llm_training_foundations`)
+# Implementation Plan: Track 1 — Study Notes Modules (`02_llm_finetuning_and_alignment`)
 
-Scope: this plan covers **only** the 8 theory modules in `modules/` and their compiled `02_llm_training_foundations_master_study_guide.{html,pdf}`, per `study_guide_generator/SKILL.md`. Notebooks (Track 2) and the Interview Q&A module (Track 3) are separate tracks with their own implementation-plan checkpoints, planned after this track is signed off and written.
+Scope: this plan covers **only** the 8 theory modules in `modules/` and their compiled `02_llm_finetuning_and_alignment_master_study_guide.{html,pdf}`, per `study_guide_generator/SKILL.md`. Notebooks (Track 2) and the Interview Q&A module (Track 3) are separate tracks with their own implementation-plan checkpoints, planned after this track is signed off and written.
 
 ---
 
@@ -17,7 +17,7 @@ Scope: this plan covers **only** the 8 theory modules in `modules/` and their co
 | 07 | `modules/07_training_production_and_monitoring.md` | Training Production Considerations & Monitoring |
 | 08 | `modules/08_failure_modes_and_best_practices.md` | Common Failure Modes & Best Practices |
 
-Compiled deliverables (Track 1 only, via a new `helpers/compile_llm_training.py` built from the hardened `pdf_compiler` pattern already used for the other two topics — portable `BASE_DIR`, base64 image embedding, `check=True` + retry): `llm_training_foundations_master_study_guide.html` / `.pdf`.
+Compiled deliverables (Track 1 only, via a new `helpers/compile_llm_training.py` built from the hardened `pdf_compiler` pattern already used for the other two topics — portable `BASE_DIR`, base64 image embedding, `check=True` + retry): `llm_finetuning_and_alignment_master_study_guide.html` / `.pdf`.
 
 ---
 

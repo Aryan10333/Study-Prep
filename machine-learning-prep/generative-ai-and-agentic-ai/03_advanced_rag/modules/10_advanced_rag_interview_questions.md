@@ -688,7 +688,7 @@ Maintaining a custom fine-tuned embedding model means owning its serving infrast
 1.  **Q: How would you construct domain-specific (query, relevant-document) pairs without manual labeling?**
     *   **A**: Weak supervision approaches — mining historical click/engagement data, using an LLM to generate synthetic queries for real documents, or bootstrapping from a smaller manually-labeled seed set — each with a real quality-vs-cost trade-off against fully manual labeling.
 2.  **Q: Would you fine-tune the full embedding model or use a lighter-weight adaptation?**
-    *   **A**: For most domain-adaptation cases, a lighter-weight approach (adapter layers or LoRA-style fine-tuning on the embedding model, mirroring `02_llm_training_foundations`'s PEFT methods) is often sufficient and cheaper to maintain than a full fine-tune, unless the domain shift is unusually large.
+    *   **A**: For most domain-adaptation cases, a lighter-weight approach (adapter layers or LoRA-style fine-tuning on the embedding model, mirroring `02_llm_finetuning_and_alignment`'s PEFT methods) is often sufficient and cheaper to maintain than a full fine-tune, unless the domain shift is unusually large.
 
 #### One-Line Takeaway
 > **Takeaway:** Fine-tune an embedding model only once a real, measured domain gap exists — the contrastive fine-tuning itself is straightforward, but the ongoing cost of owning a custom model is the real trade-off to weigh.

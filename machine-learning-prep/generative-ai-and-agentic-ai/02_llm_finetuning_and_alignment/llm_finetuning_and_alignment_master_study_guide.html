@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>LLM Training Foundations: Fine-Tuning, Alignment & Infrastructure</title>
+    <title>LLM Fine-tuning & Alignment: SFT, PEFT, RLHF & Training Infrastructure</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
@@ -381,7 +381,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         MACHINE LEARNING INTERVIEW PREPARATION
     </div>
     <h1 style="font-size: 34px; color: #0f172a; margin-bottom: 12px; line-height: 1.25; border: none; padding: 0;">
-        LLM Training Foundations: Fine-Tuning, Alignment & Infrastructure
+        LLM Fine-tuning & Alignment: SFT, PEFT, RLHF & Training Infrastructure
     </h1>
     <h2 style="font-size: 20px; color: #3b82f6; font-weight: 500; margin-bottom: 40px; border: none;">
         Distributed Training, SFT, PEFT, RLHF, DPO/GRPO &amp; Production Alignment
@@ -398,7 +398,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-01-fine-tuning-fundamentals-distributed-training-infrastructure">Module 01: Fine-Tuning Fundamentals &amp; Distributed Training Infrastructure</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -677,7 +677,7 @@ Each GPU processes 4 sequences at a time — small enough to fit in memory — b
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-02-supervised-fine-tuning-sft-instruction-tuning">Module 02: Supervised Fine-Tuning (SFT) &amp; Instruction Tuning</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -871,7 +871,7 @@ $$\mathcal{L}_{\text{SFT}} = -\frac{1}{\sum_i m_i} \sum_{i=1}^{L} m_i \cdot \log
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-03-parameter-efficient-fine-tuning-lora-qlora-adapters">Module 03: Parameter-Efficient Fine-Tuning (LoRA, QLoRA, Adapters)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -1060,7 +1060,7 @@ $$\mathcal{L}_{\text{SFT}} = -\frac{1}{\sum_i m_i} \sum_{i=1}^{L} m_i \cdot \log
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-04-reward-modeling-reinforcement-learning-from-human-feedback-rlhf">Module 04: Reward Modeling &amp; Reinforcement Learning from Human Feedback (RLHF)</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -1293,7 +1293,7 @@ $$\mathcal{L}_{\text{RM}} = -\log \sigma\big(r_\theta(x, y_w) - r_\theta(x, y_l)
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-05-direct-preference-optimization-dpo-grpo-modern-alignment-methods">Module 05: Direct Preference Optimization (DPO), GRPO &amp; Modern Alignment Methods</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -1518,7 +1518,7 @@ $$A_i = \frac{r_i - \text{mean}(r_1, \dots, r_G)}{\text{std}(r_1, \dots, r_G)}$$
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-06-model-merging-adapter-composition">Module 06: Model Merging &amp; Adapter Composition</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -1701,7 +1701,7 @@ $$A_i = \frac{r_i - \text{mean}(r_1, \dots, r_G)}{\text{std}(r_1, \dots, r_G)}$$
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-07-training-production-considerations-monitoring">Module 07: Training Production Considerations &amp; Monitoring</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>
@@ -1891,7 +1891,7 @@ $$\eta(t) = \begin{cases} \eta_{\max} \cdot \dfrac{t}{T_{\text{warmup}}} & t &lt
 
     <div class="module-container">
         <div style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 12px 0; margin-bottom: 24px;">
-            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Training Foundations Curriculum Guide</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 600;">LLM Fine-tuning & Alignment Curriculum Guide</span>
         </div>
         <h1 id="module-08-common-failure-modes-best-practices">Module 08: Common Failure Modes &amp; Best Practices</h1>
 <h2 id="1-introduction-intuition">1. Introduction &amp; Intuition</h2>

@@ -1,4 +1,4 @@
-# Implementation Plan: Track 3 — Interview Q&A (`02_llm_training_foundations`)
+# Implementation Plan: Track 3 — Interview Q&A (`02_llm_finetuning_and_alignment`)
 
 Scope: this plan covers only the standalone Interview Q&A cheatsheet, per `interview_qa_generator/SKILL.md`. Track 1 (8 study-guide modules) and Track 2 (6 companion notebooks) are both complete; this track does not modify either.
 
@@ -9,8 +9,8 @@ Scope: this plan covers only the standalone Interview Q&A cheatsheet, per `inter
 | Artifact | Path |
 |---|---|
 | Source Q&A markdown | `modules/09_llm_training_interview_questions.md` |
-| Compiled standalone cheatsheet HTML | `llm_training_foundations_interview_cheatsheet.html` |
-| Compiled standalone cheatsheet PDF | `llm_training_foundations_interview_cheatsheet.pdf` |
+| Compiled standalone cheatsheet HTML | `llm_finetuning_and_alignment_interview_cheatsheet.html` |
+| Compiled standalone cheatsheet PDF | `llm_finetuning_and_alignment_interview_cheatsheet.pdf` |
 | Compiler | `helpers/compile_llm_training.py` (add a second `compile_document()` call in `main()`, mirroring `01_llm_foundations/helpers/compile_llm.py`'s pattern — a separate standalone cheatsheet, not appended into the master study guide) |
 
 ## 2. Reference Sources
@@ -94,6 +94,6 @@ Revised per user's Final Recommendations: added 3 calculation-style questions (7
 
 User sign-off received with 6 specific edits (3 additions, 1 reword, 1 replacement, 1 strengthening), all incorporated above. All 51 questions written to `modules/09_llm_training_interview_questions.md` in 4 batches, grounded directly in this topic's own 8 study-guide modules' formulas and hand-calcs. Mandatory structural compliance check (`interview_qa_generator/SKILL.md` Section 5) passed: 51/51 question blocks with all 10 required sub-headings each, no derivation chains found, Final Revision Sheet present with all 3 required subsections.
 
-`helpers/compile_llm_training.py` updated with a second `compile_document()` call producing the standalone `llm_training_foundations_interview_cheatsheet.html`/`.pdf` (99 pages). Compilation initially failed all 3 retry attempts at the standard `--virtual-time-budget=8000` (msedge exiting 0 with zero bytes written every time, not the usual transient race) — root-caused to this cheatsheet's much higher KaTeX formula density (dozens of formulas across 51 questions) needing more render time than 8000ms before print-to-pdf fires; fixed by raising the budget to 30000ms, documented as a new finding in `pdf_compiler/SKILL.md`. Verified: 0 `file:///` leaks, 0 unresolved `MATHPLACEHOLDER` leaks, valid non-empty PDF.
+`helpers/compile_llm_training.py` updated with a second `compile_document()` call producing the standalone `llm_finetuning_and_alignment_interview_cheatsheet.html`/`.pdf` (99 pages). Compilation initially failed all 3 retry attempts at the standard `--virtual-time-budget=8000` (msedge exiting 0 with zero bytes written every time, not the usual transient race) — root-caused to this cheatsheet's much higher KaTeX formula density (dozens of formulas across 51 questions) needing more render time than 8000ms before print-to-pdf fires; fixed by raising the budget to 30000ms, documented as a new finding in `pdf_compiler/SKILL.md`. Verified: 0 `file:///` leaks, 0 unresolved `MATHPLACEHOLDER` leaks, valid non-empty PDF.
 
 Awaiting the user's second, final review per `AGENTS.md`'s Track 3 checkpoint before considering this track complete.

@@ -1,4 +1,4 @@
-# 02_llm_training_foundations: Fine-Tuning, Alignment & Training Infrastructure Syllabus
+# 02_llm_finetuning_and_alignment: Fine-Tuning, Alignment & Training Infrastructure Syllabus
 
 ## 1. Context & Alignment
 * **Profile Focus:** AI Engineer / Applied AI SDE-2/SDE-3 (Aryan Chandra). Emphasizes production engineering, memory footprints of optimizer/RL pipelines, and hardware-aware training trade-offs over purely academic RL theory or proofs.

@@ -12,7 +12,7 @@ A vague or oddly-phrased question to a librarian gets a vague or oddly-matched a
 
 ## 2. Core Concepts & Mathematical Formulation
 
-This module is architectural/procedural throughout — none of these techniques reduce to a single core formula worth a dedicated hand calculation (consistent with how `02_llm_training_foundations` treated its own technique-survey modules). Each is presented with what it does, when it helps, and — just as importantly — **when it's not worth the added latency/cost**.
+This module is architectural/procedural throughout — none of these techniques reduce to a single core formula worth a dedicated hand calculation (consistent with how `02_llm_finetuning_and_alignment` treated its own technique-survey modules). Each is presented with what it does, when it helps, and — just as importantly — **when it's not worth the added latency/cost**.
 
 <div align="center" style="margin: 20px 0; max-width: 100%; overflow-x: auto;">
 <svg viewBox="0 0 780 260" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-family: system-ui, -apple-system, sans-serif;">
